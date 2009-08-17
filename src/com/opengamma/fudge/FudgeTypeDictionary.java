@@ -47,7 +47,8 @@ public final class FudgeTypeDictionary {
   // STANDARD FUDGE FIELD TYPES
   // --------------------------
   
-  public static final FudgeFieldType BOOLEAN_TYPE = new FudgeFieldType((byte) 1, Boolean.TYPE, false, 1);
+  public static final byte BOOLEAN_TYPE_ID = (byte)1;
+  public static final FudgeFieldType BOOLEAN_TYPE = new FudgeFieldType(BOOLEAN_TYPE_ID, Boolean.TYPE, false, 1);
   
   static {
     INSTANCE.addType(BOOLEAN_TYPE, Boolean.class);

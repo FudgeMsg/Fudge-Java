@@ -5,6 +5,9 @@
  */
 package com.opengamma.fudge;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,6 +22,7 @@ import org.apache.commons.lang.ObjectUtils;
  */
 public class FudgeMsg implements Serializable {
   private final List<FudgeMsgField> _fields = new ArrayList<FudgeMsgField>();
+  private volatile int _size = -1;
   
   public FudgeMsg() {
   }
@@ -62,6 +66,9 @@ public class FudgeMsg implements Serializable {
   }
   
   public void add(FudgeFieldType type, Object value, String name, Short ordinal) {
+    if(_fields.size() >= Short.MAX_VALUE) {
+      throw new IllegalStateException("Can only add " + Short.MAX_VALUE + " to a single message.");
+    }
     FudgeMsgField field = new FudgeMsgField(type, value, name, ordinal);
     _fields.add(field);
   }
@@ -72,6 +79,12 @@ public class FudgeMsg implements Serializable {
     }
     FudgeFieldType type = FudgeTypeDictionary.INSTANCE.getByJavaType(value.getClass());
     return type;
+  }
+  
+  public short getNumFields() {
+    int size = _fields.size();
+    assert size <= Short.MAX_VALUE;
+    return (short)size;
   }
   
   /**
@@ -109,6 +122,7 @@ public class FudgeMsg implements Serializable {
     return fields;
   }
   
+  
   public FudgeField getByOrdinal(short ordinal) {
     for(FudgeMsgField field : _fields) {
       if((field.getOrdinal() != null) && (ordinal == field.getOrdinal())) {
@@ -138,7 +152,34 @@ public class FudgeMsg implements Serializable {
   }
   
   public byte[] toByteArray() {
-    throw new UnsupportedOperationException("To be implemented.");
+    ByteArrayOutputStream baos = new ByteArrayOutputStream(getSize());
+    DataOutputStream dos = new DataOutputStream(baos);
+    try {
+      FudgeStreamEncoder.writeMsg(dos, this);
+    } catch (IOException e) {
+      throw new RuntimeException("Had an IOException writing to a ByteArrayOutputStream.", e);
+    }
+    return baos.toByteArray();
+  }
+  
+  public int getSize() {
+    if(_size == -1) {
+      _size = computeSize();
+    }
+    return _size;
+  }
+
+  /**
+   * @return
+   */
+  protected int computeSize() {
+    int size = 0;
+    // Message prefix
+    size += 8;
+    for(FudgeMsgField field : _fields) {
+      size += field.getSize();
+    }
+    return size;
   }
 
 }

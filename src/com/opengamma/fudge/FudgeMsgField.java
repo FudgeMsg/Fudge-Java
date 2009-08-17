@@ -18,6 +18,7 @@ public class FudgeMsgField implements FudgeField, Serializable, Cloneable {
   private final Object _value;
   private final String _name;
   private final Short _ordinal;
+  private volatile int _size = -1;
   
   public FudgeMsgField(FudgeFieldType type, Object value, String name, Short ordinal) {
     if(type == null) {
@@ -84,6 +85,35 @@ public class FudgeMsgField implements FudgeField, Serializable, Cloneable {
     sb.append("-").append(_value);
     sb.append("]");
     return sb.toString();
+  }
+  
+  public int getSize() {
+    if(_size == -1) {
+      _size = computeSize();
+    }
+    return _size;
+  }
+  
+  protected int computeSize() {
+    int size = 0;
+    // Field prefix
+    size += 2;
+    if(_ordinal != null) {
+      size += 2;
+    }
+    if(_name != null) {
+      // One for the size prefix
+      size++;
+      // Then for the UTF Encoding
+      size += FudgeStreamEncoder.modifiedUTF8Length(_name);
+    }
+    if(_type.isVariableSize()) {
+      // TODO kirk 2009-08-17 -- Get the size for variable width values.
+      throw new UnsupportedOperationException("Cannot yet handle variable width types.");
+    } else {
+      size += _type.getFixedSize();
+    }
+    return size;
   }
 
 }

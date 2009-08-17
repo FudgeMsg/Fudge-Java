@@ -8,6 +8,7 @@ package com.opengamma.fudge;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
@@ -92,6 +93,14 @@ public class FudgeMsgTest {
     assertEquals(Boolean.FALSE, field.getValue());
     assertEquals("boolean", field.getName());
     assertNull(field.getOrdinal());
+  }
+  
+  @Test
+  public void toByteArray() {
+    FudgeMsg msg = createMessageAllNames();
+    byte[] bytes = msg.toByteArray();
+    assertNotNull(bytes);
+    assertTrue(bytes.length > 10);
   }
 
 }
