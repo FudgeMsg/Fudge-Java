@@ -1,0 +1,4 @@
+*~                    # Editor auto-generated files
+*.class               # Any .class file wherever it appears
+classes/              # Anything under the classes directory
+tests/classes/        # Anything under the tests/classes dir
