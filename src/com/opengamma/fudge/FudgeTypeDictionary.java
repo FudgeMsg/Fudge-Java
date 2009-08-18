@@ -51,11 +51,23 @@ public final class FudgeTypeDictionary {
   // STANDARD FUDGE FIELD TYPES
   // --------------------------
   
-  public static final byte BOOLEAN_TYPE_ID = (byte)1;
+  public static final byte BOOLEAN_TYPE_ID = (byte)0;
   public static final FudgeFieldType BOOLEAN_TYPE = new FudgeFieldType(BOOLEAN_TYPE_ID, Boolean.TYPE, false, 1);
+  public static final byte BYTE_TYPE_ID = (byte)1;
+  public static final FudgeFieldType BYTE_TYPE = new FudgeFieldType(BYTE_TYPE_ID, Byte.TYPE, false, 1);
+  public static final byte SHORT_TYPE_ID = (byte)2;
+  public static final FudgeFieldType SHORT_TYPE = new FudgeFieldType(SHORT_TYPE_ID, Short.TYPE, false, 2);
+  public static final byte INT_TYPE_ID = (byte)3;
+  public static final FudgeFieldType INT_TYPE = new FudgeFieldType(INT_TYPE_ID, Integer.TYPE, false, 4);
+  public static final byte LONG_TYPE_ID = (byte)4;
+  public static final FudgeFieldType LONG_TYPE = new FudgeFieldType(LONG_TYPE_ID, Long.TYPE, false, 8);
   
   static {
     INSTANCE.addType(BOOLEAN_TYPE, Boolean.class);
+    INSTANCE.addType(BYTE_TYPE, Byte.class);
+    INSTANCE.addType(SHORT_TYPE, Short.class);
+    INSTANCE.addType(INT_TYPE, Integer.class);
+    INSTANCE.addType(LONG_TYPE, Long.class);
   }
 
 }

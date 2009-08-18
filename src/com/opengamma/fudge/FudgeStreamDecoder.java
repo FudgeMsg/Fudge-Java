@@ -124,6 +124,14 @@ public class FudgeStreamDecoder {
     switch(type.getTypeId()) {
     case FudgeTypeDictionary.BOOLEAN_TYPE_ID:
       return is.readBoolean();
+    case FudgeTypeDictionary.BYTE_TYPE_ID:
+      return is.readByte();
+    case FudgeTypeDictionary.SHORT_TYPE_ID:
+      return is.readShort();
+    case FudgeTypeDictionary.INT_TYPE_ID:
+      return is.readInt();
+    case FudgeTypeDictionary.LONG_TYPE_ID:
+      return is.readLong();
     }
     
     throw new UnsupportedOperationException("Unhandled type " + type);

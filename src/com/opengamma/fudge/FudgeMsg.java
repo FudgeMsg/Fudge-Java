@@ -79,6 +79,29 @@ public class FudgeMsg implements Serializable {
     if(_fields.size() >= Short.MAX_VALUE) {
       throw new IllegalStateException("Can only add " + Short.MAX_VALUE + " to a single message.");
     }
+    if(type == null) {
+      throw new NullPointerException("Cannot add a field without a type specified.");
+    }
+    
+    // Adjust integral values to the lowest possible representation.
+    switch(type.getTypeId()) {
+    case FudgeTypeDictionary.SHORT_TYPE_ID:
+    case FudgeTypeDictionary.INT_TYPE_ID:
+    case FudgeTypeDictionary.LONG_TYPE_ID:
+      long valueAsLong = ((Number)value).longValue();
+      if((valueAsLong >= Byte.MIN_VALUE) && (valueAsLong <= Byte.MAX_VALUE)) {
+        value = new Byte((byte)valueAsLong);
+        type = FudgeTypeDictionary.BYTE_TYPE;
+      } else if((valueAsLong >= Short.MIN_VALUE) && (valueAsLong <= Short.MAX_VALUE)) {
+        value = new Short((short)valueAsLong);
+        type = FudgeTypeDictionary.SHORT_TYPE;
+      } else if((valueAsLong >= Integer.MIN_VALUE) && (valueAsLong <= Integer.MAX_VALUE)) {
+        value = new Integer((int)valueAsLong);
+        type = FudgeTypeDictionary.INT_TYPE;
+      }
+      break;
+    }
+    
     FudgeMsgField field = new FudgeMsgField(type, value, name, ordinal);
     _fields.add(field);
   }

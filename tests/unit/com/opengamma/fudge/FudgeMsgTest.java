@@ -26,6 +26,17 @@ public class FudgeMsgTest {
     
     msg.add(Boolean.TRUE, "boolean");
     msg.add(new Boolean(false), "Boolean");
+    msg.add((byte)5, "byte");
+    msg.add(new Byte((byte)5), "Byte");
+    short shortValue = ((short)Byte.MAX_VALUE) + 5;
+    msg.add(shortValue, "short");
+    msg.add(new Short(shortValue), "Short");
+    int intValue = ((int)Short.MAX_VALUE) + 5;
+    msg.add(intValue, "int");
+    msg.add(new Integer(intValue), "Integer");
+    long longValue = ((long)Integer.MAX_VALUE) + 5;
+    msg.add(longValue, "long");
+    msg.add(new Long(longValue), "Long");
     
     return msg;
   }

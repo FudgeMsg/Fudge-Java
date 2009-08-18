@@ -95,6 +95,22 @@ public class FudgeStreamEncoder {
       os.writeBoolean((Boolean)value);
       nWritten = 1;
       break;
+    case FudgeTypeDictionary.BYTE_TYPE_ID:
+      os.writeByte((Byte)value);
+      nWritten = 1;
+      break;
+    case FudgeTypeDictionary.SHORT_TYPE_ID:
+      os.writeShort((Short)value);
+      nWritten = 2;
+      break;
+    case FudgeTypeDictionary.INT_TYPE_ID:
+      os.writeInt((Integer)value);
+      nWritten = 4;
+      break;
+    case FudgeTypeDictionary.LONG_TYPE_ID:
+      os.writeLong((Long)value);
+      nWritten = 8;
+      break;
     }
     if(nWritten == 0) {
       throw new UnsupportedOperationException("Cannot handle field value of type " + type);
