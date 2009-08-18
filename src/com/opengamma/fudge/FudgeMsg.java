@@ -5,7 +5,9 @@
  */
 package com.opengamma.fudge;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
@@ -39,7 +41,15 @@ public class FudgeMsg implements Serializable {
   }
   
   protected void initializeFromByteArray(byte[] byteArray) {
-    throw new UnsupportedOperationException("To be implemented.");
+    ByteArrayInputStream bais = new ByteArrayInputStream(byteArray);
+    DataInputStream is = new DataInputStream(bais);
+    FudgeMsg other;
+    try {
+      other = FudgeStreamDecoder.readMsg(is);
+    } catch (IOException e) {
+      throw new RuntimeException("IOException thrown using ByteArrayInputStream", e);
+    }
+    _fields.addAll(other._fields);
   }
   
   public void add(FudgeField field) {

@@ -43,6 +43,10 @@ public final class FudgeTypeDictionary {
     return _typesByJavaType.get(javaType);
   }
   
+  public FudgeFieldType getByTypeId(byte typeId) {
+    return _typesById.get(typeId);
+  }
+  
   // --------------------------
   // STANDARD FUDGE FIELD TYPES
   // --------------------------

@@ -16,10 +16,10 @@ import java.io.UTFDataFormatException;
  */
 public class FudgeStreamEncoder {
   // Yes, this is a byte.
-  private static final int MESSAGE_START_MAGIC_BYTE = 0x65;
-  private static final int FIELD_PREFIX_FIXED_WIDTH_MASK = 0x80; 
-  private static final int FIELD_PREFIX_ORDINAL_PROVIDED_MASK = 0x10; 
-  private static final int FIELD_PREFIX_NAME_PROVIDED_MASK = 0x08;
+  /*package*/ static final int MESSAGE_START_MAGIC_BYTE = 0x65;
+  /*package*/ static final int FIELD_PREFIX_FIXED_WIDTH_MASK = 0x80; 
+  /*package*/ static final int FIELD_PREFIX_ORDINAL_PROVIDED_MASK = 0x10; 
+  /*package*/ static final int FIELD_PREFIX_NAME_PROVIDED_MASK = 0x08;
   
   public static void writeMsg(DataOutput os, FudgeMsg msg) throws IOException {
     checkOutputStream(os);
@@ -127,12 +127,6 @@ public class FudgeStreamEncoder {
     return fieldPrefix;
   }
   
-  protected static void checkOutputStream(DataOutput os) {
-    if(os == null) {
-      throw new NullPointerException("Must specify an OutputStream for processing.");
-    }
-  }
-
   protected static int modifiedUTF8Length(String str) {
     // REVIEW wyliekir 2009-08-17 -- This was taken almost verbatim from
     // DataOutputStream.
@@ -204,5 +198,11 @@ public class FudgeStreamEncoder {
     assert count == utflen;
     os.write(bytearr);
     return utflen;
+  }
+
+  protected static void checkOutputStream(DataOutput os) {
+    if(os == null) {
+      throw new NullPointerException("Must specify a DataOutput for processing.");
+    }
   }
 }
