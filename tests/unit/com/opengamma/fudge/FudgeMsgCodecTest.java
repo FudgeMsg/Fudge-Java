@@ -27,16 +27,21 @@ public class FudgeMsgCodecTest {
   @Test
   public void allNames() throws IOException {
     FudgeMsg inputMsg = FudgeMsgTest.createMessageAllNames();
+    FudgeMsg outputMsg = cycleMessage(inputMsg);
     
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    DataOutputStream dos = new DataOutputStream(baos);
-    FudgeStreamEncoder.writeMsg(dos, inputMsg);
+    assertNotNull(outputMsg);
     
-    byte[] content = baos.toByteArray();
-    
-    ByteArrayInputStream bais = new ByteArrayInputStream(content);
-    DataInputStream dis = new DataInputStream(bais);
-    FudgeMsg outputMsg = FudgeStreamDecoder.readMsg(dis);
+    assertAllFieldsMatch(inputMsg, outputMsg);
+  }
+  
+  @Test
+  public void variableWidthColumnSizes() throws IOException {
+    FudgeMsg inputMsg = new FudgeMsg();
+    inputMsg.add(new byte[100], "100");
+    inputMsg.add(new byte[1000], "1000");
+    inputMsg.add(new byte[100000], "10000");
+
+    FudgeMsg outputMsg = cycleMessage(inputMsg);
     
     assertNotNull(outputMsg);
     
@@ -58,9 +63,27 @@ public class FudgeMsgCodecTest {
       assertEquals(expectedField.getName(), actualField.getName());
       assertEquals(expectedField.getType(), actualField.getType());
       assertEquals(expectedField.getOrdinal(), actualField.getOrdinal());
-      assertEquals(expectedField.getValue(), actualField.getValue());
+      if(expectedField.getValue().getClass().isArray()) {
+        assertEquals(expectedField.getValue().getClass(), actualField.getValue().getClass());
+        // TODO wyliekir 2009-08-19 -- Check something better.
+      } else {
+        assertEquals(expectedField.getValue(), actualField.getValue());
+      }
     }
     assertFalse(actualIter.hasNext());
+  }
+  
+  protected static FudgeMsg cycleMessage(FudgeMsg msg) throws IOException {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    DataOutputStream dos = new DataOutputStream(baos);
+    FudgeStreamEncoder.writeMsg(dos, msg);
+    
+    byte[] content = baos.toByteArray();
+    
+    ByteArrayInputStream bais = new ByteArrayInputStream(content);
+    DataInputStream dis = new DataInputStream(bais);
+    FudgeMsg outputMsg = FudgeStreamDecoder.readMsg(dis);
+    return outputMsg;
   }
 
 }

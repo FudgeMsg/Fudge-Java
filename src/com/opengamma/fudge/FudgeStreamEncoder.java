@@ -48,7 +48,8 @@ public class FudgeStreamEncoder {
     return nWritten;
   }
   
-  public static int writeField(DataOutput os, FudgeFieldType<?> type, Object value, Short ordinal, String name) throws IOException {
+  @SuppressWarnings("unchecked")
+  public static int writeField(DataOutput os, FudgeFieldType type, Object value, Short ordinal, String name) throws IOException {
     checkOutputStream(os);
     if(type == null) {
       throw new NullPointerException("Must provide the type of data encoded.");
@@ -57,7 +58,8 @@ public class FudgeStreamEncoder {
       throw new NullPointerException("Must provide the value to encode.");
     }
     int nWritten = 0;
-    int fieldPrefix = composeFieldPrefix(!type.isVariableSize(), 0, (ordinal != null), (name != null));
+    int valueSize = type.isVariableSize() ? type.getVariableSize(value) : type.getFixedSize();
+    int fieldPrefix = composeFieldPrefix(!type.isVariableSize(), valueSize, (ordinal != null), (name != null));
     os.writeByte(fieldPrefix);
     nWritten++;
     os.writeByte(type.getTypeId());
@@ -75,7 +77,7 @@ public class FudgeStreamEncoder {
       nWritten++;
       nWritten += ModifiedUTF8Util.writeModifiedUTF8(name, os);
     }
-    nWritten += writeFieldValue(os, type, value);
+    nWritten += writeFieldValue(os, type, value, valueSize);
     return nWritten;
   }
   
@@ -85,7 +87,7 @@ public class FudgeStreamEncoder {
    * @param value
    */
   @SuppressWarnings("unchecked")
-  protected static int writeFieldValue(DataOutput os, FudgeFieldType type, Object value) throws IOException {
+  protected static int writeFieldValue(DataOutput os, FudgeFieldType type, Object value, int valueSize) throws IOException {
     // Note that we fast-path types for which at compile time we know how to handle
     // in an optimized way. This is because this particular method is known to
     // be a massive hot-spot for performance.
@@ -111,18 +113,27 @@ public class FudgeStreamEncoder {
       os.writeLong((Long)value);
       nWritten = 8;
       break;
+    case FudgeTypeDictionary.FLOAT_TYPE_ID:
+      os.writeFloat((Float)value);
+      nWritten = 4;
+      break;
+    case FudgeTypeDictionary.DOUBLE_TYPE_ID:
+      os.writeDouble((Double)value);
+      nWritten = 8;
+      break;
     }
     if(nWritten == 0) {
-      int size = type.isVariableSize() ? type.getVariableSize(value) : type.getFixedSize();
-      if(size <= 255) {
-        os.writeByte(size);
-        nWritten = size + 1;
-      } else if(size <= Short.MAX_VALUE) {
-        os.writeShort(size);
-        nWritten = size + 2;
+      // This is correct. We read this using a .readUnsignedByte(), so we can go to
+      // 255 here.
+      if(valueSize <= 255) {
+        os.writeByte(valueSize);
+        nWritten = valueSize + 1;
+      } else if(valueSize <= Short.MAX_VALUE) {
+        os.writeShort(valueSize);
+        nWritten = valueSize + 2;
       } else {
-        os.writeInt(size);
-        nWritten = size + 4;
+        os.writeInt(valueSize);
+        nWritten = valueSize + 4;
       }
       type.writeValue(os, value);
     }
@@ -131,15 +142,18 @@ public class FudgeStreamEncoder {
 
   protected static int composeFieldPrefix(boolean fixedWidth, int varDataSize, boolean hasOrdinal, boolean hasName) {
     int varDataBits = 0;
-    if(varDataSize > 0) {
-      if(varDataSize <= Byte.MAX_VALUE) {
+    if(!fixedWidth) {
+      // This is correct. This is an unsigned value for reading. See note in
+      // writeFieldValue.
+      if(varDataSize <= 255) {
         varDataSize = 1;
       } else if(varDataSize <= Short.MAX_VALUE) {
         varDataSize = 2;
       } else {
-        varDataSize = 4;
+        // Yes, this is right. Remember, we only have 2 bits here.
+        varDataSize = 3;
       }
-      varDataBits = varDataSize << 4;
+      varDataBits = varDataSize << 5;
     }
     int fieldPrefix = varDataBits;
     if(fixedWidth) {

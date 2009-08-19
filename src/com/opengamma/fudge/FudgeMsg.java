@@ -17,6 +17,8 @@ import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.fudge.types.PrimitiveFieldTypes;
+
 /**
  * A container for {@link FudgeMsgField}s.
  *
@@ -91,13 +93,13 @@ public class FudgeMsg implements Serializable {
       long valueAsLong = ((Number)value).longValue();
       if((valueAsLong >= Byte.MIN_VALUE) && (valueAsLong <= Byte.MAX_VALUE)) {
         value = new Byte((byte)valueAsLong);
-        type = FudgeTypeDictionary.BYTE_TYPE;
+        type = PrimitiveFieldTypes.BYTE_TYPE;
       } else if((valueAsLong >= Short.MIN_VALUE) && (valueAsLong <= Short.MAX_VALUE)) {
         value = new Short((short)valueAsLong);
-        type = FudgeTypeDictionary.SHORT_TYPE;
+        type = PrimitiveFieldTypes.SHORT_TYPE;
       } else if((valueAsLong >= Integer.MIN_VALUE) && (valueAsLong <= Integer.MAX_VALUE)) {
         value = new Integer((int)valueAsLong);
-        type = FudgeTypeDictionary.INT_TYPE;
+        type = PrimitiveFieldTypes.INT_TYPE;
       }
       break;
     }

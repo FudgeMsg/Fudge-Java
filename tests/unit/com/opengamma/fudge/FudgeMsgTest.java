@@ -14,6 +14,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.opengamma.fudge.types.PrimitiveFieldTypes;
+
 /**
  * 
  *
@@ -38,7 +40,15 @@ public class FudgeMsgTest {
     msg.add(longValue, "long");
     msg.add(new Long(longValue), "Long");
     
+    msg.add(0.5f, "float");
+    msg.add(new Float(0.5f), "Float");
+    msg.add(0.27362, "double");
+    msg.add(new Double(0.27362), "Double");
+    
     msg.add("Kirk Wylie", "String");
+    
+    msg.add(new float[24], "float array");
+    msg.add(new double[273], "double array");
     
     return msg;
   }
@@ -51,14 +61,14 @@ public class FudgeMsgTest {
     
     field = msg.getByName("boolean");
     assertNotNull(field);
-    assertEquals(FudgeTypeDictionary.BOOLEAN_TYPE, field.getType());
+    assertEquals(PrimitiveFieldTypes.BOOLEAN_TYPE, field.getType());
     assertEquals(Boolean.TRUE, field.getValue());
     assertEquals("boolean", field.getName());
     assertNull(field.getOrdinal());
     
     field = msg.getByName("Boolean");
     assertNotNull(field);
-    assertEquals(FudgeTypeDictionary.BOOLEAN_TYPE, field.getType());
+    assertEquals(PrimitiveFieldTypes.BOOLEAN_TYPE, field.getType());
     assertEquals(new Boolean(false), field.getValue());
     assertEquals("Boolean", field.getName());
     assertNull(field.getOrdinal());
@@ -68,7 +78,7 @@ public class FudgeMsgTest {
     assertEquals(1, fields.size());
     field = fields.get(0);
     assertNotNull(field);
-    assertEquals(FudgeTypeDictionary.BOOLEAN_TYPE, field.getType());
+    assertEquals(PrimitiveFieldTypes.BOOLEAN_TYPE, field.getType());
     assertEquals(Boolean.TRUE, field.getValue());
     assertEquals("boolean", field.getName());
     assertNull(field.getOrdinal());
@@ -85,7 +95,7 @@ public class FudgeMsgTest {
 
     field = msg.getByName("boolean");
     assertNotNull(field);
-    assertEquals(FudgeTypeDictionary.BOOLEAN_TYPE, field.getType());
+    assertEquals(PrimitiveFieldTypes.BOOLEAN_TYPE, field.getType());
     assertEquals(Boolean.TRUE, field.getValue());
     assertEquals("boolean", field.getName());
     assertNull(field.getOrdinal());
@@ -95,14 +105,14 @@ public class FudgeMsgTest {
     assertEquals(2, fields.size());
     field = fields.get(0);
     assertNotNull(field);
-    assertEquals(FudgeTypeDictionary.BOOLEAN_TYPE, field.getType());
+    assertEquals(PrimitiveFieldTypes.BOOLEAN_TYPE, field.getType());
     assertEquals(Boolean.TRUE, field.getValue());
     assertEquals("boolean", field.getName());
     assertNull(field.getOrdinal());
     
     field = fields.get(1);
     assertNotNull(field);
-    assertEquals(FudgeTypeDictionary.BOOLEAN_TYPE, field.getType());
+    assertEquals(PrimitiveFieldTypes.BOOLEAN_TYPE, field.getType());
     assertEquals(Boolean.FALSE, field.getValue());
     assertEquals("boolean", field.getName());
     assertNull(field.getOrdinal());

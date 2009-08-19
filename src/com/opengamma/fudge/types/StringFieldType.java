@@ -19,6 +19,7 @@ import com.opengamma.fudge.ModifiedUTF8Util;
  * @author kirk
  */
 public class StringFieldType extends FudgeFieldType<String> {
+  public static final StringFieldType INSTANCE = new StringFieldType();
   
   public StringFieldType() {
     super(FudgeTypeDictionary.STRING_TYPE_ID, String.class, true, 0);

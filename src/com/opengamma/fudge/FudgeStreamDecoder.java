@@ -60,7 +60,7 @@ public class FudgeStreamDecoder {
     boolean hasName = (fieldPrefix & FudgeStreamEncoder.FIELD_PREFIX_NAME_PROVIDED_MASK) != 0;
     int varSizeBytes = 0;
     if(!fixedWidth) {
-      varSizeBytes = (fieldPrefix << 1) >> 4;
+      varSizeBytes = (fieldPrefix << 1) >> 6;
     }
     
     byte typeId = is.readByte();
@@ -91,7 +91,8 @@ public class FudgeStreamDecoder {
       case 0: varSize = 0; break;
       case 1: varSize = is.readUnsignedByte(); nRead+=1; break;
       case 2: varSize = is.readShort(); nRead += 2; break;
-      case 4: varSize = is.readInt();  nRead += 4; break;
+      // Yes, this is right. We only have 2 bits here.
+      case 3: varSize = is.readInt();  nRead += 4; break;
       default:
         throw new RuntimeException("Illegal number of bytes indicated for variable width encoding: " + varSizeBytes);
       }
@@ -131,6 +132,10 @@ public class FudgeStreamDecoder {
       return is.readInt();
     case FudgeTypeDictionary.LONG_TYPE_ID:
       return is.readLong();
+    case FudgeTypeDictionary.FLOAT_TYPE_ID:
+      return is.readFloat();
+    case FudgeTypeDictionary.DOUBLE_TYPE_ID:
+      return is.readDouble();
     }
     
     return type.readValue(is, varSize);

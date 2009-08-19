@@ -10,6 +10,8 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
+import com.opengamma.fudge.types.PrimitiveFieldTypes;
+
 /**
  * 
  *
@@ -23,11 +25,11 @@ public class FudgeTypeDictionaryTest {
     
     type = FudgeTypeDictionary.INSTANCE.getByJavaType(Boolean.TYPE);
     assertNotNull(type);
-    assertEquals(FudgeTypeDictionary.BOOLEAN_TYPE.getTypeId(), type.getTypeId());
+    assertEquals(PrimitiveFieldTypes.BOOLEAN_TYPE.getTypeId(), type.getTypeId());
 
     type = FudgeTypeDictionary.INSTANCE.getByJavaType(Boolean.class);
     assertNotNull(type);
-    assertEquals(FudgeTypeDictionary.BOOLEAN_TYPE.getTypeId(), type.getTypeId());
+    assertEquals(PrimitiveFieldTypes.BOOLEAN_TYPE.getTypeId(), type.getTypeId());
   }
   
 }

@@ -9,6 +9,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.opengamma.fudge.types.ByteArrayFieldType;
+import com.opengamma.fudge.types.DoubleArrayFieldType;
+import com.opengamma.fudge.types.FloatArrayFieldType;
+import com.opengamma.fudge.types.PrimitiveFieldTypes;
 import com.opengamma.fudge.types.StringFieldType;
 
 /**
@@ -55,25 +59,29 @@ public final class FudgeTypeDictionary {
   
   public static final byte BOOLEAN_TYPE_ID = (byte)0;
 
-  public static final FudgeFieldType<Boolean> BOOLEAN_TYPE = new FudgeFieldType<Boolean>(BOOLEAN_TYPE_ID, Boolean.TYPE, false, 1);
   public static final byte BYTE_TYPE_ID = (byte)1;
-  public static final FudgeFieldType<Byte> BYTE_TYPE = new FudgeFieldType<Byte>(BYTE_TYPE_ID, Byte.TYPE, false, 1);
   public static final byte SHORT_TYPE_ID = (byte)2;
-  public static final FudgeFieldType<Short> SHORT_TYPE = new FudgeFieldType<Short>(SHORT_TYPE_ID, Short.TYPE, false, 2);
   public static final byte INT_TYPE_ID = (byte)3;
-  public static final FudgeFieldType<Integer> INT_TYPE = new FudgeFieldType<Integer>(INT_TYPE_ID, Integer.TYPE, false, 4);
   public static final byte LONG_TYPE_ID = (byte)4;
-  public static final FudgeFieldType<Long> LONG_TYPE = new FudgeFieldType<Long>(LONG_TYPE_ID, Long.TYPE, false, 8);
+  public static final byte FLOAT_TYPE_ID = (byte)17;
+  public static final byte FLOAT_ARRAY_TYPE_ID = (byte)18;
+  public static final byte DOUBLE_TYPE_ID = (byte)19;
+  public static final byte DOUBLE_ARRAY_TYPE_ID = (byte)20;
+  public static final byte BYTE_ARRAY_TYPE_ID = (byte)21;
   public static final byte STRING_TYPE_ID = (byte)22;
-  public static final StringFieldType STRING_TYPE = new StringFieldType();
   
   static {
-    INSTANCE.addType(BOOLEAN_TYPE, Boolean.class);
-    INSTANCE.addType(BYTE_TYPE, Byte.class);
-    INSTANCE.addType(SHORT_TYPE, Short.class);
-    INSTANCE.addType(INT_TYPE, Integer.class);
-    INSTANCE.addType(LONG_TYPE, Long.class);
-    INSTANCE.addType(STRING_TYPE);
+    INSTANCE.addType(PrimitiveFieldTypes.BOOLEAN_TYPE, Boolean.class);
+    INSTANCE.addType(PrimitiveFieldTypes.BYTE_TYPE, Byte.class);
+    INSTANCE.addType(PrimitiveFieldTypes.SHORT_TYPE, Short.class);
+    INSTANCE.addType(PrimitiveFieldTypes.INT_TYPE, Integer.class);
+    INSTANCE.addType(PrimitiveFieldTypes.LONG_TYPE, Long.class);
+    INSTANCE.addType(PrimitiveFieldTypes.FLOAT_TYPE, Float.class);
+    INSTANCE.addType(FloatArrayFieldType.INSTANCE);
+    INSTANCE.addType(PrimitiveFieldTypes.DOUBLE_TYPE, Double.class);
+    INSTANCE.addType(DoubleArrayFieldType.INSTANCE);
+    INSTANCE.addType(ByteArrayFieldType.INSTANCE);
+    INSTANCE.addType(StringFieldType.INSTANCE);
   }
 
 }
