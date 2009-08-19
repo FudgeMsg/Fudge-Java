@@ -14,13 +14,14 @@ import java.io.Serializable;
  * @author kirk
  */
 public class FudgeMsgField implements FudgeField, Serializable, Cloneable {
+  @SuppressWarnings("unchecked")
   private final FudgeFieldType _type;
   private final Object _value;
   private final String _name;
   private final Short _ordinal;
   private volatile int _size = -1;
   
-  public FudgeMsgField(FudgeFieldType type, Object value, String name, Short ordinal) {
+  public FudgeMsgField(FudgeFieldType<?> type, Object value, String name, Short ordinal) {
     if(type == null) {
       throw new NullPointerException("Must specify a type for this field.");
     }
@@ -35,7 +36,7 @@ public class FudgeMsgField implements FudgeField, Serializable, Cloneable {
   }
 
   @Override
-  public FudgeFieldType getType() {
+  public FudgeFieldType<?> getType() {
     return _type;
   }
 
@@ -94,6 +95,7 @@ public class FudgeMsgField implements FudgeField, Serializable, Cloneable {
     return _size;
   }
   
+  @SuppressWarnings("unchecked")
   protected int computeSize() {
     int size = 0;
     // Field prefix
@@ -105,11 +107,17 @@ public class FudgeMsgField implements FudgeField, Serializable, Cloneable {
       // One for the size prefix
       size++;
       // Then for the UTF Encoding
-      size += FudgeStreamEncoder.modifiedUTF8Length(_name);
+      size += ModifiedUTF8Util.modifiedUTF8Length(_name);
     }
     if(_type.isVariableSize()) {
-      // TODO kirk 2009-08-17 -- Get the size for variable width values.
-      throw new UnsupportedOperationException("Cannot yet handle variable width types.");
+      int valueSize = _type.getVariableSize(_value);
+      if(valueSize <= 255) {
+        size += valueSize + 1;
+      } else if(valueSize <= Short.MAX_VALUE) {
+        size += valueSize + 2;
+      } else {
+        size += valueSize + 4;
+      }
     } else {
       size += _type.getFixedSize();
     }

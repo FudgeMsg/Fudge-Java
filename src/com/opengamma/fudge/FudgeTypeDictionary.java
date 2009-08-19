@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.opengamma.fudge.types.StringFieldType;
+
 /**
  * Contains all the {@link FudgeFieldType} definitions for a particular
  * Fudge installation.
@@ -22,10 +24,10 @@ public final class FudgeTypeDictionary {
   
   // REVIEW kirk 2009-08-13 -- This implementation is intentionally extremely slow.
   // Once we have working code, we'll speed it up considerably.
-  private final Map<Byte, FudgeFieldType> _typesById = Collections.synchronizedMap(new HashMap<Byte, FudgeFieldType>());
-  private final Map<Class<?>, FudgeFieldType> _typesByJavaType = Collections.synchronizedMap(new HashMap<Class<?>, FudgeFieldType>());
+  private final Map<Byte, FudgeFieldType<?>> _typesById = Collections.synchronizedMap(new HashMap<Byte, FudgeFieldType<?>>());
+  private final Map<Class<?>, FudgeFieldType<?>> _typesByJavaType = Collections.synchronizedMap(new HashMap<Class<?>, FudgeFieldType<?>>());
   
-  public void addType(FudgeFieldType type, Class<?>... alternativeTypes) {
+  public void addType(FudgeFieldType<?> type, Class<?>... alternativeTypes) {
     if(type == null) {
       throw new NullPointerException("Must not provide a null FudgeFieldType to add.");
     }
@@ -36,14 +38,14 @@ public final class FudgeTypeDictionary {
     }
   }
   
-  public FudgeFieldType getByJavaType(Class<?> javaType) {
+  public FudgeFieldType<?> getByJavaType(Class<?> javaType) {
     if(javaType == null) {
       return null;
     }
     return _typesByJavaType.get(javaType);
   }
   
-  public FudgeFieldType getByTypeId(byte typeId) {
+  public FudgeFieldType<?> getByTypeId(byte typeId) {
     return _typesById.get(typeId);
   }
   
@@ -52,15 +54,18 @@ public final class FudgeTypeDictionary {
   // --------------------------
   
   public static final byte BOOLEAN_TYPE_ID = (byte)0;
-  public static final FudgeFieldType BOOLEAN_TYPE = new FudgeFieldType(BOOLEAN_TYPE_ID, Boolean.TYPE, false, 1);
+
+  public static final FudgeFieldType<Boolean> BOOLEAN_TYPE = new FudgeFieldType<Boolean>(BOOLEAN_TYPE_ID, Boolean.TYPE, false, 1);
   public static final byte BYTE_TYPE_ID = (byte)1;
-  public static final FudgeFieldType BYTE_TYPE = new FudgeFieldType(BYTE_TYPE_ID, Byte.TYPE, false, 1);
+  public static final FudgeFieldType<Byte> BYTE_TYPE = new FudgeFieldType<Byte>(BYTE_TYPE_ID, Byte.TYPE, false, 1);
   public static final byte SHORT_TYPE_ID = (byte)2;
-  public static final FudgeFieldType SHORT_TYPE = new FudgeFieldType(SHORT_TYPE_ID, Short.TYPE, false, 2);
+  public static final FudgeFieldType<Short> SHORT_TYPE = new FudgeFieldType<Short>(SHORT_TYPE_ID, Short.TYPE, false, 2);
   public static final byte INT_TYPE_ID = (byte)3;
-  public static final FudgeFieldType INT_TYPE = new FudgeFieldType(INT_TYPE_ID, Integer.TYPE, false, 4);
+  public static final FudgeFieldType<Integer> INT_TYPE = new FudgeFieldType<Integer>(INT_TYPE_ID, Integer.TYPE, false, 4);
   public static final byte LONG_TYPE_ID = (byte)4;
-  public static final FudgeFieldType LONG_TYPE = new FudgeFieldType(LONG_TYPE_ID, Long.TYPE, false, 8);
+  public static final FudgeFieldType<Long> LONG_TYPE = new FudgeFieldType<Long>(LONG_TYPE_ID, Long.TYPE, false, 8);
+  public static final byte STRING_TYPE_ID = (byte)22;
+  public static final StringFieldType STRING_TYPE = new StringFieldType();
   
   static {
     INSTANCE.addType(BOOLEAN_TYPE, Boolean.class);
@@ -68,6 +73,7 @@ public final class FudgeTypeDictionary {
     INSTANCE.addType(SHORT_TYPE, Short.class);
     INSTANCE.addType(INT_TYPE, Integer.class);
     INSTANCE.addType(LONG_TYPE, Long.class);
+    INSTANCE.addType(STRING_TYPE);
   }
 
 }

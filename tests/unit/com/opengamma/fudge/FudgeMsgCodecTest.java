@@ -32,7 +32,9 @@ public class FudgeMsgCodecTest {
     DataOutputStream dos = new DataOutputStream(baos);
     FudgeStreamEncoder.writeMsg(dos, inputMsg);
     
-    ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+    byte[] content = baos.toByteArray();
+    
+    ByteArrayInputStream bais = new ByteArrayInputStream(content);
     DataInputStream dis = new DataInputStream(bais);
     FudgeMsg outputMsg = FudgeStreamDecoder.readMsg(dis);
     

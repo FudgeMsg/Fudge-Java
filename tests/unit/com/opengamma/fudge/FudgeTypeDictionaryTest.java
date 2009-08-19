@@ -19,7 +19,7 @@ public class FudgeTypeDictionaryTest {
   
   @Test
   public void simpleTypeLookup() {
-    FudgeFieldType type = null;
+    FudgeFieldType<?> type = null;
     
     type = FudgeTypeDictionary.INSTANCE.getByJavaType(Boolean.TYPE);
     assertNotNull(type);

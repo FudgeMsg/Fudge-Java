@@ -12,7 +12,7 @@ package com.opengamma.fudge;
  * @author kirk
  */
 public interface FudgeField {
-  FudgeFieldType getType();
+  FudgeFieldType<?> getType();
   Object getValue();
   Short getOrdinal();
   String getName();

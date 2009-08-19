@@ -68,14 +68,14 @@ public class FudgeMsg implements Serializable {
   }
   
   public void add(Object value, String name, Short ordinal) {
-    FudgeFieldType type = determineTypeFromValue(value);
+    FudgeFieldType<?> type = determineTypeFromValue(value);
     if(type == null) {
       throw new IllegalArgumentException("Cannot determine a Fudge type for value " + value + " of type " + value.getClass());
     }
     add(type, value, name, ordinal);
   }
   
-  public void add(FudgeFieldType type, Object value, String name, Short ordinal) {
+  public void add(FudgeFieldType<?> type, Object value, String name, Short ordinal) {
     if(_fields.size() >= Short.MAX_VALUE) {
       throw new IllegalStateException("Can only add " + Short.MAX_VALUE + " to a single message.");
     }
@@ -106,11 +106,11 @@ public class FudgeMsg implements Serializable {
     _fields.add(field);
   }
   
-  protected FudgeFieldType determineTypeFromValue(Object value) {
+  protected FudgeFieldType<?> determineTypeFromValue(Object value) {
     if(value == null) {
       throw new NullPointerException("Cannot determine type for null value.");
     }
-    FudgeFieldType type = FudgeTypeDictionary.INSTANCE.getByJavaType(value.getClass());
+    FudgeFieldType<?> type = FudgeTypeDictionary.INSTANCE.getByJavaType(value.getClass());
     return type;
   }
   

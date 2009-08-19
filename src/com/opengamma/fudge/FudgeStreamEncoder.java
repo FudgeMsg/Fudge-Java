@@ -7,7 +7,6 @@ package com.opengamma.fudge;
 
 import java.io.DataOutput;
 import java.io.IOException;
-import java.io.UTFDataFormatException;
 
 /**
  * 
@@ -49,7 +48,7 @@ public class FudgeStreamEncoder {
     return nWritten;
   }
   
-  public static int writeField(DataOutput os, FudgeFieldType type, Object value, Short ordinal, String name) throws IOException {
+  public static int writeField(DataOutput os, FudgeFieldType<?> type, Object value, Short ordinal, String name) throws IOException {
     checkOutputStream(os);
     if(type == null) {
       throw new NullPointerException("Must provide the type of data encoded.");
@@ -68,13 +67,13 @@ public class FudgeStreamEncoder {
       nWritten += 2;
     }
     if(name != null) {
-      int utf8size = modifiedUTF8Length(name);
+      int utf8size = ModifiedUTF8Util.modifiedUTF8Length(name);
       if(utf8size > 0xFF) {
         throw new IllegalArgumentException("UTF-8 encoded field name cannot exceed 255 characters. Name \"" + name + "\" is " + utf8size + " bytes encoded.");
       }
       os.writeByte(utf8size);
       nWritten++;
-      nWritten += writeModifiedUTF8(name, os);
+      nWritten += ModifiedUTF8Util.writeModifiedUTF8(name, os);
     }
     nWritten += writeFieldValue(os, type, value);
     return nWritten;
@@ -85,6 +84,7 @@ public class FudgeStreamEncoder {
    * @param type
    * @param value
    */
+  @SuppressWarnings("unchecked")
   protected static int writeFieldValue(DataOutput os, FudgeFieldType type, Object value) throws IOException {
     // Note that we fast-path types for which at compile time we know how to handle
     // in an optimized way. This is because this particular method is known to
@@ -113,7 +113,18 @@ public class FudgeStreamEncoder {
       break;
     }
     if(nWritten == 0) {
-      throw new UnsupportedOperationException("Cannot handle field value of type " + type);
+      int size = type.isVariableSize() ? type.getVariableSize(value) : type.getFixedSize();
+      if(size <= 255) {
+        os.writeByte(size);
+        nWritten = size + 1;
+      } else if(size <= Short.MAX_VALUE) {
+        os.writeShort(size);
+        nWritten = size + 2;
+      } else {
+        os.writeInt(size);
+        nWritten = size + 4;
+      }
+      type.writeValue(os, value);
     }
     return nWritten;
   }
@@ -143,79 +154,6 @@ public class FudgeStreamEncoder {
     return fieldPrefix;
   }
   
-  protected static int modifiedUTF8Length(String str) {
-    // REVIEW wyliekir 2009-08-17 -- This was taken almost verbatim from
-    // DataOutputStream.
-    int strlen = str.length();
-    int utflen = 0;
-    int c = 0;
-
-    /* use charAt instead of copying String to char array */
-    for (int i = 0; i < strlen; i++) {
-      c = str.charAt(i);
-      if ((c >= 0x0001) && (c <= 0x007F)) {
-        utflen++;
-      } else if (c > 0x07FF) {
-        utflen += 3;
-      } else {
-        utflen += 2;
-      }
-    }
-    return utflen;
-  }
-
-  protected static int writeModifiedUTF8(String str, DataOutput os)
-      throws IOException {
-    // REVIEW wyliekir 2009-08-17 -- This was taken almost verbatim from
-    // DataOutputStream.
-    int strlen = str.length();
-    int utflen = 0;
-    int c, count = 0;
-
-    /* use charAt instead of copying String to char array */
-    for (int i = 0; i < strlen; i++) {
-      c = str.charAt(i);
-      if ((c >= 0x0001) && (c <= 0x007F)) {
-        utflen++;
-      } else if (c > 0x07FF) {
-        utflen += 3;
-      } else {
-        utflen += 2;
-      }
-    }
-    if (utflen > 65535)
-      throw new UTFDataFormatException("encoded string too long: " + utflen
-          + " bytes");
-
-    byte[] bytearr = new byte[utflen];
-
-    int i = 0;
-    for (i = 0; i < strlen; i++) {
-      c = str.charAt(i);
-      if (!((c >= 0x0001) && (c <= 0x007F)))
-        break;
-      bytearr[count++] = (byte) c;
-    }
-
-    for (; i < strlen; i++) {
-      c = str.charAt(i);
-      if ((c >= 0x0001) && (c <= 0x007F)) {
-        bytearr[count++] = (byte) c;
-
-      } else if (c > 0x07FF) {
-        bytearr[count++] = (byte) (0xE0 | ((c >> 12) & 0x0F));
-        bytearr[count++] = (byte) (0x80 | ((c >> 6) & 0x3F));
-        bytearr[count++] = (byte) (0x80 | ((c >> 0) & 0x3F));
-      } else {
-        bytearr[count++] = (byte) (0xC0 | ((c >> 6) & 0x1F));
-        bytearr[count++] = (byte) (0x80 | ((c >> 0) & 0x3F));
-      }
-    }
-    assert count == utflen;
-    os.write(bytearr);
-    return utflen;
-  }
-
   protected static void checkOutputStream(DataOutput os) {
     if(os == null) {
       throw new NullPointerException("Must specify a DataOutput for processing.");

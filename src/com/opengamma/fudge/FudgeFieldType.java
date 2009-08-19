@@ -5,6 +5,9 @@
  */
 package com.opengamma.fudge;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.io.Serializable;
 
 /**
@@ -12,7 +15,7 @@ import java.io.Serializable;
  *
  * @author kirk
  */
-public final class FudgeFieldType implements Serializable {
+public class FudgeFieldType<TValue> implements Serializable {
   private final byte _typeId;
   private final Class<?> _javaType;
   private final boolean _isVariableSize;
@@ -37,43 +40,43 @@ public final class FudgeFieldType implements Serializable {
   /**
    * @return the typeId
    */
-  public byte getTypeId() {
+  public final byte getTypeId() {
     return _typeId;
   }
 
   /**
    * @return the javaType
    */
-  public Class<?> getJavaType() {
+  public final Class<?> getJavaType() {
     return _javaType;
   }
 
   /**
    * @return the isVariableSize
    */
-  public boolean isVariableSize() {
+  public final boolean isVariableSize() {
     return _isVariableSize;
   }
 
   /**
    * @return the fixedSize
    */
-  public int getFixedSize() {
+  public final int getFixedSize() {
     return _fixedSize;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public final boolean equals(Object obj) {
     if(obj == this) {
       return true;
     }
     if(obj == null) {
       return false;
     }
-    if(!(obj instanceof FudgeFieldType)) {
+    if(!(obj instanceof FudgeFieldType<?>)) {
       return false;
     }
-    FudgeFieldType other = (FudgeFieldType) obj;
+    FudgeFieldType<?> other = (FudgeFieldType<?>) obj;
     if(getTypeId() != other.getTypeId()) {
       return false;
     }
@@ -82,11 +85,11 @@ public final class FudgeFieldType implements Serializable {
   }
 
   @Override
-  public int hashCode() {
+  public final int hashCode() {
     return getTypeId();
   }
   
-  protected final String generateToString() {
+  protected String generateToString() {
     StringBuilder sb = new StringBuilder();
     sb.append("FudgeFieldType[");
     sb.append(getTypeId()).append("-");
@@ -96,8 +99,28 @@ public final class FudgeFieldType implements Serializable {
   }
 
   @Override
-  public String toString() {
+  public final String toString() {
     return _toStringValue;
+  }
+  
+  public int getVariableSize(TValue value) {
+    if(isVariableSize()) {
+      throw new UnsupportedOperationException("This method must be overridden for variable size types.");
+    }
+    return getFixedSize();
+  }
+  
+  public void writeValue(DataOutput output, TValue value) throws IOException {
+    if(isVariableSize()) {
+      throw new UnsupportedOperationException("This method must be overridden for variable size types.");
+    }
+  }
+  
+  public TValue readValue(DataInput input, int dataSize) throws IOException {
+    if(isVariableSize()) {
+      throw new UnsupportedOperationException("This method must be overridden for variable size types.");
+    }
+    return null;
   }
 
 }

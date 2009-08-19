@@ -38,6 +38,8 @@ public class FudgeMsgTest {
     msg.add(longValue, "long");
     msg.add(new Long(longValue), "Long");
     
+    msg.add("Kirk Wylie", "String");
+    
     return msg;
   }
   
