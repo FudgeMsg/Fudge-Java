@@ -12,6 +12,7 @@ import java.util.Map;
 import com.opengamma.fudge.types.ByteArrayFieldType;
 import com.opengamma.fudge.types.DoubleArrayFieldType;
 import com.opengamma.fudge.types.FloatArrayFieldType;
+import com.opengamma.fudge.types.FudgeMsgFieldType;
 import com.opengamma.fudge.types.PrimitiveFieldTypes;
 import com.opengamma.fudge.types.StringFieldType;
 
@@ -69,6 +70,7 @@ public final class FudgeTypeDictionary {
   public static final byte DOUBLE_ARRAY_TYPE_ID = (byte)20;
   public static final byte BYTE_ARRAY_TYPE_ID = (byte)21;
   public static final byte STRING_TYPE_ID = (byte)22;
+  public static final byte FUDGE_MSG_TYPE_ID = (byte)23;
   
   static {
     INSTANCE.addType(PrimitiveFieldTypes.BOOLEAN_TYPE, Boolean.class);
@@ -82,6 +84,7 @@ public final class FudgeTypeDictionary {
     INSTANCE.addType(DoubleArrayFieldType.INSTANCE);
     INSTANCE.addType(ByteArrayFieldType.INSTANCE);
     INSTANCE.addType(StringFieldType.INSTANCE);
+    INSTANCE.addType(FudgeMsgFieldType.INSTANCE);
   }
 
 }

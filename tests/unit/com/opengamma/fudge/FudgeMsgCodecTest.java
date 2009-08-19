@@ -47,6 +47,25 @@ public class FudgeMsgCodecTest {
     
     assertAllFieldsMatch(inputMsg, outputMsg);
   }
+  
+  @Test
+  public void subMsg() throws IOException {
+    FudgeMsg inputMsg = new FudgeMsg();
+    FudgeMsg sub1 = new FudgeMsg();
+    sub1.add("fibble", "bibble");
+    sub1.add("Blibble", (short)827);
+    FudgeMsg sub2 = new FudgeMsg();
+    sub2.add(9837438, "bibble9");
+    sub2.add(82.77f, (short)828);
+    inputMsg.add(sub1, "sub1");
+    inputMsg.add(sub2, "sub2");
+
+    FudgeMsg outputMsg = cycleMessage(inputMsg);
+    
+    assertNotNull(outputMsg);
+    
+    assertAllFieldsMatch(inputMsg, outputMsg);
+  }
 
   /**
    * @param inputMsg
@@ -66,6 +85,10 @@ public class FudgeMsgCodecTest {
       if(expectedField.getValue().getClass().isArray()) {
         assertEquals(expectedField.getValue().getClass(), actualField.getValue().getClass());
         // TODO wyliekir 2009-08-19 -- Check something better.
+      } else if(expectedField.getValue() instanceof FudgeMsg) {
+        assertTrue(actualField.getValue() instanceof FudgeMsg);
+        assertAllFieldsMatch((FudgeMsg) expectedField.getValue(),
+            (FudgeMsg) actualField.getValue());
       } else {
         assertEquals(expectedField.getValue(), actualField.getValue());
       }
