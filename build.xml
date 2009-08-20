@@ -1,0 +1,98 @@
+<project default="default" basedir=".">
+  <property environment="ENV"/>
+  <property file="${basedir}/${user.name}.build.properties"/>
+  <property file="${basedir}/build.properties"/>
+  
+  <path id="src.build.classpath">
+    <pathelement location="${lib.dir}/commons-lang-2.4.jar"/>
+  </path>
+  
+  <path id="tests.build.classpath">
+    <path refid="src.build.classpath"/>
+    <pathelement location="${src.build.output}"/>
+    <pathelement location="${lib.dir}/junit-4.7.jar"/>
+  </path>
+  
+  <target name="default" depends="all"/>
+  
+  <target name="all" depends="compile,test"
+   description="Build all of Fudge without packaging for distribution"
+   />
+  
+  <target name="compile" depends="compile-src,compile-test"
+   description="Compile all source code"/>
+  
+  <target name="compile-src">
+    <mkdir dir="${src.build.output}"/>
+    <javac
+     srcdir="${basedir}/src"
+     destdir="${src.build.output}"
+     debug="${build.debug}"
+     optimize="${build.optimize}"
+     verbose="${build.verbose}"
+     listfiles="${build.listfiles}"
+     classpathref="src.build.classpath"
+     />
+    <copy todir="${src.build.output}">
+      <fileset dir="${basedir}/src">
+        <exclude name="**/*.java"/>
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="compile-test">
+    <mkdir dir="${tests.build.output}"/>
+    <javac
+     srcdir="${basedir}/tests/unit"
+     destdir="${tests.build.output}"
+     debug="${build.debug}"
+     optimize="${build.optimize}"
+     verbose="${build.verbose}"
+     listfiles="${build.listfiles}"
+     classpathref="tests.build.classpath"
+     />
+    <copy todir="${tests.build.output}">
+      <fileset dir="${basedir}/tests/unit">
+        <exclude name="**/*.java"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="clean"
+   description="Remove all files created as part of any build process.">
+    <delete dir="${src.build.output}" failonerror="false" quiet="true"/>
+    <delete dir="${tests.build.output}" failonerror="false" quiet="true"/>
+    <delete dir="${tests.junit.output}" failonerror="false" quiet="true"/>
+  </target>
+  
+  <target name="test" depends="compile,junit-report"
+   description="Execute all automated tests and produce XML/HTML reports"/>
+   
+   <target name="junit-batch">
+     <mkdir dir="${tests.junit.output}/xml"/>
+     <junit
+      printSummary="true"
+      fork="true"
+      forkmode="once"
+      >
+       <classpath>
+         <path refid="tests.build.classpath"/>
+         <pathelement location="${tests.build.output}"/>
+       </classpath>
+       <assertions><enable/></assertions>
+       <formatter type="xml"/>
+       <batchtest todir="${tests.junit.output}/xml">
+         <fileset dir="${basedir}/tests/unit" includes="**/*Test.java"/>
+       </batchtest>
+     </junit>
+   </target>
+   
+   <target name="junit-report" depends="junit-batch">
+     <mkdir dir="${tests.junit.output}/html"/>
+     <junitreport todir="${tests.junit.output}/xml">
+       <fileset dir="${tests.junit.output}/xml" includes="TEST-*.xml"/>
+       <report todir="${tests.junit.output}/html"/>
+     </junitreport>
+   </target>
+  
+</project>
