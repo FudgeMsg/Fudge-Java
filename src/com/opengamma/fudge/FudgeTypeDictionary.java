@@ -5,9 +5,9 @@
  */
 package com.opengamma.fudge;
 
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.opengamma.fudge.types.ByteArrayFieldType;
 import com.opengamma.fudge.types.DoubleArrayFieldType;
@@ -27,19 +27,23 @@ import com.opengamma.fudge.types.StringFieldType;
 public final class FudgeTypeDictionary {
   public static final FudgeTypeDictionary INSTANCE = new FudgeTypeDictionary();
   
-  // REVIEW kirk 2009-08-13 -- This implementation is intentionally extremely slow.
-  // Once we have working code, we'll speed it up considerably.
-  private final Map<Byte, FudgeFieldType<?>> _typesById = Collections.synchronizedMap(new HashMap<Byte, FudgeFieldType<?>>());
-  private final Map<Class<?>, FudgeFieldType<?>> _typesByJavaType = Collections.synchronizedMap(new HashMap<Class<?>, FudgeFieldType<?>>());
+  private volatile FudgeFieldType<?>[] _typesById = new FudgeFieldType<?>[0];
+  private final Map<Class<?>, FudgeFieldType<?>> _typesByJavaType = new ConcurrentHashMap<Class<?>, FudgeFieldType<?>>();
   
   public void addType(FudgeFieldType<?> type, Class<?>... alternativeTypes) {
     if(type == null) {
       throw new NullPointerException("Must not provide a null FudgeFieldType to add.");
     }
-    _typesById.put(type.getTypeId(), type);
-    _typesByJavaType.put(type.getJavaType(), type);
-    for(Class<?> alternativeType : alternativeTypes) {
-      _typesByJavaType.put(alternativeType, type);
+    synchronized(this) {
+      int newLength = Math.max(type.getTypeId() + 1, _typesById.length);
+      FudgeFieldType<?>[] newArray = Arrays.copyOf(_typesById, newLength);
+      newArray[type.getTypeId()] = type;
+      _typesById = newArray;
+      
+      _typesByJavaType.put(type.getJavaType(), type);
+      for(Class<?> alternativeType : alternativeTypes) {
+        _typesByJavaType.put(alternativeType, type);
+      }
     }
   }
   
@@ -50,8 +54,11 @@ public final class FudgeTypeDictionary {
     return _typesByJavaType.get(javaType);
   }
   
-  public FudgeFieldType<?> getByTypeId(byte typeId) {
-    return _typesById.get(typeId);
+  public FudgeFieldType<?> getByTypeId(int typeId) {
+    if(typeId >= _typesById.length) {
+      return null;
+    }
+    return _typesById[typeId];
   }
   
   // --------------------------

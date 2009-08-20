@@ -16,18 +16,21 @@ import java.io.Serializable;
  * @author kirk
  */
 public class FudgeFieldType<TValue> implements Serializable {
-  private final byte _typeId;
+  private final int _typeId;
   private final Class<?> _javaType;
   private final boolean _isVariableSize;
   private final int _fixedSize;
   
   private final String _toStringValue;
   
-  public FudgeFieldType(byte typeId, Class<?> javaType, boolean isVariableSize, int fixedSize)
+  public FudgeFieldType(int typeId, Class<?> javaType, boolean isVariableSize, int fixedSize)
   {
     if(javaType == null)
     {
       throw new NullPointerException("Must specify a valid Java type for conversion.");
+    }
+    if(typeId > 255) {
+      throw new IllegalArgumentException("The type id must fit in an unsigned byte.");
     }
     _typeId = typeId;
     _javaType = javaType;
@@ -40,7 +43,7 @@ public class FudgeFieldType<TValue> implements Serializable {
   /**
    * @return the typeId
    */
-  public final byte getTypeId() {
+  public final int getTypeId() {
     return _typeId;
   }
 

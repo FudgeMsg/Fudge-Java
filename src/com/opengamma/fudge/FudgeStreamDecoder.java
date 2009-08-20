@@ -63,7 +63,7 @@ public class FudgeStreamDecoder {
       varSizeBytes = (fieldPrefix << 1) >> 6;
     }
     
-    byte typeId = is.readByte();
+    int typeId = is.readUnsignedByte();
     nRead++;
     
     Short ordinal = null;

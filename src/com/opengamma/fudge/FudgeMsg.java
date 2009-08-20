@@ -216,5 +216,46 @@ public class FudgeMsg implements Serializable {
     }
     return size;
   }
+  
+  // Primitive Queries:
+  public Double getDouble(String fieldName) {
+    for(FudgeMsgField field : _fields) {
+      if(ObjectUtils.equals(fieldName, field.getName())
+          && (field.getType().getTypeId() == FudgeTypeDictionary.DOUBLE_TYPE_ID)) {
+        return (Double) field.getValue();
+      }
+    }
+    return null;
+  }
+  
+  public Double getDouble(short ordinal) {
+    for(FudgeMsgField field : _fields) {
+      if(ObjectUtils.equals(ordinal, field.getOrdinal())
+          && (field.getType().getTypeId() == FudgeTypeDictionary.DOUBLE_TYPE_ID)) {
+        return (Double) field.getValue();
+      }
+    }
+    return null;
+  }
+  
+  public Long getLong(String fieldName) {
+    for(FudgeMsgField field : _fields) {
+      if(ObjectUtils.equals(fieldName, field.getName())
+          && (field.getType().getTypeId() == FudgeTypeDictionary.LONG_TYPE_ID)) {
+        return (Long) field.getValue();
+      }
+    }
+    return null;
+  }
+
+  public Long getLong(short ordinal) {
+    for(FudgeMsgField field : _fields) {
+      if(ObjectUtils.equals(ordinal, field.getOrdinal())
+          && (field.getType().getTypeId() == FudgeTypeDictionary.LONG_TYPE_ID)) {
+        return (Long) field.getValue();
+      }
+    }
+    return null;
+  }
 
 }
