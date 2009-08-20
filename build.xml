@@ -63,36 +63,68 @@
     <delete dir="${src.build.output}" failonerror="false" quiet="true"/>
     <delete dir="${tests.build.output}" failonerror="false" quiet="true"/>
     <delete dir="${tests.junit.output}" failonerror="false" quiet="true"/>
+    <delete dir="${dist.dir}" failonerror="false" quiet="true"/>
   </target>
   
   <target name="test" depends="compile,junit-report"
    description="Execute all automated tests and produce XML/HTML reports"/>
    
-   <target name="junit-batch">
-     <mkdir dir="${tests.junit.output}/xml"/>
-     <junit
-      printSummary="true"
-      fork="true"
-      forkmode="once"
-      >
-       <classpath>
-         <path refid="tests.build.classpath"/>
-         <pathelement location="${tests.build.output}"/>
-       </classpath>
-       <assertions><enable/></assertions>
-       <formatter type="xml"/>
-       <batchtest todir="${tests.junit.output}/xml">
-         <fileset dir="${basedir}/tests/unit" includes="**/*Test.java"/>
-       </batchtest>
-     </junit>
-   </target>
-   
-   <target name="junit-report" depends="junit-batch">
-     <mkdir dir="${tests.junit.output}/html"/>
-     <junitreport todir="${tests.junit.output}/xml">
-       <fileset dir="${tests.junit.output}/xml" includes="TEST-*.xml"/>
-       <report todir="${tests.junit.output}/html"/>
-     </junitreport>
-   </target>
+  <target name="junit-batch">
+    <mkdir dir="${tests.junit.output}/xml"/>
+    <junit
+     printSummary="true"
+     fork="true"
+     forkmode="once"
+     >
+      <classpath>
+        <path refid="tests.build.classpath"/>
+        <pathelement location="${tests.build.output}"/>
+      </classpath>
+      <assertions><enable/></assertions>
+      <formatter type="xml"/>
+      <batchtest todir="${tests.junit.output}/xml">
+        <fileset dir="${basedir}/tests/unit" includes="**/*Test.java"/>
+      </batchtest>
+    </junit>
+  </target>
+  
+  <target name="junit-report" depends="junit-batch">
+    <mkdir dir="${tests.junit.output}/html"/>
+    <junitreport todir="${tests.junit.output}/xml">
+      <fileset dir="${tests.junit.output}/xml" includes="TEST-*.xml"/>
+      <report todir="${tests.junit.output}/html"/>
+    </junitreport>
+  </target>
+  
+  <target name="package" depends="tarball,zipfile"
+    description="Generate the distribution packages.">
+  </target>
+  
+  <target name="jar" depends="compile-src">
+    <mkdir dir="${dist.dir}/fudge-${fudge.version}"/>
+    <jar destfile="${dist.dir}/fudge-${fudge.version}/fudge-${fudge.version}.jar"
+      basedir="${src.build.output}"
+      compress="${jar.compress}">
+    </jar>
+  </target>
+  
+  <target name="prep-dist-dir" depends="jar">
+    <mkdir dir="${dist.dir}/fudge-${fudge.version}/lib"/>
+    <copy todir="${dist.dir}/fudge-${fudge.version}/lib">
+      <fileset dir="${lib.dir}">
+        <include name="commons-lang-2.7.jar"/>
+        <include name="junit-4.7.jar"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="tarball" depends="prep-dist-dir">
+    <tar destfile="${dist.dir}/fudge-${fudge.version}.tar" basedir="${dist.dir}/fudge-${fudge.version}"/>
+    <bzip2 src="${dist.dir}/fudge-${fudge.version}.tar" destfile="${dist.dir}/fudge-${fudge.version}.tar.bz2"/>
+  </target>
+  
+  <target name="zipfile" depends="prep-dist-dir">
+    <zip destfile="${dist.dir}/fudge-${fudge.version}.zip" basedir="${dist.dir}/fudge-${fudge.version}"/>
+  </target>
   
 </project>

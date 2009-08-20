@@ -2,5 +2,6 @@
 foo~
 *.class
 classes/
+dist/
 tests/classes/
 tests/output/
