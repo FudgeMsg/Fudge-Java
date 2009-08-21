@@ -186,6 +186,36 @@ public class FudgeMsg implements Serializable {
     return null;
   }
   
+  public Object getValue(String name) {
+    for(FudgeMsgField field : _fields) {
+      if((name != null) && ObjectUtils.equals(name, field.getName())) {
+        return field.getValue();
+      }
+    }
+    return null;
+  }
+
+  public Object getValue(short ordinal) {
+    for(FudgeMsgField field : _fields) {
+      if(ObjectUtils.equals(ordinal, field.getOrdinal())) {
+        return field.getValue();
+      }
+    }
+    return null;
+  }
+
+  public Object getValue(String name, Short ordinal) {
+    for(FudgeMsgField field : _fields) {
+      if((ordinal != null) && ObjectUtils.equals(ordinal, field.getOrdinal())) {
+        return field.getValue();
+      }
+      if((name != null) && ObjectUtils.equals(name, field.getName())) {
+        return field.getValue();
+      }
+    }
+    return null;
+  }
+
   public byte[] toByteArray() {
     ByteArrayOutputStream baos = new ByteArrayOutputStream(getSize());
     DataOutputStream dos = new DataOutputStream(baos);
@@ -219,43 +249,181 @@ public class FudgeMsg implements Serializable {
   
   // Primitive Queries:
   public Double getDouble(String fieldName) {
-    for(FudgeMsgField field : _fields) {
-      if(ObjectUtils.equals(fieldName, field.getName())
-          && (field.getType().getTypeId() == FudgeTypeDictionary.DOUBLE_TYPE_ID)) {
-        return (Double) field.getValue();
-      }
+    return (Double) getFirstTypedValue(fieldName, FudgeTypeDictionary.DOUBLE_TYPE_ID);
+  }
+  
+  public Double getDouble(short ordinal) {
+    return (Double) getFirstTypedValue(ordinal, FudgeTypeDictionary.DOUBLE_TYPE_ID);
+  }
+  
+  public Double getAsDouble(String fieldName) {
+    return getAsDoubleInternal(fieldName, null);
+  }
+  
+  public Double getAsDouble(short ordinal) {
+    return getAsDoubleInternal(null, ordinal);
+  }
+  
+  protected Double getAsDoubleInternal(String fieldName, Short ordinal) {
+    Object value = getValue(fieldName, ordinal);
+    if(value instanceof Number) {
+      Number numberValue = (Number) value;
+      return numberValue.doubleValue();
     }
     return null;
   }
   
-  public Double getDouble(short ordinal) {
-    for(FudgeMsgField field : _fields) {
-      if(ObjectUtils.equals(ordinal, field.getOrdinal())
-          && (field.getType().getTypeId() == FudgeTypeDictionary.DOUBLE_TYPE_ID)) {
-        return (Double) field.getValue();
-      }
+  public Float getFloat(String fieldName) {
+    return (Float) getFirstTypedValue(fieldName, FudgeTypeDictionary.FLOAT_TYPE_ID);
+  }
+  
+  public Float getFloat(short ordinal) {
+    return (Float) getFirstTypedValue(ordinal, FudgeTypeDictionary.FLOAT_TYPE_ID);
+  }
+  
+  public Float getAsFloat(String fieldName) {
+    return getAsFloatInternal(fieldName, null);
+  }
+  
+  public Float getAsFloat(short ordinal) {
+    return getAsFloatInternal(null, ordinal);
+  }
+  
+  protected Float getAsFloatInternal(String fieldName, Short ordinal) {
+    Object value = getValue(fieldName, ordinal);
+    if(value instanceof Number) {
+      Number numberValue = (Number) value;
+      return numberValue.floatValue();
     }
     return null;
   }
   
   public Long getLong(String fieldName) {
-    for(FudgeMsgField field : _fields) {
-      if(ObjectUtils.equals(fieldName, field.getName())
-          && (field.getType().getTypeId() == FudgeTypeDictionary.LONG_TYPE_ID)) {
-        return (Long) field.getValue();
-      }
-    }
-    return null;
+    return (Long) getFirstTypedValue(fieldName, FudgeTypeDictionary.LONG_TYPE_ID);
   }
 
   public Long getLong(short ordinal) {
+    return (Long) getFirstTypedValue(ordinal, FudgeTypeDictionary.LONG_TYPE_ID);
+  }
+  
+  public Long getAsLong(String fieldName) {
+    return getAsLongInternal(fieldName, null);
+  }
+  
+  public Long getAsLong(short ordinal) {
+    return getAsLongInternal(null, ordinal);
+  }
+  
+  protected Long getAsLongInternal(String fieldName, Short ordinal) {
+    Object value = getValue(fieldName, ordinal);
+    if(value instanceof Number) {
+      Number numberValue = (Number) value;
+      return numberValue.longValue();
+    }
+    return null;
+  }
+  
+  public Integer getInt(String fieldName) {
+    return (Integer) getFirstTypedValue(fieldName, FudgeTypeDictionary.INT_TYPE_ID);
+  }
+
+  public Integer getInt(short ordinal) {
+    return (Integer) getFirstTypedValue(ordinal, FudgeTypeDictionary.INT_TYPE_ID);
+  }
+  
+  public Integer getAsInt(String fieldName) {
+    return getAsIntInternal(fieldName, null);
+  }
+  
+  public Integer getAsInt(short ordinal) {
+    return getAsIntInternal(null, ordinal);
+  }
+  
+  protected Integer getAsIntInternal(String fieldName, Short ordinal) {
+    Object value = getValue(fieldName, ordinal);
+    if(value instanceof Number) {
+      Number numberValue = (Number) value;
+      return numberValue.intValue();
+    }
+    return null;
+  }
+  
+  public Short getShort(String fieldName) {
+    return (Short) getFirstTypedValue(fieldName, FudgeTypeDictionary.SHORT_TYPE_ID);
+  }
+
+  public Short getShort(short ordinal) {
+    return (Short) getFirstTypedValue(ordinal, FudgeTypeDictionary.SHORT_TYPE_ID);
+  }
+  
+  public Short getAsShort(String fieldName) {
+    return getAsShortInternal(fieldName, null);
+  }
+  
+  public Short getAsShort(short ordinal) {
+    return getAsShortInternal(null, ordinal);
+  }
+  
+  protected Short getAsShortInternal(String fieldName, Short ordinal) {
+    Object value = getValue(fieldName, ordinal);
+    if(value instanceof Number) {
+      Number numberValue = (Number) value;
+      return numberValue.shortValue();
+    }
+    return null;
+  }
+  
+  public Byte getByte(String fieldName) {
+    return (Byte) getFirstTypedValue(fieldName, FudgeTypeDictionary.BYTE_TYPE_ID);
+  }
+
+  public Byte getByte(short ordinal) {
+    return (Byte) getFirstTypedValue(ordinal, FudgeTypeDictionary.BYTE_TYPE_ID);
+  }
+  
+  public Byte getAsByte(String fieldName) {
+    return getAsByteInternal(fieldName, null);
+  }
+  
+  public Byte getAsByte(short ordinal) {
+    return getAsByteInternal(null, ordinal);
+  }
+  
+  protected Byte getAsByteInternal(String fieldName, Short ordinal) {
+    Object value = getValue(fieldName, ordinal);
+    if(value instanceof Number) {
+      Number numberValue = (Number) value;
+      return numberValue.byteValue();
+    }
+    return null;
+  }
+  
+  public String getString(String fieldName) {
+    return (String) getFirstTypedValue(fieldName, FudgeTypeDictionary.STRING_TYPE_ID);
+  }
+
+  public String getString(short ordinal) {
+    return (String) getFirstTypedValue(ordinal, FudgeTypeDictionary.STRING_TYPE_ID);
+  }
+  
+  protected Object getFirstTypedValue(String fieldName, int typeId) {
     for(FudgeMsgField field : _fields) {
-      if(ObjectUtils.equals(ordinal, field.getOrdinal())
-          && (field.getType().getTypeId() == FudgeTypeDictionary.LONG_TYPE_ID)) {
-        return (Long) field.getValue();
+      if(ObjectUtils.equals(fieldName, field.getName())
+          && (field.getType().getTypeId() == typeId)) {
+        return field.getValue();
       }
     }
     return null;
   }
-
+  
+  protected Object getFirstTypedValue(short ordinal, int typeId) {
+    for(FudgeMsgField field : _fields) {
+      if(ObjectUtils.equals(ordinal, field.getOrdinal())
+          && (field.getType().getTypeId() == typeId)) {
+        return field.getValue();
+      }
+    }
+    return null;
+  }
+  
 }
