@@ -18,14 +18,10 @@ public class FudgeStreamDecoder {
   public static FudgeMsg readMsg(DataInput is) throws IOException {
     checkInputStream(is);
     int nRead = 0;
-    byte magicByte = is.readByte();
-    nRead++;
-    if(magicByte != FudgeStreamEncoder.MESSAGE_START_MAGIC_BYTE) {
-      // What is the actual desired behavior here?
-      throw new RuntimeException("Input stream lacks the Fudge start byte");
-    }
-    /*byte taxonomy = */is.readByte();
-    nRead++;
+    // TODO kirk 2009-08-21 -- We want this to be unsigned. Have to figure
+    // out how to it.
+    /*short taxonomy = */is.readShort();
+    nRead += 2;
     short nFields = is.readShort();
     nRead += 2;
     int size = is.readInt();

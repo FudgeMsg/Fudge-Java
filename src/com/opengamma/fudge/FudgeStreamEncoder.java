@@ -15,7 +15,6 @@ import java.io.IOException;
  */
 public class FudgeStreamEncoder {
   // Yes, this is a byte.
-  /*package*/ static final int MESSAGE_START_MAGIC_BYTE = 0x65;
   /*package*/ static final int FIELD_PREFIX_FIXED_WIDTH_MASK = 0x80; 
   /*package*/ static final int FIELD_PREFIX_ORDINAL_PROVIDED_MASK = 0x10; 
   /*package*/ static final int FIELD_PREFIX_NAME_PROVIDED_MASK = 0x08;
@@ -37,10 +36,8 @@ public class FudgeStreamEncoder {
   public static int writeMsgHeader(DataOutput os, int taxonomy, short nFields, int messageSize) throws IOException {
     checkOutputStream(os);
     int nWritten = 0;
-    os.writeByte(MESSAGE_START_MAGIC_BYTE);
-    nWritten++;
-    os.writeByte(taxonomy);
-    nWritten++;
+    os.writeShort(taxonomy);
+    nWritten += 2;
     os.writeShort(nFields);
     nWritten += 2;
     os.writeInt(messageSize);
