@@ -67,6 +67,7 @@ public class FudgeMsgCodecTest {
     assertAllFieldsMatch(inputMsg, outputMsg);
   }
 
+  // REVIEW kirk 2009-08-21 -- This should be moved to a utility class.
   /**
    * @param inputMsg
    * @param outputMsg

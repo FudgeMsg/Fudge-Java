@@ -8,6 +8,10 @@ package com.opengamma.fudge;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import org.apache.commons.lang.ObjectUtils;
+
+import com.opengamma.fudge.taxon.FudgeTaxonomy;
+
 /**
  * 
  *
@@ -20,6 +24,10 @@ public class FudgeStreamEncoder {
   /*package*/ static final int FIELD_PREFIX_NAME_PROVIDED_MASK = 0x08;
   
   public static void writeMsg(DataOutput os, FudgeMsg msg) throws IOException {
+    writeMsg(os, msg, null);
+  }
+  
+  public static void writeMsg(DataOutput os, FudgeMsg msg, FudgeTaxonomy taxonomy) throws IOException {
     checkOutputStream(os);
     if(msg == null) {
       throw new NullPointerException("Must provide a message to output.");
@@ -28,7 +36,7 @@ public class FudgeStreamEncoder {
     int msgSize = msg.getSize();
     nWritten += writeMsgHeader(os, 0, msg.getNumFields(), msgSize);
     for(FudgeField field : msg.getAllFields()) {
-      nWritten += writeField(os, field.getType(), field.getValue(), field.getOrdinal(), field.getName());
+      nWritten += writeField(os, field.getType(), field.getValue(), field.getOrdinal(), field.getName(), taxonomy);
     }
     assert nWritten == msgSize : "Expected to write " + msgSize + " but actually wrote " + nWritten; 
   }
@@ -45,8 +53,12 @@ public class FudgeStreamEncoder {
     return nWritten;
   }
   
+  public static int writeField(DataOutput os, FudgeFieldType<?> type, Object value, Short ordinal, String name) throws IOException {
+    return writeField(os, type, value, ordinal, name, null);
+  }
+  
   @SuppressWarnings("unchecked")
-  public static int writeField(DataOutput os, FudgeFieldType type, Object value, Short ordinal, String name) throws IOException {
+  public static int writeField(DataOutput os, FudgeFieldType type, Object value, Short ordinal, String name, FudgeTaxonomy taxonomy) throws IOException {
     checkOutputStream(os);
     if(type == null) {
       throw new NullPointerException("Must provide the type of data encoded.");
@@ -54,6 +66,22 @@ public class FudgeStreamEncoder {
     if(value == null) {
       throw new NullPointerException("Must provide the value to encode.");
     }
+    
+    // First, normalize the name/ordinal bit
+    if((taxonomy != null) && (name != null)) {
+      Short ordinalFromTaxonomy = taxonomy.getFieldOrdinal(name);
+      if(ordinalFromTaxonomy != null) {
+        if((ordinal != null) && !ObjectUtils.equals(ordinalFromTaxonomy, ordinal)) {
+          // In this case, we've been provided an ordinal, but it doesn't match the
+          // one from the taxonomy. We have to assume the user meant what they were doing,
+          // and not do anything.
+        } else {
+          ordinal = ordinalFromTaxonomy;
+          name = null;
+        }
+      }
+    }
+    
     int nWritten = 0;
     int valueSize = type.isVariableSize() ? type.getVariableSize(value) : type.getFixedSize();
     int fieldPrefix = composeFieldPrefix(!type.isVariableSize(), valueSize, (ordinal != null), (name != null));

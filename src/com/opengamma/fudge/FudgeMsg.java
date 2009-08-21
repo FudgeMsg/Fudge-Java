@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.fudge.taxon.FudgeTaxonomy;
 import com.opengamma.fudge.types.PrimitiveFieldTypes;
 
 /**
@@ -38,7 +39,7 @@ public class FudgeMsg implements Serializable {
     initializeFromByteArray(other.toByteArray());
   }
   
-  public FudgeMsg(byte[] byteArray) {
+  public FudgeMsg(byte[] byteArray, FudgeTaxonomy taxonomy) {
     initializeFromByteArray(byteArray);
   }
   

@@ -8,6 +8,9 @@ package com.opengamma.fudge;
 import java.io.DataInput;
 import java.io.IOException;
 
+import com.opengamma.fudge.taxon.FudgeTaxonomy;
+import com.opengamma.fudge.taxon.TaxonomyResolver;
+
 /**
  * 
  *
@@ -16,20 +19,24 @@ import java.io.IOException;
 public class FudgeStreamDecoder {
   
   public static FudgeMsg readMsg(DataInput is) throws IOException {
+    return readMsg(is, null);
+  }
+  
+  public static FudgeMsg readMsg(DataInput is, TaxonomyResolver taxonomyResolver) throws IOException {
     checkInputStream(is);
     int nRead = 0;
-    // TODO kirk 2009-08-21 -- We want this to be unsigned. Have to figure
-    // out how to it.
-    /*short taxonomy = */is.readShort();
+    short taxonomyId = is.readShort();
     nRead += 2;
     short nFields = is.readShort();
     nRead += 2;
     int size = is.readInt();
     nRead += 4;
     
+    FudgeTaxonomy taxonomy = (taxonomyResolver == null) ? null : taxonomyResolver.resolveTaxonomy(taxonomyId);
+    
     FudgeMsg msg = new FudgeMsg();
     for(int i = 0; i < nFields; i++) {
-      nRead += readField(is, msg);
+      nRead += readField(is, msg, taxonomy);
     }
     
     if((size > 0) && (nRead != size)) {
@@ -38,6 +45,9 @@ public class FudgeStreamDecoder {
     return msg;
   }
 
+  public static int readField(DataInput is, FudgeMsg msg) throws IOException {
+    return readField(is, msg, null);
+  }
   /**
    * Reads data about a field, and adds it to the message as a new field.
    * 
@@ -45,7 +55,7 @@ public class FudgeStreamDecoder {
    * @param msg
    * @return The number of bytes read.
    */
-  public static int readField(DataInput is, FudgeMsg msg) throws IOException {
+  public static int readField(DataInput is, FudgeMsg msg, FudgeTaxonomy taxonomy) throws IOException {
     checkInputStream(is);
     int nRead = 0;
     
@@ -74,6 +84,8 @@ public class FudgeStreamDecoder {
       nRead++;
       name = ModifiedUTF8Util.readString(is, nameSize);
       nRead += nameSize;
+    } else if(hasOrdinal && taxonomy != null) {
+      name = taxonomy.getFieldName(ordinal);
     }
     
     FudgeFieldType<?> type = FudgeTypeDictionary.INSTANCE.getByTypeId(typeId);
