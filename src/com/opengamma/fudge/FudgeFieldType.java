@@ -10,6 +10,8 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.Serializable;
 
+import com.opengamma.fudge.taxon.FudgeTaxonomy;
+
 /**
  * The class defining the type of a particular field.
  *
@@ -106,20 +108,20 @@ public class FudgeFieldType<TValue> implements Serializable {
     return _toStringValue;
   }
   
-  public int getVariableSize(TValue value) {
+  public int getVariableSize(TValue value, FudgeTaxonomy taxonomy) {
     if(isVariableSize()) {
       throw new UnsupportedOperationException("This method must be overridden for variable size types.");
     }
     return getFixedSize();
   }
   
-  public void writeValue(DataOutput output, TValue value) throws IOException {
+  public void writeValue(DataOutput output, TValue value, FudgeTaxonomy taxonomy, short taxonomyId) throws IOException {
     if(isVariableSize()) {
       throw new UnsupportedOperationException("This method must be overridden for variable size types.");
     }
   }
   
-  public TValue readValue(DataInput input, int dataSize) throws IOException {
+  public TValue readValue(DataInput input, int dataSize, FudgeTaxonomy taxonomy) throws IOException {
     if(isVariableSize()) {
       throw new UnsupportedOperationException("This method must be overridden for variable size types.");
     }

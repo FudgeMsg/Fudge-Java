@@ -11,6 +11,7 @@ import java.io.IOException;
 
 import com.opengamma.fudge.FudgeFieldType;
 import com.opengamma.fudge.FudgeTypeDictionary;
+import com.opengamma.fudge.taxon.FudgeTaxonomy;
 
 /**
  * 
@@ -25,12 +26,12 @@ public class DoubleArrayFieldType extends FudgeFieldType<double[]> {
   }
 
   @Override
-  public int getVariableSize(double[] value) {
+  public int getVariableSize(double[] value, FudgeTaxonomy taxonomy) {
     return value.length * 8;
   }
 
   @Override
-  public double[] readValue(DataInput input, int dataSize) throws IOException {
+  public double[] readValue(DataInput input, int dataSize, FudgeTaxonomy taxonomy) throws IOException {
     int nDoubles = dataSize / 8;
     double[] result = new double[nDoubles];
     for(int i = 0; i < nDoubles; i++) {
@@ -40,7 +41,7 @@ public class DoubleArrayFieldType extends FudgeFieldType<double[]> {
   }
 
   @Override
-  public void writeValue(DataOutput output, double[] value) throws IOException {
+  public void writeValue(DataOutput output, double[] value, FudgeTaxonomy taxonomy, short taxonomyId) throws IOException {
     for(double d : value) {
       output.writeDouble(d);
     }

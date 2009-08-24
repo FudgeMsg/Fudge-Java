@@ -14,6 +14,8 @@ import com.opengamma.fudge.FudgeMsg;
 import com.opengamma.fudge.FudgeStreamDecoder;
 import com.opengamma.fudge.FudgeStreamEncoder;
 import com.opengamma.fudge.FudgeTypeDictionary;
+import com.opengamma.fudge.taxon.FudgeTaxonomy;
+import com.opengamma.fudge.taxon.TaxonomyResolver;
 
 /**
  * 
@@ -28,18 +30,23 @@ public class FudgeMsgFieldType extends FudgeFieldType<FudgeMsg> {
   }
 
   @Override
-  public int getVariableSize(FudgeMsg value) {
-    return value.getSize();
+  public int getVariableSize(FudgeMsg value, FudgeTaxonomy taxonomy) {
+    return value.getSize(taxonomy);
   }
 
   @Override
-  public FudgeMsg readValue(DataInput input, int dataSize) throws IOException {
-    return FudgeStreamDecoder.readMsg(input);
+  public FudgeMsg readValue(DataInput input, int dataSize, final FudgeTaxonomy taxonomy) throws IOException {
+    return FudgeStreamDecoder.readMsg(input, new TaxonomyResolver() {
+      @Override
+      public FudgeTaxonomy resolveTaxonomy(short taxonomyId) {
+        return taxonomy;
+      }
+    });
   }
 
   @Override
-  public void writeValue(DataOutput output, FudgeMsg value) throws IOException {
-    FudgeStreamEncoder.writeMsg(output, value);
+  public void writeValue(DataOutput output, FudgeMsg value, FudgeTaxonomy taxonomy, short taxonomyId) throws IOException {
+    FudgeStreamEncoder.writeMsg(output, value, taxonomy, taxonomyId);
   }
 
 }

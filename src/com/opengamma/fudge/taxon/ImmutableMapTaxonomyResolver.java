@@ -35,7 +35,7 @@ public class ImmutableMapTaxonomyResolver implements TaxonomyResolver {
     }
     _taxonomiesById = new HashMap<Short, FudgeTaxonomy>(taxonomiesById);
   }
-
+  
   @Override
   public FudgeTaxonomy resolveTaxonomy(short taxonomyId) {
     return _taxonomiesById.get(taxonomyId);

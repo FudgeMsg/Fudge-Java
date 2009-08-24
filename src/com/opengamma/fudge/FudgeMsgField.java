@@ -7,19 +7,21 @@ package com.opengamma.fudge;
 
 import java.io.Serializable;
 
+import com.opengamma.fudge.taxon.FudgeTaxonomy;
+
 /**
  * A concrete implementation of {@link FudgeField} suitable for inclusion in
  * a pre-constructed {@link FudgeMsg} or a stream of data.
  *
  * @author kirk
  */
-public class FudgeMsgField implements FudgeField, Serializable, Cloneable {
+public class FudgeMsgField implements FudgeField, Serializable, Cloneable, SizeComputable {
   @SuppressWarnings("unchecked")
   private final FudgeFieldType _type;
   private final Object _value;
   private final String _name;
   private final Short _ordinal;
-  private volatile int _size = -1;
+  private final SizeCache _sizeCache = new SizeCache(this);
   
   public FudgeMsgField(FudgeFieldType<?> type, Object value, String name, Short ordinal) {
     if(type == null) {
@@ -88,29 +90,35 @@ public class FudgeMsgField implements FudgeField, Serializable, Cloneable {
     return sb.toString();
   }
   
-  public int getSize() {
-    if(_size == -1) {
-      _size = computeSize();
-    }
-    return _size;
+  public int getSize(FudgeTaxonomy taxonomy) {
+    return _sizeCache.getSize(taxonomy);
   }
   
   @SuppressWarnings("unchecked")
-  protected int computeSize() {
+  @Override
+  public int computeSize(FudgeTaxonomy taxonomy) {
     int size = 0;
     // Field prefix
     size += 2;
-    if(_ordinal != null) {
+    boolean hasOrdinal = _ordinal != null;
+    boolean hasName = _name != null;
+    if((_name != null) && (taxonomy != null)) {
+      if(taxonomy.getFieldOrdinal(_name) != null) {
+        hasOrdinal = true;
+        hasName = false;
+      }
+    }
+    if(hasOrdinal) {
       size += 2;
     }
-    if(_name != null) {
+    if(hasName) {
       // One for the size prefix
       size++;
       // Then for the UTF Encoding
       size += ModifiedUTF8Util.modifiedUTF8Length(_name);
     }
     if(_type.isVariableSize()) {
-      int valueSize = _type.getVariableSize(_value);
+      int valueSize = _type.getVariableSize(_value, taxonomy);
       if(valueSize <= 255) {
         size += valueSize + 1;
       } else if(valueSize <= Short.MAX_VALUE) {

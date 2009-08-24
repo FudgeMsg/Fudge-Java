@@ -11,6 +11,7 @@ import java.io.IOException;
 
 import com.opengamma.fudge.FudgeFieldType;
 import com.opengamma.fudge.FudgeTypeDictionary;
+import com.opengamma.fudge.taxon.FudgeTaxonomy;
 
 /**
  * 
@@ -25,19 +26,19 @@ public class ByteArrayFieldType extends FudgeFieldType<byte[]> {
   }
 
   @Override
-  public int getVariableSize(byte[] value) {
+  public int getVariableSize(byte[] value, FudgeTaxonomy taxonomy) {
     return value.length;
   }
 
   @Override
-  public byte[] readValue(DataInput input, int dataSize) throws IOException {
+  public byte[] readValue(DataInput input, int dataSize, FudgeTaxonomy taxonomy) throws IOException {
     byte[] result = new byte[dataSize];
     input.readFully(result);
     return result;
   }
 
   @Override
-  public void writeValue(DataOutput output, byte[] value) throws IOException {
+  public void writeValue(DataOutput output, byte[] value, FudgeTaxonomy taxonomy, short taxonomyId) throws IOException {
     output.write(value);
   }
 

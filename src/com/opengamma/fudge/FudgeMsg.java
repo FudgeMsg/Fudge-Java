@@ -25,9 +25,9 @@ import com.opengamma.fudge.types.PrimitiveFieldTypes;
  *
  * @author kirk
  */
-public class FudgeMsg implements Serializable {
+public class FudgeMsg implements Serializable, SizeComputable {
+  private final SizeCache _sizeCache = new SizeCache(this);
   private final List<FudgeMsgField> _fields = new ArrayList<FudgeMsgField>();
-  private volatile int _size = -1;
   
   public FudgeMsg() {
   }
@@ -218,7 +218,7 @@ public class FudgeMsg implements Serializable {
   }
 
   public byte[] toByteArray() {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream(getSize());
+    ByteArrayOutputStream baos = new ByteArrayOutputStream(computeSize(null));
     DataOutputStream dos = new DataOutputStream(baos);
     try {
       FudgeStreamEncoder.writeMsg(dos, this);
@@ -228,22 +228,20 @@ public class FudgeMsg implements Serializable {
     return baos.toByteArray();
   }
   
-  public int getSize() {
-    if(_size == -1) {
-      _size = computeSize();
-    }
-    return _size;
+  public int getSize(FudgeTaxonomy taxonomy) {
+    return _sizeCache.getSize(taxonomy);
   }
 
   /**
    * @return
    */
-  protected int computeSize() {
+  @Override
+  public int computeSize(FudgeTaxonomy taxonomy) {
     int size = 0;
     // Message prefix
     size += 8;
     for(FudgeMsgField field : _fields) {
-      size += field.getSize();
+      size += field.getSize(taxonomy);
     }
     return size;
   }

@@ -55,14 +55,17 @@ public class FudgeContext {
   }
   
   public void serialize(FudgeMsg msg, OutputStream os) {
-    serialize(msg, (short)0, os);
+    serialize(msg, null, os);
   }
   
-  public void serialize(FudgeMsg msg, short taxonomyId, OutputStream os) {
-    FudgeTaxonomy taxonomy = (getTaxonomyResolver() == null) ? null : getTaxonomyResolver().resolveTaxonomy(taxonomyId) ;
+  public void serialize(FudgeMsg msg, Short taxonomyId, OutputStream os) {
+    FudgeTaxonomy taxonomy = null;
+    if((getTaxonomyResolver() != null) && (taxonomyId != null)) {
+      taxonomy = getTaxonomyResolver().resolveTaxonomy(taxonomyId);
+    }
     DataOutputStream dos = new DataOutputStream(os);
     try {
-      FudgeStreamEncoder.writeMsg(dos, msg, taxonomy);
+      FudgeStreamEncoder.writeMsg(dos, msg, taxonomy, (taxonomyId == null) ? (short)0 : taxonomyId);
     } catch (IOException e) {
       throw new FudgeRuntimeException("Unable to write Fudge message to OutputStream", e);
     }

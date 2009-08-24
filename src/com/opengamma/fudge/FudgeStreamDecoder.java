@@ -106,7 +106,7 @@ public class FudgeStreamDecoder {
       }
       
     }
-    Object fieldValue = readFieldValue(is, type, varSize);
+    Object fieldValue = readFieldValue(is, type, varSize, taxonomy);
     if(fixedWidth) {
       nRead += type.getFixedSize();
     } else {
@@ -124,7 +124,7 @@ public class FudgeStreamDecoder {
    * @param varSize 
    * @return
    */
-  public static Object readFieldValue(DataInput is, FudgeFieldType<?> type, int varSize) throws IOException {
+  public static Object readFieldValue(DataInput is, FudgeFieldType<?> type, int varSize, FudgeTaxonomy taxonomy) throws IOException {
     assert type != null;
     assert is != null;
     
@@ -146,7 +146,7 @@ public class FudgeStreamDecoder {
       return is.readDouble();
     }
     
-    return type.readValue(is, varSize);
+    return type.readValue(is, varSize, taxonomy);
   }
 
   protected static void checkInputStream(DataInput is) {

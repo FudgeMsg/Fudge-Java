@@ -24,19 +24,19 @@ public class FudgeStreamEncoder {
   /*package*/ static final int FIELD_PREFIX_NAME_PROVIDED_MASK = 0x08;
   
   public static void writeMsg(DataOutput os, FudgeMsg msg) throws IOException {
-    writeMsg(os, msg, null);
+    writeMsg(os, msg, null, (short)0);
   }
   
-  public static void writeMsg(DataOutput os, FudgeMsg msg, FudgeTaxonomy taxonomy) throws IOException {
+  public static void writeMsg(DataOutput os, FudgeMsg msg, FudgeTaxonomy taxonomy, short taxonomyId) throws IOException {
     checkOutputStream(os);
     if(msg == null) {
       throw new NullPointerException("Must provide a message to output.");
     }
     int nWritten = 0;
-    int msgSize = msg.getSize();
-    nWritten += writeMsgHeader(os, 0, msg.getNumFields(), msgSize);
+    int msgSize = msg.getSize(taxonomy);
+    nWritten += writeMsgHeader(os, taxonomyId, msg.getNumFields(), msgSize);
     for(FudgeField field : msg.getAllFields()) {
-      nWritten += writeField(os, field.getType(), field.getValue(), field.getOrdinal(), field.getName(), taxonomy);
+      nWritten += writeField(os, field.getType(), field.getValue(), field.getOrdinal(), field.getName(), taxonomy, taxonomyId);
     }
     assert nWritten == msgSize : "Expected to write " + msgSize + " but actually wrote " + nWritten; 
   }
@@ -54,11 +54,13 @@ public class FudgeStreamEncoder {
   }
   
   public static int writeField(DataOutput os, FudgeFieldType<?> type, Object value, Short ordinal, String name) throws IOException {
-    return writeField(os, type, value, ordinal, name, null);
+    return writeField(os, type, value, ordinal, name, null, (short)0);
   }
   
   @SuppressWarnings("unchecked")
-  public static int writeField(DataOutput os, FudgeFieldType type, Object value, Short ordinal, String name, FudgeTaxonomy taxonomy) throws IOException {
+  public static int writeField(DataOutput os, FudgeFieldType type,
+      Object value, Short ordinal, String name,
+      FudgeTaxonomy taxonomy, short taxonomyId) throws IOException {
     checkOutputStream(os);
     if(type == null) {
       throw new NullPointerException("Must provide the type of data encoded.");
@@ -83,7 +85,7 @@ public class FudgeStreamEncoder {
     }
     
     int nWritten = 0;
-    int valueSize = type.isVariableSize() ? type.getVariableSize(value) : type.getFixedSize();
+    int valueSize = type.isVariableSize() ? type.getVariableSize(value, taxonomy) : type.getFixedSize();
     int fieldPrefix = composeFieldPrefix(!type.isVariableSize(), valueSize, (ordinal != null), (name != null));
     os.writeByte(fieldPrefix);
     nWritten++;
@@ -102,7 +104,7 @@ public class FudgeStreamEncoder {
       nWritten++;
       nWritten += ModifiedUTF8Util.writeModifiedUTF8(name, os);
     }
-    nWritten += writeFieldValue(os, type, value, valueSize);
+    nWritten += writeFieldValue(os, type, value, valueSize, taxonomy, taxonomyId);
     return nWritten;
   }
   
@@ -112,7 +114,7 @@ public class FudgeStreamEncoder {
    * @param value
    */
   @SuppressWarnings("unchecked")
-  protected static int writeFieldValue(DataOutput os, FudgeFieldType type, Object value, int valueSize) throws IOException {
+  protected static int writeFieldValue(DataOutput os, FudgeFieldType type, Object value, int valueSize, FudgeTaxonomy taxonomy, short taxonomyId) throws IOException {
     // Note that we fast-path types for which at compile time we know how to handle
     // in an optimized way. This is because this particular method is known to
     // be a massive hot-spot for performance.
@@ -160,7 +162,7 @@ public class FudgeStreamEncoder {
         os.writeInt(valueSize);
         nWritten = valueSize + 4;
       }
-      type.writeValue(os, value);
+      type.writeValue(os, value, taxonomy, taxonomyId);
     }
     return nWritten;
   }

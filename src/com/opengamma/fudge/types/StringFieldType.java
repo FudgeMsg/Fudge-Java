@@ -12,6 +12,7 @@ import java.io.IOException;
 import com.opengamma.fudge.FudgeFieldType;
 import com.opengamma.fudge.FudgeTypeDictionary;
 import com.opengamma.fudge.ModifiedUTF8Util;
+import com.opengamma.fudge.taxon.FudgeTaxonomy;
 
 /**
  * 
@@ -26,17 +27,17 @@ public class StringFieldType extends FudgeFieldType<String> {
   }
 
   @Override
-  public int getVariableSize(String value) {
+  public int getVariableSize(String value, FudgeTaxonomy taxonomy) {
     return ModifiedUTF8Util.modifiedUTF8Length(value);
   }
 
   @Override
-  public String readValue(DataInput input, int dataSize) throws IOException {
+  public String readValue(DataInput input, int dataSize, FudgeTaxonomy taxonomy) throws IOException {
     return ModifiedUTF8Util.readString(input, dataSize);
   }
 
   @Override
-  public void writeValue(DataOutput output, String value) throws IOException {
+  public void writeValue(DataOutput output, String value, FudgeTaxonomy taxonomy, short taxonomyId) throws IOException {
     ModifiedUTF8Util.writeModifiedUTF8(value, output);
   }
 

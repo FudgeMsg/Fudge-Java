@@ -36,6 +36,24 @@ public class MapFudgeTaxonomy implements FudgeTaxonomy {
       _ordinalsByName.put(entry.getValue(), entry.getKey());
     }
   }
+  
+  public MapFudgeTaxonomy(short[] ordinals, String[] names) {
+    if(ordinals == null) {
+      throw new NullPointerException("Must provide ordinals.");
+    }
+    if(names == null) {
+      throw new NullPointerException("Must provide names.");
+    }
+    if(ordinals.length != names.length) {
+      throw new IllegalArgumentException("Arrays of ordinals and names must be of same length.");
+    }
+    _namesByOrdinal = new HashMap<Short, String>(ordinals.length);
+    _ordinalsByName = new HashMap<String, Short>(ordinals.length);
+    for(int i = 0; i < ordinals.length; i++) {
+      _namesByOrdinal.put(ordinals[i], names[i]);
+      _ordinalsByName.put(names[i], ordinals[i]);
+    }
+  }
 
   @Override
   public String getFieldName(short ordinal) {
