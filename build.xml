@@ -1,17 +1,33 @@
-<project default="default" basedir=".">
+<project default="default" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
   <property environment="ENV"/>
   <property file="${basedir}/${user.name}.build.properties"/>
   <property file="${basedir}/build.properties"/>
   
-  <path id="src.build.classpath">
-    <pathelement location="${lib.dir}/commons-lang-2.4.jar"/>
-  </path>
-  
-  <path id="tests.build.classpath">
-    <path refid="src.build.classpath"/>
-    <pathelement location="${src.build.output}"/>
-    <pathelement location="${lib.dir}/junit-4.7.jar"/>
-  </path>
+  <target name="download-ivy" unless="skip.download">
+    <mkdir dir="${ivy.jar.dir}"/>
+    <!-- download Ivy from web site so that it can be used even without any special installation -->
+    <echo message="installing ivy..."/>
+	  <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
+	       dest="${ivy.jar.file}" usetimestamp="true"/>
+	</target>
+	    
+	<!-- ================================= 
+	     target: install-ivy         
+	     this target is not necessary if you put ivy.jar in your ant lib directory
+	     if you already have ivy in your ant lib, you can simply remove this
+	     target and the dependency the 'go' target has on it
+	     ================================= -->
+	<target name="install-ivy" depends="download-ivy" description="--> install ivy">
+	  <!-- try to load ivy here from local ivy dir, in case the user has not already dropped
+	       it into ant's lib dir (note that the latter copy will always take precedence).
+	       We will not fail as long as local lib dir exists (it may be empty) and
+	       ivy is in at least one of ant's lib dir or the local lib dir. -->
+	  <path id="ivy.lib.path">
+	    <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
+	  </path>
+	  <taskdef resource="org/apache/ivy/ant/antlib.xml"
+	           uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+	</target> 
   
   <target name="default" depends="all"/>
   
@@ -22,7 +38,10 @@
   <target name="compile" depends="compile-src,compile-test"
    description="Compile all source code"/>
   
-  <target name="compile-src">
+  <target name="compile-src" depends="install-ivy">
+    <!-- here comes the magic line: asks ivy to resolve a dependency on 
+         commons-lang 2.1 and to build an ant path with it from its cache  -->
+    <ivy:cachepath pathid="src.build.classpath" conf="*"/>
     <mkdir dir="${src.build.output}"/>
     <javac
      srcdir="${basedir}/src"
@@ -40,7 +59,13 @@
     </copy>
   </target>
 
-  <target name="compile-test">
+  <target name="compile-test" depends="install-ivy">
+  	<ivy:cachepath pathid="lib.path.id" conf="*"/>
+    <path id="tests.build.classpath">
+      <path refid="lib.path.id"/>
+    	<pathelement path="${src.build.output}"/>
+    </path>
+  	<echo message="classpath ${toString:tests.build.classpath}"/>
     <mkdir dir="${tests.build.output}"/>
     <javac
      srcdir="${basedir}/tests/unit"
@@ -118,12 +143,7 @@
   
   <target name="prep-dist-dir" depends="bin-jar,src-jar">
     <mkdir dir="${dist.dir}/fudge-${fudge.version}/lib"/>
-    <copy todir="${dist.dir}/fudge-${fudge.version}/lib">
-      <fileset dir="${lib.dir}">
-        <include name="commons-lang-2.7.jar"/>
-        <include name="junit-4.7.jar"/>
-      </fileset>
-    </copy>
+  	<ivy:retrieve pattern="${dist.dir}/fudge-${fudge.version}/lib/[artifact]-[revision].[ext]" />
   </target>
   
   <target name="tarball" depends="prep-dist-dir">
@@ -135,4 +155,5 @@
     <zip destfile="${dist.dir}/fudge-${fudge.version}.zip" basedir="${dist.dir}/fudge-${fudge.version}"/>
   </target>
   
+	
 </project>
