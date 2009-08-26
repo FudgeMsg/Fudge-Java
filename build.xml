@@ -100,7 +100,7 @@
     description="Generate the distribution packages.">
   </target>
   
-  <target name="jar" depends="compile-src">
+  <target name="bin-jar" depends="compile-src">
     <mkdir dir="${dist.dir}/fudge-${fudge.version}"/>
     <jar destfile="${dist.dir}/fudge-${fudge.version}/fudge-${fudge.version}.jar"
       basedir="${src.build.output}"
@@ -108,7 +108,15 @@
     </jar>
   </target>
   
-  <target name="prep-dist-dir" depends="jar">
+  <target name="src-jar">
+    <mkdir dir="${dist.dir}/fudge-${fudge.version}"/>
+    <jar destfile="${dist.dir}/fudge-${fudge.version}/fudge-${fudge.version}-src.jar"
+      basedir="${basedir}/src"
+      compress="${jar.compress}">
+    </jar>
+  </target>
+  
+  <target name="prep-dist-dir" depends="bin-jar,src-jar">
     <mkdir dir="${dist.dir}/fudge-${fudge.version}/lib"/>
     <copy todir="${dist.dir}/fudge-${fudge.version}/lib">
       <fileset dir="${lib.dir}">
