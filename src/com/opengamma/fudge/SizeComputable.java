@@ -8,7 +8,8 @@ package com.opengamma.fudge;
 import com.opengamma.fudge.taxon.FudgeTaxonomy;
 
 /**
- * 
+ * The primary interface through which {@link FudgeMsgField} and {@link FudgeMsg}
+ * can contain a {@link SizeCache}.
  *
  * @author kirk
  */

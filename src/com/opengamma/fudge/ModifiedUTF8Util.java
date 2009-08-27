@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.UTFDataFormatException;
 
 /**
- * Code relating to working with Modified UTF-8 data.
+ * Code relating to working with <a href="http://en.wikipedia.org/wiki/UTF-8#Modified_UTF-8">Modified UTF-8</a> data.
  * The code here was originally in {@link DataInputStream} and
  * {@link DataOutputStream}, but it's been improved and modified
  * to suit the use of Fudge in a superior way.

@@ -14,7 +14,7 @@ import com.opengamma.fudge.FudgeTypeDictionary;
 import com.opengamma.fudge.taxon.FudgeTaxonomy;
 
 /**
- * 
+ * The type definition for a byte array.
  *
  * @author kirk
  */

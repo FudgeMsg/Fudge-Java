@@ -15,7 +15,7 @@ import com.opengamma.fudge.ModifiedUTF8Util;
 import com.opengamma.fudge.taxon.FudgeTaxonomy;
 
 /**
- * 
+ * The type definition for a Modified UTF-8 encoded string.
  *
  * @author kirk
  */

@@ -22,6 +22,11 @@ import com.opengamma.fudge.types.PrimitiveFieldTypes;
 
 /**
  * A container for {@link FudgeMsgField}s.
+ * This instance will contain all data fully extracted from a Fudge-encoded
+ * stream, unlike other systems where fields are unpacked as required.
+ * Therefore, constructing a {@code FudgeMsg} from a field is relatively more
+ * expensive in CPU and memory usage than just holding the original byte array,
+ * but lookups are substantially faster.
  *
  * @author kirk
  */

@@ -18,7 +18,7 @@ import com.opengamma.fudge.taxon.FudgeTaxonomy;
 import com.opengamma.fudge.taxon.TaxonomyResolver;
 
 /**
- * 
+ * The type definition for a sub-message in a hierarchical message format.
  *
  * @author kirk
  */

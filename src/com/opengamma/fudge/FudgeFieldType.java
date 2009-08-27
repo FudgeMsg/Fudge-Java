@@ -14,6 +14,10 @@ import com.opengamma.fudge.taxon.FudgeTaxonomy;
 
 /**
  * The class defining the type of a particular field.
+ * While Fudge comes with a set of required types which are fully supported
+ * in all Fudge-compliant systems, if you have custom data, you can control the encoding
+ * using your own instance of {@code FudgeFieldType}, making sure to register the
+ * instance with the {@link FudgeTypeDictionary} at application startup.
  *
  * @author kirk
  */

@@ -14,7 +14,7 @@ import com.opengamma.fudge.FudgeTypeDictionary;
 import com.opengamma.fudge.taxon.FudgeTaxonomy;
 
 /**
- * 
+ * The type definition for an array of double-precision floating point numbers.
  *
  * @author kirk
  */
