@@ -1,5 +1,5 @@
 <ivy-module version="2.0">
-    <info organisation="opengamma" module="hello-ivy"/>
+    <info organisation="com.opengamma" module="fudge"/>
     <dependencies>
         <dependency org="commons-lang" name="commons-lang" rev="2.4"/>
         <dependency org="org.junit" name="junit" rev="4.5"/>
