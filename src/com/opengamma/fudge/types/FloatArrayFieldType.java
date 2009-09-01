@@ -31,7 +31,7 @@ public class FloatArrayFieldType extends FudgeFieldType<float[]> {
   }
 
   @Override
-  public float[] readValue(DataInput input, int dataSize, FudgeTaxonomy taxonomy) throws IOException {
+  public float[] readValue(DataInput input, int dataSize) throws IOException {
     int nFloats = dataSize / 4;
     float[] result = new float[nFloats];
     for(int i = 0; i < nFloats; i++) {

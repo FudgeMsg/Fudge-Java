@@ -31,7 +31,7 @@ public class DoubleArrayFieldType extends FudgeFieldType<double[]> {
   }
 
   @Override
-  public double[] readValue(DataInput input, int dataSize, FudgeTaxonomy taxonomy) throws IOException {
+  public double[] readValue(DataInput input, int dataSize) throws IOException {
     int nDoubles = dataSize / 8;
     double[] result = new double[nDoubles];
     for(int i = 0; i < nDoubles; i++) {

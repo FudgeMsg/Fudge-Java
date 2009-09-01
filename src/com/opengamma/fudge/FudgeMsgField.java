@@ -15,13 +15,12 @@ import com.opengamma.fudge.taxon.FudgeTaxonomy;
  *
  * @author kirk
  */
-public class FudgeMsgField implements FudgeField, Serializable, Cloneable, SizeComputable {
+public class FudgeMsgField extends FudgeEncodingObject implements FudgeField, Serializable, Cloneable {
   @SuppressWarnings("unchecked")
   private final FudgeFieldType _type;
   private final Object _value;
   private final String _name;
   private final Short _ordinal;
-  private final SizeCache _sizeCache = new SizeCache(this);
   
   public FudgeMsgField(FudgeFieldType<?> type, Object value, String name, Short ordinal) {
     if(type == null) {
@@ -88,10 +87,6 @@ public class FudgeMsgField implements FudgeField, Serializable, Cloneable, SizeC
     sb.append("-").append(_value);
     sb.append("]");
     return sb.toString();
-  }
-  
-  public int getSize(FudgeTaxonomy taxonomy) {
-    return _sizeCache.getSize(taxonomy);
   }
   
   @SuppressWarnings("unchecked")

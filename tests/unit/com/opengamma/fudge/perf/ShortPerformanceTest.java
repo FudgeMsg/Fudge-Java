@@ -38,6 +38,8 @@ public class ShortPerformanceTest {
     System.out.println("Serialization size: " + serializationCycle());
     for(int i = 0; i < HOT_SPOT_WARMUP_CYCLES; i++) {
       fudgeCycle(true, false);
+      fudgeCycle(false, true);
+      fudgeCycle(true, true);
       serializationCycle();
     }
   }
@@ -51,6 +53,7 @@ public class ShortPerformanceTest {
     long startTime = 0;
     long endTime = 0;
     
+    System.out.println("Starting Fudge names only.");
     startTime = System.currentTimeMillis();
     for(int i = 0; i < nCycles; i++) {
       fudgeCycle(true, false);
@@ -58,7 +61,10 @@ public class ShortPerformanceTest {
     endTime = System.currentTimeMillis();
     long fudgeDeltaNamesOnly = endTime - startTime;
     double fudgeSplitNamesOnly = convertToCyclesPerSecond(nCycles, fudgeDeltaNamesOnly);
+    System.out.println("GCing...");
+    System.gc();
     
+    System.out.println("Starting Fudge ordinals only.");
     startTime = System.currentTimeMillis();
     for(int i = 0; i < nCycles; i++) {
       fudgeCycle(false, true);
@@ -66,7 +72,10 @@ public class ShortPerformanceTest {
     endTime = System.currentTimeMillis();
     long fudgeDeltaOrdinalsOnly = endTime - startTime;
     double fudgeSplitOrdinalsOnly = convertToCyclesPerSecond(nCycles, fudgeDeltaOrdinalsOnly);
+    System.out.println("GCing...");
+    System.gc();
     
+    System.out.println("Starting Fudge names and ordinals.");
     startTime = System.currentTimeMillis();
     for(int i = 0; i < nCycles; i++) {
       fudgeCycle(true, true);
@@ -74,7 +83,10 @@ public class ShortPerformanceTest {
     endTime = System.currentTimeMillis();
     long fudgeDeltaBoth = endTime - startTime;
     double fudgeSplitBoth = convertToCyclesPerSecond(nCycles, fudgeDeltaBoth);
+    System.out.println("GCing...");
+    System.gc();
     
+    System.out.println("Starting Java Serialization.");
     startTime = System.currentTimeMillis();
     for(int i = 0; i < nCycles; i++) {
       serializationCycle();
@@ -82,6 +94,8 @@ public class ShortPerformanceTest {
     endTime = System.currentTimeMillis();
     long serializationDelta = endTime - startTime;
     double serializationSplit = convertToCyclesPerSecond(nCycles, serializationDelta);
+    System.out.println("GCing...");
+    System.gc();
     
     StringBuilder sb = new StringBuilder();
     sb.append("For ").append(nCycles).append(" cycles");

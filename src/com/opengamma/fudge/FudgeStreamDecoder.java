@@ -32,22 +32,25 @@ public class FudgeStreamDecoder {
     int size = is.readInt();
     nRead += 4;
     
-    FudgeTaxonomy taxonomy = (taxonomyResolver == null) ? null : taxonomyResolver.resolveTaxonomy(taxonomyId);
-    
     FudgeMsg msg = new FudgeMsg();
     for(int i = 0; i < nFields; i++) {
-      nRead += readField(is, msg, taxonomy);
+      nRead += readField(is, msg);
     }
     
     if((size > 0) && (nRead != size)) {
       throw new RuntimeException("Expected to read " + size + " but only had " + nRead + " in message.");
     }
+    
+    if(taxonomyResolver != null) {
+      FudgeTaxonomy taxonomy = taxonomyResolver.resolveTaxonomy(taxonomyId);
+      if(taxonomy != null) {
+        msg.setNamesFromTaxonomy(taxonomy);
+      }
+    }
+    
     return msg;
   }
 
-  public static int readField(DataInput is, FudgeMsg msg) throws IOException {
-    return readField(is, msg, null);
-  }
   /**
    * Reads data about a field, and adds it to the message as a new field.
    * 
@@ -55,7 +58,7 @@ public class FudgeStreamDecoder {
    * @param msg
    * @return The number of bytes read.
    */
-  public static int readField(DataInput is, FudgeMsg msg, FudgeTaxonomy taxonomy) throws IOException {
+  public static int readField(DataInput is, FudgeMsg msg) throws IOException {
     checkInputStream(is);
     int nRead = 0;
     
@@ -84,8 +87,6 @@ public class FudgeStreamDecoder {
       nRead++;
       name = ModifiedUTF8Util.readString(is, nameSize);
       nRead += nameSize;
-    } else if(hasOrdinal && taxonomy != null) {
-      name = taxonomy.getFieldName(ordinal);
     }
     
     FudgeFieldType<?> type = FudgeTypeDictionary.INSTANCE.getByTypeId(typeId);
@@ -106,7 +107,7 @@ public class FudgeStreamDecoder {
       }
       
     }
-    Object fieldValue = readFieldValue(is, type, varSize, taxonomy);
+    Object fieldValue = readFieldValue(is, type, varSize);
     if(fixedWidth) {
       nRead += type.getFixedSize();
     } else {
@@ -124,7 +125,7 @@ public class FudgeStreamDecoder {
    * @param varSize 
    * @return
    */
-  public static Object readFieldValue(DataInput is, FudgeFieldType<?> type, int varSize, FudgeTaxonomy taxonomy) throws IOException {
+  public static Object readFieldValue(DataInput is, FudgeFieldType<?> type, int varSize) throws IOException {
     assert type != null;
     assert is != null;
     
@@ -146,7 +147,7 @@ public class FudgeStreamDecoder {
       return is.readDouble();
     }
     
-    return type.readValue(is, varSize, taxonomy);
+    return type.readValue(is, varSize);
   }
 
   protected static void checkInputStream(DataInput is) {

@@ -31,7 +31,7 @@ public class ByteArrayFieldType extends FudgeFieldType<byte[]> {
   }
 
   @Override
-  public byte[] readValue(DataInput input, int dataSize, FudgeTaxonomy taxonomy) throws IOException {
+  public byte[] readValue(DataInput input, int dataSize) throws IOException {
     byte[] result = new byte[dataSize];
     input.readFully(result);
     return result;

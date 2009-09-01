@@ -15,7 +15,6 @@ import com.opengamma.fudge.FudgeStreamDecoder;
 import com.opengamma.fudge.FudgeStreamEncoder;
 import com.opengamma.fudge.FudgeTypeDictionary;
 import com.opengamma.fudge.taxon.FudgeTaxonomy;
-import com.opengamma.fudge.taxon.TaxonomyResolver;
 
 /**
  * The type definition for a sub-message in a hierarchical message format.
@@ -35,13 +34,10 @@ public class FudgeMsgFieldType extends FudgeFieldType<FudgeMsg> {
   }
 
   @Override
-  public FudgeMsg readValue(DataInput input, int dataSize, final FudgeTaxonomy taxonomy) throws IOException {
-    return FudgeStreamDecoder.readMsg(input, new TaxonomyResolver() {
-      @Override
-      public FudgeTaxonomy resolveTaxonomy(short taxonomyId) {
-        return taxonomy;
-      }
-    });
+  public FudgeMsg readValue(DataInput input, int dataSize) throws IOException {
+    // REVIEW kirk 2009-09-01 -- This is right. We have to use the same taxonomy,
+    // so the parent taxonomy resolver will be fixed up later on.
+    return FudgeStreamDecoder.readMsg(input, null);
   }
 
   @Override

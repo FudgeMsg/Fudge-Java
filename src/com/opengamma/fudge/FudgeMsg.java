@@ -30,8 +30,7 @@ import com.opengamma.fudge.types.PrimitiveFieldTypes;
  *
  * @author kirk
  */
-public class FudgeMsg implements Serializable, SizeComputable {
-  private final SizeCache _sizeCache = new SizeCache(this);
+public class FudgeMsg extends FudgeEncodingObject implements Serializable {
   private final List<FudgeMsgField> _fields = new ArrayList<FudgeMsgField>();
   
   public FudgeMsg() {
@@ -233,10 +232,6 @@ public class FudgeMsg implements Serializable, SizeComputable {
     return baos.toByteArray();
   }
   
-  public int getSize(FudgeTaxonomy taxonomy) {
-    return _sizeCache.getSize(taxonomy);
-  }
-
   /**
    * @return
    */
@@ -410,7 +405,7 @@ public class FudgeMsg implements Serializable, SizeComputable {
     return (String) getFirstTypedValue(ordinal, FudgeTypeDictionary.STRING_TYPE_ID);
   }
   
-  protected Object getFirstTypedValue(String fieldName, int typeId) {
+  protected final Object getFirstTypedValue(String fieldName, int typeId) {
     for(FudgeMsgField field : _fields) {
       if(ObjectUtils.equals(fieldName, field.getName())
           && (field.getType().getTypeId() == typeId)) {
@@ -420,14 +415,43 @@ public class FudgeMsg implements Serializable, SizeComputable {
     return null;
   }
   
-  protected Object getFirstTypedValue(short ordinal, int typeId) {
+  protected final Object getFirstTypedValue(short ordinal, int typeId) {
     for(FudgeMsgField field : _fields) {
-      if(ObjectUtils.equals(ordinal, field.getOrdinal())
+      if(field.getOrdinal() == null) {
+        continue;
+      }
+      
+      if((field.getOrdinal() == ordinal)
           && (field.getType().getTypeId() == typeId)) {
         return field.getValue();
       }
     }
     return null;
+  }
+
+  /**
+   * @param taxonomy
+   */
+  public void setNamesFromTaxonomy(FudgeTaxonomy taxonomy) {
+    if(taxonomy == null) {
+      return;
+    }
+    for(int i = 0; i < _fields.size(); i++) {
+      FudgeMsgField field = _fields.get(i);
+      if((field.getOrdinal() != null) && (field.getName() == null)) {
+        String nameFromTaxonomy = taxonomy.getFieldName(field.getOrdinal());
+        if(nameFromTaxonomy == null) {
+          continue;
+        }
+        FudgeMsgField replacementField = new FudgeMsgField(field.getType(), field.getValue(), nameFromTaxonomy, field.getOrdinal());
+        _fields.set(i, replacementField);
+      }
+      
+      if(field.getValue() instanceof FudgeMsg) {
+        FudgeMsg subMsg = (FudgeMsg) field.getValue();
+        subMsg.setNamesFromTaxonomy(taxonomy);
+      }
+    }
   }
   
 }
