@@ -8,12 +8,14 @@ package com.opengamma.fudge;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
 import org.junit.Test;
 
+import com.opengamma.fudge.types.IndicatorType;
 import com.opengamma.fudge.types.PrimitiveFieldTypes;
 
 /**
@@ -49,6 +51,11 @@ public class FudgeMsgTest {
     
     msg.add(new float[24], "float array");
     msg.add(new double[273], "double array");
+    msg.add(new short[32], "short array");
+    msg.add(new int[83], "int array");
+    msg.add(new long[837], "long array");
+    
+    msg.add(IndicatorType.INSTANCE, "indicator");
     
     return msg;
   }
@@ -112,6 +119,9 @@ public class FudgeMsgTest {
     assertEquals(Boolean.TRUE, field.getValue());
     assertEquals("boolean", field.getName());
     assertNull(field.getOrdinal());
+    
+    // Check the indicator type specially
+    assertSame(IndicatorType.INSTANCE, msg.getValue("indicator"));
   }
 
   @Test

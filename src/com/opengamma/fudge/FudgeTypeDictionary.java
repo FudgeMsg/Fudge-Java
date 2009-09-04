@@ -13,7 +13,11 @@ import com.opengamma.fudge.types.ByteArrayFieldType;
 import com.opengamma.fudge.types.DoubleArrayFieldType;
 import com.opengamma.fudge.types.FloatArrayFieldType;
 import com.opengamma.fudge.types.FudgeMsgFieldType;
+import com.opengamma.fudge.types.IndicatorFieldType;
+import com.opengamma.fudge.types.IntArrayFieldType;
+import com.opengamma.fudge.types.LongArrayFieldType;
 import com.opengamma.fudge.types.PrimitiveFieldTypes;
+import com.opengamma.fudge.types.ShortArrayFieldType;
 import com.opengamma.fudge.types.StringFieldType;
 
 /**
@@ -71,6 +75,10 @@ public final class FudgeTypeDictionary {
   public static final byte SHORT_TYPE_ID = (byte)2;
   public static final byte INT_TYPE_ID = (byte)3;
   public static final byte LONG_TYPE_ID = (byte)4;
+  public static final byte SHORT_ARRAY_TYPE_ID = (byte)5;
+  public static final byte INT_ARRAY_TYPE_ID = (byte)6;
+  public static final byte LONG_ARRAY_TYPE_ID = (byte)7;
+  public static final byte INDICATOR_TYPE_ID = (byte)8;
   public static final byte FLOAT_TYPE_ID = (byte)17;
   public static final byte FLOAT_ARRAY_TYPE_ID = (byte)18;
   public static final byte DOUBLE_TYPE_ID = (byte)19;
@@ -86,6 +94,10 @@ public final class FudgeTypeDictionary {
     INSTANCE.addType(PrimitiveFieldTypes.INT_TYPE, Integer.class);
     INSTANCE.addType(PrimitiveFieldTypes.LONG_TYPE, Long.class);
     INSTANCE.addType(PrimitiveFieldTypes.FLOAT_TYPE, Float.class);
+    INSTANCE.addType(ShortArrayFieldType.INSTANCE);
+    INSTANCE.addType(IntArrayFieldType.INSTANCE);
+    INSTANCE.addType(LongArrayFieldType.INSTANCE);
+    INSTANCE.addType(IndicatorFieldType.INSTANCE);
     INSTANCE.addType(FloatArrayFieldType.INSTANCE);
     INSTANCE.addType(PrimitiveFieldTypes.DOUBLE_TYPE, Double.class);
     INSTANCE.addType(DoubleArrayFieldType.INSTANCE);

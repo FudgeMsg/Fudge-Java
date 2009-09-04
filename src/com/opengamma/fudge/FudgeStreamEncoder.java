@@ -150,17 +150,19 @@ public class FudgeStreamEncoder {
       break;
     }
     if(nWritten == 0) {
-      // This is correct. We read this using a .readUnsignedByte(), so we can go to
-      // 255 here.
-      if(valueSize <= 255) {
-        os.writeByte(valueSize);
-        nWritten = valueSize + 1;
-      } else if(valueSize <= Short.MAX_VALUE) {
-        os.writeShort(valueSize);
-        nWritten = valueSize + 2;
-      } else {
-        os.writeInt(valueSize);
-        nWritten = valueSize + 4;
+      if(type.isVariableSize()) {
+        // This is correct. We read this using a .readUnsignedByte(), so we can go to
+        // 255 here.
+        if(valueSize <= 255) {
+          os.writeByte(valueSize);
+          nWritten = valueSize + 1;
+        } else if(valueSize <= Short.MAX_VALUE) {
+          os.writeShort(valueSize);
+          nWritten = valueSize + 2;
+        } else {
+          os.writeInt(valueSize);
+          nWritten = valueSize + 4;
+        }
       }
       type.writeValue(os, value, taxonomy, taxonomyId);
     }
