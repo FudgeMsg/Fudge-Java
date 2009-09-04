@@ -85,7 +85,19 @@ public class FudgeMsgCodecTest {
       assertEquals(expectedField.getOrdinal(), actualField.getOrdinal());
       if(expectedField.getValue().getClass().isArray()) {
         assertEquals(expectedField.getValue().getClass(), actualField.getValue().getClass());
-        // TODO wyliekir 2009-08-19 -- Check something better.
+        if(expectedField.getValue() instanceof byte[]) {
+          assertArraysMatch((byte[]) expectedField.getValue(), (byte[])actualField.getValue());
+        } else if(expectedField.getValue() instanceof short[]) {
+          assertArraysMatch((short[]) expectedField.getValue(), (short[])actualField.getValue());
+        } else if(expectedField.getValue() instanceof int[]) {
+          assertArraysMatch((int[]) expectedField.getValue(), (int[])actualField.getValue());
+        } else if(expectedField.getValue() instanceof long[]) {
+          assertArraysMatch((long[]) expectedField.getValue(), (long[])actualField.getValue());
+        } else if(expectedField.getValue() instanceof float[]) {
+          assertArraysMatch((float[]) expectedField.getValue(), (float[])actualField.getValue());
+        } else if(expectedField.getValue() instanceof double[]) {
+          assertArraysMatch((double[]) expectedField.getValue(), (double[])actualField.getValue());
+        }
       } else if(expectedField.getValue() instanceof FudgeMsg) {
         assertTrue(actualField.getValue() instanceof FudgeMsg);
         assertAllFieldsMatch((FudgeMsg) expectedField.getValue(),
@@ -97,6 +109,51 @@ public class FudgeMsgCodecTest {
     assertFalse(actualIter.hasNext());
   }
   
+  // TODO kirk 2009-09-04 -- These belong in a utility class.
+  private static void assertArraysMatch(double[] expected, double[] actual) {
+    assertEquals(expected.length, actual.length);
+    for(int i = 0; i < expected.length; i++) {
+      // No tolerance intentionally.
+      assertEquals(expected[i],actual[i], 0.0);
+    }
+  }
+
+  private static void assertArraysMatch(float[] expected, float[] actual) {
+    assertEquals(expected.length, actual.length);
+    for(int i = 0; i < expected.length; i++) {
+      // No tolerance intentionally.
+      assertEquals(expected[i],actual[i], 0.0);
+    }
+  }
+
+  private static void assertArraysMatch(long[] expected, long[] actual) {
+    assertEquals(expected.length, actual.length);
+    for(int i = 0; i < expected.length; i++) {
+      assertEquals(expected[i],actual[i]);
+    }
+  }
+
+  private static void assertArraysMatch(int[] expected, int[] actual) {
+    assertEquals(expected.length, actual.length);
+    for(int i = 0; i < expected.length; i++) {
+      assertEquals(expected[i],actual[i]);
+    }
+  }
+
+  private static void assertArraysMatch(short[] expected, short[] actual) {
+    assertEquals(expected.length, actual.length);
+    for(int i = 0; i < expected.length; i++) {
+      assertEquals(expected[i],actual[i]);
+    }
+  }
+
+  private static void assertArraysMatch(byte[] expected, byte[] actual) {
+    assertEquals(expected.length, actual.length);
+    for(int i = 0; i < expected.length; i++) {
+      assertEquals(expected[i],actual[i]);
+    }
+  }
+
   protected static FudgeMsg cycleMessage(FudgeMsg msg) throws IOException {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     DataOutputStream dos = new DataOutputStream(baos);
