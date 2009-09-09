@@ -118,6 +118,10 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable {
       throw new NullPointerException("Cannot determine type for null value.");
     }
     FudgeFieldType<?> type = FudgeTypeDictionary.INSTANCE.getByJavaType(value.getClass());
+    if((type == null) && (value instanceof UnknownFudgeFieldValue)) {
+      UnknownFudgeFieldValue unknownValue = (UnknownFudgeFieldValue) value;
+      type = unknownValue.getType();
+    }
     return type;
   }
   

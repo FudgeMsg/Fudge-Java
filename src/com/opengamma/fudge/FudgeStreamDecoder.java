@@ -91,8 +91,10 @@ public class FudgeStreamDecoder {
     
     FudgeFieldType<?> type = FudgeTypeDictionary.INSTANCE.getByTypeId(typeId);
     if(type == null) {
-      // REVIEW kirk 2009-08-18 -- Is this the right behavior?
-      throw new RuntimeException("Unable to locate a FudgeFieldType for type id " + typeId + " for field " + ordinal + ":" + name);
+      if(fixedWidth) {
+        throw new RuntimeException("Unknown fixed width type " + typeId + " for field " + ordinal + ":" + name + " cannot be handled.");
+      }
+      type = FudgeTypeDictionary.INSTANCE.getUnknownType(typeId);
     }
     int varSize = 0;
     if(!fixedWidth) {

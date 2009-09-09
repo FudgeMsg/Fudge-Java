@@ -66,6 +66,14 @@ public class FudgeMsgCodecTest {
     
     assertAllFieldsMatch(inputMsg, outputMsg);
   }
+  
+  @Test
+  public void unknown() throws IOException {
+    FudgeMsg inputMsg = new FudgeMsg();
+    inputMsg.add(new UnknownFudgeFieldValue(new byte[10], FudgeTypeDictionary.INSTANCE.getUnknownType(200)), "unknown");
+    FudgeMsg outputMsg = cycleMessage(inputMsg);
+    assertAllFieldsMatch(inputMsg, outputMsg);
+  }
 
   // REVIEW kirk 2009-08-21 -- This should be moved to a utility class.
   /**
@@ -102,6 +110,13 @@ public class FudgeMsgCodecTest {
         assertTrue(actualField.getValue() instanceof FudgeMsg);
         assertAllFieldsMatch((FudgeMsg) expectedField.getValue(),
             (FudgeMsg) actualField.getValue());
+      } else if(expectedField.getValue() instanceof UnknownFudgeFieldValue) {
+        assertTrue(actualField.getValue() instanceof UnknownFudgeFieldValue);
+        UnknownFudgeFieldValue expectedValue = (UnknownFudgeFieldValue) expectedField.getValue();
+        UnknownFudgeFieldValue actualValue = (UnknownFudgeFieldValue) actualField.getValue();
+        assertEquals(expectedField.getType().getTypeId(), actualField.getType().getTypeId());
+        assertEquals(expectedValue.getType().getTypeId(), actualField.getType().getTypeId());
+        assertArraysMatch(expectedValue.getContents(), actualValue.getContents());
       } else {
         assertEquals(expectedField.getValue(), actualField.getValue());
       }

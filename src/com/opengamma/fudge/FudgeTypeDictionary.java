@@ -19,6 +19,7 @@ import com.opengamma.fudge.types.LongArrayFieldType;
 import com.opengamma.fudge.types.PrimitiveFieldTypes;
 import com.opengamma.fudge.types.ShortArrayFieldType;
 import com.opengamma.fudge.types.StringFieldType;
+import com.opengamma.fudge.types.UnknownFudgeFieldType;
 
 /**
  * Contains all the {@link FudgeFieldType} definitions for a particular
@@ -32,6 +33,7 @@ public final class FudgeTypeDictionary {
   public static final FudgeTypeDictionary INSTANCE = new FudgeTypeDictionary();
   
   private volatile FudgeFieldType<?>[] _typesById = new FudgeFieldType<?>[0];
+  private volatile UnknownFudgeFieldType[] _unknownTypesById = new UnknownFudgeFieldType[0];
   private final Map<Class<?>, FudgeFieldType<?>> _typesByJavaType = new ConcurrentHashMap<Class<?>, FudgeFieldType<?>>();
   
   public void addType(FudgeFieldType<?> type, Class<?>... alternativeTypes) {
@@ -58,11 +60,35 @@ public final class FudgeTypeDictionary {
     return _typesByJavaType.get(javaType);
   }
   
+  /**
+   * Obtain a <em>known</em> type by the type ID specified.
+   * For processing unhandled variable-width field types, this method will return
+   * {@code null}, and {@link #getUnknownType(int)} should be used if unhandled-type
+   * processing is desired.
+   * 
+   * @param typeId
+   * @return
+   */
   public FudgeFieldType<?> getByTypeId(int typeId) {
     if(typeId >= _typesById.length) {
       return null;
     }
     return _typesById[typeId];
+  }
+  
+  public UnknownFudgeFieldType getUnknownType(int typeId) {
+    int newLength = Math.max(typeId + 1, _unknownTypesById.length);
+    if((_unknownTypesById.length < newLength) || (_unknownTypesById[typeId] == null)) {
+      synchronized(this) {
+        if((_unknownTypesById.length < newLength) || (_unknownTypesById[typeId] == null)) {
+          UnknownFudgeFieldType[] newArray = Arrays.copyOf(_unknownTypesById, newLength);
+          newArray[typeId] = new UnknownFudgeFieldType(typeId);
+          _unknownTypesById = newArray;
+        }
+      }
+    }
+    assert _unknownTypesById[typeId] != null;
+    return _unknownTypesById[typeId];
   }
   
   // --------------------------
