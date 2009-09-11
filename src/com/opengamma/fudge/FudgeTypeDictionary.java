@@ -125,6 +125,18 @@ public final class FudgeTypeDictionary {
   public static final byte BYTE_ARR_512_TYPE_ID = (byte)25;
   
   static {
+    // We have to add the fixed width byte array types first, so that the last
+    // one can override.
+    INSTANCE.addType(ByteArrayFieldType.LENGTH_4_INSTANCE);
+    INSTANCE.addType(ByteArrayFieldType.LENGTH_8_INSTANCE);
+    INSTANCE.addType(ByteArrayFieldType.LENGTH_16_INSTANCE);
+    INSTANCE.addType(ByteArrayFieldType.LENGTH_20_INSTANCE);
+    INSTANCE.addType(ByteArrayFieldType.LENGTH_32_INSTANCE);
+    INSTANCE.addType(ByteArrayFieldType.LENGTH_64_INSTANCE);
+    INSTANCE.addType(ByteArrayFieldType.LENGTH_128_INSTANCE);
+    INSTANCE.addType(ByteArrayFieldType.LENGTH_256_INSTANCE);
+    INSTANCE.addType(ByteArrayFieldType.LENGTH_512_INSTANCE);
+    
     INSTANCE.addType(PrimitiveFieldTypes.BOOLEAN_TYPE, Boolean.class);
     INSTANCE.addType(PrimitiveFieldTypes.BYTE_TYPE, Byte.class);
     INSTANCE.addType(PrimitiveFieldTypes.SHORT_TYPE, Short.class);
@@ -138,7 +150,7 @@ public final class FudgeTypeDictionary {
     INSTANCE.addType(FloatArrayFieldType.INSTANCE);
     INSTANCE.addType(PrimitiveFieldTypes.DOUBLE_TYPE, Double.class);
     INSTANCE.addType(DoubleArrayFieldType.INSTANCE);
-    INSTANCE.addType(ByteArrayFieldType.INSTANCE);
+    INSTANCE.addType(ByteArrayFieldType.VARIABLE_SIZED_INSTANCE);
     INSTANCE.addType(StringFieldType.INSTANCE);
     INSTANCE.addType(FudgeMsgFieldType.INSTANCE);
   }

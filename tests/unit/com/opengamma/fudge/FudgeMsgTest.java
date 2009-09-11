@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.opengamma.fudge.types.ByteArrayFieldType;
 import com.opengamma.fudge.types.IndicatorType;
 import com.opengamma.fudge.types.PrimitiveFieldTypes;
 
@@ -87,6 +88,22 @@ public class FudgeMsgTest {
     msg.add(new float[24], (short)16);
     msg.add(new double[273], (short)17);
     
+    return msg;
+  }
+  
+  protected static FudgeMsg createMessageAllByteArrayLengths() {
+    FudgeMsg msg = new FudgeMsg();
+    msg.add(new byte[4], "byte[4]");
+    msg.add(new byte[8], "byte[8]");
+    msg.add(new byte[16], "byte[16]");
+    msg.add(new byte[20], "byte[20]");
+    msg.add(new byte[32], "byte[32]");
+    msg.add(new byte[64], "byte[64]");
+    msg.add(new byte[128], "byte[128]");
+    msg.add(new byte[256], "byte[256]");
+    msg.add(new byte[512], "byte[512]");
+    
+    msg.add(new byte[28], "byte[28]");
     return msg;
   }
   
@@ -332,6 +349,22 @@ public class FudgeMsgTest {
     byte[] bytes = msg.toByteArray();
     assertNotNull(bytes);
     assertTrue(bytes.length > 10);
+  }
+  
+  @Test
+  public void fixedLengthByteArrays() {
+    FudgeMsg msg = createMessageAllByteArrayLengths();
+    assertSame(ByteArrayFieldType.LENGTH_4_INSTANCE, msg.getByName("byte[4]").getType());
+    assertSame(ByteArrayFieldType.LENGTH_8_INSTANCE, msg.getByName("byte[8]").getType());
+    assertSame(ByteArrayFieldType.LENGTH_16_INSTANCE, msg.getByName("byte[16]").getType());
+    assertSame(ByteArrayFieldType.LENGTH_20_INSTANCE, msg.getByName("byte[20]").getType());
+    assertSame(ByteArrayFieldType.LENGTH_32_INSTANCE, msg.getByName("byte[32]").getType());
+    assertSame(ByteArrayFieldType.LENGTH_64_INSTANCE, msg.getByName("byte[64]").getType());
+    assertSame(ByteArrayFieldType.LENGTH_128_INSTANCE, msg.getByName("byte[128]").getType());
+    assertSame(ByteArrayFieldType.LENGTH_256_INSTANCE, msg.getByName("byte[256]").getType());
+    assertSame(ByteArrayFieldType.LENGTH_512_INSTANCE, msg.getByName("byte[512]").getType());
+    
+    assertSame(ByteArrayFieldType.VARIABLE_SIZED_INSTANCE, msg.getByName("byte[28]").getType());
   }
 
 }

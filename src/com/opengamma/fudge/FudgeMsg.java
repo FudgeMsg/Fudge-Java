@@ -18,6 +18,7 @@ import java.util.List;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.fudge.taxon.FudgeTaxonomy;
+import com.opengamma.fudge.types.ByteArrayFieldType;
 import com.opengamma.fudge.types.PrimitiveFieldTypes;
 
 /**
@@ -116,6 +117,9 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable {
   protected FudgeFieldType<?> determineTypeFromValue(Object value) {
     if(value == null) {
       throw new NullPointerException("Cannot determine type for null value.");
+    }
+    if(value instanceof byte[]) {
+      return ByteArrayFieldType.getBestMatch((byte[])value);
     }
     FudgeFieldType<?> type = FudgeTypeDictionary.INSTANCE.getByJavaType(value.getClass());
     if((type == null) && (value instanceof UnknownFudgeFieldValue)) {

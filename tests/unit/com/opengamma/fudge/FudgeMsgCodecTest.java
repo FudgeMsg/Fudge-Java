@@ -5,7 +5,10 @@
  */
 package com.opengamma.fudge;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -13,6 +16,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Random;
 
 import org.junit.Test;
 
@@ -23,6 +27,7 @@ import org.junit.Test;
  * @author kirk
  */
 public class FudgeMsgCodecTest {
+  private final Random _random = new Random();
   
   @Test
   public void allNames() throws IOException {
@@ -71,6 +76,31 @@ public class FudgeMsgCodecTest {
   public void unknown() throws IOException {
     FudgeMsg inputMsg = new FudgeMsg();
     inputMsg.add(new UnknownFudgeFieldValue(new byte[10], FudgeTypeDictionary.INSTANCE.getUnknownType(200)), "unknown");
+    FudgeMsg outputMsg = cycleMessage(inputMsg);
+    assertAllFieldsMatch(inputMsg, outputMsg);
+  }
+  
+  protected byte[] createRandomArray(int length) {
+    byte[] bytes = new byte[length];
+    _random.nextBytes(bytes);
+    return bytes;
+  }
+
+  @Test
+  public void fixedWidthByteArrays() throws IOException {
+    FudgeMsg inputMsg = new FudgeMsg();
+    inputMsg.add(createRandomArray(4), "byte[4]");
+    inputMsg.add(createRandomArray(8), "byte[8]");
+    inputMsg.add(createRandomArray(16), "byte[16]");
+    inputMsg.add(createRandomArray(20), "byte[20]");
+    inputMsg.add(createRandomArray(32), "byte[32]");
+    inputMsg.add(createRandomArray(64), "byte[64]");
+    inputMsg.add(createRandomArray(128), "byte[128]");
+    inputMsg.add(createRandomArray(256), "byte[256]");
+    inputMsg.add(createRandomArray(512), "byte[512]");
+    
+    inputMsg.add(createRandomArray(28), "byte[28]");
+    
     FudgeMsg outputMsg = cycleMessage(inputMsg);
     assertAllFieldsMatch(inputMsg, outputMsg);
   }

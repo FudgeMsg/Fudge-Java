@@ -163,6 +163,8 @@ public class FudgeStreamEncoder {
           os.writeInt(valueSize);
           nWritten = valueSize + 4;
         }
+      } else {
+        nWritten = type.getFixedSize();
       }
       type.writeValue(os, value, taxonomy, taxonomyId);
     }
