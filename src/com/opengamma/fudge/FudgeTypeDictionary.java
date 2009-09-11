@@ -95,23 +95,34 @@ public final class FudgeTypeDictionary {
   // STANDARD FUDGE FIELD TYPES
   // --------------------------
   
-  public static final byte BOOLEAN_TYPE_ID = (byte)0;
-
-  public static final byte BYTE_TYPE_ID = (byte)1;
-  public static final byte SHORT_TYPE_ID = (byte)2;
-  public static final byte INT_TYPE_ID = (byte)3;
-  public static final byte LONG_TYPE_ID = (byte)4;
-  public static final byte SHORT_ARRAY_TYPE_ID = (byte)5;
-  public static final byte INT_ARRAY_TYPE_ID = (byte)6;
-  public static final byte LONG_ARRAY_TYPE_ID = (byte)7;
-  public static final byte INDICATOR_TYPE_ID = (byte)8;
-  public static final byte FLOAT_TYPE_ID = (byte)17;
-  public static final byte FLOAT_ARRAY_TYPE_ID = (byte)18;
-  public static final byte DOUBLE_TYPE_ID = (byte)19;
-  public static final byte DOUBLE_ARRAY_TYPE_ID = (byte)20;
-  public static final byte BYTE_ARRAY_TYPE_ID = (byte)21;
-  public static final byte STRING_TYPE_ID = (byte)22;
-  public static final byte FUDGE_MSG_TYPE_ID = (byte)23;
+  public static final byte INDICATOR_TYPE_ID = (byte)0;
+  public static final byte BOOLEAN_TYPE_ID = (byte)1;
+  public static final byte BYTE_TYPE_ID = (byte)2;
+  public static final byte SHORT_TYPE_ID = (byte)3;
+  public static final byte INT_TYPE_ID = (byte)4;
+  public static final byte LONG_TYPE_ID = (byte)5;
+  public static final byte BYTE_ARRAY_TYPE_ID = (byte)6;
+  public static final byte SHORT_ARRAY_TYPE_ID = (byte)7;
+  public static final byte INT_ARRAY_TYPE_ID = (byte)8;
+  public static final byte LONG_ARRAY_TYPE_ID = (byte)9;
+  public static final byte FLOAT_TYPE_ID = (byte)10;
+  public static final byte DOUBLE_TYPE_ID = (byte)11;
+  public static final byte FLOAT_ARRAY_TYPE_ID = (byte)12;
+  public static final byte DOUBLE_ARRAY_TYPE_ID = (byte)13;
+  public static final byte STRING_TYPE_ID = (byte)14;
+  // Indicators for controlling stack-based sub-message expressions:
+  public static final byte FUDGE_MSG_TYPE_ID = (byte)15;
+  public static final byte END_FUDGE_MSG_TYPE_ID = (byte)16;
+  // The fixed-width byte arrays:
+  public static final byte BYTE_ARR_4_TYPE_ID = (byte)17;
+  public static final byte BYTE_ARR_8_TYPE_ID = (byte)18;
+  public static final byte BYTE_ARR_16_TYPE_ID = (byte)19;
+  public static final byte BYTE_ARR_20_TYPE_ID = (byte)20;
+  public static final byte BYTE_ARR_32_TYPE_ID = (byte)21;
+  public static final byte BYTE_ARR_64_TYPE_ID = (byte)22;
+  public static final byte BYTE_ARR_128_TYPE_ID = (byte)23;
+  public static final byte BYTE_ARR_256_TYPE_ID = (byte)24;
+  public static final byte BYTE_ARR_512_TYPE_ID = (byte)25;
   
   static {
     INSTANCE.addType(PrimitiveFieldTypes.BOOLEAN_TYPE, Boolean.class);
