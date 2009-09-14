@@ -65,21 +65,21 @@ public class FudgeContext {
     }
     DataOutputStream dos = new DataOutputStream(os);
     try {
-      FudgeStreamEncoder.writeMsg(dos, msg, taxonomy, (taxonomyId == null) ? (short)0 : taxonomyId);
+      FudgeStreamEncoder.writeMsg(dos, new FudgeMsgEnvelope(msg), taxonomy, (taxonomyId == null) ? (short)0 : taxonomyId);
     } catch (IOException e) {
       throw new FudgeRuntimeException("Unable to write Fudge message to OutputStream", e);
     }
   }
   
-  public FudgeMsg deserialize(InputStream is) {
+  public FudgeMsgEnvelope deserialize(InputStream is) {
     DataInputStream dis = new DataInputStream(is);
-    FudgeMsg msg;
+    FudgeMsgEnvelope envelope;
     try {
-      msg = FudgeStreamDecoder.readMsg(dis, getTaxonomyResolver());
+      envelope = FudgeStreamDecoder.readMsg(dis, getTaxonomyResolver());
     } catch (IOException e) {
       throw new FudgeRuntimeException("Unable to deserialize FudgeMsg from input stream", e);
     }
-    return msg;
+    return envelope;
   }
   
 }

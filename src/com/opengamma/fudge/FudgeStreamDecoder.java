@@ -18,37 +18,57 @@ import com.opengamma.fudge.taxon.TaxonomyResolver;
  */
 public class FudgeStreamDecoder {
   
-  public static FudgeMsg readMsg(DataInput is) throws IOException {
+  public static FudgeMsgEnvelope readMsg(DataInput is) throws IOException {
     return readMsg(is, null);
   }
   
-  public static FudgeMsg readMsg(DataInput is, TaxonomyResolver taxonomyResolver) throws IOException {
+  public static FudgeMsgEnvelope readMsg(DataInput is, TaxonomyResolver taxonomyResolver) throws IOException {
     checkInputStream(is);
     int nRead = 0;
+    /*int processingDirectives = */is.readUnsignedByte();
+    nRead += 1;
+    int version = is.readUnsignedByte();
+    nRead += 1;
     short taxonomyId = is.readShort();
-    nRead += 2;
-    short nFields = is.readShort();
     nRead += 2;
     int size = is.readInt();
     nRead += 4;
     
-    FudgeMsg msg = new FudgeMsg();
-    for(int i = 0; i < nFields; i++) {
-      nRead += readField(is, msg);
+    FudgeTaxonomy taxonomy = null;
+    if(taxonomyResolver != null) {
+      taxonomy = taxonomyResolver.resolveTaxonomy(taxonomyId);
     }
+    
+    FudgeMsg msg = new FudgeMsg();
+    nRead += readMsgFields(is, taxonomy, msg);
     
     if((size > 0) && (nRead != size)) {
       throw new RuntimeException("Expected to read " + size + " but only had " + nRead + " in message.");
     }
     
-    if(taxonomyResolver != null) {
-      FudgeTaxonomy taxonomy = taxonomyResolver.resolveTaxonomy(taxonomyId);
-      if(taxonomy != null) {
-        msg.setNamesFromTaxonomy(taxonomy);
-      }
+    FudgeMsgEnvelope envelope = new FudgeMsgEnvelope(msg, version);
+    return envelope;
+  }
+  
+  public static int readMsgFields(DataInput is, FudgeTaxonomy taxonomy, FudgeMsg msg) throws IOException {
+    if(msg == null) {
+      throw new NullPointerException("Must specify a message to populate with fields.");
     }
-    
-    return msg;
+    int nRead = 0;
+    while(true) {
+      byte fieldPrefix = is.readByte();
+      nRead++;
+      int typeId = is.readUnsignedByte();
+      nRead++;
+      if(typeId == FudgeTypeDictionary.END_FUDGE_MSG_TYPE_ID) {
+        break;
+      }
+      nRead += readField(is, msg, fieldPrefix, typeId);
+    }
+    if(taxonomy != null) {
+      msg.setNamesFromTaxonomy(taxonomy);
+    }
+    return nRead;
   }
 
   /**
@@ -58,12 +78,10 @@ public class FudgeStreamDecoder {
    * @param msg
    * @return The number of bytes read.
    */
-  public static int readField(DataInput is, FudgeMsg msg) throws IOException {
+  public static int readField(DataInput is, FudgeMsg msg, byte fieldPrefix, int typeId) throws IOException {
     checkInputStream(is);
     int nRead = 0;
     
-    byte fieldPrefix = is.readByte();
-    nRead++;
     boolean fixedWidth = (fieldPrefix & FudgeStreamEncoder.FIELD_PREFIX_FIXED_WIDTH_MASK) != 0;
     boolean hasOrdinal = (fieldPrefix & FudgeStreamEncoder.FIELD_PREFIX_ORDINAL_PROVIDED_MASK) != 0;
     boolean hasName = (fieldPrefix & FudgeStreamEncoder.FIELD_PREFIX_NAME_PROVIDED_MASK) != 0;
@@ -71,9 +89,6 @@ public class FudgeStreamDecoder {
     if(!fixedWidth) {
       varSizeBytes = (fieldPrefix << 1) >> 6;
     }
-    
-    int typeId = is.readUnsignedByte();
-    nRead++;
     
     Short ordinal = null;
     if(hasOrdinal) {

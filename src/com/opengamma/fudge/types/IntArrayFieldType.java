@@ -45,7 +45,7 @@ public class IntArrayFieldType extends FudgeFieldType<int[]> {
 
   @Override
   public void writeValue(DataOutput output, int[] value,
-      FudgeTaxonomy taxonomy, short taxonomyId) throws IOException {
+      FudgeTaxonomy taxonomy) throws IOException {
     for(int i : value) {
       output.writeInt(i);
     }

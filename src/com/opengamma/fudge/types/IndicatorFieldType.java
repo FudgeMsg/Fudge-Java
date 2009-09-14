@@ -39,7 +39,7 @@ public class IndicatorFieldType extends FudgeFieldType<IndicatorType> {
 
   @Override
   public void writeValue(DataOutput output, IndicatorType value,
-      FudgeTaxonomy taxonomy, short taxonomyId) throws IOException {
+      FudgeTaxonomy taxonomy) throws IOException {
     // Intentional no-op.
   }
 

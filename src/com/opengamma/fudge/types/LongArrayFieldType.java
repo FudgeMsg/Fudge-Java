@@ -45,7 +45,7 @@ public class LongArrayFieldType extends FudgeFieldType<long[]> {
 
   @Override
   public void writeValue(DataOutput output, long[] value,
-      FudgeTaxonomy taxonomy, short taxonomyId) throws IOException {
+      FudgeTaxonomy taxonomy) throws IOException {
     for(long l : value) {
       output.writeLong(l);
     }

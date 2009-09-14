@@ -208,8 +208,10 @@ public class FudgeMsgCodecTest {
     
     ByteArrayInputStream bais = new ByteArrayInputStream(content);
     DataInputStream dis = new DataInputStream(bais);
-    FudgeMsg outputMsg = FudgeStreamDecoder.readMsg(dis);
-    return outputMsg;
+    FudgeMsgEnvelope outputMsgEnvelope = FudgeStreamDecoder.readMsg(dis);
+    assertNotNull(outputMsgEnvelope);
+    assertNotNull(outputMsgEnvelope.getMessage());
+    return outputMsgEnvelope.getMessage();
   }
 
 }

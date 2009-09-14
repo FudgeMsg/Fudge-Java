@@ -41,7 +41,7 @@ public class FloatArrayFieldType extends FudgeFieldType<float[]> {
   }
 
   @Override
-  public void writeValue(DataOutput output, float[] value, FudgeTaxonomy taxonomy, short taxonomyId) throws IOException {
+  public void writeValue(DataOutput output, float[] value, FudgeTaxonomy taxonomy) throws IOException {
     for(float f : value) {
       output.writeFloat(f);
     }

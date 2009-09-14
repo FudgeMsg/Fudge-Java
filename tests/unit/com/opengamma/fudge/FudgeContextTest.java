@@ -99,8 +99,10 @@ public class FudgeContextTest {
     byte[] content = baos.toByteArray();
     
     ByteArrayInputStream bais = new ByteArrayInputStream(content);
-    FudgeMsg outputMsg = context.deserialize(bais);
-    return outputMsg;
+    FudgeMsgEnvelope outputMsgEnvelope = context.deserialize(bais);
+    assertNotNull(outputMsgEnvelope);
+    assertNotNull(outputMsgEnvelope.getMessage());
+    return outputMsgEnvelope.getMessage();
   }
   
 }

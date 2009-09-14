@@ -43,7 +43,7 @@ public class UnknownFudgeFieldType extends
 
   @Override
   public void writeValue(DataOutput output, UnknownFudgeFieldValue value,
-      FudgeTaxonomy taxonomy, short taxonomyId) throws IOException {
+      FudgeTaxonomy taxonomy) throws IOException {
     output.write(value.getContents());
   }
 

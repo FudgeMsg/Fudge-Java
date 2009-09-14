@@ -51,13 +51,13 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable {
   protected void initializeFromByteArray(byte[] byteArray) {
     ByteArrayInputStream bais = new ByteArrayInputStream(byteArray);
     DataInputStream is = new DataInputStream(bais);
-    FudgeMsg other;
+    FudgeMsgEnvelope other;
     try {
       other = FudgeStreamDecoder.readMsg(is);
     } catch (IOException e) {
       throw new RuntimeException("IOException thrown using ByteArrayInputStream", e);
     }
-    _fields.addAll(other._fields);
+    _fields.addAll(other.getMessage()._fields);
   }
   
   public void add(FudgeField field) {
@@ -246,11 +246,11 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable {
   @Override
   public int computeSize(FudgeTaxonomy taxonomy) {
     int size = 0;
-    // Message prefix
-    size += 8;
     for(FudgeMsgField field : _fields) {
       size += field.getSize(taxonomy);
     }
+    // The final end message virtual-field:
+    size += 2;
     return size;
   }
   

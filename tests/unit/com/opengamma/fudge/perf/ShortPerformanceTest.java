@@ -172,7 +172,7 @@ public class ShortPerformanceTest {
     
     ByteArrayInputStream bais = new ByteArrayInputStream(data);
     DataInputStream dis = new DataInputStream(bais);
-    msg = FudgeStreamDecoder.readMsg(dis);
+    msg = FudgeStreamDecoder.readMsg(dis).getMessage();
     
     tick = new SmallFinancialTick();
     if(useOrdinals) {
