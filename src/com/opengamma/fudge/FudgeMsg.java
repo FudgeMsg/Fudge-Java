@@ -255,19 +255,12 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable {
   }
   
   // Primitive Queries:
+  
   public Double getDouble(String fieldName) {
-    return (Double) getFirstTypedValue(fieldName, FudgeTypeDictionary.DOUBLE_TYPE_ID);
-  }
-  
-  public Double getDouble(short ordinal) {
-    return (Double) getFirstTypedValue(ordinal, FudgeTypeDictionary.DOUBLE_TYPE_ID);
-  }
-  
-  public Double getAsDouble(String fieldName) {
     return getAsDoubleInternal(fieldName, null);
   }
   
-  public Double getAsDouble(short ordinal) {
+  public Double getDouble(short ordinal) {
     return getAsDoubleInternal(null, ordinal);
   }
   
@@ -281,18 +274,10 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable {
   }
   
   public Float getFloat(String fieldName) {
-    return (Float) getFirstTypedValue(fieldName, FudgeTypeDictionary.FLOAT_TYPE_ID);
-  }
-  
-  public Float getFloat(short ordinal) {
-    return (Float) getFirstTypedValue(ordinal, FudgeTypeDictionary.FLOAT_TYPE_ID);
-  }
-  
-  public Float getAsFloat(String fieldName) {
     return getAsFloatInternal(fieldName, null);
   }
   
-  public Float getAsFloat(short ordinal) {
+  public Float getFloat(short ordinal) {
     return getAsFloatInternal(null, ordinal);
   }
   
@@ -306,18 +291,10 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable {
   }
   
   public Long getLong(String fieldName) {
-    return (Long) getFirstTypedValue(fieldName, FudgeTypeDictionary.LONG_TYPE_ID);
+    return getAsLongInternal(fieldName, null);
   }
 
   public Long getLong(short ordinal) {
-    return (Long) getFirstTypedValue(ordinal, FudgeTypeDictionary.LONG_TYPE_ID);
-  }
-  
-  public Long getAsLong(String fieldName) {
-    return getAsLongInternal(fieldName, null);
-  }
-  
-  public Long getAsLong(short ordinal) {
     return getAsLongInternal(null, ordinal);
   }
   
@@ -328,21 +305,13 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable {
       return numberValue.longValue();
     }
     return null;
-  }
+  }  
   
   public Integer getInt(String fieldName) {
-    return (Integer) getFirstTypedValue(fieldName, FudgeTypeDictionary.INT_TYPE_ID);
-  }
-
-  public Integer getInt(short ordinal) {
-    return (Integer) getFirstTypedValue(ordinal, FudgeTypeDictionary.INT_TYPE_ID);
-  }
-  
-  public Integer getAsInt(String fieldName) {
     return getAsIntInternal(fieldName, null);
   }
   
-  public Integer getAsInt(short ordinal) {
+  public Integer getInt(short ordinal) {
     return getAsIntInternal(null, ordinal);
   }
   
@@ -356,18 +325,10 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable {
   }
   
   public Short getShort(String fieldName) {
-    return (Short) getFirstTypedValue(fieldName, FudgeTypeDictionary.SHORT_TYPE_ID);
-  }
-
-  public Short getShort(short ordinal) {
-    return (Short) getFirstTypedValue(ordinal, FudgeTypeDictionary.SHORT_TYPE_ID);
-  }
-  
-  public Short getAsShort(String fieldName) {
     return getAsShortInternal(fieldName, null);
   }
   
-  public Short getAsShort(short ordinal) {
+  public Short getShort(short ordinal) {
     return getAsShortInternal(null, ordinal);
   }
   
@@ -379,20 +340,13 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable {
     }
     return null;
   }
+
   
   public Byte getByte(String fieldName) {
-    return (Byte) getFirstTypedValue(fieldName, FudgeTypeDictionary.BYTE_TYPE_ID);
-  }
-
-  public Byte getByte(short ordinal) {
-    return (Byte) getFirstTypedValue(ordinal, FudgeTypeDictionary.BYTE_TYPE_ID);
-  }
-  
-  public Byte getAsByte(String fieldName) {
     return getAsByteInternal(fieldName, null);
   }
   
-  public Byte getAsByte(short ordinal) {
+  public Byte getByte(short ordinal) {
     return getAsByteInternal(null, ordinal);
   }
   

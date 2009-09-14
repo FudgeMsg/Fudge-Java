@@ -205,13 +205,13 @@ public class FudgeMsgTest {
   @Test
   public void primitiveExactQueriesNamesNoMatch() {
     FudgeMsg msg = createMessageAllNames();
-    
-    assertNull(msg.getByte("int"));
-    assertNull(msg.getShort("int"));
-    assertNull(msg.getInt("byte"));
-    assertNull(msg.getLong("int"));
-    assertNull(msg.getFloat("double"));
-    assertNull(msg.getDouble("float"));
+    // now we've decided that get*() == getAs*() these work...
+    assertNotNull(msg.getByte("int"));
+    assertNotNull(msg.getShort("int"));
+    assertNotNull(msg.getInt("byte"));
+    assertNotNull(msg.getLong("int"));
+    assertNotNull(msg.getFloat("double"));
+    assertNotNull(msg.getDouble("float"));
   }
   
   @Test
@@ -231,25 +231,25 @@ public class FudgeMsgTest {
   public void asQueriesToLongNames() {
     FudgeMsg msg = createMessageAllNames();
     
-    assertEquals(new Long((byte)5), msg.getAsLong("byte"));
-    assertEquals(new Long((byte)5), msg.getAsLong("Byte"));
+    assertEquals(new Long((byte)5), msg.getLong("byte"));
+    assertEquals(new Long((byte)5), msg.getLong("Byte"));
     
     short shortValue = ((short)Byte.MAX_VALUE) + 5;
-    assertEquals(new Long(shortValue), msg.getAsLong("short"));
-    assertEquals(new Long(shortValue), msg.getAsLong("Short"));
+    assertEquals(new Long(shortValue), msg.getLong("short"));
+    assertEquals(new Long(shortValue), msg.getLong("Short"));
     
     int intValue = ((int)Short.MAX_VALUE) + 5;
-    assertEquals(new Long(intValue), msg.getAsLong("int"));
-    assertEquals(new Long(intValue), msg.getAsLong("Integer"));
+    assertEquals(new Long(intValue), msg.getLong("int"));
+    assertEquals(new Long(intValue), msg.getLong("Integer"));
     
     long longValue = ((long)Integer.MAX_VALUE) + 5;
-    assertEquals(new Long(longValue), msg.getAsLong("long"));
-    assertEquals(new Long(longValue), msg.getAsLong("Long"));
+    assertEquals(new Long(longValue), msg.getLong("long"));
+    assertEquals(new Long(longValue), msg.getLong("Long"));
     
-    assertEquals(new Long(0), msg.getAsLong("float"));
-    assertEquals(new Long(0), msg.getAsLong("Float"));
-    assertEquals(new Long(0), msg.getAsLong("double"));
-    assertEquals(new Long(0), msg.getAsLong("Double"));
+    assertEquals(new Long(0), msg.getLong("float"));
+    assertEquals(new Long(0), msg.getLong("Float"));
+    assertEquals(new Long(0), msg.getLong("double"));
+    assertEquals(new Long(0), msg.getLong("Double"));
   }
   
   @Test
@@ -296,19 +296,21 @@ public class FudgeMsgTest {
   @Test
   public void primitiveExactQueriesOrdinalsNoMatch() {
     FudgeMsg msg = createMessageAllOrdinals();
-    
-    assertNull(msg.getByte((short)7));
-    assertNull(msg.getShort((short)7));
-    assertNull(msg.getInt((short)9));
-    assertNull(msg.getLong((short)7));
-    assertNull(msg.getFloat((short)13));
-    assertNull(msg.getDouble((short)11));
+    // these have changed since the decision to make get* == getAs*.
+    // truncation may occur at the moment and we need to consider 
+    // whether exceptions should be thrown instead
+    assertNotNull(msg.getByte((short)7));
+    assertNotNull(msg.getShort((short)7));
+    assertNotNull(msg.getInt((short)9));
+    assertNotNull(msg.getLong((short)7));
+    assertNotNull(msg.getFloat((short)13));
+    assertNotNull(msg.getDouble((short)11));
   }
   
   @Test
   public void primitiveExactOrdinalsNoOrdinals() {
     FudgeMsg msg = createMessageAllOrdinals();
-    
+  
     assertNull(msg.getByte((short)100));
     assertNull(msg.getShort((short)100));
     assertNull(msg.getInt((short)100));
@@ -322,25 +324,25 @@ public class FudgeMsgTest {
   public void asQueriesToLongOrdinals() {
     FudgeMsg msg = createMessageAllOrdinals();
     
-    assertEquals(new Long((byte)5), msg.getAsLong((short)3));
-    assertEquals(new Long((byte)5), msg.getAsLong((short)4));
+    assertEquals(new Long((byte)5), msg.getLong((short)3));
+    assertEquals(new Long((byte)5), msg.getLong((short)4));
     
     short shortValue = ((short)Byte.MAX_VALUE) + 5;
-    assertEquals(new Long(shortValue), msg.getAsLong((short)5));
-    assertEquals(new Long(shortValue), msg.getAsLong((short)6));
+    assertEquals(new Long(shortValue), msg.getLong((short)5));
+    assertEquals(new Long(shortValue), msg.getLong((short)6));
     
     int intValue = ((int)Short.MAX_VALUE) + 5;
-    assertEquals(new Long(intValue), msg.getAsLong((short)7));
-    assertEquals(new Long(intValue), msg.getAsLong((short)8));
+    assertEquals(new Long(intValue), msg.getLong((short)7));
+    assertEquals(new Long(intValue), msg.getLong((short)8));
     
     long longValue = ((long)Integer.MAX_VALUE) + 5;
-    assertEquals(new Long(longValue), msg.getAsLong((short)9));
-    assertEquals(new Long(longValue), msg.getAsLong((short)10));
+    assertEquals(new Long(longValue), msg.getLong((short)9));
+    assertEquals(new Long(longValue), msg.getLong((short)10));
     
-    assertEquals(new Long(0), msg.getAsLong((short)11));
-    assertEquals(new Long(0), msg.getAsLong((short)12));
-    assertEquals(new Long(0), msg.getAsLong((short)13));
-    assertEquals(new Long(0), msg.getAsLong((short)14));
+    assertEquals(new Long(0), msg.getLong((short)11));
+    assertEquals(new Long(0), msg.getLong((short)12));
+    assertEquals(new Long(0), msg.getLong((short)13));
+    assertEquals(new Long(0), msg.getLong((short)14));
   }
   
   @Test
