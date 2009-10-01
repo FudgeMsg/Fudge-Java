@@ -32,7 +32,7 @@ import com.opengamma.fudge.types.PrimitiveFieldTypes;
  *
  * @author kirk
  */
-public class FudgeMsg extends FudgeEncodingObject implements Serializable, FudgeFieldContainer, Iterable<FudgeField>  {
+public class FudgeMsg extends FudgeEncodingObject implements Serializable, MutableFudgeFieldContainer, Iterable<FudgeField> {
   private final List<FudgeMsgField> _fields = new ArrayList<FudgeMsgField>();
   
   public FudgeMsg() {
