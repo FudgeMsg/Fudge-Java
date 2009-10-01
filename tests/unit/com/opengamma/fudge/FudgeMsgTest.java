@@ -379,4 +379,14 @@ public class FudgeMsgTest {
     assertEquals(msg.getNumFields(), fieldCount);
   }
 
+  @Test
+  public void iterableContainer() {
+    FudgeFieldContainer msg = createMessageAllNames();
+    int fieldCount = 0;
+    for(@SuppressWarnings("unused") FudgeField field : msg) {
+      fieldCount++;
+    }
+    assertEquals(msg.getNumFields(), fieldCount);
+  }
+
 }
