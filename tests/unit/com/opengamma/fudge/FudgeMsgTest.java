@@ -368,5 +368,15 @@ public class FudgeMsgTest {
     
     assertSame(ByteArrayFieldType.VARIABLE_SIZED_INSTANCE, msg.getByName("byte[28]").getType());
   }
+  
+  @Test
+  public void iterable() {
+    FudgeMsg msg = createMessageAllNames();
+    int fieldCount = 0;
+    for(@SuppressWarnings("unused") FudgeField field : msg) {
+      fieldCount++;
+    }
+    assertEquals(msg.getNumFields(), fieldCount);
+  }
 
 }

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -31,7 +32,7 @@ import com.opengamma.fudge.types.PrimitiveFieldTypes;
  *
  * @author kirk
  */
-public class FudgeMsg extends FudgeEncodingObject implements Serializable {
+public class FudgeMsg extends FudgeEncodingObject implements Serializable, Iterable<FudgeField> {
   private final List<FudgeMsgField> _fields = new ArrayList<FudgeMsgField>();
   
   public FudgeMsg() {
@@ -414,6 +415,11 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable {
         subMsg.setNamesFromTaxonomy(taxonomy);
       }
     }
+  }
+
+  @Override
+  public Iterator<FudgeField> iterator() {
+    return new ArrayList<FudgeField>(_fields).iterator();
   }
   
 }
