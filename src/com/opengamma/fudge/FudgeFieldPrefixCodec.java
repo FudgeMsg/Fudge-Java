@@ -20,20 +20,21 @@ public final class FudgeFieldPrefixCodec {
   private FudgeFieldPrefixCodec() {
   }
   
-  public static boolean isFixedWidth(byte fieldPrefix) {
+  public static boolean isFixedWidth(int fieldPrefix) {
     return (fieldPrefix & FIELD_PREFIX_FIXED_WIDTH_MASK) != 0;    
   }
 
-  public static boolean hasOrdinal(byte fieldPrefix) {
+  public static boolean hasOrdinal(int fieldPrefix) {
     return (fieldPrefix & FIELD_PREFIX_ORDINAL_PROVIDED_MASK) != 0;
   }
   
-  public static boolean hasName(byte fieldPrefix) {
+  public static boolean hasName(int fieldPrefix) {
     return (fieldPrefix & FIELD_PREFIX_NAME_PROVIDED_MASK) != 0;
   }
   
-  public static int getFieldWidthByteCount(byte fieldPrefix) {
-    int count = (fieldPrefix << 1) >> 6;
+  public static int getFieldWidthByteCount(int fieldPrefix) {
+    fieldPrefix &= 0x60;
+    int count = fieldPrefix >> 5;
     if(count == 3) {
       // We do this because we only have two bits to encode data in.
       // Therefore, we use binary 11 to indicate 4 bytes.

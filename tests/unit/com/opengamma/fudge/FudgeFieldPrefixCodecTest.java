@@ -28,27 +28,28 @@ public class FudgeFieldPrefixCodecTest {
   
   @Test
   public void hasNameChecks() {
-    assertFalse(FudgeFieldPrefixCodec.hasName((byte)0x20));
-    assertTrue(FudgeFieldPrefixCodec.hasName((byte)0x98));
+    assertFalse(FudgeFieldPrefixCodec.hasName(0x20));
+    assertTrue(FudgeFieldPrefixCodec.hasName(0x98));
   }
   
   @Test
   public void fixedWidthChecks() {
-    assertFalse(FudgeFieldPrefixCodec.isFixedWidth((byte)0x20));
-    assertTrue(FudgeFieldPrefixCodec.isFixedWidth((byte)0x98));
+    assertFalse(FudgeFieldPrefixCodec.isFixedWidth(0x20));
+    assertTrue(FudgeFieldPrefixCodec.isFixedWidth(0x98));
   }
   
   @Test
   public void hasOrdinalChecks() {
-    assertFalse(FudgeFieldPrefixCodec.hasOrdinal((byte)0x20));
-    assertTrue(FudgeFieldPrefixCodec.hasOrdinal((byte)0x98));
+    assertFalse(FudgeFieldPrefixCodec.hasOrdinal(0x20));
+    assertTrue(FudgeFieldPrefixCodec.hasOrdinal(0x98));
   }
   
+  @Test
   public void varWidthSizeChecks() {
-    assertEquals(0, FudgeFieldPrefixCodec.getFieldWidthByteCount((byte)0x98));
-    assertEquals(1, FudgeFieldPrefixCodec.getFieldWidthByteCount((byte)0x20));
-    assertEquals(2, FudgeFieldPrefixCodec.getFieldWidthByteCount((byte)0x40));
-    assertEquals(4, FudgeFieldPrefixCodec.getFieldWidthByteCount((byte)0x60));
+    assertEquals(0, FudgeFieldPrefixCodec.getFieldWidthByteCount(0x98));
+    assertEquals(1, FudgeFieldPrefixCodec.getFieldWidthByteCount(0x20));
+    assertEquals(2, FudgeFieldPrefixCodec.getFieldWidthByteCount(0x40));
+    assertEquals(4, FudgeFieldPrefixCodec.getFieldWidthByteCount(0x60));
   }
 
 }

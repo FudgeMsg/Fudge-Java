@@ -42,9 +42,8 @@ public class ModifiedUTF8Util {
     }
     return utflen;
   }
-
-  public static int writeModifiedUTF8(String str, DataOutput os)
-      throws IOException {
+  
+  public static byte[] encodeAsModifiedUTF8(String str) throws UTFDataFormatException {
     // REVIEW wyliekir 2009-08-17 -- This was taken almost verbatim from
     // DataOutputStream.
     int strlen = str.length();
@@ -91,8 +90,14 @@ public class ModifiedUTF8Util {
       }
     }
     assert count == utflen;
+    return bytearr;
+  }
+
+  public static int writeModifiedUTF8(String str, DataOutput os)
+      throws IOException {
+    byte[] bytearr = encodeAsModifiedUTF8(str);
     os.write(bytearr);
-    return utflen;
+    return bytearr.length;
   }
 
   public static String readString(DataInput is, int utflen) throws IOException {
@@ -100,13 +105,18 @@ public class ModifiedUTF8Util {
     // times. Particularly since we expect that most of the time we're reading from
     // a byte array already, duplicating it doesn't make much sense.
     byte[] bytearr = new byte[utflen];
-    char[] chararr = new char[utflen];
 
+    is.readFully(bytearr, 0, utflen);
+    
+    return decodeString(bytearr);
+  }
+  
+  public static String decodeString(byte[] bytearr) throws UTFDataFormatException {
+    int utflen = bytearr.length;
+    char[] chararr = new char[utflen];
     int c, char2, char3;
     int count = 0;
     int chararr_count=0;
-
-    is.readFully(bytearr, 0, utflen);
 
     while (count < utflen) {
         c = (int) bytearr[count] & 0xff;      
