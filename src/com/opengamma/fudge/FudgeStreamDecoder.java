@@ -82,13 +82,9 @@ public class FudgeStreamDecoder {
     checkInputStream(is);
     int nRead = 0;
     
-    boolean fixedWidth = (fieldPrefix & FudgeStreamEncoder.FIELD_PREFIX_FIXED_WIDTH_MASK) != 0;
-    boolean hasOrdinal = (fieldPrefix & FudgeStreamEncoder.FIELD_PREFIX_ORDINAL_PROVIDED_MASK) != 0;
-    boolean hasName = (fieldPrefix & FudgeStreamEncoder.FIELD_PREFIX_NAME_PROVIDED_MASK) != 0;
-    int varSizeBytes = 0;
-    if(!fixedWidth) {
-      varSizeBytes = (fieldPrefix << 1) >> 6;
-    }
+    boolean fixedWidth = FudgeFieldPrefixCodec.isFixedWidth(fieldPrefix);
+    boolean hasOrdinal = FudgeFieldPrefixCodec.hasOrdinal(fieldPrefix);
+    boolean hasName = FudgeFieldPrefixCodec.hasName(fieldPrefix);
     
     Short ordinal = null;
     if(hasOrdinal) {
@@ -113,12 +109,12 @@ public class FudgeStreamDecoder {
     }
     int varSize = 0;
     if(!fixedWidth) {
+      int varSizeBytes = FudgeFieldPrefixCodec.getFieldWidthByteCount(fieldPrefix);
       switch(varSizeBytes) {
       case 0: varSize = 0; break;
       case 1: varSize = is.readUnsignedByte(); nRead+=1; break;
       case 2: varSize = is.readShort(); nRead += 2; break;
-      // Yes, this is right. We only have 2 bits here.
-      case 3: varSize = is.readInt();  nRead += 4; break;
+      case 4: varSize = is.readInt();  nRead += 4; break;
       default:
         throw new RuntimeException("Illegal number of bytes indicated for variable width encoding: " + varSizeBytes);
       }
