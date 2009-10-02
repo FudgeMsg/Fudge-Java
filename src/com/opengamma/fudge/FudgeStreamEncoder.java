@@ -18,10 +18,6 @@ import com.opengamma.fudge.taxon.FudgeTaxonomy;
  * @author kirk
  */
 public class FudgeStreamEncoder {
-  // Yes, this is a byte.
-  /*package*/ static final int FIELD_PREFIX_FIXED_WIDTH_MASK = 0x80;
-  /*package*/ static final int FIELD_PREFIX_ORDINAL_PROVIDED_MASK = 0x10;
-  /*package*/ static final int FIELD_PREFIX_NAME_PROVIDED_MASK = 0x08;
   
   public static void writeMsg(DataOutput os, FudgeMsg msg) throws IOException {
     writeMsg(os, new FudgeMsgEnvelope(msg));
@@ -109,7 +105,7 @@ public class FudgeStreamEncoder {
       int typeId, Short ordinal, String name) throws IOException {
     int nWritten = 0;
     
-    int fieldPrefix = composeFieldPrefix(!variableSize, valueSize, (ordinal != null), (name != null));
+    int fieldPrefix = FudgeFieldPrefixCodec.composeFieldPrefix(!variableSize, valueSize, (ordinal != null), (name != null));
     os.writeByte(fieldPrefix);
     nWritten++;
     os.writeByte(typeId);
@@ -197,34 +193,6 @@ public class FudgeStreamEncoder {
     return nWritten;
   }
 
-  protected static int composeFieldPrefix(boolean fixedWidth, int varDataSize, boolean hasOrdinal, boolean hasName) {
-    int varDataBits = 0;
-    if(!fixedWidth) {
-      // This is correct. This is an unsigned value for reading. See note in
-      // writeFieldValue.
-      if(varDataSize <= 255) {
-        varDataSize = 1;
-      } else if(varDataSize <= Short.MAX_VALUE) {
-        varDataSize = 2;
-      } else {
-        // Yes, this is right. Remember, we only have 2 bits here.
-        varDataSize = 3;
-      }
-      varDataBits = varDataSize << 5;
-    }
-    int fieldPrefix = varDataBits;
-    if(fixedWidth) {
-      fieldPrefix |= FIELD_PREFIX_FIXED_WIDTH_MASK;
-    }
-    if(hasOrdinal) {
-      fieldPrefix |= FIELD_PREFIX_ORDINAL_PROVIDED_MASK;
-    }
-    if(hasName) {
-      fieldPrefix |= FIELD_PREFIX_NAME_PROVIDED_MASK;
-    }
-    return fieldPrefix;
-  }
-  
   protected static void checkOutputStream(DataOutput os) {
     if(os == null) {
       throw new NullPointerException("Must specify a DataOutput for processing.");

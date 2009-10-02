@@ -29,7 +29,7 @@ public final class FudgeFieldPrefixCodec {
   }
   
   public static boolean hasName(byte fieldPrefix) {
-    return (fieldPrefix & FudgeStreamEncoder.FIELD_PREFIX_NAME_PROVIDED_MASK) != 0;
+    return (fieldPrefix & FIELD_PREFIX_NAME_PROVIDED_MASK) != 0;
   }
   
   public static int getFieldWidthByteCount(byte fieldPrefix) {
@@ -40,6 +40,34 @@ public final class FudgeFieldPrefixCodec {
       count = 4;
     }
     return count;
+  }
+  
+  public static int composeFieldPrefix(boolean fixedWidth, int varDataSize, boolean hasOrdinal, boolean hasName) {
+    int varDataBits = 0;
+    if(!fixedWidth) {
+      // This is correct. This is an unsigned value for reading. See note in
+      // writeFieldValue.
+      if(varDataSize <= 255) {
+        varDataSize = 1;
+      } else if(varDataSize <= Short.MAX_VALUE) {
+        varDataSize = 2;
+      } else {
+        // Yes, this is right. Remember, we only have 2 bits here.
+        varDataSize = 3;
+      }
+      varDataBits = varDataSize << 5;
+    }
+    int fieldPrefix = varDataBits;
+    if(fixedWidth) {
+      fieldPrefix |= FIELD_PREFIX_FIXED_WIDTH_MASK;
+    }
+    if(hasOrdinal) {
+      fieldPrefix |= FIELD_PREFIX_ORDINAL_PROVIDED_MASK;
+    }
+    if(hasName) {
+      fieldPrefix |= FIELD_PREFIX_NAME_PROVIDED_MASK;
+    }
+    return fieldPrefix;
   }
   
 }
