@@ -5,6 +5,8 @@
  */
 package com.opengamma.fudge;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -71,6 +73,12 @@ public class FudgeContext {
     }
   }
   
+  public byte[] toByteArray(FudgeMsg msg) {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    serialize(msg, baos);
+    return baos.toByteArray();
+  }
+  
   public FudgeMsgEnvelope deserialize(InputStream is) {
     DataInputStream dis = new DataInputStream(is);
     FudgeMsgEnvelope envelope;
@@ -80,6 +88,11 @@ public class FudgeContext {
       throw new FudgeRuntimeException("Unable to deserialize FudgeMsg from input stream", e);
     }
     return envelope;
+  }
+  
+  public FudgeMsgEnvelope deserialize(byte[] bytes) {
+    ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+    return deserialize(bais);
   }
   
 }
