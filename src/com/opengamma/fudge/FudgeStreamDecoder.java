@@ -61,9 +61,6 @@ public class FudgeStreamDecoder {
       nRead++;
       int typeId = is.readUnsignedByte();
       nRead++;
-//      if(typeId == FudgeTypeDictionary.END_FUDGE_MSG_TYPE_ID) {
-//        break;
-//      }
       nRead += readField(is, msg, fieldPrefix, typeId);
     }
     if(taxonomy != null) {
