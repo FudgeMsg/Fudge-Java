@@ -114,6 +114,7 @@
       <formatter type="xml"/>
       <batchtest todir="${tests.junit.output}/xml">
         <fileset dir="${basedir}/tests/unit" includes="**/*Test.java"/>
+        <fileset dir="${basedir}/tests/interop" includes="**/*Test.java"/>
       </batchtest>
     </junit>
   </target>

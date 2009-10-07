@@ -36,7 +36,7 @@ public class FudgeContextTest {
     
     assertNotNull(outputMsg);
     
-    FudgeMsgCodecTest.assertAllFieldsMatch(inputMsg, outputMsg);
+    FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
   
   @Test

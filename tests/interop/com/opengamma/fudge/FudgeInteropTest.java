@@ -7,32 +7,44 @@ package com.opengamma.fudge;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Random;
 
 import org.junit.Test;
 
 /**
- * A test class that will encode and decode a number of different Fudge messages
- * to test that encoding and decoding works properly.
+ * This saves (and subsequently reloads) data files containing the binary fudge representation of the messages.
  *
- * @author kirk
+ * @author jim
  */
-public class FudgeMsgCodecTest {
+public class FudgeInteropTest {
   private final Random _random = new Random();
   
   @Test
   public void allNames() throws IOException {
     FudgeMsg inputMsg = FudgeMsgTest.createMessageAllNames();
-    FudgeMsg outputMsg = cycleMessage(inputMsg);
+    FudgeMsg outputMsg = cycleMessage(inputMsg, "allNames.dat");
     
     assertNotNull(outputMsg);
     
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
+    
+  }
+
+  @Test
+  public void allOrdinals() throws IOException {
+    FudgeMsg inputMsg = FudgeMsgTest.createMessageAllOrdinals();
+    FudgeMsg outputMsg = cycleMessage(inputMsg, "allOrdinals.dat");
+    
+    assertNotNull(outputMsg);
+    
+    FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
+    
   }
   
   @Test
@@ -42,7 +54,7 @@ public class FudgeMsgCodecTest {
     inputMsg.add(new byte[1000], "1000");
     inputMsg.add(new byte[100000], "10000");
 
-    FudgeMsg outputMsg = cycleMessage(inputMsg);
+    FudgeMsg outputMsg = cycleMessage(inputMsg, "variableWidthColumnSizes.dat");
     
     assertNotNull(outputMsg);
     
@@ -61,7 +73,7 @@ public class FudgeMsgCodecTest {
     inputMsg.add(sub1, "sub1");
     inputMsg.add(sub2, "sub2");
 
-    FudgeMsg outputMsg = cycleMessage(inputMsg);
+    FudgeMsg outputMsg = cycleMessage(inputMsg, "subMsg.dat");
     
     assertNotNull(outputMsg);
     
@@ -72,13 +84,15 @@ public class FudgeMsgCodecTest {
   public void unknown() throws IOException {
     FudgeMsg inputMsg = new FudgeMsg();
     inputMsg.add(new UnknownFudgeFieldValue(new byte[10], FudgeTypeDictionary.INSTANCE.getUnknownType(200)), "unknown");
-    FudgeMsg outputMsg = cycleMessage(inputMsg);
+    FudgeMsg outputMsg = cycleMessage(inputMsg, "unknown.dat");
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
   
   protected byte[] createRandomArray(int length) {
     byte[] bytes = new byte[length];
-    _random.nextBytes(bytes);
+    for (int i=0; i<length; i++) {
+      bytes[i] = (byte)i;
+    }
     return bytes;
   }
 
@@ -97,23 +111,41 @@ public class FudgeMsgCodecTest {
     
     inputMsg.add(createRandomArray(28), "byte[28]");
     
-    FudgeMsg outputMsg = cycleMessage(inputMsg);
+    FudgeMsg outputMsg = cycleMessage(inputMsg, "fixedWidthByteArrays.dat");
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
+  
+  protected static FudgeMsg cycleMessage(FudgeMsg msg, String filename) throws IOException {
+    saveMessage(msg, filename);
+    return loadMessage(filename);
+  }
 
-  protected static FudgeMsg cycleMessage(FudgeMsg msg) throws IOException {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    DataOutputStream dos = new DataOutputStream(baos);
+  protected static void saveMessage(FudgeMsg msg, String filename) throws IOException {
+    String interopDir = System.getProperty("InteropDir");
+    String fullPath;
+    if (interopDir != null) {
+      fullPath = interopDir + File.pathSeparator + filename;
+    } else {
+      fullPath = filename; // fall back to current directory.
+    }
+    FileOutputStream stream = new FileOutputStream(fullPath);
+    DataOutputStream dos = new DataOutputStream(stream);
     FudgeStreamEncoder.writeMsg(dos, msg);
-    
-    byte[] content = baos.toByteArray();
-    
-    ByteArrayInputStream bais = new ByteArrayInputStream(content);
-    DataInputStream dis = new DataInputStream(bais);
+  }
+  
+  protected static FudgeMsg loadMessage(String filename) throws IOException {
+    String interopDir = System.getProperty("InteropDir");
+    String fullPath;
+    if (interopDir != null) {
+      fullPath = interopDir + File.pathSeparator + filename;
+    } else {
+      fullPath = filename; // fall back to current directory.
+    }
+    FileInputStream stream = new FileInputStream(fullPath);
+    DataInputStream dis = new DataInputStream(stream);
     FudgeMsgEnvelope outputMsgEnvelope = FudgeStreamDecoder.readMsg(dis);
     assertNotNull(outputMsgEnvelope);
     assertNotNull(outputMsgEnvelope.getMessage());
     return outputMsgEnvelope.getMessage();
   }
-
 }
