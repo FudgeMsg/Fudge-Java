@@ -76,8 +76,17 @@
      listfiles="${build.listfiles}"
      classpathref="tests.build.classpath"
      />
+    <javac
+     srcdir="${basedir}/tests/interop"
+     destdir="${tests.build.output}"
+     debug="${build.debug}"
+     optimize="${build.optimize}"
+     verbose="${build.verbose}"
+     listfiles="${build.listfiles}"
+     classpathref="tests.build.classpath"
+     />
     <copy todir="${tests.build.output}">
-      <fileset dir="${basedir}/tests/unit">
+      <fileset dir="${basedir}/tests/interop">
         <exclude name="**/*.java"/>
       </fileset>
     </copy>

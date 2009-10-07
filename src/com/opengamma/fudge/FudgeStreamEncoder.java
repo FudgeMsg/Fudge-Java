@@ -45,7 +45,6 @@ public class FudgeStreamEncoder {
     for(FudgeField field : msg.getAllFields()) {
       nWritten += writeField(os, field.getType(), field.getValue(), field.getOrdinal(), field.getName(), taxonomy);
     }
-    nWritten += writeFieldContents(os, null, null, taxonomy, 0, false, FudgeTypeDictionary.END_FUDGE_MSG_TYPE_ID, null, null);
     return nWritten;
   }
   

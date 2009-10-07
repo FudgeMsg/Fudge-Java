@@ -250,8 +250,6 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     for(FudgeMsgField field : _fields) {
       size += field.getSize(taxonomy);
     }
-    // The final end message virtual-field:
-    size += 2;
     return size;
   }
   

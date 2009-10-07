@@ -40,7 +40,8 @@ public class FudgeStreamDecoder {
     }
     
     FudgeMsg msg = new FudgeMsg();
-    nRead += readMsgFields(is, taxonomy, msg);
+    // note that this is size-nRead because the size is for the whole envelope, including the header which we've already read in.
+    nRead += readMsgFields(is, size - nRead, taxonomy, msg); 
     
     if((size > 0) && (nRead != size)) {
       throw new RuntimeException("Expected to read " + size + " but only had " + nRead + " in message.");
@@ -50,19 +51,19 @@ public class FudgeStreamDecoder {
     return envelope;
   }
   
-  public static int readMsgFields(DataInput is, FudgeTaxonomy taxonomy, FudgeMsg msg) throws IOException {
+  public static int readMsgFields(DataInput is, int size, FudgeTaxonomy taxonomy, FudgeMsg msg) throws IOException {
     if(msg == null) {
       throw new NullPointerException("Must specify a message to populate with fields.");
     }
     int nRead = 0;
-    while(true) {
+    while(nRead < size) {
       byte fieldPrefix = is.readByte();
       nRead++;
       int typeId = is.readUnsignedByte();
       nRead++;
-      if(typeId == FudgeTypeDictionary.END_FUDGE_MSG_TYPE_ID) {
-        break;
-      }
+//      if(typeId == FudgeTypeDictionary.END_FUDGE_MSG_TYPE_ID) {
+//        break;
+//      }
       nRead += readField(is, msg, fieldPrefix, typeId);
     }
     if(taxonomy != null) {

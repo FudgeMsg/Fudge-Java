@@ -112,7 +112,7 @@ public final class FudgeTypeDictionary {
   public static final byte STRING_TYPE_ID = (byte)14;
   // Indicators for controlling stack-based sub-message expressions:
   public static final byte FUDGE_MSG_TYPE_ID = (byte)15;
-  public static final byte END_FUDGE_MSG_TYPE_ID = (byte)16;
+  // End message indicator type removed as unnecessary, hence no 16
   // The fixed-width byte arrays:
   public static final byte BYTE_ARR_4_TYPE_ID = (byte)17;
   public static final byte BYTE_ARR_8_TYPE_ID = (byte)18;

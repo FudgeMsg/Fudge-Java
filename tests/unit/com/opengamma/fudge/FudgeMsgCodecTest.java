@@ -26,6 +26,14 @@ public class FudgeMsgCodecTest {
   private final Random _random = new Random();
   
   @Test
+  public void unknown() throws IOException {
+    FudgeMsg inputMsg = new FudgeMsg();
+    inputMsg.add(new UnknownFudgeFieldValue(new byte[10], FudgeTypeDictionary.INSTANCE.getUnknownType(200)), "unknown");
+    FudgeMsg outputMsg = cycleMessage(inputMsg);
+    FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
+  }
+  
+  @Test
   public void allNames() throws IOException {
     FudgeMsg inputMsg = FudgeMsgTest.createMessageAllNames();
     FudgeMsg outputMsg = cycleMessage(inputMsg);
@@ -68,13 +76,7 @@ public class FudgeMsgCodecTest {
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
   
-  @Test
-  public void unknown() throws IOException {
-    FudgeMsg inputMsg = new FudgeMsg();
-    inputMsg.add(new UnknownFudgeFieldValue(new byte[10], FudgeTypeDictionary.INSTANCE.getUnknownType(200)), "unknown");
-    FudgeMsg outputMsg = cycleMessage(inputMsg);
-    FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
-  }
+
   
   protected byte[] createRandomArray(int length) {
     byte[] bytes = new byte[length];
