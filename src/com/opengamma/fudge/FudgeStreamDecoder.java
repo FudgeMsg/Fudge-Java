@@ -84,9 +84,9 @@ public class FudgeStreamDecoder {
     boolean hasOrdinal = FudgeFieldPrefixCodec.hasOrdinal(fieldPrefix);
     boolean hasName = FudgeFieldPrefixCodec.hasName(fieldPrefix);
     
-    Short ordinal = null;
+    Integer ordinal = null;
     if(hasOrdinal) {
-      ordinal = is.readShort();
+      ordinal = new Integer(is.readShort());
       nRead += 2;
     }
     
@@ -125,7 +125,7 @@ public class FudgeStreamDecoder {
       nRead += varSize;
     }
     
-    msg.add(type, fieldValue, name, ordinal);
+    msg.add(name, ordinal, type, fieldValue);
     
     return nRead;
   }

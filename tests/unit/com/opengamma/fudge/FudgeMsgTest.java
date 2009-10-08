@@ -29,34 +29,34 @@ public class FudgeMsgTest {
   protected static FudgeMsg createMessageAllNames() {
     FudgeMsg msg = new FudgeMsg();
     
-    msg.add(Boolean.TRUE, "boolean");
-    msg.add(new Boolean(false), "Boolean");
-    msg.add((byte)5, "byte");
-    msg.add(new Byte((byte)5), "Byte");
+    msg.add("boolean", Boolean.TRUE);
+    msg.add("Boolean", new Boolean(false));
+    msg.add("byte", (byte)5);
+    msg.add("Byte", new Byte((byte)5));
     short shortValue = ((short)Byte.MAX_VALUE) + 5;
-    msg.add(shortValue, "short");
-    msg.add(new Short(shortValue), "Short");
+    msg.add("short", shortValue);
+    msg.add("Short", new Short(shortValue));
     int intValue = ((int)Short.MAX_VALUE) + 5;
-    msg.add(intValue, "int");
-    msg.add(new Integer(intValue), "Integer");
+    msg.add("int", intValue);
+    msg.add("Integer", new Integer(intValue));
     long longValue = ((long)Integer.MAX_VALUE) + 5;
-    msg.add(longValue, "long");
-    msg.add(new Long(longValue), "Long");
+    msg.add("long", longValue);
+    msg.add("Long", new Long(longValue));
     
-    msg.add(0.5f, "float");
-    msg.add(new Float(0.5f), "Float");
-    msg.add(0.27362, "double");
-    msg.add(new Double(0.27362), "Double");
+    msg.add("float", 0.5f);
+    msg.add("Float", new Float(0.5f));
+    msg.add("double", 0.27362);
+    msg.add("Double", new Double(0.27362));
     
-    msg.add("Kirk Wylie", "String");
+    msg.add("String", "Kirk Wylie");
     
-    msg.add(new float[24], "float array");
-    msg.add(new double[273], "double array");
-    msg.add(new short[32], "short array");
-    msg.add(new int[83], "int array");
-    msg.add(new long[837], "long array");
+    msg.add("float array", new float[24]);
+    msg.add("double array", new double[273]);
+    msg.add("short array", new short[32]);
+    msg.add("int array", new int[83]);
+    msg.add("long array", new long[837]);
     
-    msg.add(IndicatorType.INSTANCE, "indicator");
+    msg.add("indicator", IndicatorType.INSTANCE);
     
     return msg;
   }
@@ -64,46 +64,46 @@ public class FudgeMsgTest {
   protected static FudgeMsg createMessageAllOrdinals() {
     FudgeMsg msg = new FudgeMsg();
     
-    msg.add(Boolean.TRUE, (short)1);
-    msg.add(new Boolean(false), (short)2);
-    msg.add((byte)5, (short)3);
-    msg.add(new Byte((byte)5), (short)4);
+    msg.add(1, Boolean.TRUE);
+    msg.add(2, new Boolean(false));
+    msg.add(3, (byte)5);
+    msg.add(4, new Byte((byte)5));
     short shortValue = ((short)Byte.MAX_VALUE) + 5;
-    msg.add(shortValue, (short)5);
-    msg.add(new Short(shortValue), (short)6);
+    msg.add(5, shortValue);
+    msg.add(6, new Short(shortValue));
     int intValue = ((int)Short.MAX_VALUE) + 5;
-    msg.add(intValue, (short)7);
-    msg.add(new Integer(intValue), (short)8);
+    msg.add(7, intValue);
+    msg.add(8, new Integer(intValue));
     long longValue = ((long)Integer.MAX_VALUE) + 5;
-    msg.add(longValue, (short)9);
-    msg.add(new Long(longValue), (short)10);
+    msg.add(9, longValue);
+    msg.add(10, new Long(longValue));
     
-    msg.add(0.5f, (short)11);
-    msg.add(new Float(0.5f), (short)12);
-    msg.add(0.27362, (short)13);
-    msg.add(new Double(0.27362), (short)14);
+    msg.add(11, 0.5f);
+    msg.add(12, new Float(0.5f));
+    msg.add(13, 0.27362);
+    msg.add(14, new Double(0.27362));
     
-    msg.add("Kirk Wylie", (short)15);
+    msg.add(15, "Kirk Wylie");
     
-    msg.add(new float[24], (short)16);
-    msg.add(new double[273], (short)17);
+    msg.add(16, new float[24]);
+    msg.add(17, new double[273]);
     
     return msg;
   }
   
   protected static FudgeMsg createMessageAllByteArrayLengths() {
     FudgeMsg msg = new FudgeMsg();
-    msg.add(new byte[4], "byte[4]");
-    msg.add(new byte[8], "byte[8]");
-    msg.add(new byte[16], "byte[16]");
-    msg.add(new byte[20], "byte[20]");
-    msg.add(new byte[32], "byte[32]");
-    msg.add(new byte[64], "byte[64]");
-    msg.add(new byte[128], "byte[128]");
-    msg.add(new byte[256], "byte[256]");
-    msg.add(new byte[512], "byte[512]");
+    msg.add("byte[4]", new byte[4]);
+    msg.add("byte[8]", new byte[8]);
+    msg.add("byte[16]", new byte[16]);
+    msg.add("byte[20]", new byte[20]);
+    msg.add("byte[32]", new byte[32]);
+    msg.add("byte[64]", new byte[64]);
+    msg.add("byte[128]", new byte[128]);
+    msg.add("byte[256]", new byte[256]);
+    msg.add("byte[512]", new byte[512]);
     
-    msg.add(new byte[28], "byte[28]");
+    msg.add("byte[28]", new byte[28]);
     return msg;
   }
   
@@ -148,7 +148,7 @@ public class FudgeMsgTest {
     List<FudgeField> fields = null;
     
     // Now add a second by name.
-    msg.add(Boolean.FALSE, "boolean");
+    msg.add("boolean", Boolean.FALSE);
 
     field = msg.getByName("boolean");
     assertNotNull(field);

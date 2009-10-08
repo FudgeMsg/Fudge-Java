@@ -68,25 +68,28 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     _fields.add(new FudgeMsgField(field));
   }
   
-  public void add(Object value, String name) {
-    add(value, name, null);
+  public void add(String name, Object value) {
+    add(name, null, value);
   }
   
-  public void add(Object value, Short ordinal) {
-    add(value, null, ordinal);
+  public void add(Integer ordinal, Object value) {
+    add(null, ordinal, value);
   }
   
-  public void add(Object value, String name, Short ordinal) {
+  public void add(String name, Integer ordinal, Object value) {
     FudgeFieldType<?> type = determineTypeFromValue(value);
     if(type == null) {
       throw new IllegalArgumentException("Cannot determine a Fudge type for value " + value + " of type " + value.getClass());
     }
-    add(type, value, name, ordinal);
+    add(name, ordinal, type, value);
   }
   
-  public void add(FudgeFieldType<?> type, Object value, String name, Short ordinal) {
+  public void add(String name, Integer ordinal, FudgeFieldType<?> type, Object value) {
     if(_fields.size() >= Short.MAX_VALUE) {
       throw new IllegalStateException("Can only add " + Short.MAX_VALUE + " to a single message.");
+    }
+    if((ordinal != null) && ((ordinal > Short.MAX_VALUE) || (ordinal < Short.MIN_VALUE))) {
+      throw new IllegalArgumentException("Ordinal must be within signed 16-bit range.");
     }
     if(type == null) {
       throw new NullPointerException("Cannot add a field without a type specified.");
@@ -111,7 +114,11 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
       break;
     }
     
-    FudgeMsgField field = new FudgeMsgField(type, value, name, ordinal);
+    Short ordinalAsShort = null;
+    if(ordinal != null) {
+      ordinalAsShort = ordinal.shortValue();
+    }
+    FudgeMsgField field = new FudgeMsgField(type, value, name, ordinalAsShort);
     _fields.add(field);
   }
   
@@ -161,7 +168,7 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
   // There may be an option required if we have a lot of random access to the field content
   // to speed things up by building an index.
   
-  public List<FudgeField> getAllByOrdinal(short ordinal) {
+  public List<FudgeField> getAllByOrdinal(int ordinal) {
     List<FudgeField> fields = new ArrayList<FudgeField>();
     for(FudgeMsgField field : _fields) {
       if((field.getOrdinal() != null) && (ordinal == field.getOrdinal())) {
@@ -172,7 +179,7 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
   }
   
   
-  public FudgeField getByOrdinal(short ordinal) {
+  public FudgeField getByOrdinal(int ordinal) {
     for(FudgeMsgField field : _fields) {
       if((field.getOrdinal() != null) && (ordinal == field.getOrdinal())) {
         return field;
@@ -209,18 +216,19 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     return null;
   }
 
-  public Object getValue(short ordinal) {
+  public Object getValue(int ordinal) {
+    Short ordinalAsShort = (short) ordinal;
     for(FudgeMsgField field : _fields) {
-      if(ObjectUtils.equals(ordinal, field.getOrdinal())) {
+      if(ObjectUtils.equals(ordinalAsShort, field.getOrdinal())) {
         return field.getValue();
       }
     }
     return null;
   }
 
-  public Object getValue(String name, Short ordinal) {
+  public Object getValue(String name, Integer ordinal) {
     for(FudgeMsgField field : _fields) {
-      if((ordinal != null) && ObjectUtils.equals(ordinal, field.getOrdinal())) {
+      if((ordinal != null) && (field.getOrdinal() != null) && (ordinal == field.getOrdinal().intValue())) {
         return field.getValue();
       }
       if((name != null) && ObjectUtils.equals(name, field.getName())) {
@@ -259,11 +267,11 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     return getAsDoubleInternal(fieldName, null);
   }
   
-  public Double getDouble(short ordinal) {
+  public Double getDouble(int ordinal) {
     return getAsDoubleInternal(null, ordinal);
   }
   
-  protected Double getAsDoubleInternal(String fieldName, Short ordinal) {
+  protected Double getAsDoubleInternal(String fieldName, Integer ordinal) {
     Object value = getValue(fieldName, ordinal);
     if(value instanceof Number) {
       Number numberValue = (Number) value;
@@ -276,11 +284,11 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     return getAsFloatInternal(fieldName, null);
   }
   
-  public Float getFloat(short ordinal) {
+  public Float getFloat(int ordinal) {
     return getAsFloatInternal(null, ordinal);
   }
   
-  protected Float getAsFloatInternal(String fieldName, Short ordinal) {
+  protected Float getAsFloatInternal(String fieldName, Integer ordinal) {
     Object value = getValue(fieldName, ordinal);
     if(value instanceof Number) {
       Number numberValue = (Number) value;
@@ -293,11 +301,11 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     return getAsLongInternal(fieldName, null);
   }
 
-  public Long getLong(short ordinal) {
+  public Long getLong(int ordinal) {
     return getAsLongInternal(null, ordinal);
   }
   
-  protected Long getAsLongInternal(String fieldName, Short ordinal) {
+  protected Long getAsLongInternal(String fieldName, Integer ordinal) {
     Object value = getValue(fieldName, ordinal);
     if(value instanceof Number) {
       Number numberValue = (Number) value;
@@ -310,11 +318,11 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     return getAsIntInternal(fieldName, null);
   }
   
-  public Integer getInt(short ordinal) {
+  public Integer getInt(int ordinal) {
     return getAsIntInternal(null, ordinal);
   }
   
-  protected Integer getAsIntInternal(String fieldName, Short ordinal) {
+  protected Integer getAsIntInternal(String fieldName, Integer ordinal) {
     Object value = getValue(fieldName, ordinal);
     if(value instanceof Number) {
       Number numberValue = (Number) value;
@@ -327,11 +335,11 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     return getAsShortInternal(fieldName, null);
   }
   
-  public Short getShort(short ordinal) {
+  public Short getShort(int ordinal) {
     return getAsShortInternal(null, ordinal);
   }
   
-  protected Short getAsShortInternal(String fieldName, Short ordinal) {
+  protected Short getAsShortInternal(String fieldName, Integer ordinal) {
     Object value = getValue(fieldName, ordinal);
     if(value instanceof Number) {
       Number numberValue = (Number) value;
@@ -345,11 +353,11 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     return getAsByteInternal(fieldName, null);
   }
   
-  public Byte getByte(short ordinal) {
+  public Byte getByte(int ordinal) {
     return getAsByteInternal(null, ordinal);
   }
   
-  protected Byte getAsByteInternal(String fieldName, Short ordinal) {
+  protected Byte getAsByteInternal(String fieldName, Integer ordinal) {
     Object value = getValue(fieldName, ordinal);
     if(value instanceof Number) {
       Number numberValue = (Number) value;
@@ -362,7 +370,7 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     return (String) getFirstTypedValue(fieldName, FudgeTypeDictionary.STRING_TYPE_ID);
   }
 
-  public String getString(short ordinal) {
+  public String getString(int ordinal) {
     return (String) getFirstTypedValue(ordinal, FudgeTypeDictionary.STRING_TYPE_ID);
   }
   
@@ -370,7 +378,7 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     return (Boolean) getFirstTypedValue(fieldName, FudgeTypeDictionary.BOOLEAN_TYPE_ID);
   }
 
-  public Boolean getBoolean(short ordinal) {
+  public Boolean getBoolean(int ordinal) {
     return (Boolean) getFirstTypedValue(ordinal, FudgeTypeDictionary.BOOLEAN_TYPE_ID);
   }
   
@@ -384,7 +392,7 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     return null;
   }
   
-  protected final Object getFirstTypedValue(short ordinal, int typeId) {
+  protected final Object getFirstTypedValue(int ordinal, int typeId) {
     for(FudgeMsgField field : _fields) {
       if(field.getOrdinal() == null) {
         continue;

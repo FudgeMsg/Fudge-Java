@@ -148,23 +148,23 @@ public class ShortPerformanceTest {
     SmallFinancialTick tick = new SmallFinancialTick();
     FudgeMsg msg = new FudgeMsg();
     if(useNames && useOrdinals) {
-      msg.add(tick.getAsk(), "ask", (short) 1);
-      msg.add(tick.getAskVolume(), "askVolume", (short) 2);
-      msg.add(tick.getBid(), "bid", (short) 3);
-      msg.add(tick.getBidVolume(), "bidVolume", (short) 4);
-      msg.add(tick.getTimestamp(), "ts", (short) 5);
+      msg.add("ask", 1, tick.getAsk());
+      msg.add("askVolume", 2, tick.getAskVolume());
+      msg.add("bid", 3, tick.getBid());
+      msg.add("bidVolume", 4, tick.getBidVolume());
+      msg.add("ts", 5, tick.getTimestamp());
     } else if(useNames) {
-      msg.add(tick.getAsk(), "ask");
-      msg.add(tick.getAskVolume(), "askVolume");
-      msg.add(tick.getBid(), "bid");
-      msg.add(tick.getBidVolume(), "bidVolume");
-      msg.add(tick.getTimestamp(), "ts");
+      msg.add("ask", tick.getAsk());
+      msg.add("askVolume", tick.getAskVolume());
+      msg.add("bid", tick.getBid());
+      msg.add("bidVolume", tick.getBidVolume());
+      msg.add("ts", tick.getTimestamp());
     } else if(useOrdinals) {
-      msg.add(tick.getAsk(), (short)1);
-      msg.add(tick.getAskVolume(), (short)2);
-      msg.add(tick.getBid(), (short)3);
-      msg.add(tick.getBidVolume(), (short)4);
-      msg.add(tick.getTimestamp(), (short)5);
+      msg.add(1, tick.getAsk());
+      msg.add(2, tick.getAskVolume());
+      msg.add(3, tick.getBid());
+      msg.add(4, tick.getBidVolume());
+      msg.add(5, tick.getTimestamp());
     }
     FudgeStreamEncoder.writeMsg(dos, msg);
     

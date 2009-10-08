@@ -14,13 +14,12 @@ public interface MutableFudgeFieldContainer extends FudgeFieldContainer {
 
   public abstract void add(FudgeField field);
 
-  public abstract void add(Object value, String name);
+  public abstract void add(String name, Object value);
 
-  public abstract void add(Object value, Short ordinal);
+  public abstract void add(Integer ordinal, Object value);
 
-  public abstract void add(Object value, String name, Short ordinal);
+  public abstract void add(String name, Integer ordinal, Object value);
 
-  public abstract void add(FudgeFieldType<?> type, Object value, String name,
-      Short ordinal);
+  public abstract void add(String name, Integer ordinal, FudgeFieldType<?> type, Object value);
 
 }

@@ -63,9 +63,9 @@ public class FudgeInteropTest {
   @Test
   public void variableWidthColumnSizes() throws IOException {
     FudgeMsg inputMsg = new FudgeMsg();
-    inputMsg.add(new byte[100], "100");
-    inputMsg.add(new byte[1000], "1000");
-    inputMsg.add(new byte[100000], "10000");
+    inputMsg.add("100", new byte[100]);
+    inputMsg.add("1000", new byte[1000]);
+    inputMsg.add("10000", new byte[100000]);
 
     FudgeMsg outputMsg = cycleMessage(inputMsg, "variableWidthColumnSizes.dat");
     
@@ -78,13 +78,13 @@ public class FudgeInteropTest {
   public void subMsg() throws IOException {
     FudgeMsg inputMsg = new FudgeMsg();
     FudgeMsg sub1 = new FudgeMsg();
-    sub1.add("fibble", "bibble");
-    sub1.add("Blibble", (short)827);
+    sub1.add("bibble", "fibble");
+    sub1.add(827, "Blibble");
     FudgeMsg sub2 = new FudgeMsg();
-    sub2.add(9837438, "bibble9");
-    sub2.add(82.77f, (short)828);
-    inputMsg.add(sub1, "sub1");
-    inputMsg.add(sub2, "sub2");
+    sub2.add("bibble9", 9837438);
+    sub2.add(828, 82.77f);
+    inputMsg.add("sub1", sub1);
+    inputMsg.add("sub2", sub2);
 
     FudgeMsg outputMsg = cycleMessage(inputMsg, "subMsg.dat");
     
@@ -96,12 +96,12 @@ public class FudgeInteropTest {
   @Test
   public void unknown() throws IOException {
     FudgeMsg inputMsg = new FudgeMsg();
-    inputMsg.add(new UnknownFudgeFieldValue(new byte[10], FudgeTypeDictionary.INSTANCE.getUnknownType(200)), "unknown");
+    inputMsg.add("unknown", new UnknownFudgeFieldValue(new byte[10], FudgeTypeDictionary.INSTANCE.getUnknownType(200)));
     FudgeMsg outputMsg = cycleMessage(inputMsg, "unknown.dat");
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
   
-  protected byte[] createRandomArray(int length) {
+  protected static byte[] createPopulatedArray(int length) {
     byte[] bytes = new byte[length];
     for (int i=0; i<length; i++) {
       bytes[i] = (byte)i;
@@ -112,17 +112,17 @@ public class FudgeInteropTest {
   @Test
   public void fixedWidthByteArrays() throws IOException {
     FudgeMsg inputMsg = new FudgeMsg();
-    inputMsg.add(createRandomArray(4), "byte[4]");
-    inputMsg.add(createRandomArray(8), "byte[8]");
-    inputMsg.add(createRandomArray(16), "byte[16]");
-    inputMsg.add(createRandomArray(20), "byte[20]");
-    inputMsg.add(createRandomArray(32), "byte[32]");
-    inputMsg.add(createRandomArray(64), "byte[64]");
-    inputMsg.add(createRandomArray(128), "byte[128]");
-    inputMsg.add(createRandomArray(256), "byte[256]");
-    inputMsg.add(createRandomArray(512), "byte[512]");
+    inputMsg.add("byte[4]", createPopulatedArray(4));
+    inputMsg.add("byte[8]", createPopulatedArray(8));
+    inputMsg.add("byte[16]", createPopulatedArray(16));
+    inputMsg.add("byte[20]", createPopulatedArray(20));
+    inputMsg.add("byte[32]", createPopulatedArray(32));
+    inputMsg.add("byte[64]", createPopulatedArray(64));
+    inputMsg.add("byte[128]", createPopulatedArray(128));
+    inputMsg.add("byte[256]", createPopulatedArray(256));
+    inputMsg.add("byte[512]", createPopulatedArray(512));
     
-    inputMsg.add(createRandomArray(28), "byte[28]");
+    inputMsg.add("byte[28]", createPopulatedArray(28));
     
     FudgeMsg outputMsg = cycleMessage(inputMsg, "fixedWidthByteArrays.dat");
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);

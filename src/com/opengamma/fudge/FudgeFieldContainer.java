@@ -27,9 +27,9 @@ public interface FudgeFieldContainer extends Iterable<FudgeField> {
 
   FudgeField getByIndex(int index);
 
-  List<FudgeField> getAllByOrdinal(short ordinal);
+  List<FudgeField> getAllByOrdinal(int ordinal);
 
-  FudgeField getByOrdinal(short ordinal);
+  FudgeField getByOrdinal(int ordinal);
 
   List<FudgeField> getAllByName(String name);
 
@@ -37,39 +37,39 @@ public interface FudgeFieldContainer extends Iterable<FudgeField> {
 
   Object getValue(String name);
 
-  Object getValue(short ordinal);
+  Object getValue(int ordinal);
 
-  Object getValue(String name, Short ordinal);
+  Object getValue(String name, Integer ordinal);
 
   Double getDouble(String fieldName);
 
-  Double getDouble(short ordinal);
+  Double getDouble(int ordinal);
 
   Float getFloat(String fieldName);
 
-  Float getFloat(short ordinal);
+  Float getFloat(int ordinal);
 
   Long getLong(String fieldName);
 
-  Long getLong(short ordinal);
+  Long getLong(int ordinal);
 
   Integer getInt(String fieldName);
 
-  Integer getInt(short ordinal);
+  Integer getInt(int ordinal);
 
   Short getShort(String fieldName);
 
-  Short getShort(short ordinal);
+  Short getShort(int ordinal);
 
   Byte getByte(String fieldName);
 
-  Byte getByte(short ordinal);
+  Byte getByte(int ordinal);
 
   String getString(String fieldName);
 
-  String getString(short ordinal);
+  String getString(int ordinal);
 
   Boolean getBoolean(String fieldName);
 
-  Boolean getBoolean(short ordinal);
+  Boolean getBoolean(int ordinal);
 }
