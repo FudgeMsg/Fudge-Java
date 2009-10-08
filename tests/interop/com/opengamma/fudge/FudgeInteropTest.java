@@ -13,8 +13,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Random;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.junit.AfterClass;
 import org.junit.Test;
 
 /**
@@ -23,7 +25,18 @@ import org.junit.Test;
  * @author jim
  */
 public class FudgeInteropTest {
-  private final Random _random = new Random();
+  private static final boolean LEAVE_FILES_IN_PLACE = false;
+  private static Set<File> s_filesToRemove = new HashSet<File>();
+  
+  @AfterClass
+  public static void removeFiles() {
+    if(!LEAVE_FILES_IN_PLACE) {
+      for(File f : s_filesToRemove) {
+        f.delete();
+      }
+    }
+    s_filesToRemove.clear();
+  }
   
   @Test
   public void allNames() throws IOException {
@@ -128,6 +141,7 @@ public class FudgeInteropTest {
     } else {
       fullPath = filename; // fall back to current directory.
     }
+    s_filesToRemove.add(new File(fullPath));
     FileOutputStream stream = new FileOutputStream(fullPath);
     DataOutputStream dos = new DataOutputStream(stream);
     FudgeStreamEncoder.writeMsg(dos, msg);
