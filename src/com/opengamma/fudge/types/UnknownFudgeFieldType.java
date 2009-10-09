@@ -44,7 +44,7 @@ public class UnknownFudgeFieldType extends
   }
 
   @Override
-  public UnknownFudgeFieldValue readValue(DataInput input, int dataSize)
+  public UnknownFudgeFieldValue readValue(DataInput input, int dataSize, FudgeTypeDictionary typeDictionary)
       throws IOException {
     byte[] contents = new byte[dataSize];
     input.readFully(contents);

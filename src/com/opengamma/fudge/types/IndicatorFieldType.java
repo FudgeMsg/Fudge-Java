@@ -42,7 +42,7 @@ public class IndicatorFieldType extends FudgeFieldType<IndicatorType> {
   }
 
   @Override
-  public IndicatorType readValue(DataInput input, int dataSize)
+  public IndicatorType readValue(DataInput input, int dataSize, FudgeTypeDictionary typeDictionary)
       throws IOException {
     return IndicatorType.INSTANCE;
   }

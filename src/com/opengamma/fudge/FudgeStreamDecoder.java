@@ -29,10 +29,10 @@ import com.opengamma.fudge.taxon.TaxonomyResolver;
 public class FudgeStreamDecoder {
   
   public static FudgeMsgEnvelope readMsg(DataInput is) throws IOException {
-    return readMsg(is, null);
+    return readMsg(is, FudgeTypeDictionary.INSTANCE, null);
   }
   
-  public static FudgeMsgEnvelope readMsg(DataInput is, TaxonomyResolver taxonomyResolver) throws IOException {
+  public static FudgeMsgEnvelope readMsg(DataInput is, FudgeTypeDictionary typeDictionary, TaxonomyResolver taxonomyResolver) throws IOException {
     checkInputStream(is);
     int nRead = 0;
     /*int processingDirectives = */is.readUnsignedByte();
@@ -51,7 +51,7 @@ public class FudgeStreamDecoder {
     
     FudgeMsg msg = new FudgeMsg();
     // note that this is size-nRead because the size is for the whole envelope, including the header which we've already read in.
-    nRead += readMsgFields(is, size - nRead, taxonomy, msg); 
+    nRead += readMsgFields(is, size - nRead, typeDictionary, taxonomy, msg); 
     
     if((size > 0) && (nRead != size)) {
       throw new RuntimeException("Expected to read " + size + " but only had " + nRead + " in message.");
@@ -61,7 +61,13 @@ public class FudgeStreamDecoder {
     return envelope;
   }
   
-  public static int readMsgFields(DataInput is, int size, FudgeTaxonomy taxonomy, FudgeMsg msg) throws IOException {
+  public static int readMsgFields(
+      DataInput is,
+      int size,
+      FudgeTypeDictionary typeDictionary,
+      FudgeTaxonomy taxonomy,
+      FudgeMsg msg)
+  throws IOException {
     if(msg == null) {
       throw new NullPointerException("Must specify a message to populate with fields.");
     }
@@ -71,7 +77,7 @@ public class FudgeStreamDecoder {
       nRead++;
       int typeId = is.readUnsignedByte();
       nRead++;
-      nRead += readField(is, msg, fieldPrefix, typeId);
+      nRead += readField(is, msg, typeDictionary, fieldPrefix, typeId);
     }
     if(taxonomy != null) {
       msg.setNamesFromTaxonomy(taxonomy);
@@ -86,7 +92,13 @@ public class FudgeStreamDecoder {
    * @param msg
    * @return The number of bytes read.
    */
-  public static int readField(DataInput is, FudgeMsg msg, byte fieldPrefix, int typeId) throws IOException {
+  public static int readField(
+      DataInput is,
+      FudgeMsg msg,
+      FudgeTypeDictionary typeDictionary,
+      byte fieldPrefix,
+      int typeId)
+  throws IOException {
     checkInputStream(is);
     int nRead = 0;
     
@@ -108,12 +120,12 @@ public class FudgeStreamDecoder {
       nRead += nameSize;
     }
     
-    FudgeFieldType<?> type = FudgeTypeDictionary.INSTANCE.getByTypeId(typeId);
+    FudgeFieldType<?> type = typeDictionary.getByTypeId(typeId);
     if(type == null) {
       if(fixedWidth) {
         throw new RuntimeException("Unknown fixed width type " + typeId + " for field " + ordinal + ":" + name + " cannot be handled.");
       }
-      type = FudgeTypeDictionary.INSTANCE.getUnknownType(typeId);
+      type = typeDictionary.getUnknownType(typeId);
     }
     int varSize = 0;
     if(!fixedWidth) {
@@ -128,7 +140,7 @@ public class FudgeStreamDecoder {
       }
       
     }
-    Object fieldValue = readFieldValue(is, type, varSize);
+    Object fieldValue = readFieldValue(is, type, varSize, typeDictionary);
     if(fixedWidth) {
       nRead += type.getFixedSize();
     } else {
@@ -146,9 +158,14 @@ public class FudgeStreamDecoder {
    * @param varSize 
    * @return
    */
-  public static Object readFieldValue(DataInput is, FudgeFieldType<?> type, int varSize) throws IOException {
+  public static Object readFieldValue(
+      DataInput is,
+      FudgeFieldType<?> type,
+      int varSize,
+      FudgeTypeDictionary typeDictionary) throws IOException {
     assert type != null;
     assert is != null;
+    assert typeDictionary != null;
     
     // Special fast-pass for known field types
     switch(type.getTypeId()) {
@@ -168,7 +185,7 @@ public class FudgeStreamDecoder {
       return is.readDouble();
     }
     
-    return type.readValue(is, varSize);
+    return type.readValue(is, varSize, typeDictionary);
   }
 
   protected static void checkInputStream(DataInput is) {

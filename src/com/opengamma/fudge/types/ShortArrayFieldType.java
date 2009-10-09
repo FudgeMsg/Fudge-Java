@@ -44,7 +44,7 @@ public class ShortArrayFieldType extends FudgeFieldType<short[]> {
   }
 
   @Override
-  public short[] readValue(DataInput input, int dataSize) throws IOException {
+  public short[] readValue(DataInput input, int dataSize, FudgeTypeDictionary typeDictionary) throws IOException {
     int nShorts = dataSize / 2;
     short[] result = new short[nShorts];
     for(int i = 0; i < nShorts; i++) {

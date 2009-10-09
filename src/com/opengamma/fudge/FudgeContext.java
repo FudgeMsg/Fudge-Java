@@ -50,6 +50,7 @@ import com.opengamma.fudge.taxon.TaxonomyResolver;
  * @author kirk
  */
 public class FudgeContext {
+  private FudgeTypeDictionary _typeDictionary = new FudgeTypeDictionary();
   private TaxonomyResolver _taxonomyResolver;
 
   /**
@@ -66,6 +67,21 @@ public class FudgeContext {
     _taxonomyResolver = taxonomyResolver;
   }
   
+  public FudgeTypeDictionary getTypeDictionary() {
+    return _typeDictionary;
+  }
+
+  public void setTypeDictionary(FudgeTypeDictionary typeDictionary) {
+    if(typeDictionary == null) {
+      throw new NullPointerException("Every fudge context must have a type dictionary.");
+    }
+    _typeDictionary = typeDictionary;
+  }
+  
+  public FudgeMsg newMessage() {
+    return new FudgeMsg(getTypeDictionary());
+  }
+
   public void serialize(FudgeMsg msg, OutputStream os) {
     serialize(msg, null, os);
   }
@@ -77,7 +93,7 @@ public class FudgeContext {
     }
     DataOutputStream dos = new DataOutputStream(os);
     try {
-      FudgeStreamEncoder.writeMsg(dos, new FudgeMsgEnvelope(msg), taxonomy, (taxonomyId == null) ? (short)0 : taxonomyId);
+      FudgeStreamEncoder.writeMsg(dos, new FudgeMsgEnvelope(msg), getTypeDictionary(), taxonomy, (taxonomyId == null) ? (short)0 : taxonomyId);
     } catch (IOException e) {
       throw new FudgeRuntimeException("Unable to write Fudge message to OutputStream", e);
     }
@@ -93,7 +109,7 @@ public class FudgeContext {
     DataInputStream dis = new DataInputStream(is);
     FudgeMsgEnvelope envelope;
     try {
-      envelope = FudgeStreamDecoder.readMsg(dis, getTaxonomyResolver());
+      envelope = FudgeStreamDecoder.readMsg(dis, getTypeDictionary(), getTaxonomyResolver());
     } catch (IOException e) {
       throw new FudgeRuntimeException("Unable to deserialize FudgeMsg from input stream", e);
     }

@@ -42,7 +42,7 @@ public class StringFieldType extends FudgeFieldType<String> {
   }
 
   @Override
-  public String readValue(DataInput input, int dataSize) throws IOException {
+  public String readValue(DataInput input, int dataSize, FudgeTypeDictionary typeDictionary) throws IOException {
     return ModifiedUTF8Util.readString(input, dataSize);
   }
 

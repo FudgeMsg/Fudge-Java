@@ -44,11 +44,11 @@ public class FudgeMsgFieldType extends FudgeFieldType<FudgeMsg> {
   }
 
   @Override
-  public FudgeMsg readValue(DataInput input, int dataSize) throws IOException {
+  public FudgeMsg readValue(DataInput input, int dataSize, FudgeTypeDictionary typeDictionary) throws IOException {
     FudgeMsg msg = new FudgeMsg();
     // REVIEW kirk 2009-09-01 -- This is right. We have to use the same taxonomy,
     // so the parent taxonomy resolver will be fixed up later on.
-    int nRead = FudgeStreamDecoder.readMsgFields(input, dataSize, null, msg);
+    int nRead = FudgeStreamDecoder.readMsgFields(input, dataSize, typeDictionary, null, msg);
     assert dataSize == nRead : "Sub-message reading failed in size; envelope unpacking will throw exception in prod.";
     return msg;
   }

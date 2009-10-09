@@ -34,13 +34,16 @@ public class FudgeStreamEncoder {
   }
   
   public static void writeMsg(DataOutput os, FudgeMsgEnvelope envelope) throws IOException {
-    writeMsg(os, envelope, null, (short)0);
+    writeMsg(os, envelope, FudgeTypeDictionary.INSTANCE, null, (short)0);
   }
   
-  public static void writeMsg(DataOutput os, FudgeMsgEnvelope envelope, FudgeTaxonomy taxonomy, short taxonomyId) throws IOException {
+  public static void writeMsg(DataOutput os, FudgeMsgEnvelope envelope, FudgeTypeDictionary typeDictionary, FudgeTaxonomy taxonomy, short taxonomyId) throws IOException {
     checkOutputStream(os);
     if(envelope == null) {
       throw new NullPointerException("Must provide a message envelope to output.");
+    }
+    if(typeDictionary == null) {
+      throw new NullPointerException("Type dictionary must be provided.");
     }
     int nWritten = 0;
     int msgSize = envelope.getSize(taxonomy);

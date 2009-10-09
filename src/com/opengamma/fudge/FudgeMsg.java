@@ -43,9 +43,18 @@ import com.opengamma.fudge.types.PrimitiveFieldTypes;
  * @author kirk
  */
 public class FudgeMsg extends FudgeEncodingObject implements Serializable, MutableFudgeFieldContainer, Iterable<FudgeField> {
+  private final FudgeTypeDictionary _typeDictionary;
   private final List<FudgeMsgField> _fields = new ArrayList<FudgeMsgField>();
   
   public FudgeMsg() {
+    this(FudgeTypeDictionary.INSTANCE);
+  }
+  
+  public FudgeMsg(FudgeTypeDictionary typeDictionary) {
+    if(typeDictionary == null) {
+      throw new NullPointerException("Type dictionary must be provided.");
+    }
+    _typeDictionary = typeDictionary;
   }
   
   public FudgeMsg(FudgeMsg other) {
@@ -53,9 +62,14 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
       throw new NullPointerException("Cannot initialize from a null other FudgeMsg");
     }
     initializeFromByteArray(other.toByteArray());
+    _typeDictionary = other._typeDictionary;
   }
   
-  public FudgeMsg(byte[] byteArray, FudgeTaxonomy taxonomy) {
+  public FudgeMsg(byte[] byteArray, FudgeTypeDictionary typeDictionary, FudgeTaxonomy taxonomy) {
+    if(typeDictionary == null) {
+      throw new NullPointerException("Type dictionary must be provided.");
+    }
+    _typeDictionary = typeDictionary;
     initializeFromByteArray(byteArray);
   }
   
@@ -71,6 +85,10 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     _fields.addAll(other.getMessage()._fields);
   }
   
+  public FudgeTypeDictionary getTypeDictionary() {
+    return _typeDictionary;
+  }
+
   public void add(FudgeField field) {
     if(field == null) {
       throw new NullPointerException("Cannot add an empty field");
@@ -139,7 +157,7 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     if(value instanceof byte[]) {
       return ByteArrayFieldType.getBestMatch((byte[])value);
     }
-    FudgeFieldType<?> type = FudgeTypeDictionary.INSTANCE.getByJavaType(value.getClass());
+    FudgeFieldType<?> type = getTypeDictionary().getByJavaType(value.getClass());
     if((type == null) && (value instanceof UnknownFudgeFieldValue)) {
       UnknownFudgeFieldValue unknownValue = (UnknownFudgeFieldValue) value;
       type = unknownValue.getType();

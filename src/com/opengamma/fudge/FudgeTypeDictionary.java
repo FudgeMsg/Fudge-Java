@@ -34,17 +34,45 @@ import com.opengamma.fudge.types.UnknownFudgeFieldType;
 /**
  * Contains all the {@link FudgeFieldType} definitions for a particular
  * Fudge installation.
- * This class will usually be used as a classic Singleton, although the constructor
- * is public so that it can be used in a Dependency Injection framework. 
+ * You can control it through your {@link FudgeContext}.
  *
  * @author kirk
  */
 public final class FudgeTypeDictionary {
-  public static final FudgeTypeDictionary INSTANCE = new FudgeTypeDictionary();
+  /*package*/ static final FudgeTypeDictionary INSTANCE = new FudgeTypeDictionary();
   
   private volatile FudgeFieldType<?>[] _typesById = new FudgeFieldType<?>[0];
   private volatile UnknownFudgeFieldType[] _unknownTypesById = new UnknownFudgeFieldType[0];
   private final Map<Class<?>, FudgeFieldType<?>> _typesByJavaType = new ConcurrentHashMap<Class<?>, FudgeFieldType<?>>();
+  
+  public FudgeTypeDictionary() {
+    addType(ByteArrayFieldType.LENGTH_4_INSTANCE);
+    addType(ByteArrayFieldType.LENGTH_8_INSTANCE);
+    addType(ByteArrayFieldType.LENGTH_16_INSTANCE);
+    addType(ByteArrayFieldType.LENGTH_20_INSTANCE);
+    addType(ByteArrayFieldType.LENGTH_32_INSTANCE);
+    addType(ByteArrayFieldType.LENGTH_64_INSTANCE);
+    addType(ByteArrayFieldType.LENGTH_128_INSTANCE);
+    addType(ByteArrayFieldType.LENGTH_256_INSTANCE);
+    addType(ByteArrayFieldType.LENGTH_512_INSTANCE);
+    
+    addType(PrimitiveFieldTypes.BOOLEAN_TYPE, Boolean.class);
+    addType(PrimitiveFieldTypes.BYTE_TYPE, Byte.class);
+    addType(PrimitiveFieldTypes.SHORT_TYPE, Short.class);
+    addType(PrimitiveFieldTypes.INT_TYPE, Integer.class);
+    addType(PrimitiveFieldTypes.LONG_TYPE, Long.class);
+    addType(PrimitiveFieldTypes.FLOAT_TYPE, Float.class);
+    addType(ShortArrayFieldType.INSTANCE);
+    addType(IntArrayFieldType.INSTANCE);
+    addType(LongArrayFieldType.INSTANCE);
+    addType(IndicatorFieldType.INSTANCE);
+    addType(FloatArrayFieldType.INSTANCE);
+    addType(PrimitiveFieldTypes.DOUBLE_TYPE, Double.class);
+    addType(DoubleArrayFieldType.INSTANCE);
+    addType(ByteArrayFieldType.VARIABLE_SIZED_INSTANCE);
+    addType(StringFieldType.INSTANCE);
+    addType(FudgeMsgFieldType.INSTANCE);
+  }
   
   public void addType(FudgeFieldType<?> type, Class<?>... alternativeTypes) {
     if(type == null) {
@@ -133,36 +161,4 @@ public final class FudgeTypeDictionary {
   public static final byte BYTE_ARR_128_TYPE_ID = (byte)23;
   public static final byte BYTE_ARR_256_TYPE_ID = (byte)24;
   public static final byte BYTE_ARR_512_TYPE_ID = (byte)25;
-  
-  static {
-    // We have to add the fixed width byte array types first, so that the last
-    // one can override.
-    INSTANCE.addType(ByteArrayFieldType.LENGTH_4_INSTANCE);
-    INSTANCE.addType(ByteArrayFieldType.LENGTH_8_INSTANCE);
-    INSTANCE.addType(ByteArrayFieldType.LENGTH_16_INSTANCE);
-    INSTANCE.addType(ByteArrayFieldType.LENGTH_20_INSTANCE);
-    INSTANCE.addType(ByteArrayFieldType.LENGTH_32_INSTANCE);
-    INSTANCE.addType(ByteArrayFieldType.LENGTH_64_INSTANCE);
-    INSTANCE.addType(ByteArrayFieldType.LENGTH_128_INSTANCE);
-    INSTANCE.addType(ByteArrayFieldType.LENGTH_256_INSTANCE);
-    INSTANCE.addType(ByteArrayFieldType.LENGTH_512_INSTANCE);
-    
-    INSTANCE.addType(PrimitiveFieldTypes.BOOLEAN_TYPE, Boolean.class);
-    INSTANCE.addType(PrimitiveFieldTypes.BYTE_TYPE, Byte.class);
-    INSTANCE.addType(PrimitiveFieldTypes.SHORT_TYPE, Short.class);
-    INSTANCE.addType(PrimitiveFieldTypes.INT_TYPE, Integer.class);
-    INSTANCE.addType(PrimitiveFieldTypes.LONG_TYPE, Long.class);
-    INSTANCE.addType(PrimitiveFieldTypes.FLOAT_TYPE, Float.class);
-    INSTANCE.addType(ShortArrayFieldType.INSTANCE);
-    INSTANCE.addType(IntArrayFieldType.INSTANCE);
-    INSTANCE.addType(LongArrayFieldType.INSTANCE);
-    INSTANCE.addType(IndicatorFieldType.INSTANCE);
-    INSTANCE.addType(FloatArrayFieldType.INSTANCE);
-    INSTANCE.addType(PrimitiveFieldTypes.DOUBLE_TYPE, Double.class);
-    INSTANCE.addType(DoubleArrayFieldType.INSTANCE);
-    INSTANCE.addType(ByteArrayFieldType.VARIABLE_SIZED_INSTANCE);
-    INSTANCE.addType(StringFieldType.INSTANCE);
-    INSTANCE.addType(FudgeMsgFieldType.INSTANCE);
-  }
-
 }
