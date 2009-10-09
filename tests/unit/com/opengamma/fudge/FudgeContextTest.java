@@ -62,7 +62,9 @@ public class FudgeContextTest {
     resolverMap.put((short)45, new MapFudgeTaxonomy(ORDINALS, NAMES));
     context.setTaxonomyResolver(new ImmutableMapTaxonomyResolver(resolverMap));
     
+    //FudgeMsgFormatter.outputToSystemOut(inputMsg);
     FudgeMsg outputMsg = cycleMessage(inputMsg, context, (short)45);
+    //FudgeMsgFormatter.outputToSystemOut(outputMsg);
     assertEquals("value1", outputMsg.getString(NAMES[0]));
     assertEquals("value1", outputMsg.getString(ORDINALS[0]));
     assertEquals("value2", outputMsg.getString(NAMES[1]));

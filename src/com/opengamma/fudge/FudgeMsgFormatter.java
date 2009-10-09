@@ -54,6 +54,10 @@ public class FudgeMsgFormatter {
     _indent = indent;
     _indentText = composeIndentText(_indent);
   }
+  
+  public static void outputToSystemOut(FudgeFieldContainer msg) {
+    (new FudgeMsgFormatter(new PrintWriter(System.out))).format(msg);
+  }
 
   /**
    * @return the writer
@@ -69,11 +73,11 @@ public class FudgeMsgFormatter {
     return _indent;
   }
 
-  public void format(FudgeMsg msg) {
+  public void format(FudgeFieldContainer msg) {
     format(msg, 0);
   }
   
-  protected void format(FudgeMsg msg, int depth) {
+  protected void format(FudgeFieldContainer msg, int depth) {
     if(msg == null) {
       return;
     }

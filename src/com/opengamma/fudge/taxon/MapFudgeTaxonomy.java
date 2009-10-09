@@ -67,7 +67,7 @@ public class MapFudgeTaxonomy implements FudgeTaxonomy {
 
   @Override
   public String getFieldName(short ordinal) {
-    return _namesByOrdinal.get(ordinal);
+    return _namesByOrdinal.get((int)ordinal);
   }
 
   @Override
