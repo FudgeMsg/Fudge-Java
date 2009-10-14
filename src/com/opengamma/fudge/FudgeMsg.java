@@ -464,4 +464,28 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     return new ArrayList<FudgeField>(_fields).iterator();
   }
   
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("FudgeMsg[");
+    Iterator<FudgeField> iterator = iterator();
+    while (iterator.hasNext()) {
+      FudgeField field = iterator.next();
+      if (field.getOrdinal() != null) {
+        sb.append(field.getOrdinal());
+        sb.append(": ");
+      }
+      if (field.getName() != null) {
+        sb.append(field.getName());
+      }
+      sb.append(" => ");
+      sb.append(field.getValue());
+      sb.append(", ");
+    }
+    if (sb.length() > 13) {
+      sb.delete(sb.length()-2, sb.length());
+    }
+    sb.append("]");
+    return sb.toString();
+  }
+  
 }
