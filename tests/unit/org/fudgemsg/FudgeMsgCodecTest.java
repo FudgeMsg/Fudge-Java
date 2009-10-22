@@ -44,7 +44,7 @@ public class FudgeMsgCodecTest {
   
   @Test
   public void allNames() throws IOException {
-    FudgeMsg inputMsg = FudgeMsgTest.createMessageAllNames();
+    FudgeMsg inputMsg = StandardFudgeMessages.createMessageAllNames();
     FudgeMsg outputMsg = cycleMessage(inputMsg);
     
     assertNotNull(outputMsg);

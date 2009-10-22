@@ -44,7 +44,7 @@ public class FudgeContextTest {
 
   @Test
   public void allNamesCodecNoTaxonomy() {
-    FudgeMsg inputMsg = FudgeMsgTest.createMessageAllNames();
+    FudgeMsg inputMsg = StandardFudgeMessages.createMessageAllNames();
     FudgeContext context = new FudgeContext();
     FudgeMsg outputMsg = cycleMessage(inputMsg, context, null);
     

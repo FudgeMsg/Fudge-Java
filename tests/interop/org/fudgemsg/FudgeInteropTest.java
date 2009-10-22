@@ -26,14 +26,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.FudgeMsgTest;
-import org.fudgemsg.FudgeStreamDecoder;
-import org.fudgemsg.FudgeStreamEncoder;
-import org.fudgemsg.FudgeTypeDictionary;
-import org.fudgemsg.FudgeUtils;
-import org.fudgemsg.UnknownFudgeFieldValue;
 import org.junit.AfterClass;
 import org.junit.Test;
 
@@ -58,7 +50,7 @@ public class FudgeInteropTest {
   
   @Test
   public void allNames() throws IOException {
-    FudgeMsg inputMsg = FudgeMsgTest.createMessageAllNames();
+    FudgeMsg inputMsg = StandardFudgeMessages.createMessageAllNames();
     FudgeMsg outputMsg = cycleMessage(inputMsg, "allNames.dat");
     
     assertNotNull(outputMsg);
@@ -69,7 +61,7 @@ public class FudgeInteropTest {
 
   @Test
   public void allOrdinals() throws IOException {
-    FudgeMsg inputMsg = FudgeMsgTest.createMessageAllOrdinals();
+    FudgeMsg inputMsg = StandardFudgeMessages.createMessageAllOrdinals();
     FudgeMsg outputMsg = cycleMessage(inputMsg, "allOrdinals.dat");
     
     assertNotNull(outputMsg);

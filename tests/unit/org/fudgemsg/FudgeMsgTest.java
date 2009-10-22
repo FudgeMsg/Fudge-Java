@@ -39,90 +39,9 @@ import org.junit.Test;
  */
 public class FudgeMsgTest {
   
-  protected static FudgeMsg createMessageAllNames() {
-    FudgeMsg msg = new FudgeMsg();
-    
-    msg.add("boolean", Boolean.TRUE);
-    msg.add("Boolean", new Boolean(false));
-    msg.add("byte", (byte)5);
-    msg.add("Byte", new Byte((byte)5));
-    short shortValue = ((short)Byte.MAX_VALUE) + 5;
-    msg.add("short", shortValue);
-    msg.add("Short", new Short(shortValue));
-    int intValue = ((int)Short.MAX_VALUE) + 5;
-    msg.add("int", intValue);
-    msg.add("Integer", new Integer(intValue));
-    long longValue = ((long)Integer.MAX_VALUE) + 5;
-    msg.add("long", longValue);
-    msg.add("Long", new Long(longValue));
-    
-    msg.add("float", 0.5f);
-    msg.add("Float", new Float(0.5f));
-    msg.add("double", 0.27362);
-    msg.add("Double", new Double(0.27362));
-    
-    msg.add("String", "Kirk Wylie");
-    
-    msg.add("float array", new float[24]);
-    msg.add("double array", new double[273]);
-    msg.add("short array", new short[32]);
-    msg.add("int array", new int[83]);
-    msg.add("long array", new long[837]);
-    
-    msg.add("indicator", IndicatorType.INSTANCE);
-    
-    return msg;
-  }
-  
-  protected static FudgeMsg createMessageAllOrdinals() {
-    FudgeMsg msg = new FudgeMsg();
-    
-    msg.add(1, Boolean.TRUE);
-    msg.add(2, new Boolean(false));
-    msg.add(3, (byte)5);
-    msg.add(4, new Byte((byte)5));
-    short shortValue = ((short)Byte.MAX_VALUE) + 5;
-    msg.add(5, shortValue);
-    msg.add(6, new Short(shortValue));
-    int intValue = ((int)Short.MAX_VALUE) + 5;
-    msg.add(7, intValue);
-    msg.add(8, new Integer(intValue));
-    long longValue = ((long)Integer.MAX_VALUE) + 5;
-    msg.add(9, longValue);
-    msg.add(10, new Long(longValue));
-    
-    msg.add(11, 0.5f);
-    msg.add(12, new Float(0.5f));
-    msg.add(13, 0.27362);
-    msg.add(14, new Double(0.27362));
-    
-    msg.add(15, "Kirk Wylie");
-    
-    msg.add(16, new float[24]);
-    msg.add(17, new double[273]);
-    
-    return msg;
-  }
-  
-  protected static FudgeMsg createMessageAllByteArrayLengths() {
-    FudgeMsg msg = new FudgeMsg();
-    msg.add("byte[4]", new byte[4]);
-    msg.add("byte[8]", new byte[8]);
-    msg.add("byte[16]", new byte[16]);
-    msg.add("byte[20]", new byte[20]);
-    msg.add("byte[32]", new byte[32]);
-    msg.add("byte[64]", new byte[64]);
-    msg.add("byte[128]", new byte[128]);
-    msg.add("byte[256]", new byte[256]);
-    msg.add("byte[512]", new byte[512]);
-    
-    msg.add("byte[28]", new byte[28]);
-    return msg;
-  }
-  
   @Test
   public void lookupByNameSingleValue() {
-    FudgeMsg msg = createMessageAllNames();
+    FudgeMsg msg = StandardFudgeMessages.createMessageAllNames();
     FudgeField field = null;
     List<FudgeField> fields = null;
     
@@ -156,7 +75,7 @@ public class FudgeMsgTest {
 
   @Test
   public void lookupByNameMultipleValues() {
-    FudgeMsg msg = createMessageAllNames();
+    FudgeMsg msg = StandardFudgeMessages.createMessageAllNames();
     FudgeField field = null;
     List<FudgeField> fields = null;
     
@@ -190,7 +109,7 @@ public class FudgeMsgTest {
   
   @Test
   public void primitiveExactQueriesNamesMatch() {
-    FudgeMsg msg = createMessageAllNames();
+    FudgeMsg msg = StandardFudgeMessages.createMessageAllNames();
     
     assertEquals(new Byte((byte)5), msg.getByte("byte"));
     assertEquals(new Byte((byte)5), msg.getByte("Byte"));
@@ -217,7 +136,7 @@ public class FudgeMsgTest {
   
   @Test
   public void primitiveExactQueriesNamesNoMatch() {
-    FudgeMsg msg = createMessageAllNames();
+    FudgeMsg msg = StandardFudgeMessages.createMessageAllNames();
     // now we've decided that get*() == getAs*() these work...
     assertNotNull(msg.getByte("int"));
     assertNotNull(msg.getShort("int"));
@@ -229,7 +148,7 @@ public class FudgeMsgTest {
   
   @Test
   public void primitiveExactQueriesNoNames() {
-    FudgeMsg msg = createMessageAllNames();
+    FudgeMsg msg = StandardFudgeMessages.createMessageAllNames();
     
     assertNull(msg.getByte("foobar"));
     assertNull(msg.getShort("foobar"));
@@ -242,7 +161,7 @@ public class FudgeMsgTest {
   
   @Test
   public void asQueriesToLongNames() {
-    FudgeMsg msg = createMessageAllNames();
+    FudgeMsg msg = StandardFudgeMessages.createMessageAllNames();
     
     assertEquals(new Long((byte)5), msg.getLong("byte"));
     assertEquals(new Long((byte)5), msg.getLong("Byte"));
@@ -267,7 +186,7 @@ public class FudgeMsgTest {
   
   @Test
   public void asQueriesToLongNoNames() {
-    FudgeMsg msg = createMessageAllNames();
+    FudgeMsg msg = StandardFudgeMessages.createMessageAllNames();
     
     assertNull(msg.getByte("foobar"));
     assertNull(msg.getShort("foobar"));
@@ -281,7 +200,7 @@ public class FudgeMsgTest {
   // ------------
   @Test
   public void primitiveExactQueriesOrdinalsMatch() {
-    FudgeMsg msg = createMessageAllOrdinals();
+    FudgeMsg msg = StandardFudgeMessages.createMessageAllOrdinals();
     
     assertEquals(new Byte((byte)5), msg.getByte((short)3));
     assertEquals(new Byte((byte)5), msg.getByte((short)4));
@@ -308,7 +227,7 @@ public class FudgeMsgTest {
   
   @Test
   public void primitiveExactQueriesOrdinalsNoMatch() {
-    FudgeMsg msg = createMessageAllOrdinals();
+    FudgeMsg msg = StandardFudgeMessages.createMessageAllOrdinals();
     // these have changed since the decision to make get* == getAs*.
     // truncation may occur at the moment and we need to consider 
     // whether exceptions should be thrown instead
@@ -322,7 +241,7 @@ public class FudgeMsgTest {
   
   @Test
   public void primitiveExactOrdinalsNoOrdinals() {
-    FudgeMsg msg = createMessageAllOrdinals();
+    FudgeMsg msg = StandardFudgeMessages.createMessageAllOrdinals();
   
     assertNull(msg.getByte((short)100));
     assertNull(msg.getShort((short)100));
@@ -335,7 +254,7 @@ public class FudgeMsgTest {
   
   @Test
   public void asQueriesToLongOrdinals() {
-    FudgeMsg msg = createMessageAllOrdinals();
+    FudgeMsg msg = StandardFudgeMessages.createMessageAllOrdinals();
     
     assertEquals(new Long((byte)5), msg.getLong((short)3));
     assertEquals(new Long((byte)5), msg.getLong((short)4));
@@ -360,7 +279,7 @@ public class FudgeMsgTest {
   
   @Test
   public void toByteArray() {
-    FudgeMsg msg = createMessageAllNames();
+    FudgeMsg msg = StandardFudgeMessages.createMessageAllNames();
     byte[] bytes = msg.toByteArray();
     assertNotNull(bytes);
     assertTrue(bytes.length > 10);
@@ -368,7 +287,7 @@ public class FudgeMsgTest {
   
   @Test
   public void fixedLengthByteArrays() {
-    FudgeMsg msg = createMessageAllByteArrayLengths();
+    FudgeMsg msg = StandardFudgeMessages.createMessageAllByteArrayLengths();
     assertSame(ByteArrayFieldType.LENGTH_4_INSTANCE, msg.getByName("byte[4]").getType());
     assertSame(ByteArrayFieldType.LENGTH_8_INSTANCE, msg.getByName("byte[8]").getType());
     assertSame(ByteArrayFieldType.LENGTH_16_INSTANCE, msg.getByName("byte[16]").getType());
@@ -384,7 +303,7 @@ public class FudgeMsgTest {
   
   @Test
   public void iterable() {
-    FudgeMsg msg = createMessageAllNames();
+    FudgeMsg msg = StandardFudgeMessages.createMessageAllNames();
     int fieldCount = 0;
     for(@SuppressWarnings("unused") FudgeField field : msg) {
       fieldCount++;
@@ -394,7 +313,7 @@ public class FudgeMsgTest {
 
   @Test
   public void iterableContainer() {
-    FudgeFieldContainer msg = createMessageAllNames();
+    FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllNames();
     int fieldCount = 0;
     for(@SuppressWarnings("unused") FudgeField field : msg) {
       fieldCount++;
