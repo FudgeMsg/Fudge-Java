@@ -37,6 +37,9 @@ public final class MongoDBEncoder {
   }
   
   public static DBObject encode(FudgeFieldContainer fields) {
+    if(fields == null) {
+      return null;
+    }
     BasicDBObject dbObject = new BasicDBObject();
     
     for(FudgeField field : fields.getAllFields()) {
