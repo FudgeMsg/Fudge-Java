@@ -1,12 +1,17 @@
 <ivysettings>
-  <settings defaultResolver="googlethenibiblio"/>
+  <settings defaultResolver="chainResolver"/>
   <resolvers>
-    <chain name="googlethenibiblio" returnFirst="true">
+    <chain name="chainResolver" returnFirst="true">
+      <url name="fudgemsg-org-dist">
+        <ivy pattern="http://dist.fudgemsg.org/java/ivy/[organization]/[module]/[revision]/ivy.xml" />
+        <artifact pattern="http://dist.fudgemsg.org/java/ivy/[organization]/[module]/[revision]/[artifact]-[revision].[ext]" />
+        <artifact pattern="http://dist.fudgemsg.org/java/ivy/[organization]/[module]/[revision]/[artifact]-docs-[revision].[ext]" />
+        <artifact pattern="http://dist.fudgemsg.org/java/ivy/[organization]/[module]/[revision]/[artifact]-src-[revision].[ext]" />
+      </url>
       <packager name="google" buildRoot="${user.home}/.ivy2/packager/build" resourceCache="${user.home}/.ivy2/packager/cache">
         <ivy pattern="http://ivyroundup.googlecode.com/svn/trunk/repo/modules/[organisation]/[module]/[revision]/ivy.xml"/>
         <artifact pattern="http://ivyroundup.googlecode.com/svn/trunk/repo/modules/[organisation]/[module]/[revision]/packager.xml"/>
       </packager>
-      <ibiblio name="ibiblio" m2compatible="true" />
     </chain>
   </resolvers>
 </ivysettings>
