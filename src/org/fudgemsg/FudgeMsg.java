@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.taxon.FudgeTaxonomy;
@@ -182,6 +184,17 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     return (List) Collections.unmodifiableList(_fields);
   }
   
+  @Override
+  public Set<String> getAllFieldNames() {
+    Set<String> result = new TreeSet<String>();
+    for(FudgeField field: _fields) {
+      if(field.getName() != null) {
+        result.add(field.getName());
+      }
+    }
+    return result;
+  }
+
   public FudgeField getByIndex(int index) {
     if(index < 0) {
       throw new ArrayIndexOutOfBoundsException("Cannot specify a negative index into a FudgeMsg.");

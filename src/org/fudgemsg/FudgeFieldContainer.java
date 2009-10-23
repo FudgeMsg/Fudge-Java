@@ -16,6 +16,7 @@
 package org.fudgemsg;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * An interface defining any arbitrary container for fields that can
@@ -34,6 +35,8 @@ public interface FudgeFieldContainer extends Iterable<FudgeField> {
    * @return
    */
   List<FudgeField> getAllFields();
+  
+  Set<String> getAllFieldNames();
 
   FudgeField getByIndex(int index);
 
