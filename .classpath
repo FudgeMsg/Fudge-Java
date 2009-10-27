@@ -5,6 +5,5 @@
 	<classpathentry kind="src" path="tests/interop"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?ivyXmlPath=ivy.xml&amp;confs=*&amp;ivySettingsPath=project%3A%2F%2F%2Fivysettings.xml&amp;loadSettingsOnDemand=false&amp;propertyFiles="/>
-	<classpathentry kind="lib" path="lib/mongo-0.11.jar" sourcepath="lib/mongo-src-0.11.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
