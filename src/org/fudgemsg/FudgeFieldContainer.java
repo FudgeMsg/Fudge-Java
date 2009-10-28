@@ -85,4 +85,8 @@ public interface FudgeFieldContainer extends Iterable<FudgeField> {
   Boolean getBoolean(String fieldName);
 
   Boolean getBoolean(int ordinal);
+  
+  FudgeFieldContainer getMessage(String name);
+  
+  FudgeFieldContainer getMessage(int ordinal);
 }

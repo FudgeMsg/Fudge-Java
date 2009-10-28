@@ -320,5 +320,13 @@ public class FudgeMsgTest {
     }
     assertEquals(msg.getNumFields(), fieldCount);
   }
+  
+  @Test
+  public void getMessageMethodsFRJ11() {
+    FudgeMsg msg = StandardFudgeMessages.createMessageWithSubMsgs();
+    assertNull(msg.getMessage(42));
+    assertNull(msg.getMessage("No Such Field"));
+    assertTrue(msg.getMessage("sub1") instanceof FudgeFieldContainer);
+  }
 
 }

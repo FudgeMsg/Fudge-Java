@@ -423,6 +423,16 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     return (Boolean) getFirstTypedValue(ordinal, FudgeTypeDictionary.BOOLEAN_TYPE_ID);
   }
   
+  @Override
+  public FudgeFieldContainer getMessage(int ordinal) {
+    return (FudgeFieldContainer) getFirstTypedValue(ordinal, FudgeTypeDictionary.FUDGE_MSG_TYPE_ID);
+  }
+
+  @Override
+  public FudgeFieldContainer getMessage(String name) {
+    return (FudgeFieldContainer) getFirstTypedValue(name, FudgeTypeDictionary.FUDGE_MSG_TYPE_ID);
+  }
+
   protected final Object getFirstTypedValue(String fieldName, int typeId) {
     for(FudgeMsgField field : _fields) {
       if(ObjectUtils.equals(fieldName, field.getName())

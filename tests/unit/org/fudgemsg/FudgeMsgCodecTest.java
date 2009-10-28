@@ -68,15 +68,7 @@ public class FudgeMsgCodecTest {
   
   @Test
   public void subMsg() throws IOException {
-    FudgeMsg inputMsg = new FudgeMsg();
-    FudgeMsg sub1 = new FudgeMsg();
-    sub1.add("bibble", "fibble");
-    sub1.add(827, "Blibble");
-    FudgeMsg sub2 = new FudgeMsg();
-    sub2.add("bibble9", 9837438);
-    sub2.add(828, 82.77f);
-    inputMsg.add("sub1", sub1);
-    inputMsg.add("sub2", sub2);
+    FudgeMsg inputMsg = StandardFudgeMessages.createMessageWithSubMsgs();
 
     FudgeMsg outputMsg = cycleMessage(inputMsg);
     

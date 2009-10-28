@@ -106,4 +106,18 @@ public final class StandardFudgeMessages {
     return msg;
   }
   
+  public static FudgeMsg createMessageWithSubMsgs() {
+    FudgeMsg msg = new FudgeMsg();
+    FudgeMsg sub1 = new FudgeMsg();
+    sub1.add("bibble", "fibble");
+    sub1.add(827, "Blibble");
+    FudgeMsg sub2 = new FudgeMsg();
+    sub2.add("bibble9", 9837438);
+    sub2.add(828, 82.77f);
+    msg.add("sub1", sub1);
+    msg.add("sub2", sub2);
+    
+    return msg;
+  }
+  
 }
