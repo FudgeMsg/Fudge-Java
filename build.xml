@@ -140,33 +140,39 @@
   </target>
 
   <target name="bin-jar" depends="compile-src">
-    <mkdir dir="${dist.dir}/fudge-${fudge.version}" />
-    <jar destfile="${dist.dir}/fudge-${fudge.version}/fudge-${fudge.version}.jar"
+    <mkdir dir="${fudge.dist.dir}" />
+    <jar destfile="${fudge.dist.dir}/${dist.name}.jar"
       basedir="${src.build.output}" compress="${jar.compress}">
     </jar>
   </target>
 
   <target name="src-jar">
-    <mkdir dir="${dist.dir}/fudge-${fudge.version}" />
+    <mkdir dir="${fudge.dist.dir}" />
     <jar
-      destfile="${dist.dir}/fudge-${fudge.version}/fudge-${fudge.version}-src.jar"
+      destfile="${fudge.dist.dir}/${dist.file.pattern}-src-${fudge.version}.jar"
       basedir="${basedir}/src" compress="${jar.compress}">
     </jar>
   </target>
 
   <target name="prep-dist-dir" depends="bin-jar,src-jar">
-    <mkdir dir="${dist.dir}/fudge-${fudge.version}/lib" />
+    <mkdir dir="${fudge.dist.dir}" />
+    <copy todir="${fudge.dist.dir}" file="${basedir}/LICENSE.txt"/>
+    <mkdir dir="${fudge.dist.dir}/lib" />
     <ivy:retrieve
-      pattern="${dist.dir}/fudge-${fudge.version}/lib/[artifact]-[revision].[ext]" />
+      pattern="${dist.dir}/${dist.name}/lib/[artifact]-[revision].[ext]" />
   </target>
 
   <target name="tarball" depends="prep-dist-dir">
-    <tar destfile="${dist.dir}/fudge-${fudge.version}.tar" basedir="${dist.dir}/fudge-${fudge.version}" />
-    <bzip2 src="${dist.dir}/fudge-${fudge.version}.tar" destfile="${dist.dir}/fudge-${fudge.version}.tar.bz2" />
+    <tar destfile="${dist.dir}/${dist.name}.tar" basedir="${dist.dir}">
+      <include name="${dist.name}/**/*"/>
+    </tar>
+    <bzip2 src="${dist.dir}/${dist.name}.tar" destfile="${dist.dir}/${dist.name}.tar.bz2" />
   </target>
 
   <target name="zipfile" depends="prep-dist-dir">
-    <zip destfile="${dist.dir}/fudge-${fudge.version}.zip" basedir="${dist.dir}/fudge-${fudge.version}" />
+    <zip destfile="${dist.dir}/${dist.name}.zip" basedir="${dist.dir}">
+      <include name="${dist.name}/**/*"/>
+    </zip>
   </target>
 
 
