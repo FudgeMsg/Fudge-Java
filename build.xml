@@ -157,6 +157,7 @@
   <target name="prep-dist-dir" depends="bin-jar,src-jar">
     <mkdir dir="${fudge.dist.dir}" />
     <copy todir="${fudge.dist.dir}" file="${basedir}/LICENSE.txt"/>
+    <copy todir="${fudge.dist.dir}" file="${basedir}/README.txt"/>
     <mkdir dir="${fudge.dist.dir}/lib" />
     <ivy:retrieve
       pattern="${dist.dir}/${dist.name}/lib/[artifact]-[revision].[ext]" />
