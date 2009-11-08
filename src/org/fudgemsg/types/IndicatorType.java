@@ -16,7 +16,10 @@
 package org.fudgemsg.types;
 
 /**
- * The only value of a field with the Indicator type.
+ * The only value of a field with the Indicator type. This value is used
+ * to indicate that there is a field in a file with the given name/index/ordinal,
+ * but that the type does not matter.
+ * It is intentionally a pure singleton.
  *
  * @author kirk
  */

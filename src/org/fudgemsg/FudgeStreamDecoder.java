@@ -23,7 +23,8 @@ import org.fudgemsg.taxon.TaxonomyResolver;
 
 
 /**
- * 
+ * Reads Fudge objects from streams.
+ * In general, you should not use this class directly. See {@link FudgeContext} instead.
  *
  * @author kirk
  */
@@ -153,12 +154,6 @@ public class FudgeStreamDecoder {
     return nRead;
   }
   
-  /**
-   * @param is
-   * @param type
-   * @param varSize 
-   * @return
-   */
   public static Object readFieldValue(
       DataInput is,
       FudgeFieldType<?> type,

@@ -152,10 +152,6 @@ public class FudgeMsgFormatter {
     return sb.toString();
   }
 
-  /**
-   * @param indent
-   * @return
-   */
   protected String composeIndentText(int indent) {
     StringBuilder sb = new StringBuilder();
     for(int i = 0; i < indent; i++) {

@@ -173,12 +173,6 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     return (short)size;
   }
   
-  /**
-   * Return an <em>unmodifiable</em> list of all the fields in this message, in the index
-   * order for those fields.
-   * 
-   * @return
-   */
   @SuppressWarnings("unchecked")
   public List<FudgeField> getAllFields() {
     return (List) Collections.unmodifiableList(_fields);
@@ -290,9 +284,6 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     return baos.toByteArray();
   }
   
-  /**
-   * @return
-   */
   @Override
   public int computeSize(FudgeTaxonomy taxonomy) {
     int size = 0;
@@ -457,9 +448,6 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     return null;
   }
 
-  /**
-   * @param taxonomy
-   */
   public void setNamesFromTaxonomy(FudgeTaxonomy taxonomy) {
     if(taxonomy == null) {
       return;

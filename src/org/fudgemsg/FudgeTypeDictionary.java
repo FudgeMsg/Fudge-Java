@@ -106,7 +106,7 @@ public final class FudgeTypeDictionary {
    * processing is desired.
    * 
    * @param typeId
-   * @return
+   * @return The type with the specified type identifier, or {@code null}.
    */
   public FudgeFieldType<?> getByTypeId(int typeId) {
     if(typeId >= _typesById.length) {

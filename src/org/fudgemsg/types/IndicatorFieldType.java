@@ -25,19 +25,13 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
 
 
 /**
- * 
+ * The type handler for the singleton {@link IndicatorType} value.
  *
  * @author kirk
  */
 public class IndicatorFieldType extends FudgeFieldType<IndicatorType> {
   public static final IndicatorFieldType INSTANCE = new IndicatorFieldType();
 
-  /**
-   * @param typeId
-   * @param javaType
-   * @param isVariableSize
-   * @param fixedSize
-   */
   public IndicatorFieldType() {
     super(FudgeTypeDictionary.INDICATOR_TYPE_ID, IndicatorType.class, false, 0);
   }

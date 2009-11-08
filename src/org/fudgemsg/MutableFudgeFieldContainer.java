@@ -16,7 +16,10 @@
 package org.fudgemsg;
 
 /**
- * 
+ * An extension for {@link FudgeFieldContainer} that allows the contents of a message
+ * to be mutated.
+ * Note that although this interface is currently extremely sparse, eventually
+ * there will be substantially more functionality added.
  *
  * @author kirk
  */

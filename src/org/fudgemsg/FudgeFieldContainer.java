@@ -31,8 +31,6 @@ public interface FudgeFieldContainer extends Iterable<FudgeField> {
   /**
    * Return an <em>unmodifiable</em> list of all the fields in this message, in the index
    * order for those fields.
-   * 
-   * @return
    */
   List<FudgeField> getAllFields();
   

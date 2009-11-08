@@ -23,7 +23,8 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
 
 
 /**
- * 
+ * Writes Fudge objects to streams.
+ * In general, you should not use this class directly. See {@link FudgeContext} instead.
  *
  * @author kirk
  */
