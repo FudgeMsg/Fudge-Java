@@ -23,7 +23,7 @@
     and the dependency the 'go' target has on it
     =================================
   -->
-  <target name="install-ivy" depends="download-ivy" description="--> install ivy">
+  <target name="install-ivy" depends="download-ivy" description="install ivy">
     <!--
       try to load ivy here from local ivy dir, in case the user has not
       already dropped it into ant's lib dir (note that the latter copy
@@ -38,7 +38,7 @@
       classpathref="ivy.lib.path" />
   </target>
 
-  <target name="clean-cache" depends="install-ivy" description="--> clean the ivy cache">
+  <target name="clean-cache" depends="install-ivy" description="clean the ivy cache">
     <ivy:cleancache />
   </target>
   
@@ -131,6 +131,9 @@
       <report todir="${tests.junit.output}/html" />
     </junitreport>
   </target>
+  
+  <!-- Just an alias as I forget so often. -->
+  <target name="dist" depends="package"/>
 
   <target name="package" depends="tarball,zipfile"
     description="Generate the distribution packages.">
