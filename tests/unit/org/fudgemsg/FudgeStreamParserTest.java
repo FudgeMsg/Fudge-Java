@@ -54,11 +54,29 @@ public class FudgeStreamParserTest {
     checkResultsMatch(msg);
   }
   
+  @Test
+  public void allMessagesSameContext() {
+    FudgeContext fudgeContext = new FudgeContext();
+    FudgeMsg msg = null;
+    msg = StandardFudgeMessages.createMessageAllNames();
+    checkResultsMatch(msg, fudgeContext);
+    msg = StandardFudgeMessages.createMessageAllOrdinals();
+    checkResultsMatch(msg, fudgeContext);
+    msg = StandardFudgeMessages.createMessageAllByteArrayLengths();
+    checkResultsMatch(msg, fudgeContext);
+    msg = StandardFudgeMessages.createMessageWithSubMsgs();
+    checkResultsMatch(msg, fudgeContext);
+  }
+  
+  protected void checkResultsMatch(FudgeMsg msg) {
+    checkResultsMatch(msg, new FudgeContext());
+  }
+  
   /**
    * @param msg
    */
-  protected void checkResultsMatch(FudgeMsg msg) {
-    FudgeMsgEnvelope result = cycleMessage(new FudgeContext(), msg);
+  protected void checkResultsMatch(FudgeMsg msg, FudgeContext fudgeContext) {
+    FudgeMsgEnvelope result = cycleMessage(fudgeContext, msg);
     assertNotNull(result);
     assertNotNull(result.getMessage());
     FudgeMsg resultMsg = result.getMessage();

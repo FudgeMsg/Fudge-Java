@@ -43,9 +43,8 @@ public class FudgeStreamParser {
   }
   
   public FudgeMsgEnvelope parse(DataInput dataInput) {
-    // TODO kirk 2009-11-10 -- This should actually get one from the context,
-    // which can then pool them.
-    FudgeStreamReader reader = new FudgeStreamReader(getFudgeContext(), dataInput);
+    FudgeStreamReader reader = getFudgeContext().allocateReader();
+    reader.reset(dataInput);
     FudgeStreamElement element = reader.next();
     if(element == null) {
       return null;
@@ -57,6 +56,7 @@ public class FudgeStreamParser {
     FudgeMsg msg = getFudgeContext().newMessage();
     FudgeMsgEnvelope envelope = new FudgeMsgEnvelope(msg, version);
     processFields(reader, msg);
+    getFudgeContext().releaseReader(reader);
     return envelope;
   }
 

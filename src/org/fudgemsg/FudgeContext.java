@@ -22,6 +22,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.fudgemsg.taxon.FudgeTaxonomy;
 import org.fudgemsg.taxon.TaxonomyResolver;
@@ -51,6 +53,8 @@ import org.fudgemsg.taxon.TaxonomyResolver;
  * @author kirk
  */
 public class FudgeContext {
+  private final Queue<FudgeStreamReader> _streamReaders = new LinkedBlockingQueue<FudgeStreamReader>();
+  private final FudgeStreamParser _parser = new FudgeStreamParser(this);
   private FudgeTypeDictionary _typeDictionary = new FudgeTypeDictionary();
   private TaxonomyResolver _taxonomyResolver;
 
@@ -120,6 +124,25 @@ public class FudgeContext {
   public FudgeMsgEnvelope deserialize(byte[] bytes) {
     ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
     return deserialize(bais);
+  }
+  
+  public FudgeStreamReader allocateReader() {
+    FudgeStreamReader reader = _streamReaders.poll();
+    if(reader == null) {
+      reader = new FudgeStreamReader(this);
+    }
+    return reader;
+  }
+  
+  public void releaseReader(FudgeStreamReader reader) {
+    if(reader == null) {
+      return;
+    }
+    _streamReaders.add(reader);
+  }
+  
+  public FudgeStreamParser getParser() {
+    return _parser;
   }
   
 }

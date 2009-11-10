@@ -17,6 +17,8 @@ package org.fudgemsg;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -119,6 +121,20 @@ public class FudgeContextTest {
     assertNotNull(outputMsgEnvelope);
     assertNotNull(outputMsgEnvelope.getMessage());
     return outputMsgEnvelope.getMessage();
+  }
+  
+  @Test
+  public void readerAllocation() {
+    FudgeContext context = new FudgeContext();
+    FudgeStreamReader reader1 = context.allocateReader();
+    assertNotNull(reader1);
+    FudgeStreamReader reader2 = context.allocateReader();
+    assertNotNull(reader2);
+    assertNotSame(reader1, reader2);
+    context.releaseReader(reader2);
+    FudgeStreamReader reader3 = context.allocateReader();
+    assertNotNull(reader3);
+    assertSame(reader2, reader3);
   }
   
 }
