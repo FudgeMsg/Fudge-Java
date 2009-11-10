@@ -112,12 +112,7 @@ public class FudgeContext {
   
   public FudgeMsgEnvelope deserialize(InputStream is) {
     DataInputStream dis = new DataInputStream(is);
-    FudgeMsgEnvelope envelope;
-    try {
-      envelope = FudgeStreamDecoder.readMsg(dis, getTypeDictionary(), getTaxonomyResolver());
-    } catch (IOException e) {
-      throw new FudgeRuntimeException("Unable to deserialize FudgeMsg from input stream", e);
-    }
+    FudgeMsgEnvelope envelope = getParser().parse(dis);
     return envelope;
   }
   
