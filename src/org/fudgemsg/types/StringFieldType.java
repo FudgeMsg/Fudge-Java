@@ -48,7 +48,7 @@ public class StringFieldType extends FudgeFieldType<String> {
   }
 
   @Override
-  public void writeValue(DataOutput output, String value, FudgeTaxonomy taxonomy) throws IOException {
+  public void writeValue(DataOutput output, String value) throws IOException {
     ModifiedUTF8Util.writeModifiedUTF8(value, output);
   }
 

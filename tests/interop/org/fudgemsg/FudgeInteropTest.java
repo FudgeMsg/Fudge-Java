@@ -155,7 +155,7 @@ public class FudgeInteropTest {
     s_filesToRemove.add(new File(fullPath));
     FileOutputStream stream = new FileOutputStream(fullPath);
     DataOutputStream dos = new DataOutputStream(stream);
-    FudgeStreamEncoder.writeMsg(dos, msg);
+    s_fudgeContext.serialize(msg, dos);
   }
   
   protected static FudgeMsg loadMessage(String filename) throws IOException {

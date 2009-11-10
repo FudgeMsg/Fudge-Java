@@ -52,7 +52,7 @@ public class DoubleArrayFieldType extends FudgeFieldType<double[]> {
   }
 
   @Override
-  public void writeValue(DataOutput output, double[] value, FudgeTaxonomy taxonomy) throws IOException {
+  public void writeValue(DataOutput output, double[] value) throws IOException {
     for(double d : value) {
       output.writeDouble(d);
     }

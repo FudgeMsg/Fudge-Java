@@ -16,6 +16,7 @@
 
 package org.fudgemsg.mongodb;
 
+import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeUtils;
 import org.fudgemsg.StandardFudgeMessages;
@@ -29,6 +30,7 @@ import com.mongodb.DBObject;
  * @author kirk
  */
 public class MongoDBCodecTest {
+  private static final FudgeContext s_fudgeContext = new FudgeContext();
 
   @Test
   public void allNamesCodec() {
@@ -42,7 +44,7 @@ public class MongoDBCodecTest {
 
   @Test
   public void containsList() {
-    FudgeMsg inputMsg = new FudgeMsg();
+    FudgeMsg inputMsg = s_fudgeContext.newMessage();
     inputMsg.add("val1", "Kirk Wylie");
     inputMsg.add("val1", "Jim Moores");
     inputMsg.add("val1", "Yan Tordoff");
@@ -64,11 +66,11 @@ public class MongoDBCodecTest {
 
   @Test
   public void subMsg() {
-    FudgeMsg inputMsg = new FudgeMsg();
+    FudgeMsg inputMsg = s_fudgeContext.newMessage();
     inputMsg.add("val1", "Kirk Wylie");
     inputMsg.add("val1", "Jim Moores");
     inputMsg.add("val1", "Yan Tordoff");
-    FudgeMsg subMsg = new FudgeMsg();
+    FudgeMsg subMsg = s_fudgeContext.newMessage();
     subMsg.add("val1", "Kirk Wylie");
     subMsg.add("val1", "Jim Moores");
     subMsg.add("val1", "Yan Tordoff");

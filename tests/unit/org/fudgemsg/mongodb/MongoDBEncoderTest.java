@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.junit.Test;
 
@@ -31,13 +32,14 @@ import com.mongodb.DBObject;
  * @author kirk
  */
 public class MongoDBEncoderTest {
+  private static final FudgeContext s_fudgeContext = new FudgeContext();
   
   @Test
   public void subMsgEncoding() {
-    FudgeMsg msg = new FudgeMsg();
+    FudgeMsg msg = s_fudgeContext.newMessage();
     msg.add("val1", 293836);
     msg.add("val2", "Kirk Wylie");
-    FudgeMsg subMsg = new FudgeMsg();
+    FudgeMsg subMsg = s_fudgeContext.newMessage();
     subMsg.add("val1", "MongoDB");
     msg.add("val3", subMsg);
     
@@ -54,7 +56,7 @@ public class MongoDBEncoderTest {
   @SuppressWarnings("unchecked")
   @Test
   public void repeatedValueEncoding() {
-    FudgeMsg msg = new FudgeMsg();
+    FudgeMsg msg = s_fudgeContext.newMessage();
     msg.add("val1", 293836);
     msg.add("val1", "Kirk Wylie");
     

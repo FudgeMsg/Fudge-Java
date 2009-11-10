@@ -83,7 +83,7 @@ public class ByteArrayFieldType extends FudgeFieldType<byte[]> {
   }
 
   @Override
-  public void writeValue(DataOutput output, byte[] value, FudgeTaxonomy taxonomy) throws IOException {
+  public void writeValue(DataOutput output, byte[] value) throws IOException {
     if(!isVariableSize()) {
       if(value.length != getFixedSize()) {
         throw new IllegalArgumentException("Used fixed size type of size " + getFixedSize() + " but passed array of size " + value.length);

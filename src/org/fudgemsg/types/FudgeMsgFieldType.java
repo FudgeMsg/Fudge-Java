@@ -21,7 +21,6 @@ import java.io.IOException;
 
 import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeStreamEncoder;
 import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 
@@ -49,8 +48,8 @@ public class FudgeMsgFieldType extends FudgeFieldType<FudgeMsg> {
   }
 
   @Override
-  public void writeValue(DataOutput output, FudgeMsg value, FudgeTaxonomy taxonomy) throws IOException {
-    FudgeStreamEncoder.writeMsgFields(output, value, taxonomy);
+  public void writeValue(DataOutput output, FudgeMsg value) throws IOException {
+    throw new UnsupportedOperationException("Sub-messages can only be written using FudgeStreamWriter.");
   }
 
 }

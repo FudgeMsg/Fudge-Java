@@ -21,7 +21,6 @@ import java.io.IOException;
 
 import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeTypeDictionary;
-import org.fudgemsg.taxon.FudgeTaxonomy;
 
 
 /**
@@ -43,8 +42,7 @@ public class IndicatorFieldType extends FudgeFieldType<IndicatorType> {
   }
 
   @Override
-  public void writeValue(DataOutput output, IndicatorType value,
-      FudgeTaxonomy taxonomy) throws IOException {
+  public void writeValue(DataOutput output, IndicatorType value) throws IOException {
     // Intentional no-op.
   }
 

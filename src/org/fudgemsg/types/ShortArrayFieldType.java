@@ -55,8 +55,7 @@ public class ShortArrayFieldType extends FudgeFieldType<short[]> {
   }
 
   @Override
-  public void writeValue(DataOutput output, short[] value,
-      FudgeTaxonomy taxonomy) throws IOException {
+  public void writeValue(DataOutput output, short[] value) throws IOException {
     for(short f : value) {
       output.writeShort(f);
     }

@@ -130,7 +130,7 @@ public class FudgeFieldType<TValue> implements Serializable {
     return getFixedSize();
   }
   
-  public void writeValue(DataOutput output, TValue value, FudgeTaxonomy taxonomy) throws IOException {
+  public void writeValue(DataOutput output, TValue value) throws IOException {
     if(isVariableSize()) {
       throw new UnsupportedOperationException("This method must be overridden for variable size types.");
     }

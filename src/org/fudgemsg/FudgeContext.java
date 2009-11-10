@@ -19,7 +19,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Queue;
@@ -54,6 +53,7 @@ import org.fudgemsg.taxon.TaxonomyResolver;
  */
 public class FudgeContext {
   private final Queue<FudgeStreamReader> _streamReaders = new LinkedBlockingQueue<FudgeStreamReader>();
+  private final Queue<FudgeStreamWriter> _streamWriters = new LinkedBlockingQueue<FudgeStreamWriter>();
   private final FudgeStreamParser _parser = new FudgeStreamParser(this);
   private FudgeTypeDictionary _typeDictionary = new FudgeTypeDictionary();
   private TaxonomyResolver _taxonomyResolver;
@@ -92,16 +92,12 @@ public class FudgeContext {
   }
   
   public void serialize(FudgeMsg msg, Short taxonomyId, OutputStream os) {
-    FudgeTaxonomy taxonomy = null;
-    if((getTaxonomyResolver() != null) && (taxonomyId != null)) {
-      taxonomy = getTaxonomyResolver().resolveTaxonomy(taxonomyId);
-    }
-    DataOutputStream dos = new DataOutputStream(os);
-    try {
-      FudgeStreamEncoder.writeMsg(dos, new FudgeMsgEnvelope(msg), getTypeDictionary(), taxonomy, (taxonomyId == null) ? (short)0 : taxonomyId);
-    } catch (IOException e) {
-      throw new FudgeRuntimeException("Unable to write Fudge message to OutputStream", e);
-    }
+    int realTaxonomyId = (taxonomyId == null) ? 0 : taxonomyId.intValue();
+    FudgeStreamWriter writer = allocateWriter();
+    writer.reset(new DataOutputStream(os));
+    FudgeMsgEnvelope envelope = new FudgeMsgEnvelope(msg);
+    writer.writeMessageEnvelope(envelope, realTaxonomyId);
+    releaseWriter(writer);
   }
   
   public byte[] toByteArray(FudgeMsg msg) {
@@ -134,6 +130,21 @@ public class FudgeContext {
       return;
     }
     _streamReaders.add(reader);
+  }
+  
+  public FudgeStreamWriter allocateWriter() {
+    FudgeStreamWriter writer = _streamWriters.poll();
+    if(writer == null) {
+      writer = new FudgeStreamWriter(this);
+    }
+    return writer;
+  }
+  
+  public void releaseWriter(FudgeStreamWriter writer) {
+    if(writer == null) {
+      return;
+    }
+    _streamWriters.add(writer);
   }
   
   public FudgeStreamParser getParser() {

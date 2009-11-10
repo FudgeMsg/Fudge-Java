@@ -25,7 +25,6 @@ import java.io.ObjectOutputStream;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeStreamEncoder;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -176,7 +175,7 @@ public class ShortPerformanceTest {
       msg.add(4, tick.getBidVolume());
       msg.add(5, tick.getTimestamp());
     }
-    FudgeStreamEncoder.writeMsg(dos, msg);
+    s_fudgeContext.serialize(msg, dos);
     
     byte[] data = baos.toByteArray();
     

@@ -31,8 +31,8 @@ public class FudgeMsgEnvelope extends FudgeEncodingObject implements Serializabl
   private final FudgeMsg _message;
   private final int _version;
   
-  public FudgeMsgEnvelope() {
-    this(new FudgeMsg());
+  public FudgeMsgEnvelope(FudgeContext fudgeContext) {
+    this(fudgeContext.newMessage());
   }
   
   public FudgeMsgEnvelope(FudgeMsg msg) {

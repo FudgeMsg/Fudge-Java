@@ -57,13 +57,13 @@ public class FudgeContextTest {
   
   @Test
   public void allNamesCodecWithTaxonomy() {
-    FudgeMsg inputMsg = new FudgeMsg();
+    FudgeContext context = new FudgeContext();
+    FudgeMsg inputMsg = context.newMessage();
     inputMsg.add(NAMES[0], "value1");
     inputMsg.add(NAMES[1], "value2");
     inputMsg.add(NAMES[2], "value3");
     inputMsg.add(NAMES[3], "value4");
     
-    FudgeContext context = new FudgeContext();
     Map<Short, FudgeTaxonomy> resolverMap = new HashMap<Short, FudgeTaxonomy>();
     resolverMap.put((short)45, new MapFudgeTaxonomy(ORDINALS, NAMES));
     context.setTaxonomyResolver(new ImmutableMapTaxonomyResolver(resolverMap));
@@ -83,13 +83,13 @@ public class FudgeContextTest {
 
   @Test
   public void allOrdinalsCodecWithTaxonomy() {
-    FudgeMsg inputMsg = new FudgeMsg();
+    FudgeContext context = new FudgeContext();
+    FudgeMsg inputMsg = context.newMessage();
     inputMsg.add(ORDINALS[0], "value1");
     inputMsg.add(ORDINALS[1], "value2");
     inputMsg.add(ORDINALS[2], "value3");
     inputMsg.add(ORDINALS[3], "value4");
     
-    FudgeContext context = new FudgeContext();
     Map<Short, FudgeTaxonomy> resolverMap = new HashMap<Short, FudgeTaxonomy>();
     resolverMap.put((short)45, new MapFudgeTaxonomy(ORDINALS, NAMES));
     context.setTaxonomyResolver(new ImmutableMapTaxonomyResolver(resolverMap));

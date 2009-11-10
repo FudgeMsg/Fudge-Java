@@ -18,9 +18,7 @@ package org.fudgemsg;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Random;
 
@@ -105,11 +103,7 @@ public class FudgeMsgCodecTest {
   }
 
   protected FudgeMsg cycleMessage(FudgeMsg msg) throws IOException {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    DataOutputStream dos = new DataOutputStream(baos);
-    FudgeStreamEncoder.writeMsg(dos, msg);
-    
-    byte[] content = baos.toByteArray();
+    byte[] content = _fudgeContext.toByteArray(msg);
     
     ByteArrayInputStream bais = new ByteArrayInputStream(content);
     DataInputStream dis = new DataInputStream(bais);
