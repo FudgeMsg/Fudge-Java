@@ -199,13 +199,43 @@ public class FudgeStreamReader {
       _processingStack.add(subState);
     } else {
       _currentElement = FudgeStreamElement.SIMPLE_FIELD;
-      _fieldValue = FudgeStreamDecoder.readFieldValue(getDataInput(), _fieldType, varSize, getFudgeContext().getTypeDictionary());
+      _fieldValue = readFieldValue(getDataInput(), _fieldType, varSize, getFudgeContext().getTypeDictionary());
       if(fixedWidth) {
         currMsgProcessingState.consumed += type.getFixedSize();
       } else {
         currMsgProcessingState.consumed += varSize;
       }
     }
+  }
+
+  public static Object readFieldValue(
+      DataInput is,
+      FudgeFieldType<?> type,
+      int varSize,
+      FudgeTypeDictionary typeDictionary) throws IOException {
+    assert type != null;
+    assert is != null;
+    assert typeDictionary != null;
+    
+    // Special fast-pass for known field types
+    switch(type.getTypeId()) {
+    case FudgeTypeDictionary.BOOLEAN_TYPE_ID:
+      return is.readBoolean();
+    case FudgeTypeDictionary.BYTE_TYPE_ID:
+      return is.readByte();
+    case FudgeTypeDictionary.SHORT_TYPE_ID:
+      return is.readShort();
+    case FudgeTypeDictionary.INT_TYPE_ID:
+      return is.readInt();
+    case FudgeTypeDictionary.LONG_TYPE_ID:
+      return is.readLong();
+    case FudgeTypeDictionary.FLOAT_TYPE_ID:
+      return is.readFloat();
+    case FudgeTypeDictionary.DOUBLE_TYPE_ID:
+      return is.readDouble();
+    }
+    
+    return type.readValue(is, varSize, typeDictionary);
   }
 
   /**

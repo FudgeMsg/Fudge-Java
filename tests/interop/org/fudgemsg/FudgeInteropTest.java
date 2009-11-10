@@ -37,6 +37,7 @@ import org.junit.Test;
 public class FudgeInteropTest {
   private static final boolean LEAVE_FILES_IN_PLACE = false;
   private static Set<File> s_filesToRemove = new HashSet<File>();
+  private static final FudgeContext s_fudgeContext = new FudgeContext();
   
   @AfterClass
   public static void removeFiles() {
@@ -72,7 +73,7 @@ public class FudgeInteropTest {
   
   @Test
   public void variableWidthColumnSizes() throws IOException {
-    FudgeMsg inputMsg = new FudgeMsg();
+    FudgeMsg inputMsg = s_fudgeContext.newMessage();
     inputMsg.add("100", new byte[100]);
     inputMsg.add("1000", new byte[1000]);
     inputMsg.add("10000", new byte[100000]);
@@ -86,11 +87,11 @@ public class FudgeInteropTest {
   
   @Test
   public void subMsg() throws IOException {
-    FudgeMsg inputMsg = new FudgeMsg();
-    FudgeMsg sub1 = new FudgeMsg();
+    FudgeMsg inputMsg = s_fudgeContext.newMessage();
+    FudgeMsg sub1 = s_fudgeContext.newMessage();
     sub1.add("bibble", "fibble");
     sub1.add(827, "Blibble");
-    FudgeMsg sub2 = new FudgeMsg();
+    FudgeMsg sub2 = s_fudgeContext.newMessage();
     sub2.add("bibble9", 9837438);
     sub2.add(828, 82.77f);
     inputMsg.add("sub1", sub1);
@@ -105,7 +106,7 @@ public class FudgeInteropTest {
   
   @Test
   public void unknown() throws IOException {
-    FudgeMsg inputMsg = new FudgeMsg();
+    FudgeMsg inputMsg = s_fudgeContext.newMessage();
     inputMsg.add("unknown", new UnknownFudgeFieldValue(new byte[10], FudgeTypeDictionary.INSTANCE.getUnknownType(200)));
     FudgeMsg outputMsg = cycleMessage(inputMsg, "unknown.dat");
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
@@ -121,7 +122,7 @@ public class FudgeInteropTest {
 
   @Test
   public void fixedWidthByteArrays() throws IOException {
-    FudgeMsg inputMsg = new FudgeMsg();
+    FudgeMsg inputMsg = s_fudgeContext.newMessage();
     inputMsg.add("byte[4]", createPopulatedArray(4));
     inputMsg.add("byte[8]", createPopulatedArray(8));
     inputMsg.add("byte[16]", createPopulatedArray(16));
@@ -167,7 +168,7 @@ public class FudgeInteropTest {
     }
     FileInputStream stream = new FileInputStream(fullPath);
     DataInputStream dis = new DataInputStream(stream);
-    FudgeMsgEnvelope outputMsgEnvelope = FudgeStreamDecoder.readMsg(dis);
+    FudgeMsgEnvelope outputMsgEnvelope = (new FudgeContext()).deserialize(dis);
     assertNotNull(outputMsgEnvelope);
     assertNotNull(outputMsgEnvelope.getMessage());
     return outputMsgEnvelope.getMessage();

@@ -19,13 +19,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeStreamDecoder;
 import org.fudgemsg.FudgeStreamEncoder;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -39,6 +38,7 @@ import org.junit.Test;
  */
 public class ShortPerformanceTest {
   private static final int HOT_SPOT_WARMUP_CYCLES = 1000;
+  private static final FudgeContext s_fudgeContext = new FudgeContext();
   
   @BeforeClass
   public static void warmUpHotSpot() throws Exception {
@@ -156,7 +156,7 @@ public class ShortPerformanceTest {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     DataOutputStream dos = new DataOutputStream(baos);
     SmallFinancialTick tick = new SmallFinancialTick();
-    FudgeMsg msg = new FudgeMsg();
+    FudgeMsg msg = s_fudgeContext.newMessage();
     if(useNames && useOrdinals) {
       msg.add("ask", 1, tick.getAsk());
       msg.add("askVolume", 2, tick.getAskVolume());
@@ -180,9 +180,7 @@ public class ShortPerformanceTest {
     
     byte[] data = baos.toByteArray();
     
-    ByteArrayInputStream bais = new ByteArrayInputStream(data);
-    DataInputStream dis = new DataInputStream(bais);
-    msg = FudgeStreamDecoder.readMsg(dis).getMessage();
+    msg = s_fudgeContext.deserialize(data).getMessage();
     
     tick = new SmallFinancialTick();
     if(useOrdinals) {

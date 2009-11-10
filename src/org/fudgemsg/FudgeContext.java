@@ -84,7 +84,7 @@ public class FudgeContext {
   }
   
   public FudgeMsg newMessage() {
-    return new FudgeMsg(getTypeDictionary());
+    return new FudgeMsg(this);
   }
 
   public void serialize(FudgeMsg msg, OutputStream os) {

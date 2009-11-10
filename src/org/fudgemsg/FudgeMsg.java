@@ -15,9 +15,7 @@
  */
 package org.fudgemsg;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
@@ -45,50 +43,47 @@ import org.fudgemsg.types.PrimitiveFieldTypes;
  * @author kirk
  */
 public class FudgeMsg extends FudgeEncodingObject implements Serializable, MutableFudgeFieldContainer, Iterable<FudgeField> {
-  private final FudgeTypeDictionary _typeDictionary;
+  private final FudgeContext _fudgeContext;
   private final List<FudgeMsgField> _fields = new ArrayList<FudgeMsgField>();
-  
+
+  @Deprecated
   public FudgeMsg() {
-    this(FudgeTypeDictionary.INSTANCE);
+    this(new FudgeContext());
   }
   
-  public FudgeMsg(FudgeTypeDictionary typeDictionary) {
-    if(typeDictionary == null) {
-      throw new NullPointerException("Type dictionary must be provided.");
+  public FudgeMsg(FudgeContext fudgeContext) {
+    if(fudgeContext == null) {
+      throw new NullPointerException("Context must be provided.");
     }
-    _typeDictionary = typeDictionary;
+    _fudgeContext = fudgeContext;
   }
   
   public FudgeMsg(FudgeMsg other) {
     if(other == null) {
       throw new NullPointerException("Cannot initialize from a null other FudgeMsg");
     }
+    _fudgeContext = other._fudgeContext;
     initializeFromByteArray(other.toByteArray());
-    _typeDictionary = other._typeDictionary;
   }
   
-  public FudgeMsg(byte[] byteArray, FudgeTypeDictionary typeDictionary, FudgeTaxonomy taxonomy) {
-    if(typeDictionary == null) {
-      throw new NullPointerException("Type dictionary must be provided.");
+  public FudgeMsg(byte[] byteArray, FudgeContext fudgeContext) {
+    if(fudgeContext == null) {
+      throw new NullPointerException("Context must be provided.");
     }
-    _typeDictionary = typeDictionary;
+    _fudgeContext = fudgeContext;
     initializeFromByteArray(byteArray);
   }
   
   protected void initializeFromByteArray(byte[] byteArray) {
-    ByteArrayInputStream bais = new ByteArrayInputStream(byteArray);
-    DataInputStream is = new DataInputStream(bais);
-    FudgeMsgEnvelope other;
-    try {
-      other = FudgeStreamDecoder.readMsg(is);
-    } catch (IOException e) {
-      throw new RuntimeException("IOException thrown using ByteArrayInputStream", e);
-    }
+    FudgeMsgEnvelope other = getFudgeContext().deserialize(byteArray);
     _fields.addAll(other.getMessage()._fields);
   }
   
-  public FudgeTypeDictionary getTypeDictionary() {
-    return _typeDictionary;
+  /**
+   * @return the fudgeContext
+   */
+  public FudgeContext getFudgeContext() {
+    return _fudgeContext;
   }
 
   public void add(FudgeField field) {
@@ -159,7 +154,7 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     if(value instanceof byte[]) {
       return ByteArrayFieldType.getBestMatch((byte[])value);
     }
-    FudgeFieldType<?> type = getTypeDictionary().getByJavaType(value.getClass());
+    FudgeFieldType<?> type = getFudgeContext().getTypeDictionary().getByJavaType(value.getClass());
     if((type == null) && (value instanceof UnknownFudgeFieldValue)) {
       UnknownFudgeFieldValue unknownValue = (UnknownFudgeFieldValue) value;
       type = unknownValue.getType();
