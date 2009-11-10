@@ -199,7 +199,7 @@ public class FudgeStreamReader {
       _processingStack.add(subState);
     } else {
       _currentElement = FudgeStreamElement.SIMPLE_FIELD;
-      _fieldValue = readFieldValue(getDataInput(), _fieldType, varSize, getFudgeContext().getTypeDictionary());
+      _fieldValue = readFieldValue(getDataInput(), _fieldType, varSize);
       if(fixedWidth) {
         currMsgProcessingState.consumed += type.getFixedSize();
       } else {
@@ -211,11 +211,9 @@ public class FudgeStreamReader {
   public static Object readFieldValue(
       DataInput is,
       FudgeFieldType<?> type,
-      int varSize,
-      FudgeTypeDictionary typeDictionary) throws IOException {
+      int varSize) throws IOException {
     assert type != null;
     assert is != null;
-    assert typeDictionary != null;
     
     // Special fast-pass for known field types
     switch(type.getTypeId()) {
@@ -235,7 +233,7 @@ public class FudgeStreamReader {
       return is.readDouble();
     }
     
-    return type.readValue(is, varSize, typeDictionary);
+    return type.readValue(is, varSize);
   }
 
   /**

@@ -44,7 +44,7 @@ public class FudgeMsgFieldType extends FudgeFieldType<FudgeMsg> {
   }
 
   @Override
-  public FudgeMsg readValue(DataInput input, int dataSize, FudgeTypeDictionary typeDictionary) throws IOException {
+  public FudgeMsg readValue(DataInput input, int dataSize) throws IOException {
     throw new UnsupportedOperationException("Sub-messages can only be decoded from FudgeStreamParser.");
   }
 

@@ -73,7 +73,7 @@ public class ByteArrayFieldType extends FudgeFieldType<byte[]> {
   }
 
   @Override
-  public byte[] readValue(DataInput input, int dataSize, FudgeTypeDictionary typeDictionary) throws IOException {
+  public byte[] readValue(DataInput input, int dataSize) throws IOException {
     if(!isVariableSize()) {
       dataSize = getFixedSize();
     }

@@ -45,7 +45,7 @@ public class LongArrayFieldType extends FudgeFieldType<long[]> {
   }
 
   @Override
-  public long[] readValue(DataInput input, int dataSize, FudgeTypeDictionary typeDictionary) throws IOException {
+  public long[] readValue(DataInput input, int dataSize) throws IOException {
     int nLongs = dataSize / 8;
     long[] result = new long[nLongs];
     for(int i = 0; i < nLongs; i++) {

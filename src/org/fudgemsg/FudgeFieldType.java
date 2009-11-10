@@ -136,7 +136,7 @@ public class FudgeFieldType<TValue> implements Serializable {
     }
   }
   
-  public TValue readValue(DataInput input, int dataSize, FudgeTypeDictionary typeDictionary) throws IOException {
+  public TValue readValue(DataInput input, int dataSize) throws IOException {
     if(isVariableSize()) {
       throw new UnsupportedOperationException("This method must be overridden for variable size types.");
     }

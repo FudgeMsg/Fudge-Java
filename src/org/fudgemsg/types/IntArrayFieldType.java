@@ -45,7 +45,7 @@ public class IntArrayFieldType extends FudgeFieldType<int[]> {
   }
 
   @Override
-  public int[] readValue(DataInput input, int dataSize, FudgeTypeDictionary typeDictionary) throws IOException {
+  public int[] readValue(DataInput input, int dataSize) throws IOException {
     int nInts = dataSize / 4;
     int[] result = new int[nInts];
     for(int i = 0; i < nInts; i++) {
