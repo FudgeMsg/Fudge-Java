@@ -17,6 +17,8 @@
 package org.fudgemsg.mapping;
 
 import java.lang.reflect.Field;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -36,7 +38,7 @@ public class FudgeObjectStreamParser {
   }
   
   public <T> T parse(Class<T> objectClass, FudgeStreamReader reader) {
-    // TODO kirk 2009-11-12 -- Handle Taxonomies
+    // TODO kirk 2009-11-12 -- Handle Taxonomies?
     T result = null;
     try {
       result = objectClass.newInstance();
@@ -60,7 +62,11 @@ public class FudgeObjectStreamParser {
         break;
       case SUBMESSAGE_FIELD_START:
         classField = descriptor.getField(reader.getFieldName());
-        fieldValue = parse(classField.getType(), reader);
+        if(Map.class.isAssignableFrom(classField.getType())) {
+          fieldValue = processSubmessageAsMap(classField.getType(), reader);
+        } else {
+          fieldValue = parse(classField.getType(), reader);
+        }
         break;
       }
       if((classField != null) && (fieldValue != null)) {
@@ -74,6 +80,31 @@ public class FudgeObjectStreamParser {
     return result;
   }
   
+  /**
+   * @param type
+   * @param reader
+   */
+  protected Map<String, Object> processSubmessageAsMap(Class<?> type, FudgeStreamReader reader) {
+    Map<String, Object> result = new TreeMap<String, Object>();
+    Object fieldValue = null;
+    while(reader.hasNext()) {
+      FudgeStreamReader.FudgeStreamElement element = reader.next();
+      switch(element) {
+      case SUBMESSAGE_FIELD_END:
+        return result;
+      case SIMPLE_FIELD:
+        fieldValue = reader.getFieldValue();
+        break;
+      case SUBMESSAGE_FIELD_START:
+        throw new IllegalArgumentException("Only single-level maps handled.");
+      }
+      if(fieldValue != null) {
+        result.put(reader.getFieldName(), fieldValue);
+      }
+    }
+    return result;
+  }
+
   protected ObjectDescriptor getDescriptor(Class<?> clazz) {
     ObjectDescriptor objectDescriptor = s_descriptors.get(clazz);
     if(objectDescriptor == null) {

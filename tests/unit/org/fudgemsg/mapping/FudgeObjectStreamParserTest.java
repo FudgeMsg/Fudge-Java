@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
@@ -37,10 +38,12 @@ import org.junit.Test;
 public class FudgeObjectStreamParserTest {
   private static final FudgeContext s_fudgeContext = new FudgeContext();
   
+  @SuppressWarnings("unchecked")
   public static class SimpleBean {
     private String _fieldOne;
     private SimpleBean _fieldTwo;
     private int _fieldThree;
+    private Map _fieldFour;
     /**
      * @return the fieldOne
      */
@@ -77,15 +80,34 @@ public class FudgeObjectStreamParserTest {
     public void setFieldThree(int fieldThree) {
       _fieldThree = fieldThree;
     }
+    /**
+     * @return the fieldFour
+     */
+    public Map getFieldFour() {
+      return _fieldFour;
+    }
+    /**
+     * @param fieldFour the fieldFour to set
+     */
+    public void setFieldFour(Map fieldFour) {
+      _fieldFour = fieldFour;
+    }
   }
   
   protected static FudgeMsg constructSimpleMessage(FudgeContext fudgeContext) {
     FudgeMsg msg = fudgeContext.newMessage();
     msg.add("fieldOne", "Kirk Wylie");
     msg.add("fieldThree", 98);
+    
     FudgeMsg subMsg = fudgeContext.newMessage();
     subMsg.add("fieldThree", 99999);
     msg.add("fieldTwo", subMsg);
+    
+    subMsg = fudgeContext.newMessage();
+    subMsg.add("Kirk Wylie", "Wrote This Test");
+    subMsg.add("Life, Universe, and Everything", 42);
+    msg.add("fieldFour", subMsg);
+    
     return msg;
   }
   
@@ -103,10 +125,18 @@ public class FudgeObjectStreamParserTest {
     assertEquals("Kirk Wylie", simple.getFieldOne());
     assertEquals(98, simple.getFieldThree());
     
+    @SuppressWarnings("unchecked")
+    Map map = simple.getFieldFour();
+    assertNotNull(map);
+    assertEquals(2, map.size());
+    assertEquals("Wrote This Test", map.get("Kirk Wylie"));
+    assertEquals(new Byte((byte)42), map.get("Life, Universe, and Everything"));
+    
     simple = simple.getFieldTwo();
     assertNotNull(simple);
     assertNull(simple.getFieldOne());
     assertEquals(99999, simple.getFieldThree());
+    
   }
 
 }
