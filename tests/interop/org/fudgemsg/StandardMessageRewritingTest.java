@@ -16,21 +16,21 @@
 
 package org.fudgemsg;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
 
-import java.io.DataInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.junit.Test;
 
 /**
- * Checks that we can load all the files that correspond to standard messages
- * and that they match up.
+ * Writes out messages again and makes sure that we're writing out the same things as before.
  *
  * @author kirk
  */
-public class StandardMessageLoadingTest {
+public class StandardMessageRewritingTest {
+
   private static final FudgeContext s_fudgeContext = new FudgeContext();
   
   @Test
@@ -63,24 +63,29 @@ public class StandardMessageLoadingTest {
     testFile(FudgeInteropTest.createUnknown(s_fudgeContext), "unknown.dat");
   }
   
-  protected static void testFile(FudgeFieldContainer expected, String fileName) {
-    FudgeMsgEnvelope envelope = loadMessage(s_fudgeContext, fileName);
-    assertNotNull(envelope);
-    assertNotNull(envelope.getMessage());
-    FudgeFieldContainer actual = envelope.getMessage();
-    FudgeUtils.assertAllFieldsMatch(expected, actual);
-  }
-  
-  protected static FudgeMsgEnvelope loadMessage(FudgeContext context, String fileName) {
-    InputStream is = StandardMessageLoadingTest.class.getResourceAsStream(fileName);
-    FudgeStreamParser parser = context.getParser();
-    FudgeMsgEnvelope envelope = parser.parse(new DataInputStream(is));
+  protected static void testFile(FudgeMsg msgToWrite, String fileName) {
+    byte[] actualBytes = s_fudgeContext.toByteArray(msgToWrite);
+    ByteArrayInputStream actualStream = new ByteArrayInputStream(actualBytes);
+    InputStream expectedStream = StandardMessageRewritingTest.class.getResourceAsStream(fileName);
     try {
-      is.close();
-    } catch (IOException e) {
-      throw new FudgeRuntimeException("Couldn't close stream for " + fileName, e);
+      int iByte = 0;
+      while(true) {
+        int expected = expectedStream.read();
+        int actual = actualStream.read();
+        assertEquals("At position " + iByte + " actual was " + actual + " expected was " + expected, actual, expected);
+        if((expected < 0) || (actual < 0)) {
+          break;
+        }
+        iByte++;
+      }
+    } catch (IOException ioe) {
+      throw new FudgeRuntimeException("Unable to read from streams", ioe);
+    } finally {
+      try {
+        expectedStream.close();
+      } catch (IOException ioe) {
+        // Do nothing.
+      }
     }
-    return envelope;
   }
-
 }
