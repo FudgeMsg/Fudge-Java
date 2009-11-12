@@ -25,8 +25,8 @@ import org.fudgemsg.types.IndicatorType;
  */
 public final class StandardFudgeMessages {
 
-  public static FudgeMsg createMessageAllNames() {
-    FudgeMsg msg = new FudgeMsg();
+  public static FudgeMsg createMessageAllNames(FudgeContext context) {
+    FudgeMsg msg = context.newMessage();
     
     msg.add("boolean", Boolean.TRUE);
     msg.add("Boolean", new Boolean(false));
@@ -60,8 +60,8 @@ public final class StandardFudgeMessages {
     return msg;
   }
   
-  public static FudgeMsg createMessageAllOrdinals() {
-    FudgeMsg msg = new FudgeMsg();
+  public static FudgeMsg createMessageAllOrdinals(FudgeContext context) {
+    FudgeMsg msg = context.newMessage();
     
     msg.add(1, Boolean.TRUE);
     msg.add(2, new Boolean(false));
@@ -90,8 +90,8 @@ public final class StandardFudgeMessages {
     return msg;
   }
   
-  public static FudgeMsg createMessageAllByteArrayLengths() {
-    FudgeMsg msg = new FudgeMsg();
+  public static FudgeMsg createMessageAllByteArrayLengths(FudgeContext context) {
+    FudgeMsg msg = context.newMessage();
     msg.add("byte[4]", new byte[4]);
     msg.add("byte[8]", new byte[8]);
     msg.add("byte[16]", new byte[16]);
@@ -106,12 +106,12 @@ public final class StandardFudgeMessages {
     return msg;
   }
   
-  public static FudgeMsg createMessageWithSubMsgs() {
-    FudgeMsg msg = new FudgeMsg();
-    FudgeMsg sub1 = new FudgeMsg();
+  public static FudgeMsg createMessageWithSubMsgs(FudgeContext context) {
+    FudgeMsg msg = context.newMessage();
+    FudgeMsg sub1 = context.newMessage();
     sub1.add("bibble", "fibble");
     sub1.add(827, "Blibble");
-    FudgeMsg sub2 = new FudgeMsg();
+    FudgeMsg sub2 = context.newMessage();
     sub2.add("bibble9", 9837438);
     sub2.add(828, 82.77f);
     msg.add("sub1", sub1);

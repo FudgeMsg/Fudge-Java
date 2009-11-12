@@ -34,7 +34,7 @@ public class MongoDBCodecTest {
 
   @Test
   public void allNamesCodec() {
-    FudgeMsg inputMsg = StandardFudgeMessages.createMessageAllNames();
+    FudgeMsg inputMsg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
     
     DBObject dbObject = MongoDBEncoder.encode(inputMsg);
     FudgeMsg outputMsg = MongoDBDecoder.decode(dbObject);
@@ -56,7 +56,7 @@ public class MongoDBCodecTest {
 
   @Test
   public void byteArrays() {
-    FudgeMsg inputMsg = StandardFudgeMessages.createMessageAllByteArrayLengths();
+    FudgeMsg inputMsg = StandardFudgeMessages.createMessageAllByteArrayLengths(s_fudgeContext);
     
     DBObject dbObject = MongoDBEncoder.encode(inputMsg);
     FudgeMsg outputMsg = MongoDBDecoder.decode(dbObject);
