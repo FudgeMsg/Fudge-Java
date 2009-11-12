@@ -17,7 +17,9 @@
 package org.fudgemsg;
 
 import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Stack;
 
 import org.fudgemsg.taxon.FudgeTaxonomy;
@@ -90,6 +92,13 @@ public class FudgeStreamReader {
     _fieldOrdinal = null;
     _fieldName = null;
     _fieldValue = null;
+  }
+  
+  public void reset(InputStream inputStream) {
+    if(inputStream == null) {
+      throw new NullPointerException("Must provide an InputStream to consume data from.");
+    }
+    reset((DataInput) new DataInputStream(inputStream));
   }
   
   /**

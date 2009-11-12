@@ -19,13 +19,17 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeStreamReader;
+import org.fudgemsg.FudgeStreamWriter;
+import org.fudgemsg.mapping.FudgeObjectStreamReader;
+import org.fudgemsg.mapping.FudgeObjectStreamWriter;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -36,19 +40,23 @@ import org.junit.Test;
  * @author kirk
  */
 public class ShortPerformanceTest {
-  private static final int HOT_SPOT_WARMUP_CYCLES = 1000;
+  private static final int HOT_SPOT_WARMUP_CYCLES = 10000;
   private static final FudgeContext s_fudgeContext = new FudgeContext();
+  private static final FudgeObjectStreamWriter s_objectStreamWriter = new FudgeObjectStreamWriter();
+  private static final FudgeObjectStreamReader s_objectStreamParser = new FudgeObjectStreamReader();
   
   @BeforeClass
   public static void warmUpHotSpot() throws Exception {
     System.out.println("Fudge size, Names Only: " + fudgeCycle(true, false));
     System.out.println("Fudge size, Ordinals Only: " + fudgeCycle(false, true));
     System.out.println("Fudge size, Names And Ordinals: " + fudgeCycle(true, true));
+    System.out.println("Fudge size, Object Mapping: " + fudgeObjectMappingCycle());
     System.out.println("Serialization size: " + serializationCycle());
     for(int i = 0; i < HOT_SPOT_WARMUP_CYCLES; i++) {
       fudgeCycle(true, false);
       fudgeCycle(false, true);
       fudgeCycle(true, true);
+      fudgeObjectMappingCycle();
       serializationCycle();
     }
   }
@@ -56,6 +64,12 @@ public class ShortPerformanceTest {
   @Test
   public void performanceVersusSerialization10000Cycles() throws Exception {
     performanceVersusSerialization(10000);
+  }
+  
+  @Test
+  @Ignore("This is just for really large tests")
+  public void performanceVersusSerialization1000000Cycles() throws Exception {
+    performanceVersusSerialization(1000000);
   }
   
   private static void performanceVersusSerialization(int nCycles) throws Exception {
@@ -70,7 +84,6 @@ public class ShortPerformanceTest {
     endTime = System.currentTimeMillis();
     long fudgeDeltaNamesOnly = endTime - startTime;
     double fudgeSplitNamesOnly = convertToCyclesPerSecond(nCycles, fudgeDeltaNamesOnly);
-    System.out.println("GCing...");
     System.gc();
     
     System.out.println("Starting Fudge ordinals only.");
@@ -81,7 +94,6 @@ public class ShortPerformanceTest {
     endTime = System.currentTimeMillis();
     long fudgeDeltaOrdinalsOnly = endTime - startTime;
     double fudgeSplitOrdinalsOnly = convertToCyclesPerSecond(nCycles, fudgeDeltaOrdinalsOnly);
-    System.out.println("GCing...");
     System.gc();
     
     System.out.println("Starting Fudge names and ordinals.");
@@ -92,7 +104,16 @@ public class ShortPerformanceTest {
     endTime = System.currentTimeMillis();
     long fudgeDeltaBoth = endTime - startTime;
     double fudgeSplitBoth = convertToCyclesPerSecond(nCycles, fudgeDeltaBoth);
-    System.out.println("GCing...");
+    System.gc();
+    
+    System.out.println("Starting Fudge Object mapping, no taxonomy.");
+    startTime = System.currentTimeMillis();
+    for(int i = 0; i < nCycles; i++) {
+      fudgeObjectMappingCycle();
+    }
+    endTime = System.currentTimeMillis();
+    long fudgeDeltaObjectNoTaxonomy = endTime - startTime;
+    double fudgeSplitObjectNoTaxonomy = convertToCyclesPerSecond(nCycles, fudgeDeltaObjectNoTaxonomy);
     System.gc();
     
     System.out.println("Starting Java Serialization.");
@@ -103,7 +124,6 @@ public class ShortPerformanceTest {
     endTime = System.currentTimeMillis();
     long serializationDelta = endTime - startTime;
     double serializationSplit = convertToCyclesPerSecond(nCycles, serializationDelta);
-    System.out.println("GCing...");
     System.gc();
     
     StringBuilder sb = new StringBuilder();
@@ -120,6 +140,9 @@ public class ShortPerformanceTest {
     sb.append("Fudge Names And Ordinals ").append(fudgeDeltaBoth);
     System.out.println(sb.toString());
     sb = new StringBuilder();
+    sb.append("Fudge Objects No Taxonomy").append(fudgeDeltaObjectNoTaxonomy);
+    System.out.println(sb.toString());
+    sb = new StringBuilder();
     sb.append("ms, Serialization ").append(serializationDelta).append("ms");
     System.out.println(sb.toString());
     sb = new StringBuilder();
@@ -130,6 +153,9 @@ public class ShortPerformanceTest {
     System.out.println(sb.toString());
     sb = new StringBuilder();
     sb.append("Fudge Names And Ordinals: ").append(fudgeSplitBoth).append("cycles/sec");
+    System.out.println(sb.toString());
+    sb = new StringBuilder();
+    sb.append("Fudge Objects No Taxonomy: ").append(fudgeSplitObjectNoTaxonomy).append("cycles/sec");
     System.out.println(sb.toString());
     sb = new StringBuilder();
     sb.append("Serialization: ").append(serializationSplit).append("cycles/sec");
@@ -152,8 +178,6 @@ public class ShortPerformanceTest {
   }
   
   private static int fudgeCycle(final boolean useNames, final boolean useOrdinals) throws Exception {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    DataOutputStream dos = new DataOutputStream(baos);
     SmallFinancialTick tick = new SmallFinancialTick();
     FudgeMsg msg = s_fudgeContext.newMessage();
     if(useNames && useOrdinals) {
@@ -175,9 +199,7 @@ public class ShortPerformanceTest {
       msg.add(4, tick.getBidVolume());
       msg.add(5, tick.getTimestamp());
     }
-    s_fudgeContext.serialize(msg, dos);
-    
-    byte[] data = baos.toByteArray();
+    byte[] data = s_fudgeContext.toByteArray(msg);
     
     msg = s_fudgeContext.deserialize(data).getMessage();
     
@@ -211,6 +233,24 @@ public class ShortPerformanceTest {
     ByteArrayInputStream bais = new ByteArrayInputStream(data);
     ObjectInputStream ois = new ObjectInputStream(bais);
     ois.readObject();
+    return data.length;
+  }
+  
+  private static int fudgeObjectMappingCycle() {
+    SmallFinancialTick tick = new SmallFinancialTick();
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    FudgeStreamWriter fsw = s_fudgeContext.allocateWriter();
+    fsw.reset(baos);
+    s_objectStreamWriter.write(tick, fsw);
+    s_fudgeContext.releaseWriter(fsw);
+
+    byte[] data = baos.toByteArray();
+    
+    FudgeStreamReader fsr = s_fudgeContext.allocateReader();
+    fsr.reset(new ByteArrayInputStream(data));
+    tick = s_objectStreamParser.read(SmallFinancialTick.class, fsr);
+    s_fudgeContext.releaseReader(fsr);
+    
     return data.length;
   }
 

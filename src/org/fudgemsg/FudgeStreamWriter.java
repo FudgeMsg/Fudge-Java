@@ -17,7 +17,9 @@
 package org.fudgemsg;
 
 import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import org.fudgemsg.taxon.FudgeTaxonomy;
 
@@ -44,6 +46,13 @@ public class FudgeStreamWriter {
     }
     _dataOutput = dataOutput;
     _taxonomy = null;
+  }
+  
+  public void reset(OutputStream outputStream) {
+    if(outputStream == null) {
+      throw new NullPointerException("Must specify an OutputStream for processing.");
+    }
+    reset((DataOutput)new DataOutputStream(outputStream));
   }
 
   /**

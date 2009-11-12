@@ -16,7 +16,6 @@
 package org.fudgemsg;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -269,9 +268,8 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
 
   public byte[] toByteArray() {
     ByteArrayOutputStream baos = new ByteArrayOutputStream(computeSize(null));
-    DataOutputStream dos = new DataOutputStream(baos);
     FudgeStreamWriter writer = getFudgeContext().allocateWriter();
-    writer.reset(dos);
+    writer.reset(baos);
     writer.writeMessageEnvelope(new FudgeMsgEnvelope(this), 0);
     getFudgeContext().releaseWriter(writer);
     return baos.toByteArray();

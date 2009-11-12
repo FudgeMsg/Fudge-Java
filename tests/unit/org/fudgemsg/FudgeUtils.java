@@ -19,7 +19,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * 
@@ -27,13 +31,26 @@ import java.util.Iterator;
  * @author jim
  */
 public class FudgeUtils {
+  
+  public static void assertAllFieldsMatch(FudgeFieldContainer expectedMsg, FudgeFieldContainer actualMsg) {
+    assertAllFieldsMatch(expectedMsg, actualMsg, true);
+  }
   /**
    * @param inputMsg
    * @param outputMsg
    */
-  public static void assertAllFieldsMatch(FudgeFieldContainer expectedMsg, FudgeFieldContainer actualMsg) {
-    Iterator<FudgeField> expectedIter = expectedMsg.getAllFields().iterator();
-    Iterator<FudgeField> actualIter = actualMsg.getAllFields().iterator();
+  public static void assertAllFieldsMatch(
+      FudgeFieldContainer expectedMsg,
+      FudgeFieldContainer actualMsg,
+      boolean fieldOrderMatters) {
+    List<FudgeField> expectedFields = expectedMsg.getAllFields();
+    List<FudgeField> actualFields = expectedMsg.getAllFields();
+    if(!fieldOrderMatters) {
+      expectedFields = order(expectedFields);
+      actualFields = order(actualFields);
+    }
+    Iterator<FudgeField> expectedIter = expectedFields.iterator();
+    Iterator<FudgeField> actualIter = actualFields.iterator();
     while(expectedIter.hasNext()) {
       assertTrue(actualIter.hasNext());
       FudgeField expectedField = expectedIter.next();
@@ -75,6 +92,46 @@ public class FudgeUtils {
     assertFalse(actualIter.hasNext());
   }
 
+  /**
+   * @param expectedFields
+   * @return
+   */
+  private static List<FudgeField> order(List<FudgeField> expectedFields) {
+    expectedFields = new ArrayList<FudgeField>(expectedFields);
+    Collections.sort(expectedFields, new Comparator<FudgeField>() {
+      @Override
+      public int compare(FudgeField o1, FudgeField o2) {
+        if((o1.getOrdinal() != null) || (o2.getOrdinal() != null)) {
+          if(o1.getOrdinal() == null) {
+            return -1;
+          } else if(o2.getOrdinal() == null) {
+            return 1;
+          } else {
+            int comparison = (o1.getOrdinal() - o2.getOrdinal());
+            if(comparison != 0) {
+              return comparison;
+            }
+          }
+        }
+        if((o1.getName() != null) || (o2.getName() != null)) {
+          if(o1.getName() == null) {
+            return -1;
+          } else if(o2.getName() == null) {
+            return 1;
+          } else {
+            int comparison = o1.getName().compareTo(o2.getName());
+            if(comparison != 0) {
+              return comparison;
+            }
+          }
+        }
+        return 0;
+      }
+      
+    });
+    return expectedFields;
+  }
+  
   public static void assertArraysMatch(double[] expected, double[] actual) {
     assertEquals(expected.length, actual.length);
     for(int i = 0; i < expected.length; i++) {

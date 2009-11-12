@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.fudgemsg.FudgeRuntimeException;
 import org.fudgemsg.FudgeStreamReader;
@@ -32,22 +30,15 @@ import org.fudgemsg.FudgeStreamReader;
  *
  * @author kirk
  */
-public class FudgeObjectStreamParser {
-  private static final ConcurrentMap<Class<?>, ObjectDescriptor> s_descriptors;
-  
-  static {
-    s_descriptors = new ConcurrentHashMap<Class<?>, ObjectDescriptor>();
-  }
-  
-  public <T> T parse(Class<T> objectClass, FudgeStreamReader reader) {
-    // TODO kirk 2009-11-12 -- Handle Taxonomies?
+public class FudgeObjectStreamReader {
+  public <T> T read(Class<T> objectClass, FudgeStreamReader reader) {
     T result = null;
     try {
       result = objectClass.newInstance();
     } catch (Exception e) {
       throw new FudgeRuntimeException("Unable to instantiate instance of " + objectClass, e);
     }
-    ObjectDescriptor descriptor = getDescriptor(objectClass);
+    ObjectDescriptor descriptor = FudgeObjectDescriptors.INSTANCE.getDescriptor(objectClass);
     Field classField = null;
     Object fieldValue = null;
     while(reader.hasNext()) {
@@ -67,7 +58,7 @@ public class FudgeObjectStreamParser {
         if(Map.class.isAssignableFrom(classField.getType())) {
           fieldValue = processSubmessageAsMap(classField.getType(), reader);
         } else {
-          fieldValue = parse(classField.getType(), reader);
+          fieldValue = read(classField.getType(), reader);
         }
         break;
       }
@@ -123,19 +114,6 @@ public class FudgeObjectStreamParser {
       }
     }
     return result;
-  }
-
-  protected ObjectDescriptor getDescriptor(Class<?> clazz) {
-    ObjectDescriptor objectDescriptor = s_descriptors.get(clazz);
-    if(objectDescriptor == null) {
-      ObjectDescriptor freshDescriptor = new ObjectDescriptor(clazz);
-      objectDescriptor = s_descriptors.putIfAbsent(clazz, freshDescriptor);
-      if(objectDescriptor == null) {
-        objectDescriptor = freshDescriptor;
-      }
-    }
-    assert objectDescriptor != null;
-    return objectDescriptor;
   }
 
 }

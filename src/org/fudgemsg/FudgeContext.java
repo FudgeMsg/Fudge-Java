@@ -18,12 +18,13 @@ package org.fudgemsg;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.fudgemsg.mapping.FudgeObjectStreamReader;
+import org.fudgemsg.mapping.FudgeObjectStreamWriter;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 import org.fudgemsg.taxon.TaxonomyResolver;
 
@@ -55,6 +56,8 @@ public class FudgeContext {
   private final Queue<FudgeStreamReader> _streamReaders = new LinkedBlockingQueue<FudgeStreamReader>();
   private final Queue<FudgeStreamWriter> _streamWriters = new LinkedBlockingQueue<FudgeStreamWriter>();
   private final FudgeStreamParser _parser = new FudgeStreamParser(this);
+  private final FudgeObjectStreamReader _objectStreamReader = new FudgeObjectStreamReader();
+  private final FudgeObjectStreamWriter _objectStreamWriter = new FudgeObjectStreamWriter();
   private FudgeTypeDictionary _typeDictionary = new FudgeTypeDictionary();
   private TaxonomyResolver _taxonomyResolver;
 
@@ -94,7 +97,7 @@ public class FudgeContext {
   public void serialize(FudgeMsg msg, Short taxonomyId, OutputStream os) {
     int realTaxonomyId = (taxonomyId == null) ? 0 : taxonomyId.intValue();
     FudgeStreamWriter writer = allocateWriter();
-    writer.reset(new DataOutputStream(os));
+    writer.reset(os);
     FudgeMsgEnvelope envelope = new FudgeMsgEnvelope(msg);
     writer.writeMessageEnvelope(envelope, realTaxonomyId);
     releaseWriter(writer);
@@ -149,6 +152,38 @@ public class FudgeContext {
   
   public FudgeStreamParser getParser() {
     return _parser;
+  }
+
+  /**
+   * @return the objectStreamReader
+   */
+  public FudgeObjectStreamReader getObjectStreamReader() {
+    return _objectStreamReader;
+  }
+
+  /**
+   * @return the objectStreamWriter
+   */
+  public FudgeObjectStreamWriter getObjectStreamWriter() {
+    return _objectStreamWriter;
+  }
+  
+  public void writeObject(Object object, OutputStream outputStream) {
+    if(object == null) {
+      return;
+    }
+    FudgeStreamWriter fsw = allocateWriter();
+    fsw.reset(outputStream);
+    getObjectStreamWriter().write(object, fsw);
+    releaseWriter(fsw);
+  }
+  
+  public <T> T readObject(Class<T> objectClass, InputStream inputStream) {
+    FudgeStreamReader fsr = allocateReader();
+    fsr.reset(inputStream);
+    T result = getObjectStreamReader().read(objectClass, fsr);
+    releaseReader(fsr);
+    return result;
   }
   
 }

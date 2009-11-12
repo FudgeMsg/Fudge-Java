@@ -16,29 +16,21 @@
 
 package org.fudgemsg.mapping;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeStreamReader;
-import org.junit.Test;
 
 /**
  * 
  *
  * @author kirk
  */
-public class FudgeObjectStreamParserTest {
-  private static final FudgeContext s_fudgeContext = new FudgeContext();
-  
+public class ObjectMappingTestUtil {
+
   @SuppressWarnings("unchecked")
   public static class SimpleBean {
     private String _fieldOne;
@@ -108,7 +100,7 @@ public class FudgeObjectStreamParserTest {
     }
   }
   
-  protected static FudgeMsg constructSimpleMessage(FudgeContext fudgeContext) {
+  public static FudgeMsg constructSimpleMessage(FudgeContext fudgeContext) {
     FudgeMsg msg = fudgeContext.newMessage();
     msg.add("fieldOne", "Kirk Wylie");
     msg.add("fieldThree", 98);
@@ -129,40 +121,26 @@ public class FudgeObjectStreamParserTest {
     return msg;
   }
   
-  @Test
-  public void simpleBean() {
-    FudgeObjectStreamParser parser = new FudgeObjectStreamParser();
-    byte[] msgBytes = s_fudgeContext.toByteArray(constructSimpleMessage(s_fudgeContext));
-    ByteArrayInputStream bais = new ByteArrayInputStream(msgBytes);
-    FudgeStreamReader streamReader = s_fudgeContext.allocateReader();
-    streamReader.reset(new DataInputStream(bais));
-    Object obj = parser.parse(SimpleBean.class, streamReader);
-    assertNotNull(obj);
-    assertTrue(obj instanceof SimpleBean);
-    SimpleBean simple = (SimpleBean) obj;
-    assertEquals("Kirk Wylie", simple.getFieldOne());
-    assertEquals(98, simple.getFieldThree());
-    
-    @SuppressWarnings("unchecked")
-    Map map = simple.getFieldFour();
-    assertNotNull(map);
-    assertEquals(2, map.size());
-    assertEquals("Wrote This Test", map.get("Kirk Wylie"));
-    assertEquals(new Byte((byte)42), map.get("Life, Universe, and Everything"));
-    
-    @SuppressWarnings("unchecked")
-    List list = simple.getFieldFive();
-    assertNotNull(list);
-    assertEquals(3, list.size());
-    assertEquals("Kirk Wylie", list.get(0));
-    assertEquals("Yan Tordoff", list.get(1));
-    assertEquals("Jim Moores", list.get(2));
-    
-    simple = simple.getFieldTwo();
-    assertNotNull(simple);
-    assertNull(simple.getFieldOne());
-    assertEquals(99999, simple.getFieldThree());
-    
+  /**
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static SimpleBean constructSimpleBean() {
+    SimpleBean simpleBean = new SimpleBean();
+    simpleBean.setFieldOne("Kirk Wylie");
+    simpleBean.setFieldThree(98);
+    SimpleBean subBean = new SimpleBean();
+    simpleBean.setFieldTwo(subBean);
+    subBean.setFieldThree(99999);
+    Map map = new HashMap();
+    map.put("Kirk Wylie", "Wrote This Test");
+    map.put("Life, Universe, and Everything", 42);
+    simpleBean.setFieldFour(map);
+    List list = new ArrayList();
+    list.add("Kirk Wylie");
+    list.add("Yan Tordoff");
+    list.add("Jim Moores");
+    simpleBean.setFieldFive(list);
+    return simpleBean;
   }
-
 }
