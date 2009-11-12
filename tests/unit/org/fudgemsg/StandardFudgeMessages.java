@@ -24,6 +24,10 @@ import org.fudgemsg.types.IndicatorType;
  * @author kirk
  */
 public final class StandardFudgeMessages {
+  
+  // REVIEW kirk 2009-11-12 -- Changing the contents of any of these messages
+  // will break interop tests. If you need a change, add a new standard test
+  // message and then add a standard form to the interop test suite.
 
   public static FudgeMsg createMessageAllNames(FudgeContext context) {
     FudgeMsg msg = context.newMessage();

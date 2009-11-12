@@ -31,7 +31,7 @@ public class FudgeUtils {
    * @param inputMsg
    * @param outputMsg
    */
-  public static void assertAllFieldsMatch(FudgeMsg expectedMsg, FudgeMsg actualMsg) {
+  public static void assertAllFieldsMatch(FudgeFieldContainer expectedMsg, FudgeFieldContainer actualMsg) {
     Iterator<FudgeField> expectedIter = expectedMsg.getAllFields().iterator();
     Iterator<FudgeField> actualIter = actualMsg.getAllFields().iterator();
     while(expectedIter.hasNext()) {

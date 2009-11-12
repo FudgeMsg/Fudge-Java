@@ -71,12 +71,17 @@ public class FudgeInteropTest {
     
   }
   
-  @Test
-  public void variableWidthColumnSizes() throws IOException {
-    FudgeMsg inputMsg = s_fudgeContext.newMessage();
+  public static FudgeMsg createVariableWidthColumnSizes(FudgeContext fudgeContext) {
+    FudgeMsg inputMsg = fudgeContext.newMessage();
     inputMsg.add("100", new byte[100]);
     inputMsg.add("1000", new byte[1000]);
     inputMsg.add("10000", new byte[100000]);
+    return inputMsg;
+  }
+  
+  @Test
+  public void variableWidthColumnSizes() throws IOException {
+    FudgeMsg inputMsg = createVariableWidthColumnSizes(s_fudgeContext);
 
     FudgeMsg outputMsg = cycleMessage(inputMsg, "variableWidthColumnSizes.dat");
     
@@ -87,21 +92,19 @@ public class FudgeInteropTest {
   
   @Test
   public void subMsg() throws IOException {
-    FudgeMsg inputMsg = s_fudgeContext.newMessage();
-    FudgeMsg sub1 = s_fudgeContext.newMessage();
-    sub1.add("bibble", "fibble");
-    sub1.add(827, "Blibble");
-    FudgeMsg sub2 = s_fudgeContext.newMessage();
-    sub2.add("bibble9", 9837438);
-    sub2.add(828, 82.77f);
-    inputMsg.add("sub1", sub1);
-    inputMsg.add("sub2", sub2);
+    FudgeMsg inputMsg = StandardFudgeMessages.createMessageWithSubMsgs(s_fudgeContext);
 
     FudgeMsg outputMsg = cycleMessage(inputMsg, "subMsg.dat");
     
     assertNotNull(outputMsg);
     
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
+  }
+  
+  public static FudgeMsg createUnknown(FudgeContext fudgeContext) {
+    FudgeMsg inputMsg = fudgeContext.newMessage();
+    inputMsg.add("unknown", new UnknownFudgeFieldValue(new byte[10], FudgeTypeDictionary.INSTANCE.getUnknownType(200)));
+    return inputMsg;
   }
   
   @Test
@@ -119,10 +122,9 @@ public class FudgeInteropTest {
     }
     return bytes;
   }
-
-  @Test
-  public void fixedWidthByteArrays() throws IOException {
-    FudgeMsg inputMsg = s_fudgeContext.newMessage();
+  
+  public static FudgeMsg createFixedWidthByteArrayMsg(FudgeContext fudgeContext) {
+    FudgeMsg inputMsg = fudgeContext.newMessage();
     inputMsg.add("byte[4]", createPopulatedArray(4));
     inputMsg.add("byte[8]", createPopulatedArray(8));
     inputMsg.add("byte[16]", createPopulatedArray(16));
@@ -134,6 +136,12 @@ public class FudgeInteropTest {
     inputMsg.add("byte[512]", createPopulatedArray(512));
     
     inputMsg.add("byte[28]", createPopulatedArray(28));
+    return inputMsg;
+  }
+
+  @Test
+  public void fixedWidthByteArrays() throws IOException {
+    FudgeMsg inputMsg = createFixedWidthByteArrayMsg(s_fudgeContext);
     
     FudgeMsg outputMsg = cycleMessage(inputMsg, "fixedWidthByteArrays.dat");
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
@@ -152,6 +160,7 @@ public class FudgeInteropTest {
     } else {
       fullPath = filename; // fall back to current directory.
     }
+    System.out.println("Creating file " + fullPath);
     s_filesToRemove.add(new File(fullPath));
     FileOutputStream stream = new FileOutputStream(fullPath);
     DataOutputStream dos = new DataOutputStream(stream);
