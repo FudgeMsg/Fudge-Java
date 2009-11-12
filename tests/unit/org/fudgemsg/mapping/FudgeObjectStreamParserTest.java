@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.util.List;
 import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
@@ -44,6 +45,7 @@ public class FudgeObjectStreamParserTest {
     private SimpleBean _fieldTwo;
     private int _fieldThree;
     private Map _fieldFour;
+    private List _fieldFive;
     /**
      * @return the fieldOne
      */
@@ -92,6 +94,18 @@ public class FudgeObjectStreamParserTest {
     public void setFieldFour(Map fieldFour) {
       _fieldFour = fieldFour;
     }
+    /**
+     * @return the fieldFive
+     */
+    public List getFieldFive() {
+      return _fieldFive;
+    }
+    /**
+     * @param fieldFive the fieldFive to set
+     */
+    public void setFieldFive(List fieldFive) {
+      _fieldFive = fieldFive;
+    }
   }
   
   protected static FudgeMsg constructSimpleMessage(FudgeContext fudgeContext) {
@@ -107,6 +121,10 @@ public class FudgeObjectStreamParserTest {
     subMsg.add("Kirk Wylie", "Wrote This Test");
     subMsg.add("Life, Universe, and Everything", 42);
     msg.add("fieldFour", subMsg);
+    
+    msg.add("fieldFive", "Kirk Wylie");
+    msg.add("fieldFive", "Yan Tordoff");
+    msg.add("fieldFive", "Jim Moores");
     
     return msg;
   }
@@ -131,6 +149,14 @@ public class FudgeObjectStreamParserTest {
     assertEquals(2, map.size());
     assertEquals("Wrote This Test", map.get("Kirk Wylie"));
     assertEquals(new Byte((byte)42), map.get("Life, Universe, and Everything"));
+    
+    @SuppressWarnings("unchecked")
+    List list = simple.getFieldFive();
+    assertNotNull(list);
+    assertEquals(3, list.size());
+    assertEquals("Kirk Wylie", list.get(0));
+    assertEquals("Yan Tordoff", list.get(1));
+    assertEquals("Jim Moores", list.get(2));
     
     simple = simple.getFieldTwo();
     assertNotNull(simple);

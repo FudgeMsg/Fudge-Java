@@ -17,6 +17,8 @@
 package org.fudgemsg.mapping;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -71,7 +73,11 @@ public class FudgeObjectStreamParser {
       }
       if((classField != null) && (fieldValue != null)) {
         try {
-          classField.set(result, fieldValue);
+          if(List.class.isAssignableFrom(classField.getType())) {
+            processListValue(classField, result, fieldValue);
+          } else {
+            classField.set(result, fieldValue);
+          }
         } catch (Exception e) {
           throw new FudgeRuntimeException("Unable to set field " + classField + " to " + fieldValue + " on instance of " + objectClass, e);
         }
@@ -80,6 +86,20 @@ public class FudgeObjectStreamParser {
     return result;
   }
   
+  /**
+   * @param classField
+   * @param fieldValue
+   */
+  @SuppressWarnings("unchecked")
+  protected void processListValue(Field classField, Object result, Object fieldValue) throws Exception {
+    List l = (List) classField.get(result);
+    if(l == null) {
+      l = new ArrayList();
+      classField.set(result, l);
+    }
+    l.add(fieldValue);
+  }
+
   /**
    * @param type
    * @param reader
