@@ -45,8 +45,7 @@ public class FudgeObjectStreamReaderTest {
     FudgeObjectStreamReader reader = new FudgeObjectStreamReader();
     byte[] msgBytes = s_fudgeContext.toByteArray(ObjectMappingTestUtil.constructSimpleMessage(s_fudgeContext));
     ByteArrayInputStream bais = new ByteArrayInputStream(msgBytes);
-    FudgeStreamReader streamReader = s_fudgeContext.allocateReader();
-    streamReader.reset(bais);
+    FudgeStreamReader streamReader = s_fudgeContext.allocateReader(bais);
     Object obj = reader.read(SimpleBean.class, streamReader);
     assertNotNull(obj);
     assertTrue(obj instanceof SimpleBean);
@@ -85,8 +84,7 @@ public class FudgeObjectStreamReaderTest {
     msg.add("_transient", "Not Transient 2");
     byte[] msgBytes = s_fudgeContext.toByteArray(msg);
     ByteArrayInputStream bais = new ByteArrayInputStream(msgBytes);
-    FudgeStreamReader streamReader = s_fudgeContext.allocateReader();
-    streamReader.reset(bais);
+    FudgeStreamReader streamReader = s_fudgeContext.allocateReader(bais);
     Object obj = reader.read(StaticTransientBean.class, streamReader);
     s_fudgeContext.releaseReader(streamReader);
     StaticTransientBean staticTransientBean = (StaticTransientBean) obj;

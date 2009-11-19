@@ -120,6 +120,14 @@ public class FudgeContext {
     return deserialize(bais);
   }
   
+  public FudgeStreamReader allocateReader(InputStream is) {
+    FudgeStreamReader reader = allocateReader();
+    if(is != null) {
+      reader.reset(is);
+    }
+    return reader;
+  }
+  
   public FudgeStreamReader allocateReader() {
     FudgeStreamReader reader = _streamReaders.poll();
     if(reader == null) {
