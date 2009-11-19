@@ -143,4 +143,9 @@ public class ObjectMappingTestUtil {
     simpleBean.setFieldFive(list);
     return simpleBean;
   }
+  
+  public static class StaticTransientBean {
+    public static int s_static = 92;
+    public transient String _transient = "Transient";
+  }
 }

@@ -40,7 +40,7 @@ import org.junit.Test;
  * @author kirk
  */
 public class ShortPerformanceTest {
-  private static final int HOT_SPOT_WARMUP_CYCLES = 10000;
+  private static final int HOT_SPOT_WARMUP_CYCLES = 50000;
   private static final FudgeContext s_fudgeContext = new FudgeContext();
   private static final FudgeObjectStreamWriter s_objectStreamWriter = new FudgeObjectStreamWriter();
   private static final FudgeObjectStreamReader s_objectStreamParser = new FudgeObjectStreamReader();
