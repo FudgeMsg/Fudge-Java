@@ -18,6 +18,7 @@ package org.fudgemsg.mapping;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -89,6 +90,13 @@ public class ObjectDescriptor {
       String fudgeFieldName = field.getName();
       if(fudgeFieldName.startsWith("_")) {
         fudgeFieldName = fudgeFieldName.substring(1);
+      }
+      int fieldModifiers = field.getModifiers();
+      if(Modifier.isStatic(fieldModifiers)) {
+        continue;
+      }
+      if(Modifier.isTransient(fieldModifiers)) {
+        continue;
       }
       if(!StringUtils.isEmpty(fudgeFieldName)) {
         _fudgeFieldNamestoFields.put(fudgeFieldName, field);

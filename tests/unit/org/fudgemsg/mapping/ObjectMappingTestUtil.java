@@ -18,8 +18,10 @@ package org.fudgemsg.mapping;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
@@ -142,5 +144,46 @@ public class ObjectMappingTestUtil {
     list.add("Jim Moores");
     simpleBean.setFieldFive(list);
     return simpleBean;
+  }
+  
+  public static class StaticTransientBean {
+    public static int s_static = 92;
+    public transient String _transient = "Transient";
+  }
+  
+  public static class SetBean {
+    private Set<String> _strings;
+
+    /**
+     * @return the strings
+     */
+    public Set<String> getStrings() {
+      return _strings;
+    }
+
+    /**
+     * @param strings the strings to set
+     */
+    public void setStrings(Set<String> strings) {
+      _strings = strings;
+    }
+  }
+
+  public static FudgeMsg constructSetMessage(FudgeContext fudgeContext) {
+    FudgeMsg msg = fudgeContext.newMessage();
+    msg.add("strings", "Kirk Wylie");
+    msg.add("strings", "Yomi Ayodele");
+    msg.add("strings", "Yan Tordoff");
+    return msg;
+  }
+  
+  public static SetBean constructSetBean() {
+    SetBean setBean = new SetBean();
+    Set<String> strings = new HashSet<String>();
+    strings.add("Kirk Wylie");
+    strings.add("Yomi Ayodele");
+    strings.add("Yan Tordoff");
+    
+    return setBean;
   }
 }

@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.mapping.ObjectMappingTestUtil.SetBean;
 import org.fudgemsg.mapping.ObjectMappingTestUtil.SimpleBean;
 import org.junit.Test;
 
@@ -58,6 +59,21 @@ public class FudgeObjectCodecTest {
     assertEquals(inputBean.getFieldThree(), resultBean.getFieldThree());
     assertNull(resultBean.getFieldFour());
     assertNull(resultBean.getFieldFive());
+    
+  }
+
+  @Test
+  public void setBean() {
+    FudgeContext fudgeContext = new FudgeContext();
+    SetBean inputBean = ObjectMappingTestUtil.constructSetBean();
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    fudgeContext.writeObject(inputBean, baos);
+    
+    ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+    SetBean resultBean = fudgeContext.readObject(SetBean.class, bais);
+    
+    assertNotNull(resultBean);
+    assertEquals(inputBean.getStrings(), resultBean.getStrings());
     
   }
 

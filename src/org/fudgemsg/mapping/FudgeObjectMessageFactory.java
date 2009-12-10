@@ -19,6 +19,7 @@ package org.fudgemsg.mapping;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
@@ -67,6 +68,11 @@ public class FudgeObjectMessageFactory {
     } else if(fieldValue instanceof List) {
       List list = (List) fieldValue;
       for(Object obj : list) {
+        addFieldToMsg(msg, fudgeFieldName, obj, context);
+      }
+    } else if(fieldValue instanceof Set) {
+      Set set = (Set) fieldValue;
+      for(Object obj : set) {
         addFieldToMsg(msg, fudgeFieldName, obj, context);
       }
     } else if(fieldValue instanceof Map) {

@@ -18,8 +18,10 @@ package org.fudgemsg.mapping;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.fudgemsg.FudgeRuntimeException;
@@ -66,6 +68,8 @@ public class FudgeObjectStreamReader {
         try {
           if(List.class.isAssignableFrom(classField.getType())) {
             processListValue(classField, result, fieldValue);
+          } else if(Set.class.isAssignableFrom(classField.getType())) {
+            processSetValue(classField, result, fieldValue);
           } else {
             classField.set(result, fieldValue);
           }
@@ -89,6 +93,20 @@ public class FudgeObjectStreamReader {
       classField.set(result, l);
     }
     l.add(fieldValue);
+  }
+
+  /**
+   * @param classField
+   * @param fieldValue
+   */
+  @SuppressWarnings("unchecked")
+  protected void processSetValue(Field classField, Object result, Object fieldValue) throws Exception {
+    Set s = (Set) classField.get(result);
+    if(s == null) {
+      s = new HashSet();
+      classField.set(result, s);
+    }
+    s.add(fieldValue);
   }
 
   /**
