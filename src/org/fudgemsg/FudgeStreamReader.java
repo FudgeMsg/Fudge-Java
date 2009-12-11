@@ -145,7 +145,8 @@ public class FudgeStreamReader {
   }
   
   /**
-   * 
+   * Reads the next field (prefix and value) from the input stream, setting internal state to be returned by getFieldName, getFieldOrdinal,
+   * getFieldType, getCurrentElement and getFieldValue. The input stream is left positioned at the start of the next field.
    */
   protected void consumeFieldData() throws IOException {
     byte fieldPrefix = getDataInput().readByte();
@@ -217,6 +218,15 @@ public class FudgeStreamReader {
     }
   }
 
+  /**
+   * Reads a Fudge encoded field value from the input stream.
+   * 
+   * @param is
+   * @param type
+   * @param varSize
+   * @return 
+   * @throws IOException
+   */
   public static Object readFieldValue(
       DataInput is,
       FudgeFieldType<?> type,
@@ -246,7 +256,7 @@ public class FudgeStreamReader {
   }
 
   /**
-   * 
+   * Reads the next message envelope from the input stream, setting internal state go be returned by getCurrentElement, getProcessingDirectives, getSchemaVersion, getTaxonomyId and getEnvelopeSize.
    */
   protected void consumeMessageEnvelope() throws IOException {
     _currentElement = FudgeStreamElement.MESSAGE_ENVELOPE;

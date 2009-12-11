@@ -196,6 +196,10 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
   // There may be an option required if we have a lot of random access to the field content
   // to speed things up by building an index.
   
+  /**
+   * Returns a list of all fields with the given ordinal value, in the order they are represented in the Fudge message.
+   * If the message contains no matching fields an empty list is returned.  
+   */
   public List<FudgeField> getAllByOrdinal(int ordinal) {
     List<FudgeField> fields = new ArrayList<FudgeField>();
     for(FudgeMsgField field : _fields) {
@@ -206,7 +210,12 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     return fields;
   }
   
+  // REVIEW aiwg 2009-12-08 - Do we agree semantics for the case of repeated fields? Will we always return the first one,
+  // or is it an arbitrary choice?
   
+  /**
+   * Returns a field with the given ordinal value.
+   */
   public FudgeField getByOrdinal(int ordinal) {
     for(FudgeMsgField field : _fields) {
       if((field.getOrdinal() != null) && (ordinal == field.getOrdinal())) {

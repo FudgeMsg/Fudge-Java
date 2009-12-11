@@ -60,6 +60,7 @@ public class MapFudgeTaxonomy implements FudgeTaxonomy {
     _namesByOrdinal = new HashMap<Integer, String>(ordinals.length);
     _ordinalsByName = new HashMap<String, Integer>(ordinals.length);
     for(int i = 0; i < ordinals.length; i++) {
+      //AIWG: Should we check for null names and throw exceptions at this stage?
       _namesByOrdinal.put(ordinals[i], names[i]);
       _ordinalsByName.put(names[i], ordinals[i]);
     }

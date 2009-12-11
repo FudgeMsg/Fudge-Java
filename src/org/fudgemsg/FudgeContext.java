@@ -90,10 +90,32 @@ public class FudgeContext {
     return new FudgeMsg(this);
   }
 
+  /**
+   * Encodes a {@link FudgeMsg} object to an {@link OutputStream} without any
+   * taxonomy reference.
+   * 
+   * @param msg
+   *          the {@code FudgeMsg} to write
+   * @param os
+   *          the {@code OutputStream} to write to
+   */
   public void serialize(FudgeMsg msg, OutputStream os) {
     serialize(msg, null, os);
   }
-  
+
+  /**
+   * Encodes a {@link FudgeMsg} object to an {@link OutputStream} with an
+   * optional taxonomy reference. If a taxonomy is supplied it may be used to
+   * optimize the output by writing ordinals instead of field names.
+   * 
+   * @param msg
+   *          the {@code FudgeMsg} to write
+   * @param taxonomyId
+   *          the identifier of the taxonomy to use. Specify {@code null} for no
+   *          taxonomy.
+   * @param os
+   *          the {@code OutputStream} to write to
+   */
   public void serialize(FudgeMsg msg, Short taxonomyId, OutputStream os) {
     int realTaxonomyId = (taxonomyId == null) ? 0 : taxonomyId.intValue();
     FudgeStreamWriter writer = allocateWriter();
@@ -103,22 +125,49 @@ public class FudgeContext {
     releaseWriter(writer);
   }
   
+  /**
+   * Returns the Fudge encoded form of a {@link FudgeMsg} as a {@code byte} array
+   * without a taxonomy reference. 
+   * 
+   * @param msg the {@code FudgeMsg} to encode
+   * @return an array containing the encoded message
+   */
   public byte[] toByteArray(FudgeMsg msg) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     serialize(msg, baos);
     return baos.toByteArray();
   }
   
+  //11/12/09 Andrew: should we have a toByteArray that takes a taxonomy too?
+  
+  //11/12/09 Andrew: Why serialise out a FudgeMsg (creating the envelope internally) yet deserialise to a FudgeMsgEnvelope
+  
+  /**
+   * Decodes a {@link FudgeMsg} from an {@link InputStream}.
+   * 
+   *  @param is the {@code InputStream} to read encoded data from
+   *  @return the next {@link FudgeMsgEnvelope} encoded on the stream
+   */
   public FudgeMsgEnvelope deserialize(InputStream is) {
     DataInputStream dis = new DataInputStream(is);
     FudgeMsgEnvelope envelope = getParser().parse(dis);
     return envelope;
   }
-  
+
+  /**
+   * Decodes a {@link FudgeMsg} from a {@code byte} array. If the array is
+   * larger than the Fudge envelope, any additional data is ignored.
+   * 
+   * @param bytes
+   *          an array containing the envelope encoded {@code FudgeMsg}
+   * @return the decoded {@link FudgeMsgEnvelope}
+   */
   public FudgeMsgEnvelope deserialize(byte[] bytes) {
     ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
     return deserialize(bais);
   }
+  
+  //11/12/09 Andrew: should we have a version that takes an offset so that arrays with more than one envelope can be processed?
   
   public FudgeStreamReader allocateReader(InputStream is) {
     FudgeStreamReader reader = allocateReader();

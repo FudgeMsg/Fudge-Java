@@ -131,6 +131,15 @@ public class FudgeStreamWriter {
     return nWritten;
   }
 
+  /**
+   * Writes a field to the stream. If a taxonomy is selected and the field has a name but no ordinal, the ordinal is looked up and written in place of the field name.  
+   * 
+   * @param ordinal
+   * @param name
+   * @param type
+   * @param fieldValue
+   * @return
+   */
   @SuppressWarnings("unchecked")
   public int writeField(
       Short ordinal,
@@ -140,6 +149,10 @@ public class FudgeStreamWriter {
     if(fieldValue == null) {
       throw new NullPointerException("Cannot write a null field value to a Fudge stream.");
     }
+    
+    //11/12/09 Andrew: If a taxonomy is being used, should we attempt to validate against it (i.e. refuse a mismatching fieldname/ordinal)
+    //11/12/09 Andrew: If name, ordinal and taxonomy are supplied, should we not write out the name (this would happen if no ordinal was supplied) 
+    
     if((name != null) && (ordinal == null) && (getTaxonomy() != null)) {
       ordinal = getTaxonomy().getFieldOrdinal(name);
       if(ordinal != null) {
