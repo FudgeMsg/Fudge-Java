@@ -1,4 +1,4 @@
-<project name="fudge" default="default">
+<project name="fudge" default="compile">
 	<property file="build.properties"/>
 	<import file="${common.dir}/common.xml"/>
 </project>
