@@ -15,9 +15,9 @@
       <artifact name="fudge" type="jar" conf="core"/>
     </publications>
     <dependencies>
-        <dependency org="commons-lang" name="commons-lang" rev="2.4" conf="core->*"/>
-        <dependency org="org.junit" name="junit" rev="4.7" conf="core->*"/>
-        <dependency org="org.slf4j" name="slf4j" rev="1.5.8" conf="core->core"/>
+        <dependency org="commons-lang" name="commons-lang" rev="[2.4,3.0[" conf="core->*"/>
+        <dependency org="org.junit" name="junit" rev="[4.7,5.0[" conf="core->*"/>
+        <dependency org="org.slf4j" name="slf4j" rev="[1.5.8,2.0[" conf="core->core"/>
         <dependency org="org.mongodb" name="java-driver" rev="1.0" conf="mongodb->*"/>
     </dependencies>
 </ivy-module>
