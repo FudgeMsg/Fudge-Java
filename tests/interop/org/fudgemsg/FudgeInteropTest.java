@@ -147,6 +147,13 @@ public class FudgeInteropTest {
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
   
+  @Test
+  public void taxonomyMessage() throws IOException {
+    FudgeMsg inputMsg = TaxonomyMessageTest.testTaxonomyInstance ().toFudgeMsg (s_fudgeContext);
+    FudgeMsg outputMsg = cycleMessage (inputMsg, "taxonomy.dat");
+    FudgeUtils.assertAllFieldsMatch (inputMsg, outputMsg);
+  }
+  
   protected static FudgeMsg cycleMessage(FudgeMsg msg, String filename) throws IOException {
     saveMessage(msg, filename);
     return loadMessage(filename);
