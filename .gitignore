@@ -1,9 +1,0 @@
-*~
-foo~
-*.class
-classes/
-dist/
-ivy/
-tests/classes/
-tests/output/
-lib/
