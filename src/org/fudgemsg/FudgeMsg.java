@@ -72,6 +72,15 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     initializeFromByteArray(byteArray);
   }
   
+  public FudgeMsg (final FudgeFieldContainer fields, final FudgeContext fudgeContext) {
+    if (fields == null) throw new NullPointerException ("Cannot initialize from a null FudgeFieldContainer");
+    if (fudgeContext == null) throw new NullPointerException ("Context must be provided");
+    _fudgeContext = fudgeContext;
+    for (FudgeField field : fields.getAllFields ()) {
+      _fields.add (new FudgeMsgField (field));
+    }
+  }
+  
   protected void initializeFromByteArray(byte[] byteArray) {
     FudgeMsgEnvelope other = getFudgeContext().deserialize(byteArray);
     _fields.addAll(other.getMessage()._fields);
@@ -209,9 +218,6 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     }
     return fields;
   }
-  
-  // REVIEW aiwg 2009-12-08 - Do we agree semantics for the case of repeated fields? Will we always return the first one,
-  // or is it an arbitrary choice?
   
   /**
    * Returns a field with the given ordinal value.
