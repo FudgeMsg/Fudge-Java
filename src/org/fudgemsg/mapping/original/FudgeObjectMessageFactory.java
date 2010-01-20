@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.fudgemsg.mapping;
+package org.fudgemsg.mapping.original;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -31,6 +31,7 @@ import org.fudgemsg.FudgeRuntimeException;
  *
  * @author kirk
  */
+@Deprecated
 public class FudgeObjectMessageFactory {
 
   /**

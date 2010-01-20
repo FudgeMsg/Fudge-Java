@@ -14,20 +14,25 @@
  * limitations under the License.
  */
 
-package org.fudgemsg.mapping;
+package org.fudgemsg.mapping.original;
+
+import java.io.IOException;
 
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.FudgeStreamWriter;
+import org.fudgemsg.FudgeMessageStreamWriter;
+import org.fudgemsg.FudgeRuntimeException;
+import org.fudgemsg.original.FudgeStreamWriter;
 
 /**
  * 
  *
  * @author kirk
  */
+@Deprecated
 public class FudgeObjectStreamWriter {
   
-  public void write(Object obj, FudgeStreamWriter writer) {
+  public void write(Object obj, FudgeMessageStreamWriter writer) {
     ObjectDescriptor descriptor = FudgeObjectDescriptors.INSTANCE.getDescriptor(obj.getClass());
     assert descriptor != null;
     // REVIEW kirk 2009-11-12 -- This is the worst implementation evar.
@@ -35,7 +40,11 @@ public class FudgeObjectStreamWriter {
     // constructing a FudgeMsg, this is how we've got to do it.
     FudgeMsg objectAsMsg = FudgeObjectMessageFactory.serializeToMessage(obj, writer.getFudgeContext());
     FudgeMsgEnvelope envelope = new FudgeMsgEnvelope(objectAsMsg);
-    writer.writeMessageEnvelope(envelope, 0);
+    try {
+      writer.writeMessageEnvelope(envelope, 0);
+    } catch (IOException ioe) {
+      throw new FudgeRuntimeException ("Couldn't write message envelope", ioe);
+    }
   }
 
 }

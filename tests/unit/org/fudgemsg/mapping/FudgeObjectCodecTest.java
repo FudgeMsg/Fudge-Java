@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
@@ -36,7 +37,7 @@ import org.junit.Test;
 public class FudgeObjectCodecTest {
   
   @Test
-  public void simpleBean() {
+  public void simpleBean() throws IOException {
     FudgeContext fudgeContext = new FudgeContext();
     SimpleBean inputBean = ObjectMappingTestUtil.constructSimpleBean();
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -63,7 +64,7 @@ public class FudgeObjectCodecTest {
   }
 
   @Test
-  public void setBean() {
+  public void setBean() throws IOException {
     FudgeContext fudgeContext = new FudgeContext();
     SetBean inputBean = ObjectMappingTestUtil.constructSetBean();
     ByteArrayOutputStream baos = new ByteArrayOutputStream();

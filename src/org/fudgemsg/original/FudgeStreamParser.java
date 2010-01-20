@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
-package org.fudgemsg;
+package org.fudgemsg.original;
 
 import java.io.DataInput;
+import java.io.IOException;
 
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.FudgeStreamReader;
 import org.fudgemsg.FudgeStreamReader.FudgeStreamElement;
 
 /**
@@ -25,6 +30,7 @@ import org.fudgemsg.FudgeStreamReader.FudgeStreamElement;
  *
  * @author kirk
  */
+@Deprecated
 public class FudgeStreamParser {
   private final FudgeContext _fudgeContext;
   
@@ -42,9 +48,8 @@ public class FudgeStreamParser {
     return _fudgeContext;
   }
   
-  public FudgeMsgEnvelope parse(DataInput dataInput) {
-    FudgeStreamReader reader = getFudgeContext().allocateReader();
-    reader.reset(dataInput);
+  public FudgeMsgEnvelope parse(DataInput dataInput) throws IOException {
+    FudgeStreamReader reader = getFudgeContext().allocateReader(dataInput);
     FudgeStreamElement element = reader.next();
     if(element == null) {
       return null;
@@ -64,7 +69,7 @@ public class FudgeStreamParser {
    * @param reader
    * @param msg
    */
-  protected void processFields(FudgeStreamReader reader, FudgeMsg msg) {
+  protected void processFields(FudgeStreamReader reader, FudgeMsg msg) throws IOException {
     while(reader.hasNext()) {
       FudgeStreamElement element = reader.next();
       switch(element) {

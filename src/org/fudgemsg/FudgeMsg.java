@@ -16,6 +16,7 @@
 package org.fudgemsg;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +26,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.fudgemsg.original.FudgeStreamWriter;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 import org.fudgemsg.types.ByteArrayFieldType;
 import org.fudgemsg.types.PrimitiveFieldTypes;
@@ -283,10 +285,13 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
 
   public byte[] toByteArray() {
     ByteArrayOutputStream baos = new ByteArrayOutputStream(computeSize(null));
-    FudgeStreamWriter writer = getFudgeContext().allocateWriter();
-    writer.reset(baos);
-    writer.writeMessageEnvelope(new FudgeMsgEnvelope(this), 0);
-    getFudgeContext().releaseWriter(writer);
+    FudgeMessageStreamWriter writer = getFudgeContext().allocateMessageWriter(baos);
+    try {
+      writer.writeMessage (this, 0);
+    } catch (IOException e) {
+      return null;
+    }
+    getFudgeContext().releaseMessageWriter(writer);
     return baos.toByteArray();
   }
   

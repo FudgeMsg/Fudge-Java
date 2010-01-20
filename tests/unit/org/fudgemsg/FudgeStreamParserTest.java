@@ -20,6 +20,9 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.io.IOException;
+
+import org.fudgemsg.original.FudgeStreamParser;
 
 import org.junit.Test;
 
@@ -87,6 +90,10 @@ public class FudgeStreamParserTest {
   protected FudgeMsgEnvelope cycleMessage(FudgeContext context, FudgeMsg msg) {
     FudgeStreamParser parser = new FudgeStreamParser(context);
     byte[] msgAsBytes = context.toByteArray(msg);
-    return parser.parse(new DataInputStream(new ByteArrayInputStream(msgAsBytes)));
+    try {
+      return parser.parse(new DataInputStream(new ByteArrayInputStream(msgAsBytes)));
+    } catch (IOException ioe) {
+      throw new FudgeRuntimeException ("parse failed", ioe);
+    }
   }
 }

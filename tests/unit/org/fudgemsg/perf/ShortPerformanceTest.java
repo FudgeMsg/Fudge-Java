@@ -19,15 +19,17 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMessageStreamWriter;
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeRuntimeException;
 import org.fudgemsg.FudgeStreamReader;
-import org.fudgemsg.FudgeStreamWriter;
-import org.fudgemsg.mapping.FudgeObjectStreamReader;
-import org.fudgemsg.mapping.FudgeObjectStreamWriter;
+import org.fudgemsg.mapping.original.FudgeObjectStreamReader;
+import org.fudgemsg.mapping.original.FudgeObjectStreamWriter;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -239,16 +241,18 @@ public class ShortPerformanceTest {
   private static int fudgeObjectMappingCycle() {
     SmallFinancialTick tick = new SmallFinancialTick();
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    FudgeStreamWriter fsw = s_fudgeContext.allocateWriter();
-    fsw.reset(baos);
-    s_objectStreamWriter.write(tick, fsw);
-    s_fudgeContext.releaseWriter(fsw);
+    FudgeMessageStreamWriter msw = s_fudgeContext.allocateMessageWriter(baos);
+    s_objectStreamWriter.write(tick, msw);
+    s_fudgeContext.releaseMessageWriter(msw);
 
     byte[] data = baos.toByteArray();
     
-    FudgeStreamReader fsr = s_fudgeContext.allocateReader();
-    fsr.reset(new ByteArrayInputStream(data));
-    tick = s_objectStreamParser.read(SmallFinancialTick.class, fsr);
+    FudgeStreamReader fsr = s_fudgeContext.allocateReader(new ByteArrayInputStream (data));
+    try {
+      tick = s_objectStreamParser.read(SmallFinancialTick.class, fsr);
+    } catch (IOException ioe) {
+      throw new FudgeRuntimeException ("couldn't read object", ioe);
+    }
     s_fudgeContext.releaseReader(fsr);
     
     return data.length;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.fudgemsg.mapping;
+package org.fudgemsg.mapping.original;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.io.IOException;
 
 import org.fudgemsg.FudgeRuntimeException;
 import org.fudgemsg.FudgeStreamReader;
@@ -32,8 +33,9 @@ import org.fudgemsg.FudgeStreamReader;
  *
  * @author kirk
  */
+@Deprecated
 public class FudgeObjectStreamReader {
-  public <T> T read(Class<T> objectClass, FudgeStreamReader reader) {
+  public <T> T read(Class<T> objectClass, FudgeStreamReader reader) throws IOException {
     T result = null;
     try {
       result = objectClass.newInstance();
@@ -113,7 +115,7 @@ public class FudgeObjectStreamReader {
    * @param type
    * @param reader
    */
-  protected Map<String, Object> processSubmessageAsMap(Class<?> type, FudgeStreamReader reader) {
+  protected Map<String, Object> processSubmessageAsMap(Class<?> type, FudgeStreamReader reader) throws IOException {
     Map<String, Object> result = new TreeMap<String, Object>();
     Object fieldValue = null;
     while(reader.hasNext()) {

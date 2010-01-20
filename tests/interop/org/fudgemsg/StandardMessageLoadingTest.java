@@ -18,7 +18,6 @@ package org.fudgemsg;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -72,15 +71,16 @@ public class StandardMessageLoadingTest {
   }
   
   protected static FudgeMsgEnvelope loadMessage(FudgeContext context, String fileName) {
-    InputStream is = StandardMessageLoadingTest.class.getResourceAsStream(fileName);
-    FudgeStreamParser parser = context.getParser();
-    FudgeMsgEnvelope envelope = parser.parse(new DataInputStream(is));
     try {
+      InputStream is = StandardMessageLoadingTest.class.getResourceAsStream(fileName);
+      FudgeMessageStreamReader reader = context.allocateMessageReader (is);
+      FudgeMsgEnvelope envelope = reader.nextMessageEnvelope ();
+      context.releaseMessageReader (reader);
       is.close();
+      return envelope;
     } catch (IOException e) {
       throw new FudgeRuntimeException("Couldn't close stream for " + fileName, e);
     }
-    return envelope;
   }
 
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.fudgemsg.mapping;
+package org.fudgemsg.mapping.original;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;

@@ -34,12 +34,13 @@ public class FudgeTypeDictionaryTest {
   @Test
   public void simpleTypeLookup() {
     FudgeFieldType<?> type = null;
+    final FudgeTypeDictionary dictionary = new FudgeTypeDictionary ();
     
-    type = FudgeTypeDictionary.INSTANCE.getByJavaType(Boolean.TYPE);
+    type = dictionary.getByJavaType(Boolean.TYPE);
     assertNotNull(type);
     assertEquals(PrimitiveFieldTypes.BOOLEAN_TYPE.getTypeId(), type.getTypeId());
 
-    type = FudgeTypeDictionary.INSTANCE.getByJavaType(Boolean.class);
+    type = dictionary.getByJavaType(Boolean.class);
     assertNotNull(type);
     assertEquals(PrimitiveFieldTypes.BOOLEAN_TYPE.getTypeId(), type.getTypeId());
   }

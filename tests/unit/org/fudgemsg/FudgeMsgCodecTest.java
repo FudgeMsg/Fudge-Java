@@ -72,7 +72,7 @@ public class FudgeMsgCodecTest {
   @Test
   public void unknown() throws IOException {
     FudgeMsg inputMsg = s_fudgeContext.newMessage();
-    inputMsg.add("unknown", new UnknownFudgeFieldValue(new byte[10], FudgeTypeDictionary.INSTANCE.getUnknownType(200)));
+    inputMsg.add("unknown", new UnknownFudgeFieldValue(new byte[10], s_fudgeContext.getTypeDictionary ().getUnknownType(200)));
     FudgeMsg outputMsg = cycleMessage(inputMsg);
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }

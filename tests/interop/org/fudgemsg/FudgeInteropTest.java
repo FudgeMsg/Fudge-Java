@@ -103,14 +103,14 @@ public class FudgeInteropTest {
   
   public static FudgeMsg createUnknown(FudgeContext fudgeContext) {
     FudgeMsg inputMsg = fudgeContext.newMessage();
-    inputMsg.add("unknown", new UnknownFudgeFieldValue(new byte[10], FudgeTypeDictionary.INSTANCE.getUnknownType(200)));
+    inputMsg.add("unknown", new UnknownFudgeFieldValue(new byte[10], fudgeContext.getTypeDictionary ().getUnknownType(200)));
     return inputMsg;
   }
   
   @Test
   public void unknown() throws IOException {
     FudgeMsg inputMsg = s_fudgeContext.newMessage();
-    inputMsg.add("unknown", new UnknownFudgeFieldValue(new byte[10], FudgeTypeDictionary.INSTANCE.getUnknownType(200)));
+    inputMsg.add("unknown", new UnknownFudgeFieldValue(new byte[10], s_fudgeContext.getTypeDictionary ().getUnknownType(200)));
     FudgeMsg outputMsg = cycleMessage(inputMsg, "unknown.dat");
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }

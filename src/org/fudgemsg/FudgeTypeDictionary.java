@@ -40,7 +40,6 @@ import org.fudgemsg.types.UnknownFudgeFieldType;
  * @author kirk
  */
 public final class FudgeTypeDictionary {
-  /*package*/ static final FudgeTypeDictionary INSTANCE = new FudgeTypeDictionary();
   
   private volatile FudgeFieldType<?>[] _typesById = new FudgeFieldType<?>[0];
   private volatile UnknownFudgeFieldType[] _unknownTypesById = new UnknownFudgeFieldType[0];

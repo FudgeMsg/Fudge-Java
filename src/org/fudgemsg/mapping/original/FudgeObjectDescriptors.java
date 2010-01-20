@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package org.fudgemsg.mapping;
+package org.fudgemsg.mapping.original;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
 
 // REVIEW kirk 2009-11-12 -- This is a candidate for moving up to the FudgeContext,
 // so that it can be smarter about type mapping.
@@ -28,6 +29,7 @@ import java.util.concurrent.ConcurrentMap;
  *
  * @author kirk
  */
+@Deprecated
 public final class FudgeObjectDescriptors {
   public static final FudgeObjectDescriptors INSTANCE = new FudgeObjectDescriptors();
   private final ConcurrentMap<Class<?>, ObjectDescriptor> _descriptors;

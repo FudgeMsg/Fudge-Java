@@ -20,14 +20,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.fudgemsg.mapping.FudgeObjectStreamReader;
-import org.fudgemsg.mapping.FudgeObjectStreamWriter;
+import org.fudgemsg.mapping.FudgeObjectDictionary;
+import org.fudgemsg.mapping.original.FudgeObjectStreamReader;
+import org.fudgemsg.mapping.original.FudgeObjectStreamWriter;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 import org.fudgemsg.taxon.TaxonomyResolver;
-
 
 /**
  * The primary entry-point for code to interact with the rest of the Fudge system.
@@ -53,12 +56,14 @@ import org.fudgemsg.taxon.TaxonomyResolver;
  * @author kirk
  */
 public class FudgeContext {
-  private final Queue<FudgeStreamReader> _streamReaders = new LinkedBlockingQueue<FudgeStreamReader>();
-  private final Queue<FudgeStreamWriter> _streamWriters = new LinkedBlockingQueue<FudgeStreamWriter>();
-  private final FudgeStreamParser _parser = new FudgeStreamParser(this);
+  private final Queue<FudgeDataInputStreamReader> _streamReaders = new LinkedBlockingQueue<FudgeDataInputStreamReader>();
+  private final Queue<FudgeDataOutputStreamWriter> _streamWriters = new LinkedBlockingQueue<FudgeDataOutputStreamWriter>();
+  private final Queue<FudgeMessageStreamReader> _messageStreamReaders = new LinkedBlockingQueue<FudgeMessageStreamReader>();
+  private final Queue<FudgeMessageStreamWriter> _messageStreamWriters = new LinkedBlockingQueue<FudgeMessageStreamWriter>();
   private final FudgeObjectStreamReader _objectStreamReader = new FudgeObjectStreamReader();
   private final FudgeObjectStreamWriter _objectStreamWriter = new FudgeObjectStreamWriter();
   private FudgeTypeDictionary _typeDictionary = new FudgeTypeDictionary();
+  private FudgeObjectDictionary _objectDictionary = new FudgeObjectDictionary ();
   private TaxonomyResolver _taxonomyResolver;
 
   /**
@@ -86,6 +91,17 @@ public class FudgeContext {
     _typeDictionary = typeDictionary;
   }
   
+  public FudgeObjectDictionary getObjectDictionary() {
+    return _objectDictionary;
+  }
+
+  public void setObjectDictionary(FudgeObjectDictionary objectDictionary) {
+    if(objectDictionary == null) {
+      throw new NullPointerException("Every fudge context must have an object dictionary.");
+    }
+    _objectDictionary = objectDictionary;
+  }
+  
   public FudgeMsg newMessage() {
     return new FudgeMsg(this);
   }
@@ -99,7 +115,7 @@ public class FudgeContext {
    * @param os
    *          the {@code OutputStream} to write to
    */
-  public void serialize(FudgeMsg msg, OutputStream os) {
+  public void serialize(FudgeMsg msg, OutputStream os) throws IOException {
     serialize(msg, null, os);
   }
 
@@ -116,13 +132,12 @@ public class FudgeContext {
    * @param os
    *          the {@code OutputStream} to write to
    */
-  public void serialize(FudgeMsg msg, Short taxonomyId, OutputStream os) {
+  public void serialize(FudgeMsg msg, Short taxonomyId, OutputStream os) throws IOException {
     int realTaxonomyId = (taxonomyId == null) ? 0 : taxonomyId.intValue();
-    FudgeStreamWriter writer = allocateWriter();
-    writer.reset(os);
+    FudgeMessageStreamWriter writer = allocateMessageWriter (os);
     FudgeMsgEnvelope envelope = new FudgeMsgEnvelope(msg);
     writer.writeMessageEnvelope(envelope, realTaxonomyId);
-    releaseWriter(writer);
+    releaseMessageWriter(writer);
   }
   
   /**
@@ -130,17 +145,22 @@ public class FudgeContext {
    * without a taxonomy reference. 
    * 
    * @param msg the {@code FudgeMsg} to encode
+   * @param taxonomyId the identifier of the taxonomy to use. Specify {@code null} for no taxonomy
    * @return an array containing the encoded message
    */
-  public byte[] toByteArray(FudgeMsg msg) {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    serialize(msg, baos);
-    return baos.toByteArray();
+  public byte[] toByteArray(FudgeMsg msg, Short taxonomyId) {
+    try {
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      serialize(msg, taxonomyId, baos);
+      return baos.toByteArray();
+    } catch (IOException ioe) {
+      throw new FudgeRuntimeException ("Couldn't serialize message", ioe);
+    }
   }
   
-  //11/12/09 Andrew: should we have a toByteArray that takes a taxonomy too?
-  
-  //11/12/09 Andrew: Why serialise out a FudgeMsg (creating the envelope internally) yet deserialise to a FudgeMsgEnvelope
+  public byte[] toByteArray (FudgeMsg msg) {
+    return toByteArray (msg, null);
+  }
   
   /**
    * Decodes a {@link FudgeMsg} from an {@link InputStream}.
@@ -148,9 +168,10 @@ public class FudgeContext {
    *  @param is the {@code InputStream} to read encoded data from
    *  @return the next {@link FudgeMsgEnvelope} encoded on the stream
    */
-  public FudgeMsgEnvelope deserialize(InputStream is) {
-    DataInputStream dis = new DataInputStream(is);
-    FudgeMsgEnvelope envelope = getParser().parse(dis);
+  public FudgeMsgEnvelope deserialize(InputStream is) throws IOException {
+    FudgeMessageStreamReader reader = allocateMessageReader (is);
+    FudgeMsgEnvelope envelope = reader.nextMessageEnvelope ();
+    releaseMessageReader (reader);
     return envelope;
   }
 
@@ -164,23 +185,31 @@ public class FudgeContext {
    */
   public FudgeMsgEnvelope deserialize(byte[] bytes) {
     ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-    return deserialize(bais);
+    try {
+      return deserialize(bais);
+    } catch (IOException ioe) {
+      throw new FudgeRuntimeException ("Couldn't deserialize array", ioe);
+    }
   }
   
-  //11/12/09 Andrew: should we have a version that takes an offset so that arrays with more than one envelope can be processed?
+  // TODO 2010-01-20 Andrew -- the pooling of reader and writer objects needs reviewing; how big can the pools get etc...? Is there a standard component in the Java libraries for managing it? 
   
-  public FudgeStreamReader allocateReader(InputStream is) {
-    FudgeStreamReader reader = allocateReader();
-    if(is != null) {
-      reader.reset(is);
+  public FudgeStreamReader allocateReader (final InputStream is) {
+    FudgeDataInputStreamReader reader = _streamReaders.poll();
+    if (reader == null) {
+      reader = new FudgeDataInputStreamReader (this, is);
+    } else {
+      reader.reset (is);
     }
     return reader;
   }
   
-  public FudgeStreamReader allocateReader() {
-    FudgeStreamReader reader = _streamReaders.poll();
-    if(reader == null) {
-      reader = new FudgeStreamReader(this);
+  public FudgeStreamReader allocateReader (final DataInput di) {
+    FudgeDataInputStreamReader reader = _streamReaders.poll();
+    if (reader == null) {
+      reader = new FudgeDataInputStreamReader (this, di);
+    } else {
+      reader.reset (di);
     }
     return reader;
   }
@@ -189,13 +218,36 @@ public class FudgeContext {
     if(reader == null) {
       return;
     }
-    _streamReaders.add(reader);
+    reader.close ();
+    if (reader instanceof FudgeDataInputStreamReader) {
+      _streamReaders.add((FudgeDataInputStreamReader)reader);
+    }
   }
   
-  public FudgeStreamWriter allocateWriter() {
-    FudgeStreamWriter writer = _streamWriters.poll();
+  public FudgeStreamWriter allocateWriter (final OutputStream outputStream) {
+    FudgeDataOutputStreamWriter writer = _streamWriters.poll();
     if(writer == null) {
-      writer = new FudgeStreamWriter(this);
+      writer = new FudgeDataOutputStreamWriter(this, outputStream);
+    } else {
+      try {
+        writer.reset (outputStream);
+      } catch (IOException ioe) {
+        throw new FudgeRuntimeException ("Couldn't reallocate writer " + writer, ioe);
+      }
+    }
+    return writer;
+  }
+  
+  public FudgeStreamWriter allocateWriter (final DataOutput dataOutput) {
+    FudgeDataOutputStreamWriter writer = _streamWriters.poll();
+    if(writer == null) {
+      writer = new FudgeDataOutputStreamWriter(this, dataOutput);
+    } else {
+      try {
+        writer.reset (dataOutput);
+      } catch (IOException ioe) {
+        throw new FudgeRuntimeException ("Couldn't reallocate writer " + writer, ioe);
+      }
     }
     return writer;
   }
@@ -204,13 +256,75 @@ public class FudgeContext {
     if(writer == null) {
       return;
     }
-    _streamWriters.add(writer);
+    try {
+      writer.close ();
+    } catch (IOException ioe) {
+      throw new FudgeRuntimeException ("Couldn't release writer " + writer, ioe);
+    }
+    if (writer instanceof FudgeDataOutputStreamWriter) {
+      _streamWriters.add((FudgeDataOutputStreamWriter)writer);
+    }
   }
   
-  public FudgeStreamParser getParser() {
-    return _parser;
+  public FudgeMessageStreamReader allocateMessageReader (final FudgeStreamReader streamReader) {
+    FudgeMessageStreamReader reader = _messageStreamReaders.poll ();
+    if (reader == null) {
+      reader = new FudgeMessageStreamReader (streamReader);
+    } else {
+      reader.reset (streamReader);
+    }
+    return reader;
   }
-
+  
+  public FudgeMessageStreamReader allocateMessageReader (final DataInput dataInput) {
+    return allocateMessageReader (allocateReader (dataInput));
+  }
+  
+  public FudgeMessageStreamReader allocateMessageReader (final InputStream inputStream) {
+    return allocateMessageReader (allocateReader (inputStream));
+  }
+  
+  public void releaseMessageReader (final FudgeMessageStreamReader reader) {
+    if (reader == null) {
+      return;
+    }
+    reader.close ();
+    _messageStreamReaders.add (reader);
+  }
+  
+  public FudgeMessageStreamWriter allocateMessageWriter (final FudgeStreamWriter streamWriter) {
+    FudgeMessageStreamWriter writer = _messageStreamWriters.poll ();
+    if (writer == null) {
+      writer = new FudgeMessageStreamWriter (streamWriter);
+    } else {
+      try {
+        writer.reset (streamWriter);
+      } catch (IOException ioe) {
+        throw new FudgeRuntimeException ("Couldn't reallocate writer " + writer, ioe);
+      }
+    }
+    return writer;
+  }
+  
+  public FudgeMessageStreamWriter allocateMessageWriter (final DataOutput dataOutput) {
+    return allocateMessageWriter (allocateWriter (dataOutput));
+  }
+  
+  public FudgeMessageStreamWriter allocateMessageWriter (final OutputStream outputStream) {
+    return allocateMessageWriter (allocateWriter (outputStream));
+  }
+  
+  public void releaseMessageWriter (final FudgeMessageStreamWriter writer) {
+    if (writer == null) {
+      return;
+    }
+    try {
+      writer.close ();
+    } catch (IOException ioe) {
+      throw new FudgeRuntimeException ("Couldn't release writer " + writer, ioe);
+    }
+  }
+  
   /**
    * @return the objectStreamReader
    */
@@ -225,19 +339,17 @@ public class FudgeContext {
     return _objectStreamWriter;
   }
   
-  public void writeObject(Object object, OutputStream outputStream) {
+  public void writeObject(Object object, OutputStream outputStream) throws IOException {
     if(object == null) {
       return;
     }
-    FudgeStreamWriter fsw = allocateWriter();
-    fsw.reset(outputStream);
-    getObjectStreamWriter().write(object, fsw);
-    releaseWriter(fsw);
+    FudgeMessageStreamWriter msw = allocateMessageWriter (outputStream);
+    getObjectStreamWriter().write(object, msw);
+    releaseMessageWriter(msw);
   }
   
-  public <T> T readObject(Class<T> objectClass, InputStream inputStream) {
-    FudgeStreamReader fsr = allocateReader();
-    fsr.reset(inputStream);
+  public <T> T readObject(Class<T> objectClass, InputStream inputStream) throws IOException {
+    FudgeStreamReader fsr = allocateReader(inputStream);
     T result = getObjectStreamReader().read(objectClass, fsr);
     releaseReader(fsr);
     return result;

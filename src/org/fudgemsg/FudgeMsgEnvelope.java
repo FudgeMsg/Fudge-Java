@@ -29,6 +29,7 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
  */
 public class FudgeMsgEnvelope extends FudgeEncodingObject implements Serializable {
   private final FudgeMsg _message;
+  private final int _processingDirectives;
   private final int _version;
   
   public FudgeMsgEnvelope(FudgeContext fudgeContext) {
@@ -39,15 +40,23 @@ public class FudgeMsgEnvelope extends FudgeEncodingObject implements Serializabl
     this(msg, 0);
   }
   
-  public FudgeMsgEnvelope(FudgeMsg message, int version) {
+  public FudgeMsgEnvelope(FudgeMsg message, int schemaVersion) {
+    this (message, schemaVersion, 0);
+  }
+  
+  public FudgeMsgEnvelope (FudgeMsg message, final int schemaVersion, final int processingDirectives) {
     if(message == null) {
       throw new NullPointerException("Must specify a message to wrap.");
     }
-    if((version < 0) || (version > 255)) {
-      throw new IllegalArgumentException("Provided version " + version + " which doesn't fit within one byte.");
+    if ((processingDirectives < 0) || (processingDirectives > 255)) {
+      throw new IllegalArgumentException ("Provided processing directives " + processingDirectives + " which doesn't fit within one byte.");
+    }
+    if((schemaVersion < 0) || (schemaVersion > 255)) {
+      throw new IllegalArgumentException("Provided version " + schemaVersion + " which doesn't fit within one byte.");
     }
     _message = message;
-    _version = version;
+    _version = schemaVersion;
+    _processingDirectives = processingDirectives;
   }
   
   /**
@@ -61,6 +70,10 @@ public class FudgeMsgEnvelope extends FudgeEncodingObject implements Serializabl
    */
   public int getVersion() {
     return _version;
+  }
+  
+  public int getProcessingDirectives () {
+    return _processingDirectives;
   }
 
   @Override

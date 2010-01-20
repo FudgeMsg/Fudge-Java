@@ -25,15 +25,10 @@ import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.FudgeUtils;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 import org.fudgemsg.taxon.ImmutableMapTaxonomyResolver;
 import org.fudgemsg.taxon.MapFudgeTaxonomy;
 import org.junit.Test;
-
 
 /**
  * 
@@ -111,13 +106,8 @@ public class FudgeContextTest {
    * @return
    */
   private FudgeMsg cycleMessage(FudgeMsg msg, FudgeContext context, Short taxonomy) {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    context.serialize(msg, taxonomy, baos);
-    
-    byte[] content = baos.toByteArray();
-    
-    ByteArrayInputStream bais = new ByteArrayInputStream(content);
-    FudgeMsgEnvelope outputMsgEnvelope = context.deserialize(bais);
+    byte[] content = context.toByteArray (msg, taxonomy);
+    FudgeMsgEnvelope outputMsgEnvelope = context.deserialize(content);
     assertNotNull(outputMsgEnvelope);
     assertNotNull(outputMsgEnvelope.getMessage());
     return outputMsgEnvelope.getMessage();
@@ -126,13 +116,13 @@ public class FudgeContextTest {
   @Test
   public void readerAllocation() {
     FudgeContext context = new FudgeContext();
-    FudgeStreamReader reader1 = context.allocateReader();
+    FudgeStreamReader reader1 = context.allocateReader(System.in);
     assertNotNull(reader1);
-    FudgeStreamReader reader2 = context.allocateReader();
+    FudgeStreamReader reader2 = context.allocateReader(System.in);
     assertNotNull(reader2);
     assertNotSame(reader1, reader2);
     context.releaseReader(reader2);
-    FudgeStreamReader reader3 = context.allocateReader();
+    FudgeStreamReader reader3 = context.allocateReader(System.in);
     assertNotNull(reader3);
     assertSame(reader2, reader3);
   }
