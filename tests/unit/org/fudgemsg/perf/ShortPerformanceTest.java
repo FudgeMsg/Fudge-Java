@@ -24,12 +24,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMessageStreamWriter;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeRuntimeException;
-import org.fudgemsg.FudgeStreamReader;
-import org.fudgemsg.mapping.original.FudgeObjectStreamReader;
-import org.fudgemsg.mapping.original.FudgeObjectStreamWriter;
+import org.fudgemsg.mapping.FudgeObjectStreamReader;
+import org.fudgemsg.mapping.FudgeObjectStreamWriter;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -44,8 +42,6 @@ import org.junit.Test;
 public class ShortPerformanceTest {
   private static final int HOT_SPOT_WARMUP_CYCLES = 50000;
   private static final FudgeContext s_fudgeContext = new FudgeContext();
-  private static final FudgeObjectStreamWriter s_objectStreamWriter = new FudgeObjectStreamWriter();
-  private static final FudgeObjectStreamReader s_objectStreamParser = new FudgeObjectStreamReader();
   
   @BeforeClass
   public static void warmUpHotSpot() throws Exception {
@@ -241,19 +237,22 @@ public class ShortPerformanceTest {
   private static int fudgeObjectMappingCycle() {
     SmallFinancialTick tick = new SmallFinancialTick();
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    FudgeMessageStreamWriter msw = s_fudgeContext.allocateMessageWriter(baos);
-    s_objectStreamWriter.write(tick, msw);
-    s_fudgeContext.releaseMessageWriter(msw);
+    FudgeObjectStreamWriter osw = s_fudgeContext.allocateObjectWriter (baos);
+    try {
+      osw.write (tick);
+    } catch (IOException ioe) {
+      throw new FudgeRuntimeException ("couldn't write object", ioe);
+    }
+    s_fudgeContext.releaseObjectWriter(osw);
 
     byte[] data = baos.toByteArray();
-    
-    FudgeStreamReader fsr = s_fudgeContext.allocateReader(new ByteArrayInputStream (data));
+    FudgeObjectStreamReader osr = s_fudgeContext.allocateObjectReader (new ByteArrayInputStream (data));
     try {
-      tick = s_objectStreamParser.read(SmallFinancialTick.class, fsr);
+      tick = osr.read(SmallFinancialTick.class);
     } catch (IOException ioe) {
       throw new FudgeRuntimeException ("couldn't read object", ioe);
     }
-    s_fudgeContext.releaseReader(fsr);
+    s_fudgeContext.releaseObjectReader(osr);
     
     return data.length;
   }

@@ -69,7 +69,7 @@ public class FudgeSerialisationContext {
   @SuppressWarnings("unchecked")
   public void objectToFudgeMsg (final MutableFudgeFieldContainer message, final String name, final Integer ordinal, final Object object) {
     if (nullOrPreviousObject (message, name, ordinal, object)) return;
-    final FudgeFieldType fieldType = _fudgeContext.getTypeDictionary ().getByJavaType (object.getClass ());
+    final FudgeFieldType fieldType = getFudgeContext ().getTypeDictionary ().getByJavaType (object.getClass ());
     if (fieldType != null) {
       // goes natively into a message
       message.add (name, ordinal, fieldType, object);
@@ -83,7 +83,7 @@ public class FudgeSerialisationContext {
       // look up a custom or default builder and embed as sub-message
       final SerialisationBuffer.Entry bufferEntry = _buffer.beginObject (object);
       try {
-        final FudgeMsg msg = _fudgeContext.getObjectDictionary ().getMessageBuilder ((Class<Object>)object.getClass ()).buildMessage (this, object);
+        final FudgeMsg msg = getFudgeContext ().getObjectDictionary ().getMessageBuilder ((Class<Object>)object.getClass ()).buildMessage (this, object);
         // TODO 2010-01-19 Andrew -- add the class hierarchy information
         message.add (name, ordinal, FudgeMsgFieldType.INSTANCE, msg);
       } finally {

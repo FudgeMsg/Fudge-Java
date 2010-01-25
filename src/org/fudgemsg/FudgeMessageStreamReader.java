@@ -38,7 +38,9 @@ public class FudgeMessageStreamReader {
   }
   
   public FudgeContext getFudgeContext () {
-    return getStreamReader ().getFudgeContext ();
+    final FudgeStreamReader reader = getStreamReader ();
+    if (reader == null) return null;
+    return reader.getFudgeContext ();
   }
   
   /**

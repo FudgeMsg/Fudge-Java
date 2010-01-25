@@ -26,7 +26,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.fudgemsg.original.FudgeStreamWriter;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 import org.fudgemsg.types.ByteArrayFieldType;
 import org.fudgemsg.types.PrimitiveFieldTypes;

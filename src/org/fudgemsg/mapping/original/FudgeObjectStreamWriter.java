@@ -18,11 +18,10 @@ package org.fudgemsg.mapping.original;
 
 import java.io.IOException;
 
+import org.fudgemsg.FudgeMessageStreamWriter;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.FudgeMessageStreamWriter;
 import org.fudgemsg.FudgeRuntimeException;
-import org.fudgemsg.original.FudgeStreamWriter;
 
 /**
  * 

@@ -30,8 +30,6 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.ObjectMappingTestUtil.SimpleBean;
 import org.fudgemsg.mapping.ObjectMappingTestUtil.StaticTransientBean;
-import org.fudgemsg.mapping.original.FudgeObjectStreamReader;
-import org.fudgemsg.FudgeStreamReader;
 import org.junit.Test;
 
 /**
@@ -44,11 +42,10 @@ public class FudgeObjectStreamReaderTest {
   
   @Test
   public void simpleBean() throws IOException {
-    FudgeObjectStreamReader reader = new FudgeObjectStreamReader();
     byte[] msgBytes = s_fudgeContext.toByteArray(ObjectMappingTestUtil.constructSimpleMessage(s_fudgeContext));
     ByteArrayInputStream bais = new ByteArrayInputStream(msgBytes);
-    FudgeStreamReader streamReader = s_fudgeContext.allocateReader(bais);
-    Object obj = reader.read(SimpleBean.class, streamReader);
+    FudgeObjectStreamReader reader = s_fudgeContext.allocateObjectReader(bais);
+    Object obj = reader.read(SimpleBean.class);
     assertNotNull(obj);
     assertTrue(obj instanceof SimpleBean);
     SimpleBean simple = (SimpleBean) obj;
@@ -78,7 +75,6 @@ public class FudgeObjectStreamReaderTest {
   
   @Test
   public void staticAndTransient() throws IOException {
-    FudgeObjectStreamReader reader = new FudgeObjectStreamReader();
     FudgeMsg msg = s_fudgeContext.newMessage();
     msg.add("s_static", 9999);
     msg.add("static", 9988);
@@ -86,9 +82,9 @@ public class FudgeObjectStreamReaderTest {
     msg.add("_transient", "Not Transient 2");
     byte[] msgBytes = s_fudgeContext.toByteArray(msg);
     ByteArrayInputStream bais = new ByteArrayInputStream(msgBytes);
-    FudgeStreamReader streamReader = s_fudgeContext.allocateReader(bais);
-    Object obj = reader.read(StaticTransientBean.class, streamReader);
-    s_fudgeContext.releaseReader(streamReader);
+    FudgeObjectStreamReader reader = s_fudgeContext.allocateObjectReader(bais);
+    Object obj = reader.read(StaticTransientBean.class);
+    s_fudgeContext.releaseObjectReader(reader);
     StaticTransientBean staticTransientBean = (StaticTransientBean) obj;
     assertEquals(92, StaticTransientBean.s_static);
     assertEquals("Transient", staticTransientBean._transient);

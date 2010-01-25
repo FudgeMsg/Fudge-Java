@@ -24,7 +24,7 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeUtils;
 import org.fudgemsg.mapping.ObjectMappingTestUtil.SimpleBean;
 import org.fudgemsg.mapping.ObjectMappingTestUtil.StaticTransientBean;
-import org.fudgemsg.mapping.original.FudgeObjectMessageFactory;
+import org.fudgemsg.mapping.FudgeObjectMessageFactory;
 import org.junit.Test;
 
 /**
