@@ -1,4 +1,16 @@
 <project name="fudge" default="compile">
 	<property file="build.properties"/>
 	<import file="${common.dir}/common.xml"/>
+
+        <target name="rpm" depends="jar,javadoc-jar" description="--> build the RPM distribution">
+                <copy file="rpm/fudge-java.spec" todir="${rpmbuild.dir}/SPECS" />
+                <copy file="classes/fudge.jar" todir="${rpmbuild.dir}/SOURCES" />
+                <copy file="classes/fudge-javadocs.jar" todir="${rpmbuild.dir}/SOURCES" />
+                <copy file="LICENSE.txt" todir="${rpmbuild.dir}/SOURCES" />
+                <exec executable="rpmbuild" dir="${rpmbuild.dir}/SPECS">
+                        <arg value="-bb" />
+                        <arg value="fudge-java.spec" />
+                </exec>
+        </target>
+
 </project>
