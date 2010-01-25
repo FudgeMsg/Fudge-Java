@@ -1,6 +1,7 @@
 *~
 foo~
 *.class
+build/
 classes/
 dist/
 ivy/
