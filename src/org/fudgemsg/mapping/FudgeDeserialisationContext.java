@@ -129,8 +129,9 @@ public class FudgeDeserialisationContext {
   /**
    * Reads an object with a specific type.
    */
+  @SuppressWarnings("unchecked")
   public <T> T fudgeMsgToObject (final Class<T> clazz, final FudgeFieldContainer message) {
-    final T previous = checkPreviousObject (message);
+    final T previous = (T)checkPreviousObject (message);
     if (previous != null) return previous;
     final SerialisationBuffer.Entry bufferEntry = _buffer.beginObject (null);
     final FudgeObjectBuilder<T> builder = _fudgeContext.getObjectDictionary ().getObjectBuilder (clazz);
@@ -150,8 +151,9 @@ public class FudgeDeserialisationContext {
   /**
    * Reads a map with a specific type.
    */
+  @SuppressWarnings("unchecked")
   public <K,V> Map<K,V> fudgeMsgToMap (final Class<K> clazzK, final Class<V> clazzV, final FudgeFieldContainer message) {
-    final Map<K,V> previous = checkPreviousObject (message);
+    final Map<K,V> previous = (Map<K,V>)checkPreviousObject (message);
     if (previous != null) return previous;
     final SerialisationBuffer.Entry bufferEntry = _buffer.beginObject (null);
     final Map<K, V> map = new HashMap<K, V> ();
