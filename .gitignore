@@ -1,9 +1,7 @@
-*~
-foo~
-*.class
 build/
 classes/
 dist/
+docs/
 ivy/
 tests/classes/
 tests/output/
