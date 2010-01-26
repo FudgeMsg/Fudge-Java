@@ -56,6 +56,7 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
   private Object _fieldValue;
   
   private static DataInput convertInputStream (final InputStream inputStream) {
+    //System.out.println ("FudgeDataInputStreamReader::convertInputStream(" + inputStream + ")");
     if (inputStream == null) {
       throw new NullPointerException ("Must specify an InputStream for processing");
     }
@@ -67,8 +68,12 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
   }
   
   public FudgeDataInputStreamReader (final FudgeContext fudgeContext, final DataInput dataInput) {
+    //System.out.println ("FudgeDataInputStreamReader::FudgeDataInputStreamReader(" + fudgeContext + ", " + dataInput + ")");
     if(fudgeContext == null) {
       throw new NullPointerException("Must provide a FudgeContext");
+    }
+    if (dataInput == null) {
+      throw new NullPointerException ("Must provide a DataInput");
     }
     _fudgeContext = fudgeContext;
     _dataInput = dataInput;
@@ -86,6 +91,7 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
    * @param dataInput
    */
   public void reset (final DataInput dataInput) {
+    //System.out.println ("FudgeDataInputStreamReader::reset(" + dataInput + ")");
     close ();
     if(dataInput == null) {
       throw new NullPointerException("Must provide a DataInput to consume data from.");
@@ -95,6 +101,7 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
   
   @Override
   public void close () {
+    //System.out.println ("FudgeDataInputStreamReader::close()");
     _dataInput = null;
     _currentElement = null;
     _processingStack.clear();
@@ -111,6 +118,7 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
   }
 
   public void reset(InputStream inputStream) {
+    //System.out.println ("FudgeDataInputStreamReader::reset(" + inputStream + ")");
     reset(convertInputStream (inputStream));
   }
   
@@ -171,20 +179,40 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
 
   @Override
   public boolean hasNext() {
+    //System.out.println ("FudgeDataInputStreamReader::hasNext()");
     if(_processingStack.size() > 1) {
       // Always have at least one more.
       return true;
     } else if(_processingStack.size() == 1) {
       MessageProcessingState messageProcessingState = _processingStack.peek();
-      return messageProcessingState.consumed < messageProcessingState.messageSize;
+      if (messageProcessingState.consumed < messageProcessingState.messageSize) {
+        // More to read
+        return true;
+      } else {
+        // End of the outermost envelope, so clear the stack and return a temporary false
+        _processingStack.pop ();
+        return false;
+      }
     } else {
-      // Always have the envelope to read.
-      return true;
+      // Might have another envelope to read
+      if (getDataInput () instanceof InputStream) {
+        try {
+          // Ask the stream if there is more data
+          return ((InputStream)getDataInput ()).available () > 0;
+        } catch (IOException ioe) {
+          // Stream has errored, so return no more data
+          return false;
+        }
+      } else {
+        // Assume the best - might have another envelope to read
+        return true;
+      }
     }
   }
 
   @Override
   public FudgeStreamElement next() throws IOException {
+    //System.out.println ("FudgeDataInputStreamReader::next()");
     if(_processingStack.isEmpty()) {
       // Must be an envelope.
       consumeMessageEnvelope();
@@ -201,6 +229,7 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
   }
 
   protected boolean isEndOfSubMessage() {
+    //System.out.println ("FudgeDataInputStreamReader::isEndOfSubMessage()");
     if(_processingStack.size() == 1) {
       return false;
     }
@@ -222,6 +251,7 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
    * getFieldType, getCurrentElement and getFieldValue. The input stream is left positioned at the start of the next field.
    */
   protected void consumeFieldData() throws IOException {
+    //System.out.println ("FudgeDataInputStreamReader::consumeFieldData()");
     byte fieldPrefix = getDataInput().readByte();
     int typeId = getDataInput().readUnsignedByte();
     int nRead = 2;
@@ -304,6 +334,7 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
       DataInput is,
       FudgeFieldType<?> type,
       int varSize) throws IOException {
+    //System.out.println ("FudgeDataInputStreamReader::readFieldValue(" + is + ", " + type + ", " + varSize + ")");
     assert type != null;
     assert is != null;
     
@@ -332,6 +363,7 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
    * Reads the next message envelope from the input stream, setting internal state go be returned by getCurrentElement, getProcessingDirectives, getSchemaVersion, getTaxonomyId and getEnvelopeSize.
    */
   protected void consumeMessageEnvelope() throws IOException {
+    //System.out.println ("FudgeDataInputStreamReader::consumeMessageEnvelope()");
     _currentElement = FudgeStreamElement.MESSAGE_ENVELOPE;
     _processingDirectives = getDataInput().readUnsignedByte();
     _schemaVersion = getDataInput().readUnsignedByte();

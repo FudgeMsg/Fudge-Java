@@ -1,5 +1,5 @@
 <ivy-module version="2.0">
-    <info organisation="org.fudgemsg" module="fudge" revision="1.0-local-20100125123043" status="integration" publication="20100125123043">
+    <info organisation="org.fudgemsg" module="fudge" revision="1.0-local-20100126105312" status="integration" publication="20100126105312">
       <license name="APLv2" url="http://www.apache.org/licenses/LICENSE-2.0"/>
       <ivyauthor name="Kirk Wylie" url="mailto:kirk@opengamma.com"/>
       <description homepage="http://www.fudgemsg.org/">

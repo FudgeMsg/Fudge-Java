@@ -48,8 +48,9 @@ public class FudgeObjectMessageFactoryTest {
     FudgeContext fudgeContext = new FudgeContext();
     StaticTransientBean bean = new StaticTransientBean();
     FudgeMsg msg = FudgeObjectMessageFactory.serializeToMessage(bean, fudgeContext);
+    System.out.println (msg);
     assertNotNull(msg);
-    assertEquals(0, msg.getNumFields());
+    assertEquals(1, msg.getNumFields());
   }
 
 }

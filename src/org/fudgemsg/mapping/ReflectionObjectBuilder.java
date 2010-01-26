@@ -58,9 +58,15 @@ import org.fudgemsg.FudgeRuntimeException;
       for (FudgeField field : message.getAllFields ()) {
         final Method method = getMethods ().get (field.getName ());
         if (method != null) {
-          method.invoke (context.fieldValueToObject (field));
-        } else {
-          // TODO 2010-01-18 Andrew -- put any fields which we don't recognise somewhere safe rather than discard them
+          final Class<?>[] params = method.getParameterTypes ();
+          final Object v;
+          if (params[0] == Object.class) {
+            v = context.fieldValueToObject (field);
+          } else {
+            v = context.fieldValueToObject (params[0], field);
+          }
+          //System.out.println ("m: " + method + " v:" + v);
+          method.invoke (base, v);
         }
       }
       return base;

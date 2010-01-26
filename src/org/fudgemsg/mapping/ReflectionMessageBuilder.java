@@ -52,6 +52,7 @@ import org.fudgemsg.FudgeRuntimeException;
   
   @Override
   public FudgeMsg buildMessage (final FudgeSerialisationContext context, final T object) {
+    //System.out.println ("ReflectionMessageBuilder::buildMessage (" + context + ", " + object + ")");
     final FudgeMsg message;
     if (_baseBuilder != null) {
       message = _baseBuilder.buildMessage (context, object);
@@ -60,9 +61,10 @@ import org.fudgemsg.FudgeRuntimeException;
     }
     try {
       for (Map.Entry<String, Method> accessor : getMethods ().entrySet ()) {
+        //System.out.println ("\t" + accessor.getValue ());
         context.objectToFudgeMsg (message, accessor.getKey (), null, accessor.getValue ().invoke (object));
       }
-      // TODO 2010-01-19 Andrew -- what about any fields we didn't recognise when building the object (if it came in from a fudge message?)
+      context.addClassHeader (message, object.getClass ());
     } catch (IllegalArgumentException e) {
       throw new FudgeRuntimeException ("Couldn't serialise " + object, e);
     } catch (IllegalAccessException e) {

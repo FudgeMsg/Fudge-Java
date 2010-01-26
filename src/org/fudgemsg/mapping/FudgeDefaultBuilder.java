@@ -16,6 +16,11 @@
 
 package org.fudgemsg.mapping;
 
+import java.util.List;
+import java.util.Map;
+
+import org.fudgemsg.FudgeFieldContainer;
+
 /**
  * Default behaviours for building and decoding Fudge messages.
  * 
@@ -40,10 +45,15 @@ public class FudgeDefaultBuilder {
    * 
    * @returns null if no suitable builder can be created
    */
-  /* package */ static <T> FudgeObjectBuilder<T> defaultObjectBuilder (final Class<T> clazz) {
+  /* package */ @SuppressWarnings("unchecked")
+  static <T> FudgeObjectBuilder<T> defaultObjectBuilder (final Class<T> clazz) {
     FudgeObjectBuilder<T> builder;
     if ((builder = FromFudgeMsgObjectBuilder.create (clazz)) != null) return builder;
     if ((builder = FudgeMsgConstructorObjectBuilder.create (clazz)) != null) return builder;
+    if (Map.class == clazz) return (FudgeObjectBuilder<T>)MapBuilder.INSTANCE;
+    if (List.class == clazz) return (FudgeObjectBuilder<T>)ListBuilder.INSTANCE;
+    if (FudgeFieldContainer.class == clazz) return (FudgeObjectBuilder<T>)FudgeFieldContainerBuilder.INSTANCE;
+    if (clazz.isArray ()) return new ArrayBuilder (clazz.getComponentType ());
     return builder = ReflectionObjectBuilder.create (clazz);
   }
   
@@ -51,12 +61,17 @@ public class FudgeDefaultBuilder {
    * If the object has a public toFudgeMsg method, that will be used. Otherwise the
    * ReflectionMessageBuilder will be used.
    */
-  /* package */ static <T> FudgeMessageBuilder<T> defaultMessageBuilder (final Class<T> clazz) {
+  /* package */ @SuppressWarnings("unchecked")
+  static <T> FudgeMessageBuilder<T> defaultMessageBuilder (final Class<T> clazz) {
     FudgeMessageBuilder<T> builder;
     if ((builder = ToFudgeMsgMessageBuilder.create (clazz)) != null) return builder;
+    if (Map.class.isAssignableFrom (clazz)) return (FudgeMessageBuilder<T>)MapBuilder.INSTANCE;
+    if (List.class.isAssignableFrom (clazz)) return (FudgeMessageBuilder<T>)ListBuilder.INSTANCE;
+    if (FudgeFieldContainer.class.isAssignableFrom (clazz)) return (FudgeMessageBuilder<T>)FudgeFieldContainerBuilder.INSTANCE;
+    if (clazz.isArray ()) return new ArrayBuilder (clazz.getComponentType ());
     return ReflectionMessageBuilder.create (clazz);
   }
-  
+
   private FudgeDefaultBuilder () {
   }
   

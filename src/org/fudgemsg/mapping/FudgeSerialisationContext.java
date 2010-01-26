@@ -16,15 +16,12 @@
 
 package org.fudgemsg.mapping;
 
-import java.util.List;
-import java.util.Map;
-
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeFieldType;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.types.FudgeMsgFieldType;
-import org.fudgemsg.types.PrimitiveFieldTypes;
+import org.fudgemsg.types.StringFieldType;
 
 /**
  * The central point for Fudge message to Java Object serialisation on a given stream.
@@ -37,14 +34,14 @@ import org.fudgemsg.types.PrimitiveFieldTypes;
 public class FudgeSerialisationContext {
   
   private final FudgeContext _fudgeContext;
-  private final SerialisationBuffer _buffer = new SerialisationBuffer ();
+  private final SerialisationBuffer _serialisationBuffer = new SerialisationBuffer ();
   
   public FudgeSerialisationContext (final FudgeContext fudgeContext) {
     _fudgeContext = fudgeContext;
   }
 
   public void reset () {
-    _buffer.reset ();
+    getSerialisationBuffer ().reset ();
   }
   
   public FudgeContext getFudgeContext () {
@@ -55,69 +52,38 @@ public class FudgeSerialisationContext {
     return _fudgeContext.newMessage ();
   }
   
-  private boolean nullOrPreviousObject (final MutableFudgeFieldContainer message, final String name, final Integer ordinal, final Object object) {
-    if (object == null) return true;
-    final int index = _buffer.findObject (object);
-    if (index >= 0) {
-      final FudgeMsg msg = newMessage ();
-      msg.add (null, null, PrimitiveFieldTypes.INT_TYPE, index);
-      message.add (name, ordinal, msg);
-    }
-    return false;
+  private SerialisationBuffer getSerialisationBuffer () {
+    return _serialisationBuffer;
   }
   
-  @SuppressWarnings("unchecked")
   public void objectToFudgeMsg (final MutableFudgeFieldContainer message, final String name, final Integer ordinal, final Object object) {
-    if (nullOrPreviousObject (message, name, ordinal, object)) return;
-    final FudgeFieldType fieldType = getFudgeContext ().getTypeDictionary ().getByJavaType (object.getClass ());
+    if (object == null) return;
+    final FudgeFieldType<?> fieldType = getFudgeContext ().getTypeDictionary ().getByJavaType (object.getClass ());
     if (fieldType != null) {
       // goes natively into a message
       message.add (name, ordinal, fieldType, object);
-    } else if (object instanceof Map<?,?>) {
-      // goes in with Map logic
-      mapToFudgeMsg (message, name, ordinal, (Map<?,?>)object);
-    } else if (object instanceof List<?>) {
-      // goes in with List logic
-      listToFudgeMsg (message, name, ordinal, (List<?>)object);
     } else {
       // look up a custom or default builder and embed as sub-message
-      final SerialisationBuffer.Entry bufferEntry = _buffer.beginObject (object);
-      try {
-        final FudgeMsg msg = getFudgeContext ().getObjectDictionary ().getMessageBuilder ((Class<Object>)object.getClass ()).buildMessage (this, object);
-        // TODO 2010-01-19 Andrew -- add the class hierarchy information
-        message.add (name, ordinal, FudgeMsgFieldType.INSTANCE, msg);
-      } finally {
-        bufferEntry.endObject (object);
-      }
+      message.add (name, ordinal, FudgeMsgFieldType.INSTANCE, objectToFudgeMsg (object));
     }
   }
   
-  public <K,V> void mapToFudgeMsg (final MutableFudgeFieldContainer message, final String name, final Integer ordinal, final Map<K,V> map) {
-    if (nullOrPreviousObject (message, name, ordinal, map)) return;
-    final SerialisationBuffer.Entry bufferEntry = _buffer.beginObject (map);
+  @SuppressWarnings("unchecked")
+  public FudgeMsg objectToFudgeMsg (final Object object) {
+    if (object == null) throw new NullPointerException ("object cannot be null");
+    getSerialisationBuffer ().beginObject (object);
     try {
-      final FudgeMsg msg = newMessage ();
-      for (Map.Entry<K,V> entry : map.entrySet ()) {
-        objectToFudgeMsg (msg, null, 1, entry.getKey ());
-        objectToFudgeMsg (msg, null, 2, entry.getValue ());
-      }
-      message.add (name, ordinal, FudgeMsgFieldType.INSTANCE, msg);
+      Class<?> clazz = object.getClass ();
+      return getFudgeContext ().getObjectDictionary ().getMessageBuilder ((Class<Object>)clazz).buildMessage (this, object);
     } finally {
-      bufferEntry.endObject (map);
+      getSerialisationBuffer ().endObject (object);
     }
   }
   
-  public <E> void listToFudgeMsg (final MutableFudgeFieldContainer message, final String name, final Integer ordinal, final List<E> list) {
-    if (nullOrPreviousObject (message, name, ordinal, list)) return;
-    final SerialisationBuffer.Entry bufferEntry = _buffer.beginObject (list);
-    try {
-      final FudgeMsg msg = newMessage ();
-      for (E entry : list) {
-        objectToFudgeMsg (msg, null, null, entry);
-      }
-      message.add (name, ordinal, FudgeMsgFieldType.INSTANCE, msg);
-    } finally {
-      bufferEntry.endObject (list);
+  public void addClassHeader (final MutableFudgeFieldContainer message, Class<?> clazz) {
+    while ((clazz != null) && (clazz != Object.class)) {
+      message.add (null, 0, StringFieldType.INSTANCE, clazz.getName ());
+      clazz = clazz.getSuperclass ();
     }
   }
   

@@ -112,13 +112,17 @@ public class ObjectMappingTestUtil {
     msg.add("fieldTwo", subMsg);
     
     subMsg = fudgeContext.newMessage();
-    subMsg.add("Kirk Wylie", "Wrote This Test");
-    subMsg.add("Life, Universe, and Everything", 42);
+    subMsg.add (1, "Kirk Wylie");
+    subMsg.add (2, "Wrote This Test");
+    subMsg.add (1, "Life, Universe, and Everything");
+    subMsg.add (2, 42);
     msg.add("fieldFour", subMsg);
     
-    msg.add("fieldFive", "Kirk Wylie");
-    msg.add("fieldFive", "Yan Tordoff");
-    msg.add("fieldFive", "Jim Moores");
+    subMsg = fudgeContext.newMessage ();
+    subMsg.add (1, "Kirk Wylie");
+    subMsg.add (1, "Yan Tordoff");
+    subMsg.add (1, "Jim Moores");
+    msg.add ("fieldFive", subMsg);
     
     return msg;
   }

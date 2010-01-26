@@ -16,12 +16,8 @@
 
 package org.fudgemsg.mapping;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
@@ -39,14 +35,18 @@ import org.fudgemsg.FudgeRuntimeException;
 public class FudgeDeserialisationContext {
   
   private final FudgeContext _fudgeContext;
-  private final SerialisationBuffer _buffer = new SerialisationBuffer ();
+  private final SerialisationBuffer _serialisationBuffer = new SerialisationBuffer ();
   
   public FudgeDeserialisationContext (final FudgeContext fudgeContext) {
     _fudgeContext = fudgeContext;
   }
   
   public void reset () {
-    _buffer.reset ();
+    getSerialisationBuffer ().reset ();
+  }
+  
+  private SerialisationBuffer getSerialisationBuffer () {
+    return _serialisationBuffer;
   }
   
   public FudgeContext getFudgeContext () {
@@ -82,22 +82,18 @@ public class FudgeDeserialisationContext {
         if (field.getOrdinal () > maxOrdinal) maxOrdinal = field.getOrdinal ();
       }
       if (maxOrdinal <= 1) {
-        return fudgeMsgToList (message);
+        return fudgeMsgToObject (List.class, message);
       } else if (maxOrdinal == 2) {
-        return fudgeMsgToMap (message);
+        return fudgeMsgToObject (Map.class, message);
       }
     } else {
       // look up the classes
       for (FudgeField type : types) {
         final Object o = type.getValue ();
         if (o instanceof Number) {
-          final int backRef = ((Number)o).intValue ();
-          if (backRef >= 0) {
-            return _buffer.getObject (backRef);
-          } else {
-            // TODO 2010-01-19 Andrew -- use the buffer of previously decoded objects to get the class to inflate
-          }
+          throw new FudgeRuntimeException ("Serialisation framework doesn't support back/forward references"); 
         } else if (o instanceof String) {
+          //System.out.println ("inflate type " + o);
           try {
             final Class<?> clazz = Class.forName ((String)o);
             return fudgeMsgToObject (clazz, message);
@@ -108,105 +104,17 @@ public class FudgeDeserialisationContext {
       }
     }
     // don't know how to inflate the message - leave it as is (something else will probably error soon)
-    _buffer.storeObject (message);
     return message;
-  }
-  
-  @SuppressWarnings("unchecked")
-  private <T> T checkPreviousObject (final FudgeFieldContainer message) {
-    final FudgeField field = message.getByOrdinal (0);
-    if (field != null) {
-      if (field.getValue () instanceof Number) {
-        final int backRef = ((Number)field.getValue ()).intValue ();
-        if (backRef >= 0) {
-          return (T)_buffer.getObject (backRef);
-        }
-      }
-    }
-    return null;
   }
   
   /**
    * Reads an object with a specific type.
    */
-  @SuppressWarnings("unchecked")
   public <T> T fudgeMsgToObject (final Class<T> clazz, final FudgeFieldContainer message) {
-    final T previous = (T)checkPreviousObject (message);
-    if (previous != null) return previous;
-    final SerialisationBuffer.Entry bufferEntry = _buffer.beginObject (null);
     final FudgeObjectBuilder<T> builder = _fudgeContext.getObjectDictionary ().getObjectBuilder (clazz);
     if (builder == null) throw new FudgeRuntimeException ("Don't know how to create " + clazz + " from " + message);
     final T object = builder.buildObject (this, message);
-    bufferEntry.endObject (object);
     return object;
-  }
-  
-  /**
-   * Reads a map.
-   */
-  public Map<?,?> fudgeMsgToMap (final FudgeFieldContainer message) {
-    return fudgeMsgToMap (Object.class, Object.class, message);
-  }
-  
-  /**
-   * Reads a map with a specific type.
-   */
-  @SuppressWarnings("unchecked")
-  public <K,V> Map<K,V> fudgeMsgToMap (final Class<K> clazzK, final Class<V> clazzV, final FudgeFieldContainer message) {
-    final Map<K,V> previous = (Map<K,V>)checkPreviousObject (message);
-    if (previous != null) return previous;
-    final SerialisationBuffer.Entry bufferEntry = _buffer.beginObject (null);
-    final Map<K, V> map = new HashMap<K, V> ();
-    final Queue<K> keys = new LinkedList<K> ();
-    final Queue<V> values = new LinkedList<V> ();
-    for (FudgeField field : message) {
-      if (field.getOrdinal () == 1) {
-        final K fieldValue = fieldValueToObject (clazzK, field);
-        if (values.isEmpty ()) {
-          // no values ready, so store the key till next time
-          keys.add (fieldValue);
-        } else {
-          // store key along with next value
-          map.put (fieldValue, values.remove ());
-        }
-      } else if (field.getOrdinal () == 2) {
-        final V fieldValue = fieldValueToObject (clazzV, field);
-        if (keys.isEmpty ()) {
-          // no keys ready, so store the value till next time
-          values.add (fieldValue);
-        } else {
-          // store value along with next key
-          map.put (keys.remove (), fieldValue);
-        }
-      } else {
-        throw new FudgeRuntimeException ("Sub-message doesn't contain a map (bad field " + field + ")");
-      }
-    }
-    bufferEntry.endObject (map);
-    return map;
-  }
-  
-  /**
-   * Reads a list or array
-   */
-  public List<?> fudgeMsgToList (final FudgeFieldContainer message) {
-    return fudgeMsgToList (Object.class, message);
-  }
-  
-  /**
-   * Reads a list or array
-   */
-  public <E> List<E> fudgeMsgToList (final Class<E> clazz, final FudgeFieldContainer message) {
-    final List<E> previous = checkPreviousObject (message);
-    if (previous != null) return previous;
-    final SerialisationBuffer.Entry bufferEntry = _buffer.beginObject (null);
-    final List<E> list = new ArrayList<E> ();
-    for (FudgeField field : message) {
-      if ((field.getOrdinal () != null) && (field.getOrdinal () != 1)) throw new FudgeRuntimeException ("Sub-message doesn't contain a list (bad field " + field + ")");
-      list.add (fieldValueToObject (clazz, field));
-    }
-    bufferEntry.endObject (list);
-    return list;
   }
   
 }

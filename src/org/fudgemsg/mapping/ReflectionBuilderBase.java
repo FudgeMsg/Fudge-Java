@@ -31,6 +31,7 @@ import java.util.Map;
   private final Map<String, Method> _methods;
   
   private static void findMethods (final Class<?> clazz, final Map<String, Method> methods, final String prefix, final int paramLength, final Class<?> recurseLimit) {
+    if (clazz == Object.class) return;
     if (clazz.getSuperclass () != recurseLimit) {
       findMethods (clazz.getSuperclass (), methods, prefix, paramLength, recurseLimit);
     }
