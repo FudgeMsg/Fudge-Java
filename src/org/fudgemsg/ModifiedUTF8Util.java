@@ -30,6 +30,7 @@ import java.io.UTFDataFormatException;
  *
  * @author kirk
  */
+//@Deprecated
 public class ModifiedUTF8Util {
 
   public static int modifiedUTF8Length(String str) {

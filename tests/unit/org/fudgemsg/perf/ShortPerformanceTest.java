@@ -129,19 +129,19 @@ public class ShortPerformanceTest {
     System.out.println(sb.toString());
     
     sb = new StringBuilder();
-    sb.append("Fudge Names Only ").append(fudgeDeltaNamesOnly);
+    sb.append("Fudge Names Only ").append(fudgeDeltaNamesOnly).append("ms");
     System.out.println(sb.toString());
     sb = new StringBuilder();
-    sb.append("Fudge Ordinals Only ").append(fudgeDeltaOrdinalsOnly);
+    sb.append("Fudge Ordinals Only ").append(fudgeDeltaOrdinalsOnly).append("ms");
     System.out.println(sb.toString());
     sb = new StringBuilder();
-    sb.append("Fudge Names And Ordinals ").append(fudgeDeltaBoth);
+    sb.append("Fudge Names And Ordinals ").append(fudgeDeltaBoth).append("ms");
     System.out.println(sb.toString());
     sb = new StringBuilder();
-    sb.append("Fudge Objects No Taxonomy").append(fudgeDeltaObjectNoTaxonomy);
+    sb.append("Fudge Objects No Taxonomy").append(fudgeDeltaObjectNoTaxonomy).append("ms");
     System.out.println(sb.toString());
     sb = new StringBuilder();
-    sb.append("ms, Serialization ").append(serializationDelta).append("ms");
+    sb.append("Serialization ").append(serializationDelta).append("ms");
     System.out.println(sb.toString());
     sb = new StringBuilder();
     sb.append("Fudge Names Only: ").append(fudgeSplitNamesOnly).append("cycles/sec");
@@ -158,7 +158,7 @@ public class ShortPerformanceTest {
     sb = new StringBuilder();
     sb.append("Serialization: ").append(serializationSplit).append("cycles/sec");
     System.out.println(sb.toString());
-    assertTrue("Serialization faster by " + (fudgeDeltaNamesOnly - serializationDelta) + "ms.",
+    assertTrue("Serialization faster by " + (fudgeDeltaNamesOnly - serializationDelta) + "ms",
         serializationDelta > fudgeDeltaNamesOnly);
   }
 

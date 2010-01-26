@@ -270,6 +270,7 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
       int nameSize = getDataInput().readUnsignedByte();
       nRead++;
       name = ModifiedUTF8Util.readString(getDataInput(), nameSize);
+      //name = UTF8.readString (getDataInput (), nameSize);
       nRead += nameSize;
     } else if(ordinal != null) {
       if(getTaxonomy() != null) {

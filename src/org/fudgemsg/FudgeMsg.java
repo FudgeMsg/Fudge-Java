@@ -41,7 +41,7 @@ import org.fudgemsg.types.PrimitiveFieldTypes;
  *
  * @author kirk
  */
-public class FudgeMsg extends FudgeEncodingObject implements Serializable, MutableFudgeFieldContainer, Iterable<FudgeField> {
+public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Iterable<FudgeField> {
   private final FudgeContext _fudgeContext;
   private final List<FudgeMsgField> _fields = new ArrayList<FudgeMsgField>();
 
@@ -281,9 +281,11 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     }
     return null;
   }
+  
+  // TODO 2010-01-26 Andrew -- why do we have the to/from byte[] methods here and in FudgeContext? can't we just pass the message about, or write it directly out to a stream rather than use an intermediate array?
 
   public byte[] toByteArray() {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream(computeSize(null));
+    ByteArrayOutputStream baos = new ByteArrayOutputStream(FudgeSize.calculateMessageSize(null, this));
     FudgeMessageStreamWriter writer = getFudgeContext().allocateMessageWriter(baos);
     try {
       writer.writeMessage (this, 0);
@@ -292,15 +294,6 @@ public class FudgeMsg extends FudgeEncodingObject implements Serializable, Mutab
     }
     getFudgeContext().releaseMessageWriter(writer);
     return baos.toByteArray();
-  }
-  
-  @Override
-  public int computeSize(FudgeTaxonomy taxonomy) {
-    int size = 0;
-    for(FudgeMsgField field : _fields) {
-      size += field.getSize(taxonomy);
-    }
-    return size;
   }
   
   // Primitive Queries:

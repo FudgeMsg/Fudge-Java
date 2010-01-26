@@ -137,7 +137,7 @@ public class FudgeMessageStreamWriter implements Flushable {
     if (taxonomyId != writer.getCurrentTaxonomyId ()) {
       writer.setCurrentTaxonomyId (taxonomyId);
     }
-    int messageSize = envelope.getSize(writer.getCurrentTaxonomy());
+    int messageSize = FudgeSize.calculateMessageEnvelopeSize (writer.getCurrentTaxonomy (), envelope);
     nWritten += writer.writeEnvelopeHeader (envelope.getProcessingDirectives (), envelope.getVersion (), messageSize);
     nWritten += writer.writeFields (envelope.getMessage());
     assert messageSize == nWritten;

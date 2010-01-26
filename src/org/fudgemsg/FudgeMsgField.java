@@ -17,16 +17,13 @@ package org.fudgemsg;
 
 import java.io.Serializable;
 
-import org.fudgemsg.taxon.FudgeTaxonomy;
-
-
 /**
  * A concrete implementation of {@link FudgeField} suitable for inclusion in
  * a pre-constructed {@link FudgeMsg} or a stream of data.
  *
  * @author kirk
  */
-public class FudgeMsgField extends FudgeEncodingObject implements FudgeField, Serializable, Cloneable {
+public class FudgeMsgField implements FudgeField, Serializable, Cloneable {
   @SuppressWarnings("unchecked")
   private final FudgeFieldType _type;
   private final Object _value;
@@ -100,42 +97,4 @@ public class FudgeMsgField extends FudgeEncodingObject implements FudgeField, Se
     return sb.toString();
   }
   
-  @SuppressWarnings("unchecked")
-  @Override
-  public int computeSize(FudgeTaxonomy taxonomy) {
-    int size = 0;
-    // Field prefix
-    size += 2;
-    boolean hasOrdinal = _ordinal != null;
-    boolean hasName = _name != null;
-    if((_name != null) && (taxonomy != null)) {
-      if(taxonomy.getFieldOrdinal(_name) != null) {
-        hasOrdinal = true;
-        hasName = false;
-      }
-    }
-    if(hasOrdinal) {
-      size += 2;
-    }
-    if(hasName) {
-      // One for the size prefix
-      size++;
-      // Then for the UTF Encoding
-      size += ModifiedUTF8Util.modifiedUTF8Length(_name);
-    }
-    if(_type.isVariableSize()) {
-      int valueSize = _type.getVariableSize(_value, taxonomy);
-      if(valueSize <= 255) {
-        size += valueSize + 1;
-      } else if(valueSize <= Short.MAX_VALUE) {
-        size += valueSize + 2;
-      } else {
-        size += valueSize + 4;
-      }
-    } else {
-      size += _type.getFixedSize();
-    }
-    return size;
-  }
-
 }

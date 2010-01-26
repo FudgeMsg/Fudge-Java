@@ -17,9 +17,6 @@ package org.fudgemsg;
 
 import java.io.Serializable;
 
-import org.fudgemsg.taxon.FudgeTaxonomy;
-
-
 /**
  * Wraps a {@link FudgeMsg} for the purpose of encoding the envelope header.
  * This is the object which is encoded for a top-level fudge message; sub-messages don't
@@ -27,7 +24,7 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
  *
  * @author kirk
  */
-public class FudgeMsgEnvelope extends FudgeEncodingObject implements Serializable {
+public class FudgeMsgEnvelope implements Serializable {
   private final FudgeMsg _message;
   private final int _processingDirectives;
   private final int _version;
@@ -74,15 +71,6 @@ public class FudgeMsgEnvelope extends FudgeEncodingObject implements Serializabl
   
   public int getProcessingDirectives () {
     return _processingDirectives;
-  }
-
-  @Override
-  int computeSize(FudgeTaxonomy taxonomy) {
-    int size = 0;
-    // Message envelope header
-    size += 8;
-    size += getMessage().getSize(taxonomy);
-    return size;
   }
 
 }

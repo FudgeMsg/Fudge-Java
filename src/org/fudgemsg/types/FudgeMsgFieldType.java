@@ -21,9 +21,9 @@ import java.io.IOException;
 
 import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeSize;
 import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.taxon.FudgeTaxonomy;
-
 
 /**
  * The type definition for a sub-message in a hierarchical message format.
@@ -39,7 +39,7 @@ public class FudgeMsgFieldType extends FudgeFieldType<FudgeMsg> {
 
   @Override
   public int getVariableSize(FudgeMsg value, FudgeTaxonomy taxonomy) {
-    return value.getSize(taxonomy);
+    return FudgeSize.calculateMessageSize (taxonomy, value);
   }
 
   @Override

@@ -208,12 +208,14 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
       }
       if(name != null) {
         int utf8size = ModifiedUTF8Util.modifiedUTF8Length(name);
+        //int utf8size = UTF8.getLengthBytes(name);
         if(utf8size > 0xFF) {
           throw new IllegalArgumentException("UTF-8 encoded field name cannot exceed 255 characters. Name \"" + name + "\" is " + utf8size + " bytes encoded.");
         }
         getDataOutput().writeByte(utf8size);
         nWritten++;
         nWritten += ModifiedUTF8Util.writeModifiedUTF8(name, getDataOutput());
+        //nWritten += UTF8.writeString (getDataOutput (), name);
       }
       
       nWritten += writeFieldValue(type, fieldValue, valueSize);
