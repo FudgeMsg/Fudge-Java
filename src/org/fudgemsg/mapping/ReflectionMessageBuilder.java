@@ -20,7 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.FudgeRuntimeException;
 
 /**
@@ -51,9 +51,9 @@ import org.fudgemsg.FudgeRuntimeException;
   }
   
   @Override
-  public FudgeMsg buildMessage (final FudgeSerialisationContext context, final T object) {
+  public MutableFudgeFieldContainer buildMessage (final FudgeSerialisationContext context, final T object) {
     //System.out.println ("ReflectionMessageBuilder::buildMessage (" + context + ", " + object + ")");
-    final FudgeMsg message;
+    final MutableFudgeFieldContainer message;
     if (_baseBuilder != null) {
       message = _baseBuilder.buildMessage (context, object);
     } else {

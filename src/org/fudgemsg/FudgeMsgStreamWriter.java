@@ -19,7 +19,7 @@ package org.fudgemsg;
 import java.io.Flushable;
 import java.io.IOException;
 
-public class FudgeMessageStreamWriter implements Flushable {
+public class FudgeMsgStreamWriter implements Flushable {
   
   private FudgeStreamWriter _streamWriter;
   
@@ -29,7 +29,7 @@ public class FudgeMessageStreamWriter implements Flushable {
   
   private int _defaultMessageProcessingDirectives = 0;
 
-  public FudgeMessageStreamWriter (final FudgeStreamWriter streamWriter) {
+  public FudgeMsgStreamWriter (final FudgeStreamWriter streamWriter) {
     if (streamWriter == null) {
       throw new NullPointerException ("streamWriter cannot be null");
     }

@@ -19,7 +19,7 @@ package org.fudgemsg.mongodb;
 import java.util.List;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.mongodb.DBObject;
 
@@ -36,11 +36,11 @@ public final class MongoDBDecoder {
   }
   
   @SuppressWarnings("unchecked")
-  public static FudgeMsg decode(DBObject dbObject) {
+  public static MutableFudgeFieldContainer decode(DBObject dbObject) {
     if(dbObject == null) {
       return null;
     }
-    FudgeMsg msg = s_fudgeContext.newMessage ();
+    MutableFudgeFieldContainer msg = s_fudgeContext.newMessage ();
     for(String key : dbObject.keySet()) {
       Object value = dbObject.get(key);
       if(value instanceof List) {

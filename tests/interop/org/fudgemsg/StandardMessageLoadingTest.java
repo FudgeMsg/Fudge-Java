@@ -65,15 +65,15 @@ public class StandardMessageLoadingTest {
   protected static void testFile(FudgeFieldContainer expected, String fileName) {
     FudgeMsgEnvelope envelope = loadMessage(s_fudgeContext, fileName);
     assertNotNull(envelope);
-    assertNotNull(envelope.getMessage());
-    FudgeFieldContainer actual = envelope.getMessage();
+    assertNotNull(envelope.getMessage ());
+    FudgeFieldContainer actual = envelope.getMessage ();
     FudgeUtils.assertAllFieldsMatch(expected, actual);
   }
   
   protected static FudgeMsgEnvelope loadMessage(FudgeContext context, String fileName) {
     try {
       InputStream is = StandardMessageLoadingTest.class.getResourceAsStream(fileName);
-      FudgeMessageStreamReader reader = context.allocateMessageReader (is);
+      FudgeMsgStreamReader reader = context.allocateMessageReader (is);
       FudgeMsgEnvelope envelope = reader.nextMessageEnvelope ();
       context.releaseMessageReader (reader);
       is.close();

@@ -20,8 +20,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeUtils;
+import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.mapping.ObjectMappingTestUtil.SimpleBean;
 import org.fudgemsg.mapping.ObjectMappingTestUtil.StaticTransientBean;
 import org.fudgemsg.mapping.FudgeObjectMessageFactory;
@@ -38,7 +38,7 @@ public class FudgeObjectMessageFactoryTest {
   public void simpleBean() {
     FudgeContext fudgeContext = new FudgeContext();
     SimpleBean simpleBean = ObjectMappingTestUtil.constructSimpleBean();
-    FudgeMsg msg = FudgeObjectMessageFactory.serializeToMessage(simpleBean, fudgeContext);
+    FudgeFieldContainer msg = FudgeObjectMessageFactory.serializeToMessage(simpleBean, fudgeContext);
     assertNotNull(msg);
     FudgeUtils.assertAllFieldsMatch(ObjectMappingTestUtil.constructSimpleMessage(fudgeContext), msg, false);
   }
@@ -47,7 +47,7 @@ public class FudgeObjectMessageFactoryTest {
   public void staticAndTransient() {
     FudgeContext fudgeContext = new FudgeContext();
     StaticTransientBean bean = new StaticTransientBean();
-    FudgeMsg msg = FudgeObjectMessageFactory.serializeToMessage(bean, fudgeContext);
+    FudgeFieldContainer msg = FudgeObjectMessageFactory.serializeToMessage(bean, fudgeContext);
     System.out.println (msg);
     assertNotNull(msg);
     assertEquals(1, msg.getNumFields());

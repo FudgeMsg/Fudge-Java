@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.ObjectMappingTestUtil.SimpleBean;
 import org.fudgemsg.mapping.ObjectMappingTestUtil.StaticTransientBean;
 import org.junit.Test;
@@ -75,7 +75,7 @@ public class FudgeObjectStreamReaderTest {
   
   @Test
   public void staticAndTransient() throws IOException {
-    FudgeMsg msg = s_fudgeContext.newMessage();
+    MutableFudgeFieldContainer msg = s_fudgeContext.newMessage();
     msg.add("s_static", 9999);
     msg.add("static", 9988);
     msg.add("transient", "Not Transient 1");

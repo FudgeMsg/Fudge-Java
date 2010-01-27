@@ -13,23 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.fudgemsg.mapping;
-
-import org.fudgemsg.MutableFudgeFieldContainer;
+package org.fudgemsg;
 
 /**
- * Defines an object capable of adding data from a given Java object to a fudge message. 
+ * Cut down version of the newMessage operation from FudgeContext and FudgeSerialisationContext
+ * as most object/message conversion operations only require the initial message creation hook.
  * 
  * @author Andrew
  */
-public interface FudgeMessageBuilder<T> {
+public interface FudgeMessageCreationContext {
   
-  /**
-   * Creates a message from the given object. Note that a mutable container must be returned, this
-   * is to allow efficient implementation of sub-class builders that only need append data to the
-   * super-class message.
-   */
-  MutableFudgeFieldContainer buildMessage (FudgeSerialisationContext context, T object);
+  public MutableFudgeFieldContainer newMessage ();
   
 }

@@ -36,7 +36,7 @@ public class FudgeMsgFormatterTest {
   @Test
   public void outputToStdoutAllNames() {
     System.out.println("FudgeMsgFormatterTest.outputToStdoutAllNames()");
-    FudgeMsg msg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
+    MutableFudgeFieldContainer msg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
     msg.add("Sub Message", 9999, StandardFudgeMessages.createMessageAllNames(s_fudgeContext));
     (new FudgeMsgFormatter(new PrintWriter(System.out))).format(msg);
   }
@@ -48,7 +48,7 @@ public class FudgeMsgFormatterTest {
   @Test
   public void outputToStdoutAllOrdinals() {
     System.out.println("FudgeMsgFormatterTest.outputToStdoutAllOrdinals()");
-    FudgeMsg msg = StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext);
+    MutableFudgeFieldContainer msg = StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext);
     msg.add("Sub Message", 9999, StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext));
     (new FudgeMsgFormatter(new PrintWriter(System.out))).format(msg);
   }

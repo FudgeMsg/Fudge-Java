@@ -18,8 +18,8 @@ package org.fudgemsg.mapping;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.FudgeRuntimeException;
-import org.fudgemsg.FudgeMsg;
 import org.junit.Test;
 
 /**
@@ -63,9 +63,9 @@ public class CustomBuilderTest {
   private static class CustomBuilder implements FudgeBuilder<CustomClass> {
 
     @Override
-    public FudgeMsg buildMessage(FudgeSerialisationContext context,
+    public MutableFudgeFieldContainer buildMessage(FudgeSerialisationContext context,
         CustomClass object) {
-      final FudgeMsg msg = context.newMessage ();
+      final MutableFudgeFieldContainer msg = context.newMessage ();
       int a = (object.getAB () - object.getBC () + object.getAC ()) / 2;
       int b = object.getAB () - a;
       int c = object.getAC () - a;
@@ -88,7 +88,7 @@ public class CustomBuilderTest {
     final FudgeContext fudgeContext = new FudgeContext ();
     final FudgeDeserialisationContext deserialisationContext = new FudgeDeserialisationContext (fudgeContext);
     final CustomClass object = new CustomClass (2, 3, 5);
-    final FudgeMsg msg = FudgeObjectMessageFactory.serializeToMessage (object, fudgeContext);
+    final FudgeFieldContainer msg = FudgeObjectMessageFactory.serializeToMessage (object, fudgeContext);
     assert msg.getInt ("aB") == object.getAB ();
     assert msg.getInt ("aC") == object.getAC ();
     assert msg.getInt ("bC") == object.getBC ();
@@ -109,7 +109,7 @@ public class CustomBuilderTest {
     final FudgeDeserialisationContext deserialisationContext = new FudgeDeserialisationContext (fudgeContext);
     fudgeContext.getObjectDictionary ().addBuilder (CustomClass.class, new CustomBuilder ());
     final CustomClass object = new CustomClass (2, 3, 5);
-    final FudgeMsg msg = FudgeObjectMessageFactory.serializeToMessage (object, fudgeContext);
+    final FudgeFieldContainer msg = FudgeObjectMessageFactory.serializeToMessage (object, fudgeContext);
     assert msg.getInt ("aB") == null;
     assert msg.getInt ("aC") == null;
     assert msg.getInt ("bC") == null;

@@ -25,13 +25,14 @@ import org.fudgemsg.FudgeMsg;
 
 /**
  * Implementation of FudgeMessageBuilder for an object which supports a toFudgeMsg
- * function of the form:
+ * function of the form (in order of search):
  * 
+ *    void toFudgeMsg (FudgeSerialisationContext, MutableFudgeFieldContainer)
+ *    void toFudgeMsg (FudgeMessageCreationContext, MutableFudgeFieldContainer)
+ *    FudgeMsg toFudgeMsg (FudgeSerialisationContext)
+ *    FudgeMsg toFudgeMsg (FudgeMessageCreationContext)
  *    void toFudgeMsg (FudgeContext, MutableFudgeFieldContainer)
  *    FudgeMsg toFudgeMsg (FudgeContext)
- *    void toFudgeMsg (FudgeSerialisationContext, MutableFudgeFieldContainer)
- *    FudgeMsg toFudgeMsg (FudgeSerialisationContext)
- *    
  * 
  * @author Andrew
  */
@@ -113,8 +114,8 @@ import org.fudgemsg.FudgeMsg;
     }
     
     @Override
-    public FudgeMsg buildMessage(FudgeSerialisationContext context, T object) {
-      final FudgeMsg msg = context.newMessage ();
+    public MutableFudgeFieldContainer buildMessage(FudgeSerialisationContext context, T object) {
+      final MutableFudgeFieldContainer msg = context.newMessage ();
       invoke (object, _passContext ? context.getFudgeContext () : context, msg);
       return msg;
     }

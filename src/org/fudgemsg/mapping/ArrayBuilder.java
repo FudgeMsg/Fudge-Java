@@ -20,7 +20,7 @@ import java.lang.reflect.Array;
 import java.util.List;
 
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeFieldContainer;
 
 /**
  * Builder for Array objects (lists).
@@ -36,8 +36,8 @@ import org.fudgemsg.FudgeMsg;
   }
 
   @Override
-  public FudgeMsg buildMessage (FudgeSerialisationContext context, Object[] array) {
-    final FudgeMsg msg = context.newMessage ();
+  public MutableFudgeFieldContainer buildMessage (FudgeSerialisationContext context, Object[] array) {
+    final MutableFudgeFieldContainer msg = context.newMessage ();
     for (Object entry : array) {
       context.objectToFudgeMsg (msg, null, null, entry);
     }

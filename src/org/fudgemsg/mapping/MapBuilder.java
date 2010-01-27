@@ -23,7 +23,7 @@ import java.util.Queue;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.FudgeRuntimeException;
 
 /**
@@ -39,8 +39,8 @@ import org.fudgemsg.FudgeRuntimeException;
   }
 
   @Override
-  public FudgeMsg buildMessage (FudgeSerialisationContext context, Map<?,?> map) {
-    final FudgeMsg msg = context.newMessage ();
+  public MutableFudgeFieldContainer buildMessage (FudgeSerialisationContext context, Map<?,?> map) {
+    final MutableFudgeFieldContainer msg = context.newMessage ();
     for (Map.Entry<?,?> entry : map.entrySet ()) {
       context.objectToFudgeMsg (msg, null, 1, entry.getKey ());
       context.objectToFudgeMsg (msg, null, 2, entry.getValue ());

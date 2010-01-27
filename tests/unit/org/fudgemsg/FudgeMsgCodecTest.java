@@ -36,8 +36,8 @@ public class FudgeMsgCodecTest {
   
   @Test
   public void allNames() throws IOException {
-    FudgeMsg inputMsg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
-    FudgeMsg outputMsg = cycleMessage(inputMsg);
+    FudgeFieldContainer inputMsg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
+    FudgeFieldContainer outputMsg = cycleMessage(inputMsg);
     
     assertNotNull(outputMsg);
     
@@ -46,12 +46,12 @@ public class FudgeMsgCodecTest {
   
   @Test
   public void variableWidthColumnSizes() throws IOException {
-    FudgeMsg inputMsg = s_fudgeContext.newMessage();
+    MutableFudgeFieldContainer inputMsg = s_fudgeContext.newMessage();
     inputMsg.add("100", new byte[100]);
     inputMsg.add("1000", new byte[1000]);
     inputMsg.add("10000", new byte[100000]);
 
-    FudgeMsg outputMsg = cycleMessage(inputMsg);
+    FudgeFieldContainer outputMsg = cycleMessage(inputMsg);
     
     assertNotNull(outputMsg);
     
@@ -60,9 +60,9 @@ public class FudgeMsgCodecTest {
   
   @Test
   public void subMsg() throws IOException {
-    FudgeMsg inputMsg = StandardFudgeMessages.createMessageWithSubMsgs(s_fudgeContext);
+    FudgeFieldContainer inputMsg = StandardFudgeMessages.createMessageWithSubMsgs(s_fudgeContext);
 
-    FudgeMsg outputMsg = cycleMessage(inputMsg);
+    FudgeFieldContainer outputMsg = cycleMessage(inputMsg);
     
     assertNotNull(outputMsg);
     
@@ -71,9 +71,9 @@ public class FudgeMsgCodecTest {
   
   @Test
   public void unknown() throws IOException {
-    FudgeMsg inputMsg = s_fudgeContext.newMessage();
+    MutableFudgeFieldContainer inputMsg = s_fudgeContext.newMessage();
     inputMsg.add("unknown", new UnknownFudgeFieldValue(new byte[10], s_fudgeContext.getTypeDictionary ().getUnknownType(200)));
-    FudgeMsg outputMsg = cycleMessage(inputMsg);
+    FudgeFieldContainer outputMsg = cycleMessage(inputMsg);
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
   
@@ -85,7 +85,7 @@ public class FudgeMsgCodecTest {
 
   @Test
   public void fixedWidthByteArrays() throws IOException {
-    FudgeMsg inputMsg = s_fudgeContext.newMessage();
+    MutableFudgeFieldContainer inputMsg = s_fudgeContext.newMessage();
     inputMsg.add("byte[4]", createRandomArray(4));
     inputMsg.add("byte[8]", createRandomArray(8));
     inputMsg.add("byte[16]", createRandomArray(16));
@@ -98,19 +98,19 @@ public class FudgeMsgCodecTest {
     
     inputMsg.add("byte[28]", createRandomArray(28));
     
-    FudgeMsg outputMsg = cycleMessage(inputMsg);
+    FudgeFieldContainer outputMsg = cycleMessage(inputMsg);
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
 
-  protected FudgeMsg cycleMessage(FudgeMsg msg) throws IOException {
+  protected FudgeFieldContainer cycleMessage(FudgeFieldContainer msg) throws IOException {
     byte[] content = s_fudgeContext.toByteArray(msg);
     
     ByteArrayInputStream bais = new ByteArrayInputStream(content);
     DataInputStream dis = new DataInputStream(bais);
     FudgeMsgEnvelope outputMsgEnvelope = s_fudgeContext.deserialize(dis);
     assertNotNull(outputMsgEnvelope);
-    assertNotNull(outputMsgEnvelope.getMessage());
-    return outputMsgEnvelope.getMessage();
+    assertNotNull(outputMsgEnvelope.getMessage ());
+    return outputMsgEnvelope.getMessage ();
   }
 
 }

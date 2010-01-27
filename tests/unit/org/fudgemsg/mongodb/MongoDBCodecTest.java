@@ -17,9 +17,10 @@
 package org.fudgemsg.mongodb;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeUtils;
 import org.fudgemsg.StandardFudgeMessages;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.junit.Test;
 
 import com.mongodb.DBObject;
@@ -34,49 +35,49 @@ public class MongoDBCodecTest {
 
   @Test
   public void allNamesCodec() {
-    FudgeMsg inputMsg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
+    FudgeFieldContainer inputMsg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
     
     DBObject dbObject = MongoDBEncoder.encode(inputMsg);
-    FudgeMsg outputMsg = MongoDBDecoder.decode(dbObject);
+    FudgeFieldContainer outputMsg = MongoDBDecoder.decode(dbObject);
     
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
 
   @Test
   public void containsList() {
-    FudgeMsg inputMsg = s_fudgeContext.newMessage();
+    MutableFudgeFieldContainer inputMsg = s_fudgeContext.newMessage();
     inputMsg.add("val1", "Kirk Wylie");
     inputMsg.add("val1", "Jim Moores");
     inputMsg.add("val1", "Yan Tordoff");
     DBObject dbObject = MongoDBEncoder.encode(inputMsg);
-    FudgeMsg outputMsg = MongoDBDecoder.decode(dbObject);
+    FudgeFieldContainer outputMsg = MongoDBDecoder.decode(dbObject);
     
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
 
   @Test
   public void byteArrays() {
-    FudgeMsg inputMsg = StandardFudgeMessages.createMessageAllByteArrayLengths(s_fudgeContext);
+    FudgeFieldContainer inputMsg = StandardFudgeMessages.createMessageAllByteArrayLengths(s_fudgeContext);
     
     DBObject dbObject = MongoDBEncoder.encode(inputMsg);
-    FudgeMsg outputMsg = MongoDBDecoder.decode(dbObject);
+    FudgeFieldContainer outputMsg = MongoDBDecoder.decode(dbObject);
     
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
 
   @Test
   public void subMsg() {
-    FudgeMsg inputMsg = s_fudgeContext.newMessage();
+    MutableFudgeFieldContainer inputMsg = s_fudgeContext.newMessage();
     inputMsg.add("val1", "Kirk Wylie");
     inputMsg.add("val1", "Jim Moores");
     inputMsg.add("val1", "Yan Tordoff");
-    FudgeMsg subMsg = s_fudgeContext.newMessage();
+    MutableFudgeFieldContainer subMsg = s_fudgeContext.newMessage();
     subMsg.add("val1", "Kirk Wylie");
     subMsg.add("val1", "Jim Moores");
     subMsg.add("val1", "Yan Tordoff");
     inputMsg.add("val2", subMsg);
     DBObject dbObject = MongoDBEncoder.encode(inputMsg);
-    FudgeMsg outputMsg = MongoDBDecoder.decode(dbObject);
+    FudgeFieldContainer outputMsg = MongoDBDecoder.decode(dbObject);
     
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }

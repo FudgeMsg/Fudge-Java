@@ -33,32 +33,32 @@ public class FudgeStreamParserTest {
 
   @Test
   public void standardMessageAllNames() {
-    FudgeMsg msg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
+    FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
     checkResultsMatch(msg);
   }
 
   @Test
   public void standardMessageAllOrdinals() {
-    FudgeMsg msg = StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext);
+    FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext);
     checkResultsMatch(msg);
   }
   
   @Test
   public void standardMessageByteArrays() {
-    FudgeMsg msg = StandardFudgeMessages.createMessageAllByteArrayLengths(s_fudgeContext);
+    FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllByteArrayLengths(s_fudgeContext);
     checkResultsMatch(msg);
   }
   
   @Test
   public void standardMessageSubMessages() {
-    FudgeMsg msg = StandardFudgeMessages.createMessageWithSubMsgs(s_fudgeContext);
+    FudgeFieldContainer msg = StandardFudgeMessages.createMessageWithSubMsgs(s_fudgeContext);
     checkResultsMatch(msg);
   }
   
   @Test
   public void allMessagesSameContext() {
     FudgeContext fudgeContext = new FudgeContext();
-    FudgeMsg msg = null;
+    FudgeFieldContainer msg = null;
     msg = StandardFudgeMessages.createMessageAllNames(fudgeContext);
     checkResultsMatch(msg, fudgeContext);
     msg = StandardFudgeMessages.createMessageAllOrdinals(fudgeContext);
@@ -69,25 +69,25 @@ public class FudgeStreamParserTest {
     checkResultsMatch(msg, fudgeContext);
   }
   
-  protected void checkResultsMatch(FudgeMsg msg) {
+  protected void checkResultsMatch(FudgeFieldContainer msg) {
     checkResultsMatch(msg, new FudgeContext());
   }
   
   /**
    * @param msg
    */
-  protected void checkResultsMatch(FudgeMsg msg, FudgeContext fudgeContext) {
+  protected void checkResultsMatch(FudgeFieldContainer msg, FudgeContext fudgeContext) {
     FudgeMsgEnvelope result = cycleMessage(fudgeContext, msg);
     assertNotNull(result);
-    assertNotNull(result.getMessage());
-    FudgeMsg resultMsg = result.getMessage();
+    assertNotNull(result.getMessage ());
+    FudgeFieldContainer resultMsg = result.getMessage ();
     FudgeUtils.assertAllFieldsMatch(msg, resultMsg);
   }
   
-  protected FudgeMsgEnvelope cycleMessage(FudgeContext context, FudgeMsg msg) {
+  protected FudgeMsgEnvelope cycleMessage(FudgeContext context, FudgeFieldContainer msg) {
     byte[] msgAsBytes = context.toByteArray(msg);
     try {
-      final FudgeMessageStreamReader reader = context.allocateMessageReader (new ByteArrayInputStream(msgAsBytes));
+      final FudgeMsgStreamReader reader = context.allocateMessageReader (new ByteArrayInputStream(msgAsBytes));
       try {
         return reader.nextMessageEnvelope ();
       } finally {

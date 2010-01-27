@@ -17,7 +17,7 @@
 package org.fudgemsg.mapping;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeFieldContainer;
 
 /**
  * Constructs instances of {@link FudgeMsg} from any Java object by parsing
@@ -32,12 +32,12 @@ public class FudgeObjectMessageFactory {
    * @param descriptor 
    * @return
    */
-  public static <T> FudgeMsg serializeToMessage(T obj, FudgeContext context) {
+  public static <T> FudgeFieldContainer serializeToMessage(T obj, FudgeContext context) {
     return serializeToMessage (obj, new FudgeSerialisationContext (context));
   }
   
   @SuppressWarnings("unchecked")
-  public static <T> FudgeMsg serializeToMessage (T obj, FudgeSerialisationContext context) {
+  public static <T> FudgeFieldContainer serializeToMessage (T obj, FudgeSerialisationContext context) {
     final FudgeMessageBuilder<T> builder = context.getFudgeContext ().getObjectDictionary ().getMessageBuilder ((Class<T>)obj.getClass ());
     return builder.buildMessage (context, obj);
   }

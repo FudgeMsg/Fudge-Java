@@ -31,8 +31,8 @@ public class FudgeStreamTest {
   
   private final FudgeContext _fudgeContext = new FudgeContext ();
   
-  private FudgeMsg simpleMessage (int n) {
-    final FudgeMsg msg = _fudgeContext.newMessage ();
+  private FudgeFieldContainer simpleMessage (int n) {
+    final MutableFudgeFieldContainer msg = _fudgeContext.newMessage ();
     msg.add ("n", (Integer)n);
     msg.add ("foo", (Integer)42);
     msg.add ("bar", "forty-two");
@@ -42,17 +42,17 @@ public class FudgeStreamTest {
   @Test
   public void readMultipleMessages () throws IOException {
     final ByteArrayOutputStream baos = new ByteArrayOutputStream ();
-    final FudgeMessageStreamWriter writer = _fudgeContext.allocateMessageWriter (baos);
+    final FudgeMsgStreamWriter writer = _fudgeContext.allocateMessageWriter (baos);
     writer.setDefaultTaxonomyId (0);
     writer.writeMessage (simpleMessage (1));
     writer.writeMessage (simpleMessage (2));
     writer.writeMessage (simpleMessage (3));
     _fudgeContext.releaseMessageWriter (writer);
     final ByteArrayInputStream bais = new ByteArrayInputStream (baos.toByteArray ());
-    final FudgeMessageStreamReader reader = _fudgeContext.allocateMessageReader (bais);
+    final FudgeMsgStreamReader reader = _fudgeContext.allocateMessageReader (bais);
     for (int i = 1; i <= 3; i++) {
       assert reader.hasNext ();
-      final FudgeMsg msg = reader.nextMessage ();
+      final FudgeFieldContainer msg = reader.nextMessage ();
       assert msg.getInt ("n") == i;
     }
     assert !reader.hasNext ();

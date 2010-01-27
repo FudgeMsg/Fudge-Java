@@ -29,8 +29,8 @@ public final class StandardFudgeMessages {
   // will break interop tests. If you need a change, add a new standard test
   // message and then add a standard form to the interop test suite.
 
-  public static FudgeMsg createMessageAllNames(FudgeContext context) {
-    FudgeMsg msg = context.newMessage();
+  public static MutableFudgeFieldContainer createMessageAllNames(FudgeContext context) {
+    MutableFudgeFieldContainer msg = context.newMessage();
     
     msg.add("boolean", Boolean.TRUE);
     msg.add("Boolean", new Boolean(false));
@@ -64,8 +64,8 @@ public final class StandardFudgeMessages {
     return msg;
   }
   
-  public static FudgeMsg createMessageAllOrdinals(FudgeContext context) {
-    FudgeMsg msg = context.newMessage();
+  public static MutableFudgeFieldContainer createMessageAllOrdinals(FudgeContext context) {
+    MutableFudgeFieldContainer msg = context.newMessage();
     
     msg.add(1, Boolean.TRUE);
     msg.add(2, new Boolean(false));
@@ -94,8 +94,8 @@ public final class StandardFudgeMessages {
     return msg;
   }
   
-  public static FudgeMsg createMessageAllByteArrayLengths(FudgeContext context) {
-    FudgeMsg msg = context.newMessage();
+  public static FudgeFieldContainer createMessageAllByteArrayLengths(FudgeContext context) {
+    MutableFudgeFieldContainer msg = context.newMessage();
     msg.add("byte[4]", new byte[4]);
     msg.add("byte[8]", new byte[8]);
     msg.add("byte[16]", new byte[16]);
@@ -110,12 +110,12 @@ public final class StandardFudgeMessages {
     return msg;
   }
   
-  public static FudgeMsg createMessageWithSubMsgs(FudgeContext context) {
-    FudgeMsg msg = context.newMessage();
-    FudgeMsg sub1 = context.newMessage();
+  public static FudgeFieldContainer createMessageWithSubMsgs(FudgeContext context) {
+    MutableFudgeFieldContainer msg = context.newMessage();
+    MutableFudgeFieldContainer sub1 = context.newMessage();
     sub1.add("bibble", "fibble");
     sub1.add(827, "Blibble");
-    FudgeMsg sub2 = context.newMessage();
+    MutableFudgeFieldContainer sub2 = context.newMessage();
     sub2.add("bibble9", 9837438);
     sub2.add(828, 82.77f);
     msg.add("sub1", sub1);

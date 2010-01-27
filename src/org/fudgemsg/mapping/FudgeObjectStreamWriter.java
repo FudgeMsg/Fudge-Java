@@ -19,16 +19,16 @@ package org.fudgemsg.mapping;
 import java.io.IOException;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMessageStreamWriter;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMsgStreamWriter;
+import org.fudgemsg.FudgeFieldContainer;
 
 public class FudgeObjectStreamWriter {
 
-  private FudgeMessageStreamWriter _messageWriter;
+  private FudgeMsgStreamWriter _messageWriter;
   
   private FudgeSerialisationContext _serialisationContext;
   
-  public FudgeObjectStreamWriter (final FudgeMessageStreamWriter messageWriter) {
+  public FudgeObjectStreamWriter (final FudgeMsgStreamWriter messageWriter) {
     if (messageWriter == null) throw new NullPointerException ("messageWriter cannot be null");
     _messageWriter = messageWriter;
     _serialisationContext = new FudgeSerialisationContext (messageWriter.getFudgeContext ());
@@ -40,7 +40,7 @@ public class FudgeObjectStreamWriter {
     _messageWriter = null;
   }
   
-  public void reset (final FudgeMessageStreamWriter messageWriter) {
+  public void reset (final FudgeMsgStreamWriter messageWriter) {
     close ();
     if (messageWriter == null) throw new NullPointerException ("messageReader cannot be null");
     _messageWriter = messageWriter;
@@ -59,13 +59,13 @@ public class FudgeObjectStreamWriter {
     return _serialisationContext;
   }
   
-  public FudgeMessageStreamWriter getMessageWriter () {
+  public FudgeMsgStreamWriter getMessageWriter () {
     return _messageWriter;
   }
   
   public <T> int write (final T obj) throws IOException {
     getSerialisationContext ().reset ();
-    FudgeMsg message;
+    FudgeFieldContainer message;
     if (obj == null) {
       // write an empty message
       message = getSerialisationContext ().newMessage ();

@@ -17,9 +17,10 @@
 package org.fudgemsg.mapping;
 
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMessageCreationContext;
 import org.fudgemsg.FudgeFieldType;
-import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.types.FudgeMsgFieldType;
 import org.fudgemsg.types.StringFieldType;
 
@@ -31,7 +32,7 @@ import org.fudgemsg.types.StringFieldType;
  * 
  * @author Andrew
  */
-public class FudgeSerialisationContext {
+public class FudgeSerialisationContext implements FudgeMessageCreationContext {
   
   private final FudgeContext _fudgeContext;
   private final SerialisationBuffer _serialisationBuffer = new SerialisationBuffer ();
@@ -48,7 +49,8 @@ public class FudgeSerialisationContext {
     return _fudgeContext;
   }
   
-  public FudgeMsg newMessage () {
+  @Override
+  public MutableFudgeFieldContainer newMessage () {
     return _fudgeContext.newMessage ();
   }
   
@@ -69,7 +71,7 @@ public class FudgeSerialisationContext {
   }
   
   @SuppressWarnings("unchecked")
-  public FudgeMsg objectToFudgeMsg (final Object object) {
+  public FudgeFieldContainer objectToFudgeMsg (final Object object) {
     if (object == null) throw new NullPointerException ("object cannot be null");
     getSerialisationBuffer ().beginObject (object);
     try {

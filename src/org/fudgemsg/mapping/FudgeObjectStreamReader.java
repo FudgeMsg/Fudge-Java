@@ -19,16 +19,16 @@ package org.fudgemsg.mapping;
 import java.io.IOException;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMessageStreamReader;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsgStreamReader;
 
 public class FudgeObjectStreamReader {
   
-  private FudgeMessageStreamReader _messageReader;
+  private FudgeMsgStreamReader _messageReader;
   
   private FudgeDeserialisationContext _deserialisationContext;
   
-  public FudgeObjectStreamReader (final FudgeMessageStreamReader messageReader) {
+  public FudgeObjectStreamReader (final FudgeMsgStreamReader messageReader) {
     if (messageReader == null) throw new NullPointerException ("messageReader cannot be null");
     _messageReader = messageReader;
     _deserialisationContext = new FudgeDeserialisationContext (messageReader.getFudgeContext ());
@@ -40,7 +40,7 @@ public class FudgeObjectStreamReader {
     _messageReader = null;
   }
   
-  public void reset (final FudgeMessageStreamReader messageReader) {
+  public void reset (final FudgeMsgStreamReader messageReader) {
     close ();
     if (messageReader == null) throw new NullPointerException ("messageReader cannot be null");
     _messageReader = messageReader;
@@ -59,7 +59,7 @@ public class FudgeObjectStreamReader {
     return _deserialisationContext;
   }
   
-  public FudgeMessageStreamReader getMessageReader () {
+  public FudgeMsgStreamReader getMessageReader () {
     return _messageReader;
   }
   
@@ -68,13 +68,13 @@ public class FudgeObjectStreamReader {
   }
   
   public Object read () throws IOException {
-    FudgeMsg message = getMessageReader ().nextMessage ();
+    FudgeFieldContainer message = getMessageReader ().nextMessage ();
     getDeserialisationContext ().reset ();
     return getDeserialisationContext ().fudgeMsgToObject (message);
   }
   
   public <T> T read (final Class<T> clazz) throws IOException {
-    FudgeMsg message = getMessageReader ().nextMessage ();
+    FudgeFieldContainer message = getMessageReader ().nextMessage ();
     getDeserialisationContext ().reset ();
     return getDeserialisationContext ().fudgeMsgToObject (clazz, message);
   }

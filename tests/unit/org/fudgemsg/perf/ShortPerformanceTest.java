@@ -24,8 +24,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeRuntimeException;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeObjectStreamReader;
 import org.fudgemsg.mapping.FudgeObjectStreamWriter;
 import org.junit.BeforeClass;
@@ -177,29 +178,29 @@ public class ShortPerformanceTest {
   
   private static int fudgeCycle(final boolean useNames, final boolean useOrdinals) throws Exception {
     SmallFinancialTick tick = new SmallFinancialTick();
-    FudgeMsg msg = s_fudgeContext.newMessage();
+    MutableFudgeFieldContainer msgIn = s_fudgeContext.newMessage();
     if(useNames && useOrdinals) {
-      msg.add("ask", 1, tick.getAsk());
-      msg.add("askVolume", 2, tick.getAskVolume());
-      msg.add("bid", 3, tick.getBid());
-      msg.add("bidVolume", 4, tick.getBidVolume());
-      msg.add("ts", 5, tick.getTimestamp());
+      msgIn.add("ask", 1, tick.getAsk());
+      msgIn.add("askVolume", 2, tick.getAskVolume());
+      msgIn.add("bid", 3, tick.getBid());
+      msgIn.add("bidVolume", 4, tick.getBidVolume());
+      msgIn.add("ts", 5, tick.getTimestamp());
     } else if(useNames) {
-      msg.add("ask", tick.getAsk());
-      msg.add("askVolume", tick.getAskVolume());
-      msg.add("bid", tick.getBid());
-      msg.add("bidVolume", tick.getBidVolume());
-      msg.add("ts", tick.getTimestamp());
+      msgIn.add("ask", tick.getAsk());
+      msgIn.add("askVolume", tick.getAskVolume());
+      msgIn.add("bid", tick.getBid());
+      msgIn.add("bidVolume", tick.getBidVolume());
+      msgIn.add("ts", tick.getTimestamp());
     } else if(useOrdinals) {
-      msg.add(1, tick.getAsk());
-      msg.add(2, tick.getAskVolume());
-      msg.add(3, tick.getBid());
-      msg.add(4, tick.getBidVolume());
-      msg.add(5, tick.getTimestamp());
+      msgIn.add(1, tick.getAsk());
+      msgIn.add(2, tick.getAskVolume());
+      msgIn.add(3, tick.getBid());
+      msgIn.add(4, tick.getBidVolume());
+      msgIn.add(5, tick.getTimestamp());
     }
-    byte[] data = s_fudgeContext.toByteArray(msg);
-    
-    msg = s_fudgeContext.deserialize(data).getMessage();
+    byte[] data = s_fudgeContext.toByteArray(msgIn);
+
+    FudgeFieldContainer msg = s_fudgeContext.deserialize(data).getMessage ();
     
     tick = new SmallFinancialTick();
     if(useOrdinals) {

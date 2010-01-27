@@ -20,31 +20,27 @@ import java.io.Serializable;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 
 /**
- * Wraps a {@link FudgeMsg} for the purpose of encoding the envelope header.
+ * Wraps a {@link FudgeFieldContainer} for the purpose of encoding the envelope header.
  * This is the object which is encoded for a top-level fudge message; sub-messages don't
  * contain a separate envelope.
  *
  * @author kirk
  */
 public class FudgeMsgEnvelope implements Serializable {
-  private final FudgeMsg _message;
+  private final FudgeFieldContainer _message;
   private final int _processingDirectives;
   private final int _version;
   
-  public FudgeMsgEnvelope(FudgeContext fudgeContext) {
-    this(fudgeContext.newMessage());
+  public FudgeMsgEnvelope(FudgeFieldContainer fields) {
+    this(fields, 0);
   }
   
-  public FudgeMsgEnvelope(FudgeMsg msg) {
-    this(msg, 0);
+  public FudgeMsgEnvelope(FudgeFieldContainer fields, int schemaVersion) {
+    this (fields, schemaVersion, 0);
   }
   
-  public FudgeMsgEnvelope(FudgeMsg message, int schemaVersion) {
-    this (message, schemaVersion, 0);
-  }
-  
-  public FudgeMsgEnvelope (FudgeMsg message, final int schemaVersion, final int processingDirectives) {
-    if(message == null) {
+  public FudgeMsgEnvelope (FudgeFieldContainer fields, final int schemaVersion, final int processingDirectives) {
+    if(fields == null) {
       throw new NullPointerException("Must specify a message to wrap.");
     }
     if ((processingDirectives < 0) || (processingDirectives > 255)) {
@@ -53,7 +49,7 @@ public class FudgeMsgEnvelope implements Serializable {
     if((schemaVersion < 0) || (schemaVersion > 255)) {
       throw new IllegalArgumentException("Provided version " + schemaVersion + " which doesn't fit within one byte.");
     }
-    _message = message;
+    _message = fields;
     _version = schemaVersion;
     _processingDirectives = processingDirectives;
   }
@@ -61,7 +57,7 @@ public class FudgeMsgEnvelope implements Serializable {
   /**
    * @return the message
    */
-  public FudgeMsg getMessage() {
+  public FudgeFieldContainer getMessage () {
     return _message;
   }
   /**

@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.FudgeRuntimeException;
 
 /**
@@ -37,8 +37,8 @@ import org.fudgemsg.FudgeRuntimeException;
   }
 
   @Override
-  public FudgeMsg buildMessage (FudgeSerialisationContext context, List<?> list) {
-    final FudgeMsg msg = context.newMessage ();
+  public MutableFudgeFieldContainer buildMessage (FudgeSerialisationContext context, List<?> list) {
+    final MutableFudgeFieldContainer msg = context.newMessage ();
     for (Object entry : list) {
       context.objectToFudgeMsg (msg, null, null, entry);
     }

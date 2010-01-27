@@ -19,8 +19,9 @@ package org.fudgemsg;
 import java.io.IOException;
 
 import org.fudgemsg.FudgeStreamReader.FudgeStreamElement;
+import org.fudgemsg.types.FudgeMsgFieldType;
 
-public class FudgeMessageStreamReader {
+public class FudgeMsgStreamReader {
   
   private FudgeStreamReader _streamReader;
   
@@ -28,7 +29,7 @@ public class FudgeMessageStreamReader {
   
   private boolean _streamErrored = false;
 
-  public FudgeMessageStreamReader (final FudgeStreamReader streamReader) {
+  public FudgeMsgStreamReader (final FudgeStreamReader streamReader) {
     //System.out.println ("FudgeMessageStreamReader::FudgeMessageStreamReader(" + streamReader + ")");
     if (streamReader == null) {
       throw new NullPointerException ("streamReader cannot be null");
@@ -87,7 +88,7 @@ public class FudgeMessageStreamReader {
   /**
    * Reads the next message, discarding the envelope.
    */
-  public FudgeMsg nextMessage () throws IOException {
+  public FudgeFieldContainer nextMessage () throws IOException {
     //System.out.println ("FudgeMessageStreamReader::nextMessage()");
     final FudgeMsgEnvelope msgEnv = nextMessageEnvelope ();
     if (msgEnv == null) return null;
@@ -118,8 +119,8 @@ public class FudgeMessageStreamReader {
       throw new IllegalArgumentException("First element in encoding stream wasn't a message element.");
     }
     int version = reader.getSchemaVersion();
-    FudgeMsg msg = getFudgeContext().newMessage();
-    FudgeMsgEnvelope envelope = new FudgeMsgEnvelope(msg, version);
+    MutableFudgeFieldContainer msg = getFudgeContext().newMessage();
+    FudgeMsgEnvelope envelope = new FudgeMsgEnvelope (msg, version);
     processFields(reader, msg);
     return envelope;
   }
@@ -128,7 +129,7 @@ public class FudgeMessageStreamReader {
    * @param reader
    * @param msg
    */
-  protected void processFields(FudgeStreamReader reader, FudgeMsg msg) throws IOException {
+  protected void processFields(FudgeStreamReader reader, MutableFudgeFieldContainer msg) throws IOException {
     //System.out.println ("FudgeMessageStreamReader::processFields(" + reader + ", " + msg + ")");
     while(reader.hasNext()) {
       FudgeStreamElement element = reader.next();
@@ -137,8 +138,8 @@ public class FudgeMessageStreamReader {
         msg.add(reader.getFieldName(), reader.getFieldOrdinal(), reader.getFieldType(), reader.getFieldValue());
         break;
       case SUBMESSAGE_FIELD_START:
-        FudgeMsg subMsg = getFudgeContext().newMessage();
-        msg.add(reader.getFieldName(), reader.getFieldOrdinal(), subMsg);
+        MutableFudgeFieldContainer subMsg = getFudgeContext().newMessage ();
+        msg.add(reader.getFieldName(), reader.getFieldOrdinal(), FudgeMsgFieldType.INSTANCE, subMsg);
         processFields(reader, subMsg);
         break;
       case SUBMESSAGE_FIELD_END:

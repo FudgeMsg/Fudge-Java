@@ -36,6 +36,11 @@ import org.fudgemsg.types.PrimitiveFieldTypes;
  * Therefore, constructing a {@code FudgeMsg} from a field is relatively more
  * expensive in CPU and memory usage than just holding the original byte array,
  * but lookups are substantially faster.
+ * 
+ * Instead of constructing an instance of this directly, a preferred approach is
+ * to request a MutableFudgeFieldContainer from the main context, or a
+ * serialisation context as that may return an implementation more appropriate
+ * to the underlying or target stream.
  *
  * @author kirk
  */
