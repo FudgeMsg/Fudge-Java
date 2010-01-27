@@ -15,8 +15,6 @@
  */
 package org.fudgemsg;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,11 +43,6 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
   private final FudgeContext _fudgeContext;
   private final List<FudgeMsgField> _fields = new ArrayList<FudgeMsgField>();
 
-  @Deprecated
-  public FudgeMsg() {
-    this(new FudgeContext());
-  }
-  
   public FudgeMsg(FudgeContext fudgeContext) {
     if(fudgeContext == null) {
       throw new NullPointerException("Context must be provided.");
@@ -58,20 +51,16 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
   }
   
   public FudgeMsg(FudgeMsg other) {
-    if(other == null) {
-      throw new NullPointerException("Cannot initialize from a null other FudgeMsg");
-    }
-    _fudgeContext = other._fudgeContext;
-    initializeFromByteArray(other.toByteArray());
+    this (other, other.getFudgeContext ());
   }
   
-  public FudgeMsg(byte[] byteArray, FudgeContext fudgeContext) {
+  /*public FudgeMsg(byte[] byteArray, FudgeContext fudgeContext) {
     if(fudgeContext == null) {
       throw new NullPointerException("Context must be provided.");
     }
     _fudgeContext = fudgeContext;
     initializeFromByteArray(byteArray);
-  }
+  }*/
   
   public FudgeMsg (final FudgeFieldContainer fields, final FudgeContext fudgeContext) {
     if (fields == null) throw new NullPointerException ("Cannot initialize from a null FudgeFieldContainer");
@@ -82,10 +71,15 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     }
   }
   
-  protected void initializeFromByteArray(byte[] byteArray) {
-    FudgeMsgEnvelope other = getFudgeContext().deserialize(byteArray);
-    _fields.addAll(other.getMessage()._fields);
-  }
+  /*protected void initializeFromByteArray(byte[] byteArray) {
+    final FudgeMessageStreamReader reader = getFudgeContext ().allocateMessageReader (new ByteArrayInputStream (byteArray));
+    try {
+      _fields.addAll(reader.nextMessage ()._fields);
+    } catch (IOException ioe) {
+      throw new FudgeRuntimeException ("error reading byte[] data", ioe);
+    }
+    getFudgeContext ().releaseMessageReader (reader);
+  }*/
   
   /**
    * @return the fudgeContext
@@ -282,19 +276,25 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return null;
   }
   
-  // TODO 2010-01-26 Andrew -- why do we have the to/from byte[] methods here and in FudgeContext? can't we just pass the message about, or write it directly out to a stream rather than use an intermediate array?
-
-  public byte[] toByteArray() {
+  // Andrew - removed the byte[] conversions because they are working with a message envelope which I
+  // think is misleading as it isn't valid when called for nested submessages and is a different length
+  // to the calculated message size 
+  
+  /*public byte[] toByteArray() {
+    return toByteArray ((short)0);
+  }
+  
+  public byte[] toByteArray(short taxonomy) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream(FudgeSize.calculateMessageSize(null, this));
     FudgeMessageStreamWriter writer = getFudgeContext().allocateMessageWriter(baos);
     try {
-      writer.writeMessage (this, 0);
+      writer.writeMessage (this, taxonomy);
     } catch (IOException e) {
       return null;
     }
     getFudgeContext().releaseMessageWriter(writer);
     return baos.toByteArray();
-  }
+  }*/
   
   // Primitive Queries:
   
@@ -500,6 +500,10 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     }
     sb.append("]");
     return sb.toString();
+  }
+  
+  public int computeSize (final FudgeTaxonomy taxonomy) {
+    return FudgeSize.calculateMessageSize (taxonomy, this);
   }
   
 }

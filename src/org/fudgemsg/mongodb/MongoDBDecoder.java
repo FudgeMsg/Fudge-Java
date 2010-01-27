@@ -18,6 +18,7 @@ package org.fudgemsg.mongodb;
 
 import java.util.List;
 
+import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 
 import com.mongodb.DBObject;
@@ -28,6 +29,9 @@ import com.mongodb.DBObject;
  * @author kirk
  */
 public final class MongoDBDecoder {
+  
+  private static final FudgeContext s_fudgeContext = new FudgeContext ();
+  
   private MongoDBDecoder() {
   }
   
@@ -36,7 +40,7 @@ public final class MongoDBDecoder {
     if(dbObject == null) {
       return null;
     }
-    FudgeMsg msg = new FudgeMsg();
+    FudgeMsg msg = s_fudgeContext.newMessage ();
     for(String key : dbObject.keySet()) {
       Object value = dbObject.get(key);
       if(value instanceof List) {

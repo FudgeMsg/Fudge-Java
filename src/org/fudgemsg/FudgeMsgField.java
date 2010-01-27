@@ -17,6 +17,8 @@ package org.fudgemsg;
 
 import java.io.Serializable;
 
+import org.fudgemsg.taxon.FudgeTaxonomy;
+
 /**
  * A concrete implementation of {@link FudgeField} suitable for inclusion in
  * a pre-constructed {@link FudgeMsg} or a stream of data.
@@ -95,6 +97,10 @@ public class FudgeMsgField implements FudgeField, Serializable, Cloneable {
     sb.append("-").append(_value);
     sb.append("]");
     return sb.toString();
+  }
+  
+  public int computeSize (final FudgeTaxonomy taxonomy) {
+    return FudgeSize.calculateFieldSize (taxonomy, this);
   }
   
 }

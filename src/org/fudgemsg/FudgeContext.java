@@ -15,13 +15,13 @@
  */
 package org.fudgemsg;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -50,7 +50,7 @@ import org.fudgemsg.taxon.TaxonomyResolver;
  * For example, if an application is consuming data from two messaging feeds, each
  * of which reuses the same taxonomy ID to represent a different
  * {@link FudgeTaxonomy}, it would configure two different instances of
- * {@code FudgeContext}, one per feed.  
+ * {@code FudgeContext}, one per feed.
  *
  * @author kirk
  */
@@ -64,7 +64,7 @@ public class FudgeContext {
   private FudgeTypeDictionary _typeDictionary = new FudgeTypeDictionary();
   private FudgeObjectDictionary _objectDictionary = new FudgeObjectDictionary ();
   private TaxonomyResolver _taxonomyResolver;
-
+  
   /**
    * @return the taxonomyResolver
    */

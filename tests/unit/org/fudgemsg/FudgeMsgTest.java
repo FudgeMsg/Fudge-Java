@@ -281,7 +281,7 @@ public class FudgeMsgTest {
   @Test
   public void toByteArray() {
     FudgeMsg msg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
-    byte[] bytes = msg.toByteArray();
+    byte[] bytes = s_fudgeContext.toByteArray(msg);
     assertNotNull(bytes);
     assertTrue(bytes.length > 10);
   }
