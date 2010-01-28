@@ -17,8 +17,6 @@ package org.fudgemsg;
 
 import java.io.Serializable;
 
-import org.fudgemsg.taxon.FudgeTaxonomy;
-
 /**
  * Wraps a {@link FudgeFieldContainer} for the purpose of encoding the envelope header.
  * This is the object which is encoded for a top-level fudge message; sub-messages don't
@@ -31,14 +29,32 @@ public class FudgeMsgEnvelope implements Serializable {
   private final int _processingDirectives;
   private final int _version;
   
+  /**
+   * Creates a new {@link FudgeMsgEnvelope} around the given set of fields with no schema or processing directives.
+   * 
+   * @param fields the {@link FudgeFieldContainer} containing the message fields.
+   */
   public FudgeMsgEnvelope(FudgeFieldContainer fields) {
     this(fields, 0);
   }
   
+  /**
+   * Creates a new {@link FudgeMsgEnvelope} around the given set of fields with a given schema version and no processing directives.
+   * 
+   * @param fields the {@link FudgeFieldContainer} containing the message fields.
+   * @param schemaVersion the schema version
+   */
   public FudgeMsgEnvelope(FudgeFieldContainer fields, int schemaVersion) {
     this (fields, schemaVersion, 0);
   }
   
+  /**
+   * Creates a new {@link FudgeMsgEnvelope} around the given set of fields with a given schema version and set of processing directives.
+   * 
+   * @param fields the {@link FudgeFieldContainer} containing the message fields
+   * @param schemaVersion the schema version
+   * @param processingDirectives the processing directive flags
+   */
   public FudgeMsgEnvelope (FudgeFieldContainer fields, final int schemaVersion, final int processingDirectives) {
     if(fields == null) {
       throw new NullPointerException("Must specify a message to wrap.");
@@ -55,24 +71,29 @@ public class FudgeMsgEnvelope implements Serializable {
   }
   
   /**
+   * Returns the underlying message.
+   * 
    * @return the message
    */
   public FudgeFieldContainer getMessage () {
     return _message;
   }
   /**
+   * Returns the schema version.
+   * 
    * @return the version
    */
   public int getVersion() {
     return _version;
   }
   
+  /**
+   * Returns the processing directive flags.
+   * 
+   * @return processing directive flags
+   */
   public int getProcessingDirectives () {
     return _processingDirectives;
   }
   
-  public int computeSize (final FudgeTaxonomy taxonomy) {
-    return FudgeSize.calculateMessageEnvelopeSize (taxonomy, this);
-  }
-
 }

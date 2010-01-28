@@ -21,14 +21,36 @@ import java.io.IOException;
 import org.fudgemsg.FudgeStreamReader.FudgeStreamElement;
 import org.fudgemsg.types.FudgeMsgFieldType;
 
+/**
+ * A reader for returning whole Fudge messages ({@link FudgeFieldContainer} instances) from an underlying {@link FudgeStreamReader} instance.
+ * This implementation constructs the whole Fudge message in memory before returning to the caller. This is provided for convenience - greater
+ * runtime efficiency may be possible by working directly with the {@link FudgeStreamReader} to process stream elements as they are decoded.
+ * 
+ * @author Andrew
+ */
 public class FudgeMsgReader {
   
+  /**
+   * The underlying source of Fudge elements.
+   */
   private FudgeStreamReader _streamReader;
   
+  /**
+   * A read-ahead buffer used to implement the {@link #hasNext()} method. Used in conjunction with {@link #_streamErrored} to identify EOF on
+   * the underlying source.
+   */
   private FudgeMsgEnvelope _readAhead = null;
   
+  /**
+   * Set to true after the stream has errored during a read-ahead to identify the EOF condition on the underlying source.
+   */
   private boolean _streamErrored = false;
 
+  /**
+   * Creates a new {@link FudgeMsgReader} around an existing {@link FudgeStreamReader}.
+   * 
+   * @param streamReader the source of Fudge stream elements to read
+   */
   public FudgeMsgReader (final FudgeStreamReader streamReader) {
     //System.out.println ("FudgeMessageStreamReader::FudgeMessageStreamReader(" + streamReader + ")");
     if (streamReader == null) {
@@ -37,6 +59,9 @@ public class FudgeMsgReader {
     _streamReader = streamReader;
   }
   
+  /**
+   * Closes this {@link FudgeMsgReader} and releases the underlying {@link FudgeStreamReader} back to the context which may be pooling them for efficiency.
+   */
   public void close () {
     //System.out.println ("FudgeMessageStreamReader::close()");
     if (_streamReader == null) return;
@@ -46,6 +71,11 @@ public class FudgeMsgReader {
     _streamErrored = false;
   }
   
+  /**
+   * Returns the {@link FudgeContext} associated with the underlying source.
+   * 
+   * @return the {@code FudgeContext}
+   */
   public FudgeContext getFudgeContext () {
     final FudgeStreamReader reader = getStreamReader ();
     if (reader == null) return null;
@@ -54,7 +84,9 @@ public class FudgeMsgReader {
   
   /**
    * Reset the stream reader to a different source. This method exists to allow
-   * objects to be pooled.
+   * objects to be pooled. The previous source will be {@link #close()}ed if it is still active.
+   * 
+   * @param streamReader the new Fudge element source
    */
   public void reset (final FudgeStreamReader streamReader) {
     //System.out.println ("FudgeMessageStreamReader::reset(" + streamReader + ")");
@@ -71,6 +103,8 @@ public class FudgeMsgReader {
   
   /**
    * Returns true if there are more messages to read from the underlying source.
+   * 
+   * @return {@code true} if {@link #nextMessage()} or {@link #nextMessageEnvelope()} will return data
    */
   public boolean hasNext () {
     //System.out.println ("FudgeMessageStreamReader::hasNext()");
@@ -87,6 +121,9 @@ public class FudgeMsgReader {
   
   /**
    * Reads the next message, discarding the envelope.
+   * 
+   * @return the message read without the envelope
+   * @throws IOException if the underlying source errors
    */
   public FudgeFieldContainer nextMessage () throws IOException {
     //System.out.println ("FudgeMessageStreamReader::nextMessage()");
@@ -97,6 +134,9 @@ public class FudgeMsgReader {
   
   /**
    * Reads the next message, returning the envelope.
+   * 
+   * @return the {@link FudgeMsgEnvelope}
+   * @throws IOException if the underlying source errors
    */
   public FudgeMsgEnvelope nextMessageEnvelope () throws IOException {
     //System.out.println ("FudgeMessageStreamReader::nextMessageEnvelope()");
@@ -125,10 +165,6 @@ public class FudgeMsgReader {
     return envelope;
   }
   
-  /**
-   * @param reader
-   * @param msg
-   */
   protected void processFields(FudgeStreamReader reader, MutableFudgeFieldContainer msg) throws IOException {
     //System.out.println ("FudgeMessageStreamReader::processFields(" + reader + ", " + msg + ")");
     while(reader.hasNext()) {

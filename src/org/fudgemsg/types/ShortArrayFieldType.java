@@ -25,25 +25,32 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
 
 
 /**
- * 
+ * Type definition for arrays of 16-bit integers.
  *
  * @author kirk
  */
 public class ShortArrayFieldType extends FudgeFieldType<short[]> {
   
+  /**
+   * Standard Fudge field type: array of 16-bit integers. See {@link FudgeTypeDictionary#SHORT_ARRAY_TYPE_ID}.
+   */
   public static final ShortArrayFieldType INSTANCE = new ShortArrayFieldType();
 
-  /**
-   */
-  public ShortArrayFieldType() {
+  private ShortArrayFieldType() {
     super(FudgeTypeDictionary.SHORT_ARRAY_TYPE_ID, short[].class, true, 0);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getVariableSize(short[] value, FudgeTaxonomy taxonomy) {
     return value.length * 2;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public short[] readValue(DataInput input, int dataSize) throws IOException {
     int nShorts = dataSize / 2;
@@ -54,6 +61,9 @@ public class ShortArrayFieldType extends FudgeFieldType<short[]> {
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void writeValue(DataOutput output, short[] value) throws IOException {
     for(short f : value) {

@@ -73,9 +73,6 @@ public class FudgeStreamParserTest {
     checkResultsMatch(msg, new FudgeContext());
   }
   
-  /**
-   * @param msg
-   */
   protected void checkResultsMatch(FudgeFieldContainer msg, FudgeContext fudgeContext) {
     FudgeMsgEnvelope result = cycleMessage(fudgeContext, msg);
     assertNotNull(result);

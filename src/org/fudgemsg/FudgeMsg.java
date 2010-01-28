@@ -48,16 +48,21 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
   private final FudgeContext _fudgeContext;
   private final List<FudgeMsgField> _fields = new ArrayList<FudgeMsgField>();
 
-  public FudgeMsg(FudgeContext fudgeContext) {
+  /**
+   * Constructs a new {@link FudgeMsg} instance bound to the given {@link FudgeContext}.
+   * 
+   * @param fudgeContext the {@code FudgeContext} to use for type resolution and other services 
+   */
+  protected FudgeMsg(FudgeContext fudgeContext) {
     if(fudgeContext == null) {
       throw new NullPointerException("Context must be provided.");
     }
     _fudgeContext = fudgeContext;
   }
   
-  public FudgeMsg(FudgeMsg other) {
+  /*public FudgeMsg(FudgeMsg other) {
     this (other, other.getFudgeContext ());
-  }
+  }*/
   
   /*public FudgeMsg(byte[] byteArray, FudgeContext fudgeContext) {
     if(fudgeContext == null) {
@@ -67,7 +72,13 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     initializeFromByteArray(byteArray);
   }*/
   
-  public FudgeMsg (final FudgeFieldContainer fields, final FudgeContext fudgeContext) {
+  /**
+   * Creates a new {@link FudgeMsg} from a set of fields bound to the given {@link FudgeContext}.
+   * 
+   * @param fields the initial set of fields
+   * @param fudgeContext the {@link FudgeContext} to use
+   */ 
+  protected FudgeMsg (final FudgeFieldContainer fields, final FudgeContext fudgeContext) {
     if (fields == null) throw new NullPointerException ("Cannot initialize from a null FudgeFieldContainer");
     if (fudgeContext == null) throw new NullPointerException ("Context must be provided");
     _fudgeContext = fudgeContext;
@@ -87,12 +98,18 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
   }*/
   
   /**
+   * Returns this message's {@link FudgeContext}.
+   * 
    * @return the fudgeContext
    */
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void add(FudgeField field) {
     if(field == null) {
       throw new NullPointerException("Cannot add an empty field");
@@ -100,14 +117,26 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     _fields.add(new FudgeMsgField(field));
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void add(String name, Object value) {
     add(name, null, value);
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void add(Integer ordinal, Object value) {
     add(null, ordinal, value);
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void add(String name, Integer ordinal, Object value) {
     FudgeFieldType<?> type = determineTypeFromValue(value);
     if(type == null) {
@@ -116,6 +145,10 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     add(name, ordinal, type, value);
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void add(String name, Integer ordinal, FudgeFieldType<?> type, Object value) {
     if(_fields.size() >= Short.MAX_VALUE) {
       throw new IllegalStateException("Can only add " + Short.MAX_VALUE + " to a single message.");
@@ -169,17 +202,28 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return type;
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public short getNumFields() {
     int size = _fields.size();
     assert size <= Short.MAX_VALUE;
     return (short)size;
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   @SuppressWarnings("unchecked")
   public List<FudgeField> getAllFields() {
     return (List) Collections.unmodifiableList(_fields);
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Set<String> getAllFieldNames() {
     Set<String> result = new TreeSet<String>();
@@ -191,6 +235,10 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public FudgeField getByIndex(int index) {
     if(index < 0) {
       throw new ArrayIndexOutOfBoundsException("Cannot specify a negative index into a FudgeMsg.");
@@ -206,9 +254,9 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
   // to speed things up by building an index.
   
   /**
-   * Returns a list of all fields with the given ordinal value, in the order they are represented in the Fudge message.
-   * If the message contains no matching fields an empty list is returned.  
+   * {@inheritDoc}
    */
+  @Override
   public List<FudgeField> getAllByOrdinal(int ordinal) {
     List<FudgeField> fields = new ArrayList<FudgeField>();
     for(FudgeMsgField field : _fields) {
@@ -220,8 +268,9 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
   }
   
   /**
-   * Returns a field with the given ordinal value.
+   * {@inheritDoc}
    */
+  @Override
   public FudgeField getByOrdinal(int ordinal) {
     for(FudgeMsgField field : _fields) {
       if((field.getOrdinal() != null) && (ordinal == field.getOrdinal())) {
@@ -231,6 +280,10 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return null;
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public List<FudgeField> getAllByName(String name) {
     List<FudgeField> fields = new ArrayList<FudgeField>();
     for(FudgeMsgField field : _fields) {
@@ -241,6 +294,10 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return fields;
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public FudgeField getByName(String name) {
     for(FudgeMsgField field : _fields) {
       if(ObjectUtils.equals(name, field.getName())) {
@@ -250,6 +307,10 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return null;
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Object getValue(String name) {
     for(FudgeMsgField field : _fields) {
       if((name != null) && ObjectUtils.equals(name, field.getName())) {
@@ -259,6 +320,10 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Object getValue(int ordinal) {
     Short ordinalAsShort = (short) ordinal;
     for(FudgeMsgField field : _fields) {
@@ -269,6 +334,10 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Object getValue(String name, Integer ordinal) {
     for(FudgeMsgField field : _fields) {
       if((ordinal != null) && (field.getOrdinal() != null) && (ordinal == field.getOrdinal().intValue())) {
@@ -303,10 +372,18 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
   
   // Primitive Queries:
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Double getDouble(String fieldName) {
     return getAsDoubleInternal(fieldName, null);
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Double getDouble(int ordinal) {
     return getAsDoubleInternal(null, ordinal);
   }
@@ -320,10 +397,18 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return null;
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Float getFloat(String fieldName) {
     return getAsFloatInternal(fieldName, null);
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Float getFloat(int ordinal) {
     return getAsFloatInternal(null, ordinal);
   }
@@ -337,10 +422,18 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return null;
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Long getLong(String fieldName) {
     return getAsLongInternal(fieldName, null);
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Long getLong(int ordinal) {
     return getAsLongInternal(null, ordinal);
   }
@@ -354,10 +447,18 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return null;
   }  
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Integer getInt(String fieldName) {
     return getAsIntInternal(fieldName, null);
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Integer getInt(int ordinal) {
     return getAsIntInternal(null, ordinal);
   }
@@ -371,10 +472,18 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return null;
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Short getShort(String fieldName) {
     return getAsShortInternal(fieldName, null);
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Short getShort(int ordinal) {
     return getAsShortInternal(null, ordinal);
   }
@@ -389,10 +498,18 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
   }
 
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Byte getByte(String fieldName) {
     return getAsByteInternal(fieldName, null);
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Byte getByte(int ordinal) {
     return getAsByteInternal(null, ordinal);
   }
@@ -406,27 +523,49 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return null;
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public String getString(String fieldName) {
     return (String) getFirstTypedValue(fieldName, FudgeTypeDictionary.STRING_TYPE_ID);
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public String getString(int ordinal) {
     return (String) getFirstTypedValue(ordinal, FudgeTypeDictionary.STRING_TYPE_ID);
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Boolean getBoolean(String fieldName) {
     return (Boolean) getFirstTypedValue(fieldName, FudgeTypeDictionary.BOOLEAN_TYPE_ID);
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Boolean getBoolean(int ordinal) {
     return (Boolean) getFirstTypedValue(ordinal, FudgeTypeDictionary.BOOLEAN_TYPE_ID);
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FudgeFieldContainer getMessage(int ordinal) {
     return (FudgeFieldContainer) getFirstTypedValue(ordinal, FudgeTypeDictionary.FUDGE_MSG_TYPE_ID);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FudgeFieldContainer getMessage(String name) {
     return (FudgeFieldContainer) getFirstTypedValue(name, FudgeTypeDictionary.FUDGE_MSG_TYPE_ID);
@@ -456,6 +595,11 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return null;
   }
 
+  /**
+   * Resolves any field ordinals to field names from the given taxonomy.
+   * 
+   * @param taxonomy the taxonomy to use
+   */
   public void setNamesFromTaxonomy(FudgeTaxonomy taxonomy) {
     if(taxonomy == null) {
       return;
@@ -464,25 +608,35 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
       FudgeMsgField field = _fields.get(i);
       if((field.getOrdinal() != null) && (field.getName() == null)) {
         String nameFromTaxonomy = taxonomy.getFieldName(field.getOrdinal());
-        if(nameFromTaxonomy == null) {
-          continue;
+        if(nameFromTaxonomy != null) {
+          field = new FudgeMsgField(field.getType(), field.getValue(), nameFromTaxonomy, field.getOrdinal());
+          _fields.set(i, field);
         }
-        FudgeMsgField replacementField = new FudgeMsgField(field.getType(), field.getValue(), nameFromTaxonomy, field.getOrdinal());
-        _fields.set(i, replacementField);
       }
-      
       if(field.getValue() instanceof FudgeMsg) {
         FudgeMsg subMsg = (FudgeMsg) field.getValue();
         subMsg.setNamesFromTaxonomy(taxonomy);
+      } else if (field.getValue () instanceof FudgeFieldContainer) {
+        FudgeMsg subMsg = new FudgeMsg ((FudgeFieldContainer)field.getValue (), getFudgeContext ());
+        subMsg.setNamesFromTaxonomy (taxonomy);
+        field = new FudgeMsgField (field.getType (), subMsg, field.getName (), field.getOrdinal ());
+        _fields.set (i, field);
       }
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Iterator<FudgeField> iterator() {
     return new ArrayList<FudgeField>(_fields).iterator();
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("FudgeMsg[");
@@ -505,10 +659,6 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     }
     sb.append("]");
     return sb.toString();
-  }
-  
-  public int computeSize (final FudgeTaxonomy taxonomy) {
-    return FudgeSize.calculateMessageSize (taxonomy, this);
   }
   
 }

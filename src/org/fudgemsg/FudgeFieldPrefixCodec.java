@@ -22,26 +22,50 @@ package org.fudgemsg;
  */
 public final class FudgeFieldPrefixCodec {
   // Yes, these are actually bytes.
-  /*package*/ static final int FIELD_PREFIX_FIXED_WIDTH_MASK = 0x80;
-  /*package*/ static final int FIELD_PREFIX_ORDINAL_PROVIDED_MASK = 0x10;
-  /*package*/ static final int FIELD_PREFIX_NAME_PROVIDED_MASK = 0x08;
-
+  private static final int FIELD_PREFIX_FIXED_WIDTH_MASK = 0x80;
+  private static final int FIELD_PREFIX_ORDINAL_PROVIDED_MASK = 0x10;
+  private static final int FIELD_PREFIX_NAME_PROVIDED_MASK = 0x08;
   
   private FudgeFieldPrefixCodec() {
   }
-  
+
+  /**
+   * Tests if the fixed width flag is set.
+   * 
+   * @param fieldPrefix the field prefix byte from the field header
+   * @return {@code true} if the fixed width flag is set, {@code false} otherwise
+   */
   public static boolean isFixedWidth(int fieldPrefix) {
     return (fieldPrefix & FIELD_PREFIX_FIXED_WIDTH_MASK) != 0;    
   }
 
+  /**
+   * Tests if the ordinal value present flag is set.
+   * 
+   * @param fieldPrefix the field prefix byte from the field header
+   * @return {@code true} if the ordinal present flag is set, {@code false} otherwise
+   */
   public static boolean hasOrdinal(int fieldPrefix) {
     return (fieldPrefix & FIELD_PREFIX_ORDINAL_PROVIDED_MASK) != 0;
   }
   
+  /**
+   * Tests if the field name present flag is set.
+   * 
+   * @param fieldPrefix the field prefix byte from the field header
+   * @return {@code true} if the name present flag is set, {@code false} otherwise
+   */
   public static boolean hasName(int fieldPrefix) {
     return (fieldPrefix & FIELD_PREFIX_NAME_PROVIDED_MASK) != 0;
   }
   
+  /**
+   * Returns the length of the field width indicator. If the field is fixed width, a valid Fudge field
+   * header will have a field width of zero.
+   * 
+   * @param fieldPrefix the field prefix byte from the field header
+   * @return the number of bytes used for the variable field width
+   */
   public static int getFieldWidthByteCount(int fieldPrefix) {
     fieldPrefix &= 0x60;
     int count = fieldPrefix >> 5;
@@ -53,6 +77,15 @@ public final class FudgeFieldPrefixCodec {
     return count;
   }
   
+  /**
+   * Creates a Fudge field prefix byte.
+   * 
+   * @param fixedWidth {@code true} if the field type defines the width of the data to follow, {@code false} for variable width
+   * @param varDataSize the number of bytes of field data - ignored if {@code fixedWidth} is true
+   * @param hasOrdinal {@code true} if the field header will include an ordinal, {@code false} otherwise
+   * @param hasName {@code true} if the field header will include a field name, {@code false} otherwise
+   * @return the field prefix byte
+   */
   public static int composeFieldPrefix(boolean fixedWidth, int varDataSize, boolean hasOrdinal, boolean hasName) {
     int varDataBits = 0;
     if(!fixedWidth) {

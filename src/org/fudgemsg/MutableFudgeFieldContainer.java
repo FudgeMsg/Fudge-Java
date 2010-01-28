@@ -25,14 +25,46 @@ package org.fudgemsg;
  */
 public interface MutableFudgeFieldContainer extends FudgeFieldContainer {
 
+  /**
+   * Adds a field to this container.
+   * 
+   * @param field field to add
+   */
   public abstract void add(FudgeField field);
 
+  /**
+   * Adds a field to this container with a name, no ordinal, and type determined by the context's type dictionary.
+   * 
+   * @param name name of the field, or {@code null} for none
+   * @param value field value
+   */
   public abstract void add(String name, Object value);
 
+  /**
+   * Adds a field to this container with an ordinal, no name, and type determined by the context's type dictionary.
+   * 
+   * @param ordinal ordinal index for the field, or {@code null} for none
+   * @param value field value
+   */
   public abstract void add(Integer ordinal, Object value);
 
+  /**
+   * Adds a field to this container with the given name, ordinal and type determined by the context's type dictionary.
+   * 
+   * @param name name of the field, or {@code null} for none
+   * @param ordinal ordinal index for the field, or {@code null} for none
+   * @param value field value
+   */
   public abstract void add(String name, Integer ordinal, Object value);
 
+  /**
+   * Adds a field to this container with the given name, ordinal, and type.
+   * 
+   * @param name name of the field, or {@code null} for none
+   * @param ordinal ordinal index for the field, or {@code null} for none
+   * @param type the {@link FudgeFieldType} for the field
+   * @param value field value
+   */
   public abstract void add(String name, Integer ordinal, FudgeFieldType<?> type, Object value);
 
 }

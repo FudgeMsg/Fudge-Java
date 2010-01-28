@@ -35,10 +35,7 @@ public class FudgeUtils {
   public static void assertAllFieldsMatch(FudgeFieldContainer expectedMsg, FudgeFieldContainer actualMsg) {
     assertAllFieldsMatch(expectedMsg, actualMsg, true);
   }
-  /**
-   * @param inputMsg
-   * @param outputMsg
-   */
+
   public static void assertAllFieldsMatch(
       FudgeFieldContainer expectedMsg,
       FudgeFieldContainer actualMsg,

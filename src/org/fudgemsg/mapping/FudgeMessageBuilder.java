@@ -19,7 +19,9 @@ package org.fudgemsg.mapping;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 /**
- * Defines an object capable of adding data from a given Java object to a fudge message. 
+ * Defines an object capable of adding data from a given Java object to a fudge message.
+ * 
+ * @param <T> the Java type this builder creates Fudge message from
  * 
  * @author Andrew
  */
@@ -29,6 +31,10 @@ public interface FudgeMessageBuilder<T> {
    * Creates a message from the given object. Note that a mutable container must be returned, this
    * is to allow efficient implementation of sub-class builders that only need append data to the
    * super-class message.
+   * 
+   * @param context the {@link FudgeSerialisationContext}
+   * @param object the object to serialise
+   * @return the Fudge message
    */
   MutableFudgeFieldContainer buildMessage (FudgeSerialisationContext context, T object);
   

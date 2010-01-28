@@ -28,6 +28,7 @@ import org.fudgemsg.FudgeRuntimeException;
  * Attempt to create an object using a no-arg constructor and Java-bean style
  * setX methods.
  * 
+ * @param <T> class that can be deserialised using this builder
  * @author Andrew
  */
 /* package */ class ReflectionObjectBuilder<T> extends ReflectionBuilderBase<T> implements FudgeObjectBuilder<T> {

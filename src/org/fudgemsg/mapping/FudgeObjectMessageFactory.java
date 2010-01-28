@@ -20,23 +20,49 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 
 /**
- * Constructs instances of {@link FudgeMsg} from any Java object by parsing
- * its fields.
+ * Converts between Java objects and {@link FudgeFieldContainer} messages using the Fudge serialisation
+ * framework. This class is provided for convenience, direct use of a {@link FudgeSerialisationContext} or {@link FudgeDeserialisationContext}
+ * will be more efficient.
  *
  * @author kirk
  */
 public class FudgeObjectMessageFactory {
   
+  /**
+   * Serialises a Java object to a {@link FudgeFieldContainer} message.
+   * 
+   * @param <T> Java type
+   * @param obj object to serialise
+   * @param context the {@link FudgeContext} to use
+   * @return the serialised message
+   */
   public static <T> FudgeFieldContainer serializeToMessage(T obj, FudgeContext context) {
     final FudgeSerialisationContext fsc = new FudgeSerialisationContext (context);
     return fsc.objectToFudgeMsg (obj);
   }
   
+  /**
+   * Deserialises a {@link FudgeFieldContainer} message to a Java object, trying to determine the 
+   * type of the object automatically.
+   * 
+   * @param message the Fudge message to deserialise
+   * @param context the {@link FudgeContext} to use
+   * @return the deserialised object
+   */
   public static Object deserializeToObject (FudgeFieldContainer message, FudgeContext context) {
     final FudgeDeserialisationContext fdc = new FudgeDeserialisationContext (context);
     return fdc.fudgeMsgToObject (message);
   }
   
+  /**
+   * Deserialises a {@link FudgeFieldContainer} message to a Java object of type {@code clazz}.
+   * 
+   * @param <T> Java type
+   * @param clazz the target type to deserialise
+   * @param message the message to process
+   * @param context the underlying {@link FudgeContext} to use
+   * @return the deserialised object
+   */
   public static <T> T deserializeToObject (Class<T> clazz, FudgeFieldContainer message, FudgeContext context) {
     final FudgeDeserialisationContext fdc = new FudgeDeserialisationContext (context);
     return fdc.fudgeMsgToObject (clazz, message);

@@ -22,9 +22,33 @@ package org.fudgemsg;
  * @author kirk
  */
 public interface FudgeField {
+  
+  /**
+   * Returns the {@link FudgeFieldType} of the field data.
+   * 
+   * @return the {@code FudgeFieldType}
+   */
   FudgeFieldType<?> getType();
+  
+  /**
+   * Returns the value of the field.
+   * 
+   * @return the field value
+   */
   Object getValue();
+  
+  /**
+   * Returns the ordinal index of the field, or {@code null} if none is specified.
+   * 
+   * @return the field ordinal, or {@code null} if none
+   */
   Short getOrdinal();
+  
+  /**
+   * Returns the name of the field, or {@code null} if none is specified.
+   * 
+   * @return the field name, or {@code null} if none 
+   */
   String getName();
 
 }

@@ -30,11 +30,17 @@ import com.mongodb.DBObject;
  */
 public final class MongoDBDecoder {
   
+  // TODO 2010-01-29 Andrew -- this could be written as a FudgeMessageBuilder and added to the default builders
+  
   private static final FudgeContext s_fudgeContext = new FudgeContext ();
   
   private MongoDBDecoder() {
   }
   
+  /**
+   * @param dbObject the MongoDB object
+   * @return the Fudge message
+   */
   @SuppressWarnings("unchecked")
   public static MutableFudgeFieldContainer decode(DBObject dbObject) {
     if(dbObject == null) {

@@ -24,7 +24,8 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 
 /**
  * Builder for Array objects (lists).
- * 
+ *
+ * @param <E> element type of the array
  * @author Andrew
  */
 /* package */ class ArrayBuilder<E> implements FudgeBuilder<E[]> {

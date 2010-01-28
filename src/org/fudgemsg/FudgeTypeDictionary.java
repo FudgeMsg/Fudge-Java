@@ -45,6 +45,9 @@ public final class FudgeTypeDictionary {
   private volatile UnknownFudgeFieldType[] _unknownTypesById = new UnknownFudgeFieldType[0];
   private final Map<Class<?>, FudgeFieldType<?>> _typesByJavaType = new ConcurrentHashMap<Class<?>, FudgeFieldType<?>>();
   
+  /**
+   * Creates a new {@link FudgeTypeDictionary} configured with the default types from the Fudge specification.
+   */
   public FudgeTypeDictionary() {
     addType(ByteArrayFieldType.LENGTH_4_INSTANCE);
     addType(ByteArrayFieldType.LENGTH_8_INSTANCE);
@@ -74,6 +77,13 @@ public final class FudgeTypeDictionary {
     addType(FudgeMsgFieldType.INSTANCE);
   }
   
+  /**
+   * Register a new type with the dictionary. Custom types that are not part of the Fudge specification should use IDs allocated downwards from 255 for compatibility
+   * with future versions that might include additional standard types.
+   * 
+   * @param type the {@link FudgeFieldType} definition of the type
+   * @param alternativeTypes any additional Java classes that are synonymous with this type.
+   */
   public void addType(FudgeFieldType<?> type, Class<?>... alternativeTypes) {
     if(type == null) {
       throw new NullPointerException("Must not provide a null FudgeFieldType to add.");
@@ -91,6 +101,12 @@ public final class FudgeTypeDictionary {
     }
   }
   
+  /**
+   * Resolves a Java class to a {@link FudgeFieldType} registered with this dictionary.
+   * 
+   * @param javaType the class to resolve
+   * @return the matching Fudge type, or {@code null} if none is found
+   */
   public FudgeFieldType<?> getByJavaType(Class<?> javaType) {
     if(javaType == null) {
       return null;
@@ -104,7 +120,7 @@ public final class FudgeTypeDictionary {
    * {@code null}, and {@link #getUnknownType(int)} should be used if unhandled-type
    * processing is desired.
    * 
-   * @param typeId
+   * @param typeId the numeric type identifier
    * @return The type with the specified type identifier, or {@code null}.
    */
   public FudgeFieldType<?> getByTypeId(int typeId) {
@@ -114,6 +130,13 @@ public final class FudgeTypeDictionary {
     return _typesById[typeId];
   }
   
+  /**
+   * Obtain an <em>unknown</em> type wrapper for the type ID specified. Unknown types allow data
+   * to be preserved within a Fudge message even if the application is unable to process it.
+   * 
+   * @param typeId the numeric type identifier
+   * @return A type representing this identifier
+   */
   public UnknownFudgeFieldType getUnknownType(int typeId) {
     int newLength = Math.max(typeId + 1, _unknownTypesById.length);
     if((_unknownTypesById.length < newLength) || (_unknownTypesById[typeId] == null)) {
@@ -133,32 +156,134 @@ public final class FudgeTypeDictionary {
   // STANDARD FUDGE FIELD TYPES
   // --------------------------
   
+  /**
+   * Standard Fudge field type: unsized indicator value. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte INDICATOR_TYPE_ID = (byte)0;
+  
+  /**
+   * Standard Fudge field type: boolean. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte BOOLEAN_TYPE_ID = (byte)1;
+  
+  /**
+   * Standard Fudge field type: 8-bit signed integer. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte BYTE_TYPE_ID = (byte)2;
+  
+  /**
+   * Standard Fudge field type: 16-bit signed integer. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte SHORT_TYPE_ID = (byte)3;
+  
+  /**
+   * Standard Fudge field type: 32-bit signed integer. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte INT_TYPE_ID = (byte)4;
+  
+  /**
+   * Standard Fudge field type: 64-bit signed integer. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte LONG_TYPE_ID = (byte)5;
+  
+  /**
+   * Standard Fudge field type: byte array. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte BYTE_ARRAY_TYPE_ID = (byte)6;
+  
+  /**
+   * Standard Fudge field type: array of 16-bit signed integers. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte SHORT_ARRAY_TYPE_ID = (byte)7;
+  
+  /**
+   * Standard Fudge field type: array of 32-bit signed integers. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte INT_ARRAY_TYPE_ID = (byte)8;
+  
+  /**
+   * Standard Fudge field type: array of 64-bit signed integers. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte LONG_ARRAY_TYPE_ID = (byte)9;
+  
+  /**
+   * Standard Fudge field type: 32-bit floating point. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte FLOAT_TYPE_ID = (byte)10;
+  
+  /**
+   * Standard Fudge field type: 64-bit floating point. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte DOUBLE_TYPE_ID = (byte)11;
+  
+  /**
+   * Standard Fudge field type: array of 32-bit floating point. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte FLOAT_ARRAY_TYPE_ID = (byte)12;
+  
+  /**
+   * Standard Fudge field type: array of 64-bit floating point. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte DOUBLE_ARRAY_TYPE_ID = (byte)13;
+  
+  /**
+   * Standard Fudge field type: string. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte STRING_TYPE_ID = (byte)14;
+  
   // Indicators for controlling stack-based sub-message expressions:
+  
+  /**
+   * Standard Fudge field type: embedded Fudge sub-message. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte FUDGE_MSG_TYPE_ID = (byte)15;
+  
   // End message indicator type removed as unnecessary, hence no 16
+  
   // The fixed-width byte arrays:
+  
+  /**
+   * Standard Fudge field type: byte array of length 4. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte BYTE_ARR_4_TYPE_ID = (byte)17;
+  
+  /**
+   * Standard Fudge field type: byte array of length 8. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte BYTE_ARR_8_TYPE_ID = (byte)18;
+  
+  /**
+   * Standard Fudge field type: byte array of length 16. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte BYTE_ARR_16_TYPE_ID = (byte)19;
+  
+  /**
+   * Standard Fudge field type: byte array of length 20. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte BYTE_ARR_20_TYPE_ID = (byte)20;
+  
+  /**
+   * Standard Fudge field type: byte array of length 32. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte BYTE_ARR_32_TYPE_ID = (byte)21;
+  
+  /**
+   * Standard Fudge field type: byte array of length 64. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte BYTE_ARR_64_TYPE_ID = (byte)22;
+  
+  /**
+   * Standard Fudge field type: byte array of length 128. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte BYTE_ARR_128_TYPE_ID = (byte)23;
+  
+  /**
+   * Standard Fudge field type: byte array of length 256. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte BYTE_ARR_256_TYPE_ID = (byte)24;
+  
+  /**
+   * Standard Fudge field type: byte array of length 512. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
   public static final byte BYTE_ARR_512_TYPE_ID = (byte)25;
 }

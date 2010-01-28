@@ -19,6 +19,7 @@ package org.fudgemsg.mapping;
 /**
  * Helper interface combining the message and object building operations.
  * 
+ * @param <T> class that can be serialised or deserialised by this builder
  * @author Andrew
  */
 public interface FudgeBuilder<T> extends FudgeMessageBuilder<T>, FudgeObjectBuilder<T> {

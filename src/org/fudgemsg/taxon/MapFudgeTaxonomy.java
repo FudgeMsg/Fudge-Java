@@ -32,10 +32,18 @@ public class MapFudgeTaxonomy implements FudgeTaxonomy {
   private final Map<Integer, String> _namesByOrdinal;
   private final Map<String, Integer> _ordinalsByName;
   
+  /**
+   * Creates a new, initially empty, taxonomy.
+   */
   public MapFudgeTaxonomy() {
     this(Collections.<Integer,String>emptyMap());
   }
   
+  /**
+   * Creates a new taxonomy initialised by the supplied map.
+   * 
+   * @param namesByOrdinal map of ordinal to field names.
+   */
   public MapFudgeTaxonomy(Map<Integer, String> namesByOrdinal) {
     if(namesByOrdinal == null) {
       namesByOrdinal = Collections.emptyMap();
@@ -47,6 +55,12 @@ public class MapFudgeTaxonomy implements FudgeTaxonomy {
     }
   }
   
+  /**
+   * Creates a new taxonomy initialised by a list of ordinals and corresponding names. The ordinal and name arrays must be the same length.
+   * 
+   * @param ordinals the ordinal values
+   * @param names the field names
+   */
   public MapFudgeTaxonomy(int[] ordinals, String[] names) {
     if(ordinals == null) {
       throw new NullPointerException("Must provide ordinals.");
@@ -66,11 +80,17 @@ public class MapFudgeTaxonomy implements FudgeTaxonomy {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String getFieldName(short ordinal) {
     return _namesByOrdinal.get((int)ordinal);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Short getFieldOrdinal(String fieldName) {
     Integer ordinal = _ordinalsByName.get(fieldName);

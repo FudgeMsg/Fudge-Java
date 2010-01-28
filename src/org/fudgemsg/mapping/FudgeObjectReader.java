@@ -22,57 +22,112 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgReader;
 
+/**
+ * Deserialises Java objects from an underlying stream of Fudge messages.
+ * 
+ * @author Andrew
+ */
 public class FudgeObjectReader {
   
   private FudgeMsgReader _messageReader;
   
   private FudgeDeserialisationContext _deserialisationContext;
-  
+
+  /**
+   * Creates a new {@link FudgeObjectReader} around the underlying {@link FudgeMsgReader} stream.
+   * 
+   * @param messageReader the source of Fudge messages containing serialised objects
+   */
   public FudgeObjectReader (final FudgeMsgReader messageReader) {
     if (messageReader == null) throw new NullPointerException ("messageReader cannot be null");
     _messageReader = messageReader;
     _deserialisationContext = new FudgeDeserialisationContext (messageReader.getFudgeContext ());
   }
   
+  /**
+   * Closes the underlying stream.
+   */
   public void close () {
     if (_messageReader == null) return;
     getFudgeContext ().releaseMessageReader (_messageReader);
     _messageReader = null;
   }
   
+  /**
+   * Resets the reader for use with a different message stream.
+   * 
+   * @param messageReader the new message source
+   */
   public void reset (final FudgeMsgReader messageReader) {
     close ();
     if (messageReader == null) throw new NullPointerException ("messageReader cannot be null");
     _messageReader = messageReader;
     if (getDeserialisationContext ().getFudgeContext () != messageReader.getFudgeContext ()) {
+      // only re-allocate the D-context if the F-context is different
       _deserialisationContext = new FudgeDeserialisationContext (messageReader.getFudgeContext ());
     }
   }
   
+  /**
+   * Returns the underlying {@link FudgeContext}. This will be the context of the {@link FudgeMsgReader} being used.
+   * 
+   * @return the {@code FudgeContext}
+   */
   public FudgeContext getFudgeContext () {
     final FudgeDeserialisationContext context = getDeserialisationContext ();
     if (context == null) return null;
     return context.getFudgeContext ();
   }
   
+  /**
+   * Returns the current {@link FudgeDeserialisationContext}. This is associated with the same {@link FudgeContext} as
+   * the source message stream.
+   * 
+   * @return the {@code FudgeDeserialisationContext}
+   */
   public FudgeDeserialisationContext getDeserialisationContext () {
     return _deserialisationContext;
   }
   
+  /**
+   * Returns the underlying message source.
+   * 
+   * @return the {@link FudgeMsgReader}
+   */
   public FudgeMsgReader getMessageReader () {
     return _messageReader;
   }
   
+  /**
+   * Returns {@code true} if the underlying message source has another message and {@link #read()} or {@link #read(Class)} can be
+   * called.
+   * 
+   * @return {@code true} if there are more messages to be deserialised, {@code false} otherwise
+   */
   public boolean hasNext () {
     return getMessageReader ().hasNext ();
   }
   
+  /**
+   * Reads the next message from the underlying source and deserialises it to a Java object.
+   * 
+   * @return the Java object
+   * @throws IOException if a message cannot be read
+   */
   public Object read () throws IOException {
     FudgeFieldContainer message = getMessageReader ().nextMessage ();
     getDeserialisationContext ().reset ();
     return getDeserialisationContext ().fudgeMsgToObject (message);
   }
   
+  /**
+   * Reads the next message from the underlying source and deserialises it to the requested Java type.
+   * 
+   * @param <T> Java type of the requested object
+   * @param clazz Java class of the requested object
+   * @return the Java object
+   * @throws IOException if a message cannot be read
+   */
   public <T> T read (final Class<T> clazz) throws IOException {
     FudgeFieldContainer message = getMessageReader ().nextMessage ();
     getDeserialisationContext ().reset ();

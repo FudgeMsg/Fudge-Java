@@ -34,6 +34,7 @@ import org.fudgemsg.FudgeMsg;
  *    void toFudgeMsg (FudgeContext, MutableFudgeFieldContainer)
  *    FudgeMsg toFudgeMsg (FudgeContext)
  * 
+ * @param <T> class that can be serialised using this builder
  * @author Andrew
  */
 /* package */ abstract class ToFudgeMsgMessageBuilder<T> implements FudgeMessageBuilder<T> {

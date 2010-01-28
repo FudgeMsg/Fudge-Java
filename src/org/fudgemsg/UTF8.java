@@ -32,6 +32,12 @@ public class UTF8 {
   private UTF8 () {
   }
   
+  /**
+   * Calculate the length in bytes of a string.
+   * 
+   * @param str string to check
+   * @return number of bytes
+   */
   public static int getLengthBytes (final String str) {
     int bytes = str.length ();
     for (int i = 0; i < bytes; i++) {
@@ -47,6 +53,12 @@ public class UTF8 {
     return bytes;
   }
   
+  /**
+   * Calculate the length in bytes of a string.
+   * 
+   * @param str string to check
+   * @return number of bytes
+   */
   public static int getLengthBytes (final char[] str) {
     int bytes = str.length;
     for (int i = 0; i < bytes; i++) {
@@ -62,6 +74,14 @@ public class UTF8 {
     return bytes;
   }
   
+  /**
+   * Encodes a string into a supplied array. The array must be at least {@link #getLengthBytes(String)} long for this to succeed.
+   * 
+   * @param str string to encode
+   * @param arr array to encode into
+   * @return number of bytes written to array
+   * @throws ArrayIndexOutOfBoundsException if the target array is not big enough
+   */
   public static int encode (final String str, final byte[] arr) {
     final int len = str.length ();
     int count = 0;
@@ -86,16 +106,38 @@ public class UTF8 {
     return count;
   }
   
+  /**
+   * Encodes a string into an array.
+   * 
+   * @param str string to encode
+   * @return byte encoding of the string
+   */
   public static byte[] encode (final String str) {
     final byte[] buffer = new byte[getLengthBytes (str)];
     encode (str, buffer);
     return buffer;
   }
   
+  /**
+   * Decodes a string from a byte array.
+   * 
+   * @param arr byte encoding of a string
+   * @return the decoded string
+   * @throws UTFDataFormatException if the source does not contain valid UTF-8
+   */
   public static String decode (final byte[] arr) throws UTFDataFormatException {
     return decode (arr, 0, arr.length);
   }
   
+  /**
+   * Decodes a string from part of a byte array.
+   * 
+   * @param arr data source
+   * @param start start index of the UTF-8 string encoding
+   * @param length number of bytes of UTF-8 data
+   * @return decoded string
+   * @throws UTFDataFormatException if the array fragment does not contain valid UTF-8 
+   */
   public static String decode (final byte[] arr, final int start, int length) throws UTFDataFormatException {
     final char[] buffer = new char[length];
     int count = 0;
@@ -135,6 +177,15 @@ public class UTF8 {
     return new String (buffer, 0, count);
   }
   
+  /**
+   * Decodes a string from a {@link DataInput} source. Note that the methods within {@link DataInput} are designed for <em>modified</em> UTF-8
+   * so can't be used directly with Fudge.
+   * 
+   * @param is data source
+   * @param utfLen number of bytes of data to read
+   * @return the decoded string
+   * @throws IOException if the underlying source raises one or the data is malformed
+   */
   public static String readString (final DataInput is, final int utfLen) throws IOException {
     // REVIEW kirk 2009-08-18 -- This can be optimized. We're copying the data too many
     // times. Particularly since we expect that most of the time we're reading from
@@ -144,6 +195,15 @@ public class UTF8 {
     return decode(bytearr);
   }
   
+  /**
+   * Encodes a string to a {@link DataOutput} target. Note that the methods within {@link DataOutput} are designed for <em>modified</em> UTF-8
+   * so can't be used directly with Fudge.
+   * 
+   * @param os data target 
+   * @param str string to encode
+   * @return number of bytes written
+   * @throws IOException if the target raises one
+   */
   public static int writeString (final DataOutput os, final String str) throws IOException {
     // REVIEW 2010-01-26 Andrew -- Can this be optimised like the readString method? 
     byte[] bytearr = encode(str);

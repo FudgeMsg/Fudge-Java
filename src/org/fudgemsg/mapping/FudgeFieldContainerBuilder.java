@@ -17,7 +17,7 @@
 package org.fudgemsg.mapping;
 
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeFieldContainer;
 
 /**
  * Dummy builder wrapper for objects that are already fudge messages.
@@ -32,13 +32,13 @@ import org.fudgemsg.FudgeMsg;
   }
 
   @Override
-  public FudgeMsg buildMessage (FudgeSerialisationContext context, FudgeFieldContainer fields) {
-    return new FudgeMsg (fields, context.getFudgeContext ());
+  public MutableFudgeFieldContainer buildMessage (FudgeSerialisationContext context, FudgeFieldContainer fields) {
+    return context.newMessage (fields);
   }
   
   @Override
   public FudgeFieldContainer buildObject (FudgeDeserialisationContext context, FudgeFieldContainer message) {
-    return new FudgeMsg (message, context.getFudgeContext ());
+    return context.getFudgeContext ().newMessage (message);
   }
 
 }

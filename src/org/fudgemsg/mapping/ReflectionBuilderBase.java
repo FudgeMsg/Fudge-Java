@@ -22,8 +22,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Base class for ReflectionObjectBuilder and ReflectionMessageBuilder.
+ * Base class for ReflectionObjectBuilder and ReflectionMessageBuilder. Contains some helper methods common to reading class methods.
  * 
+ * @param <T> class that can be serialised or deserialised by this builder
  * @author Andrew
  */
 /* package */ class ReflectionBuilderBase<T> {

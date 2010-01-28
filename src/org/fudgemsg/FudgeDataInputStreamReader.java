@@ -19,13 +19,14 @@ package org.fudgemsg;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.Closeable;
 import java.io.InputStream;
 import java.util.Stack;
 
 import org.fudgemsg.taxon.FudgeTaxonomy;
 
 /**
- * An implementation of FudgeStreamReader for consuming data from a DataInput.
+ * An implementation of {@link FudgeStreamReader} for consuming data from a {@link DataInput}.
  */
 public class FudgeDataInputStreamReader implements FudgeStreamReader {
 
@@ -67,6 +68,14 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
     }
   }
   
+  /**
+   * Creates a new {@link FudgeDataInputStreamReader} associated with the given {@link FudgeContext} and {@link DataInput} data source.
+   * The data source can be changed later using the {@link #reset(DataInput)} method. The Fudge context is fixed at construction and is used to hold
+   * all decoding parameters such as taxonomy and type resolution.
+   * 
+   * @param fudgeContext the {@code FudgeContext} to associate with
+   * @param dataInput the source of data to read Fudge elements from
+   */
   public FudgeDataInputStreamReader (final FudgeContext fudgeContext, final DataInput dataInput) {
     //System.out.println ("FudgeDataInputStreamReader::FudgeDataInputStreamReader(" + fudgeContext + ", " + dataInput + ")");
     if(fudgeContext == null) {
@@ -79,16 +88,22 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
     _dataInput = dataInput;
   }
   
+  /**
+   * Creates a new {@link FudgeDataInputStreamReader} by wrapping a {@link InputStream} with a {@link DataInput}.
+   * 
+   * @param fudgeContext the {@link FudgeContext} to associate with
+   * @param inputStream the source of data to read Fudge elements from
+   */
   public FudgeDataInputStreamReader (final FudgeContext fudgeContext, final InputStream inputStream) {
     this (fudgeContext, convertInputStream (inputStream));
   }
   
   /**
-   * Reset the state of this parser for a new message.
+   * Reset the state of this reader for a new message source.
    * This method is primarily designed so that instances can be pooled to minimize
    * object creation in performance sensitive code.
    * 
-   * @param dataInput
+   * @param dataInput new message source
    */
   public void reset (final DataInput dataInput) {
     //System.out.println ("FudgeDataInputStreamReader::reset(" + dataInput + ")");
@@ -99,9 +114,21 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
     _dataInput = dataInput;
   }
   
+  /**
+   * Closes this reader. If the underlying data source implements the {@link Closeable} interface, {@link Closeable#close()} will be called on it.
+   * The reader must not be used until {@link #reset(DataInput)} has been called to reinitialise it for use again.
+   */
   @Override
   public void close () {
     //System.out.println ("FudgeDataInputStreamReader::close()");
+    if (_dataInput == null) return;
+    if (_dataInput instanceof Closeable) {
+      try {
+        ((Closeable)_dataInput).close ();
+      } catch (IOException ioe) {
+        // ignore
+      }
+    }
     _dataInput = null;
     _currentElement = null;
     _processingStack.clear();
@@ -117,66 +144,107 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
     _fieldValue = null;
   }
 
+  /**
+   * Resets the state of this reader for a new message source from a {@link InputStream} data source by wrapping it in a {@link DataInput}.
+   * 
+   * @param inputStream new message source
+   */
   public void reset(InputStream inputStream) {
     //System.out.println ("FudgeDataInputStreamReader::reset(" + inputStream + ")");
     reset(convertInputStream (inputStream));
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FudgeStreamElement getCurrentElement() {
     return _currentElement;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getEnvelopeSize() {
     return _envelopeSize;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String getFieldName() {
     return _fieldName;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Integer getFieldOrdinal() {
     return _fieldOrdinal;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FudgeFieldType<?> getFieldType() {
     return _fieldType;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Object getFieldValue() {
     return _fieldValue;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getProcessingDirectives() {
     return _processingDirectives;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getSchemaVersion() {
     return _schemaVersion;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FudgeTaxonomy getTaxonomy() {
     return _taxonomy;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public short getTaxonomyId() {
     return _taxonomyId;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean hasNext() {
     //System.out.println ("FudgeDataInputStreamReader::hasNext()");
@@ -210,6 +278,9 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FudgeStreamElement next() throws IOException {
     //System.out.println ("FudgeDataInputStreamReader::next()");
@@ -249,6 +320,8 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
   /**
    * Reads the next field (prefix and value) from the input stream, setting internal state to be returned by getFieldName, getFieldOrdinal,
    * getFieldType, getCurrentElement and getFieldValue. The input stream is left positioned at the start of the next field.
+   * 
+   * @throws IOException if the underlying stream raises one
    */
   protected void consumeFieldData() throws IOException {
     //System.out.println ("FudgeDataInputStreamReader::consumeFieldData()");
@@ -323,13 +396,13 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
   }
 
   /**
-   * Reads a Fudge encoded field value from the input stream.
+   * Reads a Fudge encoded field value from an input stream.
    * 
-   * @param is
-   * @param type
-   * @param varSize
-   * @return 
-   * @throws IOException
+   * @param is the {@link DataInput} wrapped input steram
+   * @param type the {@link FudgeFieldType} of the data to read
+   * @param varSize number of bytes in a variable width field payload
+   * @return the field value
+   * @throws IOException if the underlying stream raises an {@link IOException}
    */
   public static Object readFieldValue(
       DataInput is,
@@ -362,6 +435,8 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
 
   /**
    * Reads the next message envelope from the input stream, setting internal state go be returned by getCurrentElement, getProcessingDirectives, getSchemaVersion, getTaxonomyId and getEnvelopeSize.
+   * 
+   * @throws IOException if the underlying data source raises an {@link IOException}, e.g. the end of the stream has been reached
    */
   protected void consumeMessageEnvelope() throws IOException {
     //System.out.println ("FudgeDataInputStreamReader::consumeMessageEnvelope()");

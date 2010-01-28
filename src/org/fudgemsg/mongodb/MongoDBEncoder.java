@@ -33,9 +33,18 @@ import com.mongodb.DBObject;
  * @author kirk
  */
 public final class MongoDBEncoder {
+
+  // TODO 2010-01-29 Andrew -- this could be written as a FudgeObjectBuilder and added to the default builders
+  
   private MongoDBEncoder() {
   }
   
+  /**
+   * Deserialise a Fudge message to a MongoDB object.
+   * 
+   * @param fields the Fudge message
+   * @return the {@link DBObject}
+   */
   public static DBObject encode(FudgeFieldContainer fields) {
     if(fields == null) {
       return null;

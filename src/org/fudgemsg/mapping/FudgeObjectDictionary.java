@@ -16,6 +16,8 @@
 
 package org.fudgemsg.mapping;
 
+import java.util.Map;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -26,6 +28,10 @@ import org.fudgemsg.FudgeMsg;
  * Contains mappings from Java objects to Fudge messages for the current classloader.
  * There are a set of default mappings built into this implementation
  * (see FudgeDefaultBuilder) which will be used, or custom mappings can be supplied.
+ * 
+ * For example, registering builders for {@link Map} or {@link List} with a {@code FudgeObjectDictionary}
+ * before it is used by a {@link FudgeDeserialisationContext} or {@link FudgeSerialisationContext} will
+ * override the default behaviours.
  * 
  * @author Andrew
  */
@@ -47,22 +53,59 @@ public final class FudgeObjectDictionary {
   private final ConcurrentMap<Class<?>, FudgeObjectBuilder<?>> _objectBuilders = new ConcurrentHashMap<Class<?>, FudgeObjectBuilder<?>> ();
   private final ConcurrentMap<Class<?>, FudgeMessageBuilder<?>> _messageBuilders = new ConcurrentHashMap<Class<?>, FudgeMessageBuilder<?>> ();
   
+  /**
+   * Constructs a new (initially empty) {@link FudgeObjectDictionary}.
+   */
   public FudgeObjectDictionary () {
   }
   
+  /**
+   * Registers a new {@link FudgeObjectBuilder} with this dictionary to be used for a given class. The same builder can be registered against
+   * multiple classes. A class can only have one registered {@code FudgeObjectBuilder} - registering a second will overwrite the previous
+   * registration.
+   * 
+   * @param <T> Java type of the objects created by the builder
+   * @param clazz the Java class to register the builder against
+   * @param builder the builder to register
+   */
   public <T> void addObjectBuilder (final Class<T> clazz, final FudgeObjectBuilder<T> builder) {
     _objectBuilders.put (clazz, builder);
   }
   
+  /**
+   * Registers a new {@link FudgeMessageBuilder} with this dictionary to be used for a given class. The same builder can be registered against
+   * multiple classes. A class can only have one registered {@code FudgeMessageBuilder} - registering a second will overwrite the previous
+   * registration.
+   * 
+   * @param <T> Java type of the objects processed by the builder
+   * @param clazz the Java class to register the builder against
+   * @param builder builder to register
+   */
   public <T> void addMessageBuilder (final Class<T> clazz, final FudgeMessageBuilder<T> builder) {
     _messageBuilders.put (clazz, builder);
   }
   
+  /**
+   * Registers a new {@link FudgeBuilder} with this dictionary to be used for a given class. A {@code FudgeBuilder} is simply a combined {@link FudgeMessageBuilder}
+   * and {@link FudgeObjectBuilder} so this method is the same as calling {@link #addMessageBuilder(Class,FudgeMessageBuilder)} and {@link #addObjectBuilder(Class,FudgeObjectBuilder)}.
+   * 
+   * @param <T> Java type of the objects processed by the builder
+   * @param clazz the Java class to register the builder against
+   * @param builder builder to register
+   */
   public <T> void addBuilder (final Class<T> clazz, final FudgeBuilder<T> builder) {
     addMessageBuilder (clazz, builder);
     addObjectBuilder (clazz, builder);
   }
   
+  /**
+   * Returns a {@link FudgeObjectBuilder} for the given class to convert a Fudge message to a Java object. If none is already registered for the class,
+   * it will attempt to create one using {@link FudgeDefaultBuilder}. If it is not possible to create a builder (e.g. for an interface) returns {@code null}.
+   * 
+   * @param <T> Java type of the objects to be built
+   * @param clazz the Java class to look up
+   * @return the builder, or {@code null} if none is available
+   */
   @SuppressWarnings("unchecked")
   public <T> FudgeObjectBuilder<T> getObjectBuilder (final Class<T> clazz) {
     FudgeObjectBuilder<T> builder = (FudgeObjectBuilder<T>)_objectBuilders.get (clazz);
@@ -75,6 +118,14 @@ public final class FudgeObjectDictionary {
     return (builder == NULL_BUILDER) ? null : builder;
   }
   
+  /**
+   * Returns a {@link FudgeMessageBuilder} for the given class to convert a Fudge message to a Java object. If none is already registered for the class,
+   * it will attempt to create one using {@link FudgeDefaultBuilder}. If it is not possible to create a builder returns {@code null}.
+   * 
+   * @param <T> Java type of the objects to be built
+   * @param clazz the Java class to look up
+   * @return the builder, or {@code null} if none is available
+   */
   @SuppressWarnings("unchecked")
   public <T> FudgeMessageBuilder<T> getMessageBuilder (final Class<T> clazz) {
     FudgeMessageBuilder<T> builder = (FudgeMessageBuilder<T>)_messageBuilders.get (clazz);

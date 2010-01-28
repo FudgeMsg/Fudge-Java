@@ -29,6 +29,7 @@ import org.fudgemsg.FudgeRuntimeException;
  *    static <T> fromFudgeMsg (FudgeFieldContainer) or
  *    static <T> fromFudgeMsg (FudgeDeserialisationContext, FudgeFieldContainer)
  * 
+ * @param <T> class supporting a {@code fromFudgeMsg} method which can be deserialised by this builder
  * @author Andrew
  */
 /* package */ class FromFudgeMsgObjectBuilder<T> implements FudgeObjectBuilder<T> {

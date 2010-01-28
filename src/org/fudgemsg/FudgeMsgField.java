@@ -17,8 +17,6 @@ package org.fudgemsg;
 
 import java.io.Serializable;
 
-import org.fudgemsg.taxon.FudgeTaxonomy;
-
 /**
  * A concrete implementation of {@link FudgeField} suitable for inclusion in
  * a pre-constructed {@link FudgeMsg} or a stream of data.
@@ -32,6 +30,14 @@ public class FudgeMsgField implements FudgeField, Serializable, Cloneable {
   private final String _name;
   private final Short _ordinal;
   
+  /**
+   * Creates a new {@link FudgeMsgField}.
+   * 
+   * @param type the underlying field type
+   * @param value the field value
+   * @param name the name of the field, or {@code null} to omit
+   * @param ordinal the ordinal index of the field, or {@code null} to omit
+   */
   public FudgeMsgField(FudgeFieldType<?> type, Object value, String name, Short ordinal) {
     if(type == null) {
       throw new NullPointerException("Must specify a type for this field.");
@@ -42,30 +48,50 @@ public class FudgeMsgField implements FudgeField, Serializable, Cloneable {
     _ordinal = ordinal;
   }
   
+  /**
+   * Creates a new {@link FudgeMsgField} as a copy of another.
+   * 
+   * @param field the {@code FudgeMsgField} to copy.
+   */
   public FudgeMsgField(FudgeField field) {
     this(field.getType(), field.getValue(), field.getName(), field.getOrdinal());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FudgeFieldType<?> getType() {
     return _type;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Object getValue() {
     return _value;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String getName() {
     return _name;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Short getOrdinal() {
     return _ordinal;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FudgeMsgField clone() {
     Object cloned;
@@ -77,6 +103,9 @@ public class FudgeMsgField implements FudgeField, Serializable, Cloneable {
     return (FudgeMsgField) cloned;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
@@ -97,10 +126,6 @@ public class FudgeMsgField implements FudgeField, Serializable, Cloneable {
     sb.append("-").append(_value);
     sb.append("]");
     return sb.toString();
-  }
-  
-  public int computeSize (final FudgeTaxonomy taxonomy) {
-    return FudgeSize.calculateFieldSize (taxonomy, this);
   }
   
 }

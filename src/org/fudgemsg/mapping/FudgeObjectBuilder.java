@@ -19,14 +19,20 @@ package org.fudgemsg.mapping;
 import org.fudgemsg.FudgeFieldContainer;
 
 /**
- * Defines an object capable of constructing a Java object from a fudge message 
+ * Defines an object capable of constructing a Java object from a Fudge message
+ * 
+ * @param <T> the Java type this builder deserialises Fudge messages to
  * 
  * @author Andrew
  */
 public interface FudgeObjectBuilder<T> {
   
   /**
-   * Decodes the message into an instance of type T. 
+   * Decodes the message into an instance of type T.
+   * 
+   * @param context the {@link FudgeDeserialisationContext}
+   * @param message the origin Fudge message
+   * @return the created object
    */
   T buildObject (FudgeDeserialisationContext context, FudgeFieldContainer message);
   

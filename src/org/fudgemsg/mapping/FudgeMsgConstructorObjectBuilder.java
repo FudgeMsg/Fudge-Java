@@ -26,6 +26,7 @@ import org.fudgemsg.FudgeRuntimeException;
  * Implementation of FudgeObjectBuilder for a class with a public constructor that
  * accepts a FudgeFieldContainer or a FudgeDeserialisationContext and FudgeFieldContainer.
  * 
+ * @param <T> class supporting a {@code FudgeFieldContainer} constructor that can be deserialised by this builder
  * @author Andrew
  */
 /* package */ class FudgeMsgConstructorObjectBuilder<T> implements FudgeObjectBuilder<T> {

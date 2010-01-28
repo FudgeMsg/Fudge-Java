@@ -32,6 +32,12 @@ public class UnknownFudgeFieldValue {
   private final byte[] _contents;
   private final UnknownFudgeFieldType _type;
   
+  /**
+   * Creates a new {@link UnknownFudgeFieldValue} for a block of data.
+   * 
+   * @param contents the raw contents from the Fudge message stream
+   * @param type the {@link UnknownFudgeFieldType} wrapper for the unknown type
+   */
   public UnknownFudgeFieldValue(byte[] contents, UnknownFudgeFieldType type) {
     if(contents == null) {
       throw new NullPointerException("Contents must be provided");
@@ -44,6 +50,8 @@ public class UnknownFudgeFieldValue {
   }
 
   /**
+   * Returns the raw contents of the original data.
+   * 
    * @return the contents
    */
   public byte[] getContents() {
@@ -51,6 +59,8 @@ public class UnknownFudgeFieldValue {
   }
 
   /**
+   * Returns the {@link UnknownFudgeFieldType} definition.
+   * 
    * @return the type
    */
   public UnknownFudgeFieldType getType() {

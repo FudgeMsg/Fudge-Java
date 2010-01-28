@@ -19,13 +19,14 @@ package org.fudgemsg;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.Closeable;
 import java.io.OutputStream;
 import java.io.Flushable;
 
 import org.fudgemsg.taxon.FudgeTaxonomy;
 
 /**
- * Implementation of a FudgeStreamWriter that writes to a DataOutput
+ * Implementation of a {@link FudgeStreamWriter} that writes to a {@link DataOutput}.
  */
 public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
   
@@ -45,6 +46,14 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
     }
   }
   
+  /**
+   * Creates a new {@link FudgeDataOutputStreamWriter} associated with the given {@link FudgeContext} and {@link DataOutput} target.
+   * The target can be changed later using the {@link #reset(DataOutput)} method. The Fudge context is fixed at construction and is used to hold
+   * all encoding parameters such as taxonomy and type resolution.
+   * 
+   * @param fudgeContext the {@code FudgeContext} to associate with
+   * @param dataOutput the target to write Fudge elements to
+   */
   public FudgeDataOutputStreamWriter(FudgeContext fudgeContext, final DataOutput dataOutput) {
     if(fudgeContext == null) {
       throw new NullPointerException("Must provide a Fudge Context");
@@ -53,10 +62,23 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
     _dataOutput = dataOutput;
   }
   
+  /**
+   * Creates a new {@link FudgeDataOutputStreamWriter} by wrapping a {@link OutputStream} with a {@link DataOutput}.
+   * 
+   * @param fudgeContext the {@link FudgeContext} to associate with
+   * @param outputStream the target to write Fudge elements to
+   */
   public FudgeDataOutputStreamWriter (FudgeContext fudgeContext, final OutputStream outputStream) {
     this (fudgeContext, convertOutputStream (outputStream));
   }
   
+  /**
+   * Resets the state of this writer for a new target. This exists to allow objects to be pooled as an optimisation in performance critical code.
+   * If the writer has not been closed, {@link #close()} is called before changing the target.
+   * 
+   * @param dataOutput the new target
+   * @throws IOException if the previous underlying stream throws one as it is closed
+   */
   public void reset(DataOutput dataOutput) throws IOException {
     close ();
     if(dataOutput == null) {
@@ -65,14 +87,25 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
     _dataOutput = dataOutput;
   }
   
+  /**
+   * Flushes and closes this writer and the underlying target.
+   */
+  @Override
   public void close () throws IOException {
     if (_dataOutput == null) return;
     flush ();
+    if (_dataOutput instanceof Closeable) {
+      ((Closeable)_dataOutput).close ();
+    }
     _dataOutput = null;
     _taxonomy = null;
     _taxonomyId = 0;
   }
   
+  /**
+   * {@inheritDoc} 
+   */
+  @Override
   public void flush () throws IOException {
     final Object out = getDataOutput ();
     if (out instanceof Flushable) {
@@ -80,12 +113,18 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
     }
   }
   
+  /**
+   * Resets the state of this writer for a new target by wrapping the {@link OutputStream} with a {@link DataOutput}.
+   * 
+   * @param outputStream the new target
+   * @throws IOException if the previous underlying stream throws one as it is closed
+   */
   public void reset(OutputStream outputStream) throws IOException {
     reset (convertOutputStream (outputStream));
   }
 
   /**
-   * @return the fudgeContext
+   * {@inheritDoc}
    */
   @Override
   public FudgeContext getFudgeContext() {
@@ -100,13 +139,16 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
   }
 
   /**
-   * @return the taxonomy
+   * {@inheritDoc}
    */
   @Override
   public FudgeTaxonomy getCurrentTaxonomy() {
     return _taxonomy;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void setCurrentTaxonomyId (final int taxonomyId) {
     _taxonomyId = taxonomyId;
@@ -118,11 +160,17 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
     }
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getCurrentTaxonomyId () {
     return _taxonomyId;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int writeEnvelopeHeader(
       int processingDirectives,
@@ -139,7 +187,10 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
     return 8;
   }
   
-  @Override
+  /**
+   * {@inheritDoc}
+   */
+@Override
   public int writeFields(FudgeFieldContainer msg) throws IOException {
     int nWritten = 0;
     for(FudgeField field : msg.getAllFields()) {
@@ -148,6 +199,9 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
     return nWritten;
   }
   
+/**
+ * {@inheritDoc}
+ */
   @Override
   public int writeField (FudgeField field) throws IOException {
     if (field == null) {
@@ -157,13 +211,7 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
   }
 
   /**
-   * Writes a field to the stream. If a taxonomy is selected and the field has a name but no ordinal, the ordinal is looked up and written in place of the field name.  
-   * 
-   * @param ordinal
-   * @param name
-   * @param type
-   * @param fieldValue
-   * @return
+   * {@inheritDoc}
    */
   @SuppressWarnings("unchecked")
   @Override
@@ -228,9 +276,11 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
       
 
   /**
-   * @param type
-   * @param fieldValue
-   * @return
+   * @param type the {@link FudgeFieldType} defining how to write this
+   * @param value the value to write
+   * @param valueSize the size of the value
+   * @return number of bytes written
+   * @throws IOException if the target stream throws one
    */
   @SuppressWarnings("unchecked")
   protected int writeFieldValue(FudgeFieldType type, Object value, int valueSize) throws IOException {
@@ -301,6 +351,9 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
     }
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String toString () {
     final StringBuilder sb = new StringBuilder ("FudgeDataOutputStreamWriter{");

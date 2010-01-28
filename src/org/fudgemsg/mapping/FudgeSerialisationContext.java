@@ -17,6 +17,7 @@
 package org.fudgemsg.mapping;
 
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -37,24 +38,45 @@ public class FudgeSerialisationContext implements FudgeMessageFactory {
   private final FudgeContext _fudgeContext;
   private final SerialisationBuffer _serialisationBuffer = new SerialisationBuffer ();
   
+  /**
+   * Creates a new {@link FudgeSerialisationContext} for the given {@link FudgeContext}.
+   * 
+   * @param fudgeContext the {@code FudgeContext} to use
+   */
   public FudgeSerialisationContext (final FudgeContext fudgeContext) {
     _fudgeContext = fudgeContext;
   }
 
+  /**
+   * Resets the buffers used for object graph logics. Calling {@code reset()} on this context
+   * should match a call to {@link FudgeDeserialisationContext#reset()} on the context used by the deserialiser
+   * to keep the states of both sender and receiver consistent.
+   */
   public void reset () {
     getSerialisationBuffer ().reset ();
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public MutableFudgeFieldContainer newMessage () {
     return _fudgeContext.newMessage ();
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public MutableFudgeFieldContainer newMessage (final FudgeFieldContainer fromMessage) {
     return _fudgeContext.newMessage (fromMessage);
   }
-  
+
+  /**
+   * Returns the associated {@link FudgeContext}.
+   * 
+   * @return the {@code FudgeContext}
+   */
   public FudgeContext getFudgeContext () {
     return _fudgeContext;
   }
@@ -63,6 +85,15 @@ public class FudgeSerialisationContext implements FudgeMessageFactory {
     return _serialisationBuffer;
   }
   
+  /**
+   * Add a Java object to a Fudge message ({@link MutableFudgeFieldContainer} instance) either natively if the associated {@link FudgeTypeDictionary}
+   * recognises it, or as a sub-message using the serialisation framework.
+   * 
+   * @param message the message to add this object to
+   * @param name field name to add with, or {@code null} for none
+   * @param ordinal ordinal index to add with, or {@code null} for none
+   * @param object value to add
+   */
   public void objectToFudgeMsg (final MutableFudgeFieldContainer message, final String name, final Integer ordinal, final Object object) {
     if (object == null) return;
     final FudgeFieldType<?> fieldType = getFudgeContext ().getTypeDictionary ().getByJavaType (object.getClass ());
@@ -75,6 +106,14 @@ public class FudgeSerialisationContext implements FudgeMessageFactory {
     }
   }
   
+  /**
+   * Converts a Java object to a Fudge message {@link MutableFudgeFieldContainer} instance using a {@link FudgeMessageBuilder} registered against the object's class
+   * in the current {@link FudgeObjectDictionary}. Note that a mutable container is returned (from the definition of {@code FudgeMessageBuilder} so that the caller is
+   * able to append additional data to the message if required, e.g. {@link #addClassHeader(MutableFudgeFieldContainer,Class)}.
+   * 
+   * @param object the Java object to serialise
+   * @return the Fudge message created
+   */
   @SuppressWarnings("unchecked")
   public MutableFudgeFieldContainer objectToFudgeMsg (final Object object) {
     if (object == null) throw new NullPointerException ("object cannot be null");
@@ -87,6 +126,13 @@ public class FudgeSerialisationContext implements FudgeMessageFactory {
     }
   }
   
+  /**
+   * Adds class names to a message with ordinal 0 for use by a deserialiser. The preferred class name is written first, followed by subsequent super-classes that may
+   * be acceptable if the deserialiser doesn't recognise them.
+   * 
+   * @param message the message to add the fields to
+   * @param clazz the Java class to add type data for
+   */
   public void addClassHeader (final MutableFudgeFieldContainer message, Class<?> clazz) {
     while ((clazz != null) && (clazz != Object.class)) {
       message.add (null, 0, StringFieldType.INSTANCE, clazz.getName ());

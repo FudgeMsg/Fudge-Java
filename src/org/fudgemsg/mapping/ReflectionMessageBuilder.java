@@ -29,6 +29,7 @@ import org.fudgemsg.FudgeRuntimeException;
  * be used to create the initial message that is supplemented by subclass getX
  * methods.
  * 
+ * @param <T> class that can be serialised using this builder
  * @author Andrew
  */
 /* package */ class ReflectionMessageBuilder<T> extends ReflectionBuilderBase<T> implements FudgeMessageBuilder<T> {

@@ -31,6 +31,7 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
  * instance with the {@link FudgeTypeDictionary} at application startup.
  *
  * @author kirk
+ * @param <TValue> underlying Java class this type represents
  */
 public class FudgeFieldType<TValue> implements Serializable {
   private final int _typeId;
@@ -40,6 +41,15 @@ public class FudgeFieldType<TValue> implements Serializable {
   
   private final String _toStringValue;
   
+  /**
+   * Constructs a new {@link FudgeFieldType} for the underlying Java type. The type identifier must be unique within the {@link FudgeTypeDictionary} the type
+   * is registered with.
+   * 
+   * @param typeId {@link FudgeTypeDictionary} unique type identifier
+   * @param javaType the underlying Java type
+   * @param isVariableSize true if the field may contain variable width data
+   * @param fixedSize the fixed width if the field does not contain variable width data. Can be set to 0 for types that always encode a variable width.
+   */
   public FudgeFieldType(int typeId, Class<?> javaType, boolean isVariableSize, int fixedSize)
   {
     if(javaType == null)
@@ -58,6 +68,8 @@ public class FudgeFieldType<TValue> implements Serializable {
   }
 
   /**
+   * Returns the type identifier.
+   * 
    * @return the typeId
    */
   public final int getTypeId() {
@@ -65,6 +77,8 @@ public class FudgeFieldType<TValue> implements Serializable {
   }
 
   /**
+   * Returns the underlying Java type for values of this type.
+   * 
    * @return the javaType
    */
   public final Class<?> getJavaType() {
@@ -72,6 +86,8 @@ public class FudgeFieldType<TValue> implements Serializable {
   }
 
   /**
+   * Returns true iff the field may contain variable width data.
+   * 
    * @return the isVariableSize
    */
   public final boolean isVariableSize() {
@@ -79,12 +95,17 @@ public class FudgeFieldType<TValue> implements Serializable {
   }
 
   /**
+   * Returns the number of bytes used to encode a value if the type does not use a variable width encoding. 
+   * 
    * @return the fixedSize
    */
   public final int getFixedSize() {
     return _fixedSize;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public final boolean equals(Object obj) {
     if(obj == this) {
@@ -104,6 +125,9 @@ public class FudgeFieldType<TValue> implements Serializable {
     return true;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public final int hashCode() {
     return getTypeId();
@@ -118,11 +142,22 @@ public class FudgeFieldType<TValue> implements Serializable {
     return sb.toString().intern();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public final String toString() {
     return _toStringValue;
   }
   
+  /**
+   * Returns the number of bytes used to encode a value of this type. If the type does not support a variable width, will always be the same as {@link #getFixedSize()}.
+   * This method must be overridden for variable size types.
+   * 
+   * @param value value to check (for variable width types)
+   * @param taxonomy the taxonomy being used for the encoding (e.g. for sub-message fields)
+   * @return size in bytes
+   */
   public int getVariableSize(TValue value, FudgeTaxonomy taxonomy) {
     if(isVariableSize()) {
       throw new UnsupportedOperationException("This method must be overridden for variable size types.");
@@ -130,16 +165,35 @@ public class FudgeFieldType<TValue> implements Serializable {
     return getFixedSize();
   }
   
+  /**
+   * Writes this field value to the {@link DataOutput} target. This method must be overridden by any custom types. The implementation must write exactly the
+   * number of bytes returned by {@link #getVariableSize(Object,FudgeTaxonomy)}.
+   * 
+   * @param output the target {@code DataOutput} to write to
+   * @param value the value of the field to write
+   * @throws IOException if the target raises one
+   */
   public void writeValue(DataOutput output, TValue value) throws IOException {
     if(isVariableSize()) {
       throw new UnsupportedOperationException("This method must be overridden for variable size types.");
     }
+    // REVIEW 2010-01-28 Andrew -- this is a no-op for fixed width types; shouldn't it trigger an exception regardless as it's not going to do anything, or should we make it abstract and implement the primitive types properly
   }
   
+  /**
+   * Reads a field value of this type from a {@link DataInput} source. This method must be overridden by any custom types. The implementation must read exactly the number
+   * of bytes passed as {@code dataSize}.
+   * 
+   * @param input the source {@code DataInput} to read the value from
+   * @param dataSize the number of bytes of data to read
+   * @return the value read
+   * @throws IOException if data cannot be read because of a source error, such as bad formatting or EOF
+   */
   public TValue readValue(DataInput input, int dataSize) throws IOException {
     if(isVariableSize()) {
       throw new UnsupportedOperationException("This method must be overridden for variable size types.");
     }
+    // REVIEW 2010-01-28 Andrew -- this is a no-op for fixed width types; shouldn't it trigger an exception regardless as it's not going to do anything, or should we make it abstract and implement the primitive types properly
     return null;
   }
 

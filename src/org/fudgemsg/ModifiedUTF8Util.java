@@ -33,6 +33,10 @@ import java.io.UTFDataFormatException;
 //@Deprecated
 public class ModifiedUTF8Util {
 
+  /**
+   * @param str string to calculate length of
+   * @return length in bytes
+   */
   public static int modifiedUTF8Length(String str) {
     // REVIEW wyliekir 2009-08-17 -- This was taken almost verbatim from
     // DataOutputStream.
@@ -54,6 +58,11 @@ public class ModifiedUTF8Util {
     return utflen;
   }
   
+  /**
+   * @param str string to encode
+   * @return byte encoding
+   * @throws UTFDataFormatException if the string is too long
+   */
   public static byte[] encodeAsModifiedUTF8(String str) throws UTFDataFormatException {
     // REVIEW wyliekir 2009-08-17 -- This was taken almost verbatim from
     // DataOutputStream.
@@ -104,6 +113,12 @@ public class ModifiedUTF8Util {
     return bytearr;
   }
 
+  /**
+   * @param str string to write
+   * @param os target to write to
+   * @return the number of bytes written
+   * @throws IOException if the target raises one
+   */
   public static int writeModifiedUTF8(String str, DataOutput os)
       throws IOException {
     byte[] bytearr = encodeAsModifiedUTF8(str);
@@ -111,6 +126,12 @@ public class ModifiedUTF8Util {
     return bytearr.length;
   }
 
+  /**
+   * @param is source to read from
+   * @param utflen number of bytes to read
+   * @return the string read
+   * @throws IOException if the source raises one or the UTF data is malformed
+   */
   public static String readString(DataInput is, int utflen) throws IOException {
     // REVIEW kirk 2009-08-18 -- This can be optimized. We're copying the data too many
     // times. Particularly since we expect that most of the time we're reading from
@@ -122,6 +143,11 @@ public class ModifiedUTF8Util {
     return decodeString(bytearr);
   }
   
+  /**
+   * @param bytearr byte data to decode
+   * @return the decoded string
+   * @throws UTFDataFormatException if the byte data is not valid UTF-8
+   */
   public static String decodeString(byte[] bytearr) throws UTFDataFormatException {
     int utflen = bytearr.length;
     char[] chararr = new char[utflen];

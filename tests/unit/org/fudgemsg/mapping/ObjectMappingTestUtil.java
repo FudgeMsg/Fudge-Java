@@ -128,9 +128,6 @@ public class ObjectMappingTestUtil {
     return msg;
   }
   
-  /**
-   * @return
-   */
   @SuppressWarnings("unchecked")
   public static SimpleBean constructSimpleBean() {
     SimpleBean simpleBean = new SimpleBean();

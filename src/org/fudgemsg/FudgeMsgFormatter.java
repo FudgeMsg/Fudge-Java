@@ -21,28 +21,55 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Allows for pretty-printing of {@link FudgeMsg} instances.
+ * Allows for pretty-printing of Fudge messages ({@link FudgeFieldContainer} instances).
  *
  * @author kirk
  */
 public class FudgeMsgFormatter {
+  
+  /**
+   * The default indent (number of spaces)
+   */
   public static final int DEFAULT_INDENT = 2;
+  
   private final PrintWriter _writer;
   private final int _indent;
   private final String _indentText;
   
+  /**
+   * Creates a new pretty printer.
+   * 
+   * @param writer target output device
+   */
   public FudgeMsgFormatter(Writer writer) {
     this(writer, DEFAULT_INDENT);
   }
   
+  /**
+   * Creates a new pretty printer.
+   * 
+   * @param printWriter target output device
+   */
   public FudgeMsgFormatter(PrintWriter printWriter) {
     this(printWriter, DEFAULT_INDENT);
   }
   
+  /**
+   * Creates a new pretty printer.
+   * 
+   * @param writer target output device
+   * @param indent number of spaces to use for indentation
+   */
   public FudgeMsgFormatter(Writer writer, int indent) {
     this(new PrintWriter(writer), indent);
   }
   
+  /**
+   * Creates a new pretty printer.
+   * 
+   * @param writer target output device
+   * @param indent number of spaces to use for indentation
+   */
   public FudgeMsgFormatter(PrintWriter writer, int indent) {
     if(writer == null) {
       throw new NullPointerException("Must specify a valid writer for output.");
@@ -55,11 +82,18 @@ public class FudgeMsgFormatter {
     _indentText = composeIndentText(_indent);
   }
   
+  /**
+   * Writes a Fudge message to {@link System#out}.
+   * 
+   * @param msg message to write
+   */
   public static void outputToSystemOut(FudgeFieldContainer msg) {
     (new FudgeMsgFormatter(new PrintWriter(System.out))).format(msg);
   }
 
   /**
+   * Returns the target device.
+   * 
    * @return the writer
    */
   public PrintWriter getWriter() {
@@ -67,12 +101,19 @@ public class FudgeMsgFormatter {
   }
 
   /**
-   * @return the indent
+   * Returns the indentation setting.
+   * 
+   * @return number of spaces
    */
   public int getIndent() {
     return _indent;
   }
 
+  /**
+   * Formats (pretty-prints) a Fudge message to the target device.
+   * 
+   * @param msg message to write
+   */
   public void format(FudgeFieldContainer msg) {
     format(msg, 0);
   }
