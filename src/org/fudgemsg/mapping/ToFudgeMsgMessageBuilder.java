@@ -28,9 +28,9 @@ import org.fudgemsg.FudgeMsg;
  * function of the form (in order of search):
  * 
  *    void toFudgeMsg (FudgeSerialisationContext, MutableFudgeFieldContainer)
- *    void toFudgeMsg (FudgeMessageCreationContext, MutableFudgeFieldContainer)
+ *    void toFudgeMsg (FudgeMessageFactory, MutableFudgeFieldContainer)
  *    FudgeMsg toFudgeMsg (FudgeSerialisationContext)
- *    FudgeMsg toFudgeMsg (FudgeMessageCreationContext)
+ *    FudgeMsg toFudgeMsg (FudgeMessageFactory)
  *    void toFudgeMsg (FudgeContext, MutableFudgeFieldContainer)
  *    FudgeMsg toFudgeMsg (FudgeContext)
  * 

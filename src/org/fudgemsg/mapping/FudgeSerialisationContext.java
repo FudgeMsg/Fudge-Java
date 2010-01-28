@@ -17,7 +17,7 @@
 package org.fudgemsg.mapping;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMessageCreationContext;
+import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.FudgeFieldContainer;
@@ -32,7 +32,7 @@ import org.fudgemsg.types.StringFieldType;
  * 
  * @author Andrew
  */
-public class FudgeSerialisationContext implements FudgeMessageCreationContext {
+public class FudgeSerialisationContext implements FudgeMessageFactory {
   
   private final FudgeContext _fudgeContext;
   private final SerialisationBuffer _serialisationBuffer = new SerialisationBuffer ();
@@ -45,13 +45,18 @@ public class FudgeSerialisationContext implements FudgeMessageCreationContext {
     getSerialisationBuffer ().reset ();
   }
   
-  public FudgeContext getFudgeContext () {
-    return _fudgeContext;
-  }
-  
   @Override
   public MutableFudgeFieldContainer newMessage () {
     return _fudgeContext.newMessage ();
+  }
+  
+  @Override
+  public MutableFudgeFieldContainer newMessage (final FudgeFieldContainer fromMessage) {
+    return _fudgeContext.newMessage (fromMessage);
+  }
+  
+  public FudgeContext getFudgeContext () {
+    return _fudgeContext;
   }
   
   private SerialisationBuffer getSerialisationBuffer () {

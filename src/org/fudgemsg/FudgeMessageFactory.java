@@ -21,8 +21,16 @@ package org.fudgemsg;
  * 
  * @author Andrew
  */
-public interface FudgeMessageCreationContext {
+public interface FudgeMessageFactory {
   
+  /**
+   * Creates an initially empty message.
+   */
   public MutableFudgeFieldContainer newMessage ();
+  
+  /**
+   * Creates a new message initially populated with the supplied message.
+   */
+  public MutableFudgeFieldContainer newMessage (FudgeFieldContainer fromMessage);
   
 }

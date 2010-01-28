@@ -54,7 +54,7 @@ import org.fudgemsg.taxon.TaxonomyResolver;
  *
  * @author kirk
  */
-public class FudgeContext implements FudgeMessageCreationContext {
+public class FudgeContext implements FudgeMessageFactory {
   private final Queue<FudgeDataInputStreamReader> _streamReaders = new LinkedBlockingQueue<FudgeDataInputStreamReader>();
   private final Queue<FudgeDataOutputStreamWriter> _streamWriters = new LinkedBlockingQueue<FudgeDataOutputStreamWriter>();
   private final Queue<FudgeMsgStreamReader> _messageStreamReaders = new LinkedBlockingQueue<FudgeMsgStreamReader>();
@@ -105,7 +105,12 @@ public class FudgeContext implements FudgeMessageCreationContext {
   public MutableFudgeFieldContainer newMessage() {
     return new FudgeMsg(this);
   }
-
+  
+  @Override
+  public MutableFudgeFieldContainer newMessage (final FudgeFieldContainer fromMessage) {
+    return new FudgeMsg (fromMessage, this);
+  }
+  
   /**
    * Encodes a {@link FudgeMsg} object to an {@link OutputStream} without any
    * taxonomy reference.
