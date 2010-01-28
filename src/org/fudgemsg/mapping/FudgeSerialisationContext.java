@@ -76,7 +76,7 @@ public class FudgeSerialisationContext implements FudgeMessageFactory {
   }
   
   @SuppressWarnings("unchecked")
-  public FudgeFieldContainer objectToFudgeMsg (final Object object) {
+  public MutableFudgeFieldContainer objectToFudgeMsg (final Object object) {
     if (object == null) throw new NullPointerException ("object cannot be null");
     getSerialisationBuffer ().beginObject (object);
     try {

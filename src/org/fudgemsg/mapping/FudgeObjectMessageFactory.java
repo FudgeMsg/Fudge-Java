@@ -26,20 +26,20 @@ import org.fudgemsg.FudgeFieldContainer;
  * @author kirk
  */
 public class FudgeObjectMessageFactory {
-
-  /**
-   * @param obj
-   * @param descriptor 
-   * @return
-   */
+  
   public static <T> FudgeFieldContainer serializeToMessage(T obj, FudgeContext context) {
-    return serializeToMessage (obj, new FudgeSerialisationContext (context));
+    final FudgeSerialisationContext fsc = new FudgeSerialisationContext (context);
+    return fsc.objectToFudgeMsg (obj);
   }
   
-  @SuppressWarnings("unchecked")
-  public static <T> FudgeFieldContainer serializeToMessage (T obj, FudgeSerialisationContext context) {
-    final FudgeMessageBuilder<T> builder = context.getFudgeContext ().getObjectDictionary ().getMessageBuilder ((Class<T>)obj.getClass ());
-    return builder.buildMessage (context, obj);
+  public static Object deserializeToObject (FudgeFieldContainer message, FudgeContext context) {
+    final FudgeDeserialisationContext fdc = new FudgeDeserialisationContext (context);
+    return fdc.fudgeMsgToObject (message);
+  }
+  
+  public static <T> T deserializeToObject (Class<T> clazz, FudgeFieldContainer message, FudgeContext context) {
+    final FudgeDeserialisationContext fdc = new FudgeDeserialisationContext (context);
+    return fdc.fudgeMsgToObject (clazz, message);
   }
   
 }

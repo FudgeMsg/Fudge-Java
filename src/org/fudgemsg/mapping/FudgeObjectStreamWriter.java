@@ -71,7 +71,7 @@ public class FudgeObjectStreamWriter {
       message = getSerialisationContext ().newMessage ();
     } else {
       // delegate to a message builder
-      message = FudgeObjectMessageFactory.serializeToMessage (obj, getSerialisationContext ());
+      message = getSerialisationContext ().objectToFudgeMsg (obj);
     }
     return getMessageWriter ().writeMessage (message, 0);
   }
