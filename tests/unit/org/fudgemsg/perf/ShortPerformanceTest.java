@@ -27,8 +27,8 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeRuntimeException;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeObjectStreamReader;
-import org.fudgemsg.mapping.FudgeObjectStreamWriter;
+import org.fudgemsg.mapping.FudgeObjectReader;
+import org.fudgemsg.mapping.FudgeObjectWriter;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -238,7 +238,7 @@ public class ShortPerformanceTest {
   private static int fudgeObjectMappingCycle() {
     SmallFinancialTick tick = new SmallFinancialTick();
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    FudgeObjectStreamWriter osw = s_fudgeContext.allocateObjectWriter (baos);
+    FudgeObjectWriter osw = s_fudgeContext.allocateObjectWriter (baos);
     try {
       osw.write (tick);
     } catch (IOException ioe) {
@@ -247,7 +247,7 @@ public class ShortPerformanceTest {
     s_fudgeContext.releaseObjectWriter(osw);
 
     byte[] data = baos.toByteArray();
-    FudgeObjectStreamReader osr = s_fudgeContext.allocateObjectReader (new ByteArrayInputStream (data));
+    FudgeObjectReader osr = s_fudgeContext.allocateObjectReader (new ByteArrayInputStream (data));
     try {
       tick = osr.read(SmallFinancialTick.class);
     } catch (IOException ioe) {

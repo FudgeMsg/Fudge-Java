@@ -20,15 +20,15 @@ import java.io.IOException;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsgStreamReader;
+import org.fudgemsg.FudgeMsgReader;
 
-public class FudgeObjectStreamReader {
+public class FudgeObjectReader {
   
-  private FudgeMsgStreamReader _messageReader;
+  private FudgeMsgReader _messageReader;
   
   private FudgeDeserialisationContext _deserialisationContext;
   
-  public FudgeObjectStreamReader (final FudgeMsgStreamReader messageReader) {
+  public FudgeObjectReader (final FudgeMsgReader messageReader) {
     if (messageReader == null) throw new NullPointerException ("messageReader cannot be null");
     _messageReader = messageReader;
     _deserialisationContext = new FudgeDeserialisationContext (messageReader.getFudgeContext ());
@@ -40,7 +40,7 @@ public class FudgeObjectStreamReader {
     _messageReader = null;
   }
   
-  public void reset (final FudgeMsgStreamReader messageReader) {
+  public void reset (final FudgeMsgReader messageReader) {
     close ();
     if (messageReader == null) throw new NullPointerException ("messageReader cannot be null");
     _messageReader = messageReader;
@@ -59,7 +59,7 @@ public class FudgeObjectStreamReader {
     return _deserialisationContext;
   }
   
-  public FudgeMsgStreamReader getMessageReader () {
+  public FudgeMsgReader getMessageReader () {
     return _messageReader;
   }
   

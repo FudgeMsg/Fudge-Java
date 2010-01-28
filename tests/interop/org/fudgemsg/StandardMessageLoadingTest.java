@@ -73,7 +73,7 @@ public class StandardMessageLoadingTest {
   protected static FudgeMsgEnvelope loadMessage(FudgeContext context, String fileName) {
     try {
       InputStream is = StandardMessageLoadingTest.class.getResourceAsStream(fileName);
-      FudgeMsgStreamReader reader = context.allocateMessageReader (is);
+      FudgeMsgReader reader = context.allocateMessageReader (is);
       FudgeMsgEnvelope envelope = reader.nextMessageEnvelope ();
       context.releaseMessageReader (reader);
       is.close();

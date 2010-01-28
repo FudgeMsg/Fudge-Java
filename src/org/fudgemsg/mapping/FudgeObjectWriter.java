@@ -19,16 +19,16 @@ package org.fudgemsg.mapping;
 import java.io.IOException;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsgStreamWriter;
+import org.fudgemsg.FudgeMsgWriter;
 import org.fudgemsg.FudgeFieldContainer;
 
-public class FudgeObjectStreamWriter {
+public class FudgeObjectWriter {
 
-  private FudgeMsgStreamWriter _messageWriter;
+  private FudgeMsgWriter _messageWriter;
   
   private FudgeSerialisationContext _serialisationContext;
   
-  public FudgeObjectStreamWriter (final FudgeMsgStreamWriter messageWriter) {
+  public FudgeObjectWriter (final FudgeMsgWriter messageWriter) {
     if (messageWriter == null) throw new NullPointerException ("messageWriter cannot be null");
     _messageWriter = messageWriter;
     _serialisationContext = new FudgeSerialisationContext (messageWriter.getFudgeContext ());
@@ -40,7 +40,7 @@ public class FudgeObjectStreamWriter {
     _messageWriter = null;
   }
   
-  public void reset (final FudgeMsgStreamWriter messageWriter) {
+  public void reset (final FudgeMsgWriter messageWriter) {
     close ();
     if (messageWriter == null) throw new NullPointerException ("messageReader cannot be null");
     _messageWriter = messageWriter;
@@ -59,7 +59,7 @@ public class FudgeObjectStreamWriter {
     return _serialisationContext;
   }
   
-  public FudgeMsgStreamWriter getMessageWriter () {
+  public FudgeMsgWriter getMessageWriter () {
     return _messageWriter;
   }
   

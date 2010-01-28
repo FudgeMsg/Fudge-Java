@@ -87,7 +87,7 @@ public class FudgeStreamParserTest {
   protected FudgeMsgEnvelope cycleMessage(FudgeContext context, FudgeFieldContainer msg) {
     byte[] msgAsBytes = context.toByteArray(msg);
     try {
-      final FudgeMsgStreamReader reader = context.allocateMessageReader (new ByteArrayInputStream(msgAsBytes));
+      final FudgeMsgReader reader = context.allocateMessageReader (new ByteArrayInputStream(msgAsBytes));
       try {
         return reader.nextMessageEnvelope ();
       } finally {

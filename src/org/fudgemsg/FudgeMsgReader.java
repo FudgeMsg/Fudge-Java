@@ -21,7 +21,7 @@ import java.io.IOException;
 import org.fudgemsg.FudgeStreamReader.FudgeStreamElement;
 import org.fudgemsg.types.FudgeMsgFieldType;
 
-public class FudgeMsgStreamReader {
+public class FudgeMsgReader {
   
   private FudgeStreamReader _streamReader;
   
@@ -29,7 +29,7 @@ public class FudgeMsgStreamReader {
   
   private boolean _streamErrored = false;
 
-  public FudgeMsgStreamReader (final FudgeStreamReader streamReader) {
+  public FudgeMsgReader (final FudgeStreamReader streamReader) {
     //System.out.println ("FudgeMessageStreamReader::FudgeMessageStreamReader(" + streamReader + ")");
     if (streamReader == null) {
       throw new NullPointerException ("streamReader cannot be null");
