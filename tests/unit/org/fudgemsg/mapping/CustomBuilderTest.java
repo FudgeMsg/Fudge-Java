@@ -120,4 +120,143 @@ public class CustomBuilderTest {
     assert object.equals (object2);
   }
   
+  private interface FooInterface {
+    public String foo ();
+  }
+  
+  private static class FooHorse implements FooInterface {
+    public static class Builder implements FudgeBuilder<FooHorse> {
+      @Override
+      public MutableFudgeFieldContainer buildMessage(
+          FudgeSerialisationContext context, FooHorse object) {
+        final MutableFudgeFieldContainer msg = context.newMessage ();
+        msg.add (0, FooHorse.class.getName ());
+        msg.add (1, "gibberish");
+        return msg;
+      }
+      @Override
+      public FooHorse buildObject(FudgeDeserialisationContext context,
+          FudgeFieldContainer message) {
+        assert message.getString (1).equals ("gibberish");
+        return new FooHorse ();
+      }
+    }
+    public String foo () { return "horse"; }
+    public boolean equals (final Object o) {
+      return (o != null) && (o instanceof FooHorse);
+    }
+  }
+  
+  private static class FooCow implements FooInterface {
+    public static class Builder implements FudgeBuilder<FooCow> {
+      @Override
+      public MutableFudgeFieldContainer buildMessage(
+          FudgeSerialisationContext context, FooCow object) {
+        final MutableFudgeFieldContainer msg = context.newMessage ();
+        msg.add (0, FooCow.class.getName ());
+        msg.add ("gibberish", 1);
+        return msg;
+      }
+      @Override
+      public FooCow buildObject(FudgeDeserialisationContext context,
+          FudgeFieldContainer message) {
+        assert message.getInt ("gibberish") == 1;
+        return new FooCow ();
+      }
+    }
+    public String foo () { return "cow"; }
+    public boolean equals (final Object o) {
+      return (o != null) && (o instanceof FooCow);
+    }
+  }
+  
+  public static class BeanClass {
+    private String _bar;
+    public void setBar (final String bar) {
+      _bar = bar;
+    }
+    public String getBar () {
+      return _bar;
+    }
+    public boolean equals (final Object o) {
+      if (o == null) return false;
+      if (!(o instanceof BeanClass)) return false;
+      final BeanClass bc = (BeanClass)o;
+      return _bar.equals (bc._bar);
+    }
+  }
+  
+  public static class ProtoMessage {
+    
+    private final FooInterface _foo;
+    private final BeanClass _bar;
+    private final int _n;
+    
+    ProtoMessage (FooInterface foo, BeanClass bar, int n) {
+      _foo = foo;
+      _bar = bar;
+      _n = n;
+    }
+    
+    public FudgeFieldContainer toFudgeMsg (FudgeSerialisationContext context) {
+      MutableFudgeFieldContainer msg = context.newMessage ();
+      msg.add ("foo", context.objectToFudgeMsg (_foo));
+      msg.add ("bar", context.objectToFudgeMsg (_bar));
+      msg.add ("n", _n);
+      return msg;
+    }
+    
+    public static ProtoMessage fromFudgeMsg (FudgeDeserialisationContext context, FudgeFieldContainer fields) {
+      final FooInterface foo = context.fudgeMsgToObject (FooInterface.class, fields.getMessage ("foo"));
+      final BeanClass bar = context.fudgeMsgToObject (BeanClass.class, fields.getMessage ("bar"));
+      int n = fields.getInt ("n");
+      return new ProtoMessage (foo, bar, n);
+    }
+    
+    public boolean equals (final Object o) {
+      if (o == null) return false;
+      if (!(o instanceof ProtoMessage)) return false;
+      final ProtoMessage pm = (ProtoMessage)o;
+      return _foo.equals (pm._foo) && _bar.equals (pm._bar) && (_n == pm._n);
+    }
+    
+  }
+  
+  private void subclassBuilder (final FudgeContext fc) {
+    BeanClass bc1 = new BeanClass ();
+    bc1.setBar ("one");
+    final ProtoMessage pmHorse = new ProtoMessage (new FooHorse (), bc1, 1);
+    final FudgeFieldContainer ffcHorse = FudgeObjectMessageFactory.serializeToMessage (pmHorse, fc);
+    System.out.println (ffcHorse);
+    BeanClass bc2 = new BeanClass ();
+    bc2.setBar ("two");
+    final ProtoMessage pmCow = new ProtoMessage (new FooCow (), bc2, 2);
+    final FudgeFieldContainer ffcCow = FudgeObjectMessageFactory.serializeToMessage (pmCow, fc);
+    System.out.println (ffcCow);
+    final ProtoMessage pmHorse2 = FudgeObjectMessageFactory.deserializeToObject (ProtoMessage.class, ffcHorse, fc);
+    final ProtoMessage pmCow2 = FudgeObjectMessageFactory.deserializeToObject (ProtoMessage.class, ffcCow, fc);
+    assert pmHorse2.equals (pmHorse);
+    assert pmCow2.equals (pmCow);
+  }
+  
+  @Test
+  public void subclassBuilderTest () {
+    final FudgeContext fc = new FudgeContext ();
+    // the defaults should fail because of the interface
+    try {
+      subclassBuilder (fc);
+      assert false;
+    } catch (FudgeRuntimeException fre) {
+      final String expectedMessage = "Don't know how to create interface " + FooInterface.class.getName ();
+      if (!fre.getCause ().getCause ().getMessage ().substring (0, expectedMessage.length ()).equals (expectedMessage)) {
+        fre.printStackTrace ();
+        assert false;
+      }
+    }
+    // a custom builder for our implementation should fix it
+    fc.getObjectDictionary ().addBuilder (FooHorse.class, new FooHorse.Builder ());
+    fc.getObjectDictionary ().addBuilder (FooCow.class, new FooCow.Builder ());
+    subclassBuilder (fc);
+  }
+  
 }

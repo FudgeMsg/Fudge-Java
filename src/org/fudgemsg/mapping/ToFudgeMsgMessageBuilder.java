@@ -40,14 +40,14 @@ import org.fudgemsg.FudgeMsg;
   
   /* package */ static <T> ToFudgeMsgMessageBuilder<T> create (final Class<T> clazz) {
     try {
-      return new AddFields<T> (clazz.getMethod ("toFudgeMsg", FudgeSerialisationContext.class, MutableFudgeFieldContainer.class), true);
+      return new AddFields<T> (clazz.getMethod ("toFudgeMsg", FudgeSerialisationContext.class, MutableFudgeFieldContainer.class), false);
     } catch (SecurityException e) {
       // ignore
     } catch (NoSuchMethodException e) {
       // ignore
     }
     try {
-      return new CreateMessage<T> (clazz.getMethod ("toFudgeMsg", FudgeSerialisationContext.class), true);
+      return new CreateMessage<T> (clazz.getMethod ("toFudgeMsg", FudgeSerialisationContext.class), false);
     } catch (SecurityException e) {
       // ignore
     } catch (NoSuchMethodException e) {

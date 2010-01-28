@@ -87,13 +87,11 @@ public class FudgeDeserialisationContext {
         return fudgeMsgToObject (Map.class, message);
       }
     } else {
-      // look up the classes
       for (FudgeField type : types) {
         final Object o = type.getValue ();
         if (o instanceof Number) {
           throw new FudgeRuntimeException ("Serialisation framework doesn't support back/forward references"); 
         } else if (o instanceof String) {
-          //System.out.println ("inflate type " + o);
           try {
             final Class<?> clazz = Class.forName ((String)o);
             return fudgeMsgToObject (clazz, message);
@@ -103,16 +101,47 @@ public class FudgeDeserialisationContext {
         }
       }
     }
-    // don't know how to inflate the message - leave it as is (something else will probably error soon)
+    // can't process - something else will raise an error if we just return the original message
     return message;
   }
   
   /**
    * Reads an object with a specific type.
    */
+  @SuppressWarnings("unchecked")
   public <T> T fudgeMsgToObject (final Class<T> clazz, final FudgeFieldContainer message) {
-    final FudgeObjectBuilder<T> builder = _fudgeContext.getObjectDictionary ().getObjectBuilder (clazz);
-    if (builder == null) throw new FudgeRuntimeException ("Don't know how to create " + clazz + " from " + message);
+    final FudgeObjectBuilder<T> builder = getFudgeContext ().getObjectDictionary ().getObjectBuilder (clazz);
+    if (builder == null) {
+      // no builder for the requested class, so look to see if there are any embedded class details for a sub-class we know
+      List<FudgeField> types = message.getAllByOrdinal (0);
+      FudgeRuntimeException fre = null;
+      for (FudgeField type : types) {
+        final Object o = type.getValue ();
+        if (o instanceof Number) {
+          throw new FudgeRuntimeException ("Serialisation framework doesn't support back/forward references"); 
+        } else if (o instanceof String) {
+          try {
+            final Class<?> possibleClazz = Class.forName ((String)o);
+            if (!clazz.equals (possibleClazz) && clazz.isAssignableFrom (possibleClazz)) {
+              try {
+                return (T)fudgeMsgToObject (possibleClazz, message);
+              } catch (FudgeRuntimeException e) {
+                fre = e;
+              }
+            }
+          } catch (ClassNotFoundException e) {
+            // ignore
+          }
+        }
+      }
+      // nothing matched
+      if (fre != null) {
+        // propogate one of the inner exceptions
+        throw new FudgeRuntimeException ("Don't know how to create " + clazz + " from " + message, fre);
+      } else {
+        throw new FudgeRuntimeException ("Don't know how to create " + clazz + " from " + message);
+      }
+    }
     final T object = builder.buildObject (this, message);
     return object;
   }
