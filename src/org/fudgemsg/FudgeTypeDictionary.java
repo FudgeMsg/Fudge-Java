@@ -107,11 +107,15 @@ public final class FudgeTypeDictionary {
    * @param javaType the class to resolve
    * @return the matching Fudge type, or {@code null} if none is found
    */
-  public FudgeFieldType<?> getByJavaType(Class<?> javaType) {
-    if(javaType == null) {
-      return null;
+  public FudgeFieldType<?> getByJavaType(final Class<?> javaType) {
+    if (javaType == null) return null;
+    FudgeFieldType<?> fieldType = _typesByJavaType.get(javaType);
+    if (fieldType != null) return fieldType;
+    for (Class<?> i : javaType.getInterfaces ()) {
+      fieldType = getByJavaType (i);
+      if (fieldType != null) return fieldType;
     }
-    return _typesByJavaType.get(javaType);
+    return getByJavaType (javaType.getSuperclass ());
   }
   
   /**
