@@ -67,7 +67,7 @@ public class FudgeContext implements FudgeMessageFactory {
   
   /**
    * Returns the current {@link TaxonomyResolver} used by this context. A new {@code FudgeContext} starts with its own, default,
-   * taxonomy resolver. Any custom taxonomies must be registered with the resolver before they can be used.
+   * taxonomy resolver. Any custom taxonomies must be registered with a resolver before they can be used.
    * 
    * @return the taxonomy resolver
    */

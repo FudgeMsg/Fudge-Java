@@ -175,15 +175,11 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
   public int writeEnvelopeHeader(
       int processingDirectives,
       int schemaVersion,
-      int messageSize) {
-    try {
-      getDataOutput().writeByte(processingDirectives);
-      getDataOutput().writeByte(schemaVersion);
-      getDataOutput().writeShort(getCurrentTaxonomyId ());
-      getDataOutput().writeInt(messageSize);
-    } catch (IOException ioe) {
-      throw new FudgeRuntimeException("Unable to write envelope header", ioe);
-    }
+      int messageSize) throws IOException {
+    getDataOutput().writeByte(processingDirectives);
+    getDataOutput().writeByte(schemaVersion);
+    getDataOutput().writeShort(getCurrentTaxonomyId ());
+    getDataOutput().writeInt(messageSize);
     return 8;
   }
   
@@ -219,7 +215,7 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
       Short ordinal,
       String name,
       FudgeFieldType type,
-      Object fieldValue) {
+      Object fieldValue) throws IOException {
     if(fieldValue == null) {
       throw new NullPointerException("Cannot write a null field value to a Fudge stream.");
     }
@@ -246,30 +242,26 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
     
     // Start writing.
     int nWritten = 0;
-    try {
-      getDataOutput().writeByte(fieldPrefix);
-      getDataOutput().writeByte(type.getTypeId());
-      nWritten = 2;
-      if(ordinal != null) {
-        getDataOutput().writeShort(ordinal.intValue());
-        nWritten += 2;
-      }
-      if(name != null) {
-        int utf8size = ModifiedUTF8Util.modifiedUTF8Length(name);
-        //int utf8size = UTF8.getLengthBytes(name);
-        if(utf8size > 0xFF) {
-          throw new IllegalArgumentException("UTF-8 encoded field name cannot exceed 255 characters. Name \"" + name + "\" is " + utf8size + " bytes encoded.");
-        }
-        getDataOutput().writeByte(utf8size);
-        nWritten++;
-        nWritten += ModifiedUTF8Util.writeModifiedUTF8(name, getDataOutput());
-        //nWritten += UTF8.writeString (getDataOutput (), name);
-      }
-      
-      nWritten += writeFieldValue(type, fieldValue, valueSize);
-    } catch (IOException ioe) {
-      throw new FudgeRuntimeException("Unable to write field to DataOutput", ioe);
+    getDataOutput().writeByte(fieldPrefix);
+    getDataOutput().writeByte(type.getTypeId());
+    nWritten = 2;
+    if(ordinal != null) {
+      getDataOutput().writeShort(ordinal.intValue());
+      nWritten += 2;
     }
+    if(name != null) {
+      int utf8size = ModifiedUTF8Util.modifiedUTF8Length(name);
+      //int utf8size = UTF8.getLengthBytes(name);
+      if(utf8size > 0xFF) {
+        throw new IllegalArgumentException("UTF-8 encoded field name cannot exceed 255 characters. Name \"" + name + "\" is " + utf8size + " bytes encoded.");
+      }
+      getDataOutput().writeByte(utf8size);
+      nWritten++;
+      nWritten += ModifiedUTF8Util.writeModifiedUTF8(name, getDataOutput());
+      //nWritten += UTF8.writeString (getDataOutput (), name);
+    }
+    
+    nWritten += writeFieldValue(type, fieldValue, valueSize);
     
     return nWritten;
   }
