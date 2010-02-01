@@ -89,9 +89,9 @@ public class CustomBuilderTest {
     final FudgeDeserialisationContext deserialisationContext = new FudgeDeserialisationContext (fudgeContext);
     final CustomClass object = new CustomClass (2, 3, 5);
     final FudgeFieldContainer msg = FudgeObjectMessageFactory.serializeToMessage (object, fudgeContext);
-    assert msg.getInt ("aB") == object.getAB ();
-    assert msg.getInt ("aC") == object.getAC ();
-    assert msg.getInt ("bC") == object.getBC ();
+    assert msg.getInt ("AB") == object.getAB ();
+    assert msg.getInt ("AC") == object.getAC ();
+    assert msg.getInt ("BC") == object.getBC ();
     assert msg.getInt ("a") == null;
     assert msg.getInt ("b") == null;
     assert msg.getInt ("c") == null;
@@ -110,9 +110,9 @@ public class CustomBuilderTest {
     fudgeContext.getObjectDictionary ().addBuilder (CustomClass.class, new CustomBuilder ());
     final CustomClass object = new CustomClass (2, 3, 5);
     final FudgeFieldContainer msg = FudgeObjectMessageFactory.serializeToMessage (object, fudgeContext);
-    assert msg.getInt ("aB") == null;
-    assert msg.getInt ("aC") == null;
-    assert msg.getInt ("bC") == null;
+    assert msg.getInt ("AB") == null;
+    assert msg.getInt ("AC") == null;
+    assert msg.getInt ("BC") == null;
     assert msg.getInt ("a") == 2;
     assert msg.getInt ("b") == 3;
     assert msg.getInt ("c") == 5;

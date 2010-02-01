@@ -29,6 +29,8 @@ import org.fudgemsg.FudgeRuntimeException;
  * be used to create the initial message that is supplemented by subclass getX
  * methods.
  * 
+ * This has been superceded by the JavaBeanBuilder which uses the BeanUtils package.
+ * 
  * @param <T> class that can be serialised using this builder
  * @author Andrew
  */

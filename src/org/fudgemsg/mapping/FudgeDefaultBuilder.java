@@ -18,6 +18,7 @@ package org.fudgemsg.mapping;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import org.fudgemsg.FudgeFieldContainer;
 
@@ -27,12 +28,12 @@ import org.fudgemsg.FudgeFieldContainer;
  * Building a Fudge message:
  * 
  *    If the object has a public toFudgeMsg method, that will be used
- *    Otherwise the ReflectionMessageBuilder will be used
+ *    Otherwise the JavaBeanBuilder will be used
  *    
  * Building an object
  *    If the object has a public fromFudgeMsg method, that will be used
  *    If the object has a public constructor that takes a FudgeFieldContainer, that will be used
- *    Otherwise the ReflectionObjectBuilder will be used
+ *    Otherwise the JavaBeanBuilder will be used
  *  
  * Builder objects are not cached by this implementation. Requests for builders should be marshalled
  * through a {@link FudgeObjectDictionary} which will cache results. This object is publicly
@@ -45,12 +46,27 @@ public class FudgeDefaultBuilder {
   
   // TODO 2010-01-29 Andrew -- we could have a builder builder, e.g. search for static methods that return a FudgeObjectBuilder/FudgeMessageBuilder/FudgeBuilder instance for that class
   
-  // TODO 2010-01-29 Andrew -- we could use a chain of property files or some other initial registration mechanism, to cope with the Map, List, and FudgeFieldContainer cases already done below. This could be used to natively support MongoDB and similar things etc...
+  private static final Map<Class<?>,FudgeBuilder<?>> s_defaultBuilders = resolveDefaultBuilders ();
+  
+  private static Map<Class<?>,FudgeBuilder<?>> resolveDefaultBuilders () {
+    final Map<Class<?>,FudgeBuilder<?>> defaults = new HashMap<Class<?>,FudgeBuilder<?>> ();
+    defaults.put (Map.class, MapBuilder.INSTANCE);
+    defaults.put (List.class, ListBuilder.INSTANCE);
+    defaults.put (FudgeFieldContainer.class, FudgeFieldContainerBuilder.INSTANCE);
+    defaults.put (Class.class, JavaClassBuilder.INSTANCE);
+    // TODO 2010-01-29 Andrew -- we could use a chain of property files or some other initial registration mechanism: this could be used to natively support MongoDB and similar things etc...
+    return defaults;
+  }
+  
+  private static Map<Class<?>,FudgeBuilder<?>> getDefaultBuilders () {
+    return s_defaultBuilders;
+  }
   
   /**
    * If the object has a public fromFudgeMsg method, that will be used. Otherwise, if it has a
-   * public constructor that takes a FudgeFieldContainer, that will be used. Failing that the
-   * ReflectionObjectBuilder will be attempted.
+   * public constructor that takes a FudgeFieldContainer, that will be used. Registered default
+   * builders for classes list Map and List will be tried, failing that the JavaBeanBuilder will
+   * be used.
    * 
    * @param <T> Java type of the class a builder is requested for
    * @param clazz Java class a builder is requested for 
@@ -62,15 +78,15 @@ public class FudgeDefaultBuilder {
     if ((builder = FromFudgeMsgObjectBuilder.create (clazz)) != null) return builder;
     if ((builder = FudgeMsgConstructorObjectBuilder.create (clazz)) != null) return builder;
     if (clazz.isArray ()) return new ArrayBuilder (clazz.getComponentType ());
-    if (Map.class == clazz) return (FudgeObjectBuilder<T>)MapBuilder.INSTANCE;
-    if (List.class == clazz) return (FudgeObjectBuilder<T>)ListBuilder.INSTANCE;
-    if (FudgeFieldContainer.class == clazz) return (FudgeObjectBuilder<T>)FudgeFieldContainerBuilder.INSTANCE;
-    return builder = ReflectionObjectBuilder.create (clazz);
+    if ((builder = (FudgeObjectBuilder<T>)getDefaultBuilders ().get (clazz)) != null) return builder;
+    if (clazz.isInterface ()) return null;
+    //return ReflectionObjectBuilder.create (clazz);
+    return JavaBeanBuilder.create (clazz);
   }
   
   /**
    * If the object has a public toFudgeMsg method, that will be used. Otherwise the
-   * ReflectionMessageBuilder will be used.
+   * JavaBeanBuilder will be used.
    * 
    * @param <T> Java type of the class a builder is requested for
    * @param clazz Java class a builder is requested for
@@ -81,10 +97,11 @@ public class FudgeDefaultBuilder {
     FudgeMessageBuilder<T> builder;
     if ((builder = ToFudgeMsgMessageBuilder.create (clazz)) != null) return builder;
     if (clazz.isArray ()) return new ArrayBuilder (clazz.getComponentType ());
-    if (Map.class.isAssignableFrom (clazz)) return (FudgeMessageBuilder<T>)MapBuilder.INSTANCE;
-    if (List.class.isAssignableFrom (clazz)) return (FudgeMessageBuilder<T>)ListBuilder.INSTANCE;
-    if (FudgeFieldContainer.class.isAssignableFrom (clazz)) return (FudgeMessageBuilder<T>)FudgeFieldContainerBuilder.INSTANCE;
-    return ReflectionMessageBuilder.create (clazz);
+    for (Map.Entry<Class<?>,FudgeBuilder<?>> defaultBuilder : getDefaultBuilders ().entrySet ()) {
+      if (defaultBuilder.getKey ().isAssignableFrom (clazz)) return (FudgeMessageBuilder<T>)defaultBuilder.getValue ();
+    }
+    //return ReflectionMessageBuilder.create (clazz);
+    return JavaBeanBuilder.create (clazz);
   }
 
   private FudgeDefaultBuilder () {

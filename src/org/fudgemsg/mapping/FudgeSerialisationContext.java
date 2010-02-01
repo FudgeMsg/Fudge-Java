@@ -140,4 +140,6 @@ public class FudgeSerialisationContext implements FudgeMessageFactory {
     }
   }
   
+  // TODO 2010-02-01 Andrew -- should we write out interface names as well as the main hierarchy in addClassHeader?
+  
 }
