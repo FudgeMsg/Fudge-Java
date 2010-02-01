@@ -19,6 +19,7 @@ package org.fudgemsg.mapping;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.FudgeRuntimeException;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.FudgeMsg;
@@ -48,7 +49,21 @@ import org.fudgemsg.FudgeMsg;
       // ignore
     }
     try {
+      return new AddFields<T> (clazz.getMethod ("toFudgeMsg", FudgeMessageFactory.class, MutableFudgeFieldContainer.class), false);
+    } catch (SecurityException e) {
+      // ignore
+    } catch (NoSuchMethodException e) {
+      // ignore
+    }
+    try {
       return new CreateMessage<T> (clazz.getMethod ("toFudgeMsg", FudgeSerialisationContext.class), false);
+    } catch (SecurityException e) {
+      // ignore
+    } catch (NoSuchMethodException e) {
+      // ignore
+    }
+    try {
+      return new CreateMessage<T> (clazz.getMethod ("toFudgeMsg", FudgeMessageFactory.class), false);
     } catch (SecurityException e) {
       // ignore
     } catch (NoSuchMethodException e) {

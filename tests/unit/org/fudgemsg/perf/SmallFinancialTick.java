@@ -15,6 +15,10 @@
  */
 package org.fudgemsg.perf;
 
+import org.fudgemsg.FudgeMessageFactory;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+
 import java.io.Serializable;
 
 /**
@@ -87,6 +91,16 @@ public class SmallFinancialTick implements Serializable {
    */
   public void setTimestamp(long timestamp) {
     _timestamp = timestamp;
+  }
+  
+  public FudgeFieldContainer toFudgeMsg (final FudgeMessageFactory fc) {
+    MutableFudgeFieldContainer msg = fc.newMessage ();
+    msg.add ("bid", (Double)_bid);
+    msg.add ("ask", (Double)_ask);
+    msg.add ("bidVolume", (Double)_bidVolume);
+    msg.add ("askVolume", (Double)_askVolume);
+    msg.add ("timestamp", (Long)_timestamp);
+    return msg;
   }
 
 }

@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeFieldContainer;
 
 /**
  * Contains mappings from Java objects to Fudge messages for the current classloader.
@@ -37,18 +37,19 @@ import org.fudgemsg.FudgeMsg;
  */
 public final class FudgeObjectDictionary {
   
-  private static final class NullBuilder<T> implements FudgeBuilder<T> {
+  private static final FudgeMessageBuilder<?> NULL_MESSAGEBUILDER = new FudgeMessageBuilder<Object> () {
     @Override
-    public FudgeMsg buildMessage(FudgeSerialisationContext context, T object) {
+    public MutableFudgeFieldContainer buildMessage (FudgeSerialisationContext context, Object object) {
       return null;
     }
-    @Override
-    public T buildObject(FudgeDeserialisationContext context, FudgeFieldContainer message) {
-      return null;
-    }
-  }
+  };
   
-  private static final NullBuilder<?> NULL_BUILDER = new NullBuilder<Object> ();
+  private static final FudgeObjectBuilder<?> NULL_OBJECTBUILDER = new FudgeObjectBuilder<Object> () {
+    @Override
+    public Object buildObject (FudgeDeserialisationContext context, FudgeFieldContainer message) {
+      return null;
+    }
+  };
   
   private final ConcurrentMap<Class<?>, FudgeObjectBuilder<?>> _objectBuilders = new ConcurrentHashMap<Class<?>, FudgeObjectBuilder<?>> ();
   private final ConcurrentMap<Class<?>, FudgeMessageBuilder<?>> _messageBuilders = new ConcurrentHashMap<Class<?>, FudgeMessageBuilder<?>> ();
@@ -111,11 +112,17 @@ public final class FudgeObjectDictionary {
     FudgeObjectBuilder<T> builder = (FudgeObjectBuilder<T>)_objectBuilders.get (clazz);
     if (builder == null) {
       FudgeObjectBuilder<T> freshBuilder = FudgeDefaultBuilder.defaultObjectBuilder (clazz);
-      if (freshBuilder == null) freshBuilder = (FudgeObjectBuilder<T>)NULL_BUILDER;
+      if (freshBuilder == null) freshBuilder = (FudgeObjectBuilder<T>)NULL_OBJECTBUILDER;
       builder = (FudgeObjectBuilder<T>)_objectBuilders.putIfAbsent (clazz, freshBuilder);
-      if (builder == null) builder = freshBuilder;
+      if (builder == null) {
+        // if the default object builder is also a message builder then store a reference now
+        if (freshBuilder instanceof FudgeMessageBuilder<?>) {
+          _messageBuilders.putIfAbsent (clazz, (FudgeMessageBuilder<?>)freshBuilder);
+        }
+        builder = freshBuilder;
+      }
     }
-    return (builder == NULL_BUILDER) ? null : builder;
+    return (builder == NULL_OBJECTBUILDER) ? null : builder;
   }
   
   /**
@@ -131,11 +138,17 @@ public final class FudgeObjectDictionary {
     FudgeMessageBuilder<T> builder = (FudgeMessageBuilder<T>)_messageBuilders.get (clazz);
     if (builder == null) {
       FudgeMessageBuilder<T> freshBuilder = FudgeDefaultBuilder.defaultMessageBuilder (clazz);
-      if (freshBuilder == null) freshBuilder = (FudgeMessageBuilder<T>)NULL_BUILDER;
+      if (freshBuilder == null) freshBuilder = (FudgeMessageBuilder<T>)NULL_MESSAGEBUILDER;
       builder = (FudgeMessageBuilder<T>)_messageBuilders.putIfAbsent (clazz, freshBuilder);
-      if (builder == null) builder = freshBuilder;
+      if (builder == null) {
+        // if the default message builder is also an object builder then store a reference now
+        if (freshBuilder instanceof FudgeObjectBuilder<?>) {
+          _objectBuilders.putIfAbsent (clazz, (FudgeObjectBuilder<?>)freshBuilder);
+        }
+        builder = freshBuilder;
+      }
     }
-    return (builder == NULL_BUILDER) ? null : builder;
+    return (builder == NULL_MESSAGEBUILDER) ? null : builder;
   }
   
 }

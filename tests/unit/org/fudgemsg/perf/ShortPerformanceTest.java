@@ -139,7 +139,7 @@ public class ShortPerformanceTest {
     sb.append("Fudge Names And Ordinals ").append(fudgeDeltaBoth).append("ms");
     System.out.println(sb.toString());
     sb = new StringBuilder();
-    sb.append("Fudge Objects No Taxonomy").append(fudgeDeltaObjectNoTaxonomy).append("ms");
+    sb.append("Fudge Objects No Taxonomy ").append(fudgeDeltaObjectNoTaxonomy).append("ms");
     System.out.println(sb.toString());
     sb = new StringBuilder();
     sb.append("Serialization ").append(serializationDelta).append("ms");
@@ -159,10 +159,10 @@ public class ShortPerformanceTest {
     sb = new StringBuilder();
     sb.append("Serialization: ").append(serializationSplit).append("cycles/sec");
     System.out.println(sb.toString());
-    assertTrue("Serialization faster by " + (fudgeDeltaNamesOnly - serializationDelta) + "ms",
-        serializationDelta > fudgeDeltaNamesOnly);
+    assertTrue("Serialization faster by " + (fudgeDeltaObjectNoTaxonomy - serializationDelta) + "ms",
+        serializationDelta > fudgeDeltaObjectNoTaxonomy);
   }
-
+  
   /**
    * @param nCycles
    * @param delta
@@ -222,40 +222,96 @@ public class ShortPerformanceTest {
   }
 
   private static int serializationCycle() throws Exception {
+    return serializationFromMsg (serializationToMsg ());
+  }
+  
+  private static byte[] serializationToMsg () throws Exception {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     ObjectOutputStream oos = new ObjectOutputStream(baos);
     SmallFinancialTick tick = new SmallFinancialTick();
     oos.writeObject(tick);
-    
-    byte[] data = baos.toByteArray();
-    
+    return baos.toByteArray();
+  }
+  
+  private static int serializationFromMsg (final byte[] data) throws Exception {
     ByteArrayInputStream bais = new ByteArrayInputStream(data);
     ObjectInputStream ois = new ObjectInputStream(bais);
     ois.readObject();
     return data.length;
   }
   
-  private static int fudgeObjectMappingCycle() {
+  private static int fudgeObjectMappingCycle() throws Exception {
+    return fudgeObjectMappingFromMsg (fudgeObjectMappingToMsg ());
+  }
+  
+  private static byte[] fudgeObjectMappingToMsg () throws Exception {
     SmallFinancialTick tick = new SmallFinancialTick();
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     FudgeObjectWriter osw = s_fudgeContext.allocateObjectWriter (baos);
-    try {
-      osw.write (tick);
-    } catch (IOException ioe) {
-      throw new FudgeRuntimeException ("couldn't write object", ioe);
-    }
+    osw.write (tick);
     s_fudgeContext.releaseObjectWriter(osw);
-
-    byte[] data = baos.toByteArray();
+    return baos.toByteArray();
+  }
+  
+  private static int fudgeObjectMappingFromMsg (final byte[] data) throws Exception {
     FudgeObjectReader osr = s_fudgeContext.allocateObjectReader (new ByteArrayInputStream (data));
-    try {
-      tick = osr.read(SmallFinancialTick.class);
-    } catch (IOException ioe) {
-      throw new FudgeRuntimeException ("couldn't read object", ioe);
-    }
+    osr.read(SmallFinancialTick.class);
     s_fudgeContext.releaseObjectReader(osr);
-    
     return data.length;
   }
 
+  /**
+   * Split the serialisation cycles into two so that we can identify where the bottle neck is.
+   */
+  @Test
+  @Ignore
+  public void performanceCheck () throws Exception {
+    final int nCycles = 100000;
+    long start, end;
+    long deltaSerialisationToMsg, deltaSerialisationFromMsg, deltaFudgeObjectMappingToMsg, deltaFudgeObjectMappingFromMsg;
+    byte[] data = null;
+    
+    start = System.currentTimeMillis ();
+    for (int i = 0; i < nCycles; i++) {
+      data = serializationToMsg ();
+    }
+    end = System.currentTimeMillis ();
+    deltaSerialisationToMsg = end - start;
+    System.gc ();
+    
+    start = System.currentTimeMillis ();
+    for (int i = 0; i < nCycles; i++) {
+      serializationFromMsg (data);
+    }
+    end = System.currentTimeMillis ();
+    deltaSerialisationFromMsg = end - start;
+    System.gc ();
+    
+    start = System.currentTimeMillis ();
+    for (int i = 0; i < nCycles; i++) {
+      data = fudgeObjectMappingToMsg ();
+    }
+    end = System.currentTimeMillis ();
+    deltaFudgeObjectMappingToMsg = end - start;
+    System.gc ();
+    
+    start = System.currentTimeMillis ();
+    for (int i = 0; i < nCycles; i++) {
+      fudgeObjectMappingFromMsg (data);
+    }
+    end = System.currentTimeMillis ();
+    deltaFudgeObjectMappingFromMsg = end - start;
+    System.gc ();
+    
+    System.out.println ("Java serialisation (enc) " + deltaSerialisationToMsg + "ms");
+    System.out.println ("Java serialisation (dec) " + deltaSerialisationFromMsg + "ms");
+    System.out.println ("Java serialisation " + (deltaSerialisationToMsg + deltaSerialisationFromMsg) + "ms");
+    System.out.println ("Fudge serialisation (enc) " + deltaFudgeObjectMappingToMsg + "ms");
+    System.out.println ("Fudge serialisation (dec) " + deltaFudgeObjectMappingFromMsg + "ms");
+    System.out.println ("Fudge serialisation " + (deltaFudgeObjectMappingToMsg + deltaFudgeObjectMappingFromMsg) + "ms");
+    assertTrue ("Java cycle faster by " + ((deltaFudgeObjectMappingToMsg + deltaFudgeObjectMappingFromMsg) - (deltaSerialisationToMsg + deltaSerialisationFromMsg)) + "ms", (deltaFudgeObjectMappingToMsg + deltaFudgeObjectMappingFromMsg) < (deltaSerialisationToMsg + deltaSerialisationFromMsg));
+    assertTrue ("Java encoding faster by " + (deltaFudgeObjectMappingToMsg - deltaSerialisationToMsg) + "ms", deltaFudgeObjectMappingToMsg < deltaSerialisationToMsg);
+    assertTrue ("Java decoding faster by " + (deltaFudgeObjectMappingFromMsg - deltaSerialisationFromMsg) + "ms", deltaFudgeObjectMappingFromMsg < deltaSerialisationFromMsg);
+  }
+  
 }

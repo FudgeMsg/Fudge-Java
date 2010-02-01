@@ -149,8 +149,29 @@ public class ObjectMappingTestUtil {
   }
   
   public static class StaticTransientBean {
+    
     public static int s_static = 92;
+    
     public transient String _transient = "Transient";
+    
+    public static int getStatic () {
+      return s_static;
+    }
+    
+    public static void setStatic (final int s) {
+      s_static = s;
+    }
+    
+    @FudgeTransient
+    public String getTransient () {
+      return _transient;
+    }
+    
+    @FudgeTransient
+    public void setTransient (final String value) {
+      _transient = value;
+    }
+    
   }
   
   public static class SetBean {
@@ -187,5 +208,40 @@ public class ObjectMappingTestUtil {
     strings.add("Yan Tordoff");
     
     return setBean;
+  }
+  
+  public static class MappedNameBean {
+    private String _fieldOne;
+    private String _fieldTwo;
+    private String _fieldThree;
+    private String _fieldFour;
+    public void setFieldOne (final String fieldOne) {
+      _fieldOne = fieldOne;
+    }
+    @FudgeFieldName ("foo")
+    public String getFieldOne () {
+      return _fieldOne;
+    }
+    public void setFieldTwo (final String fieldTwo) {
+      _fieldTwo = fieldTwo;
+    }
+    @FudgeFieldName ("bar")
+    public String getFieldTwo () {
+      return _fieldTwo;
+    }
+    public void setFieldThree (final String fieldThree) {
+      _fieldThree = fieldThree;
+    }
+    @FudgeFieldOrdinal (99)
+    public String getFieldThree () {
+      return _fieldThree;
+    }
+    public void setFieldFour (final String fieldFour) {
+      _fieldFour = fieldFour;
+    }
+    @FudgeFieldOrdinal (value = 100, noFieldName = true)
+    public String getFieldFour () {
+      return _fieldFour;
+    }
   }
 }

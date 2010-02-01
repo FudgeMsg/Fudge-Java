@@ -25,6 +25,7 @@ import java.beans.Beans;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import org.apache.commons.beanutils.PropertyUtils;
 
@@ -37,29 +38,115 @@ import org.apache.commons.beanutils.PropertyUtils;
  */
 /* package */ class JavaBeanBuilder<T> implements FudgeBuilder<T> {
   
-  private final PropertyDescriptor[] _properties;
-  private final String _beanName;
-  
-  /* package */ static <T> JavaBeanBuilder<T> create (final Class<T> clazz) {
-    // make sure that getClass is ignored - we don't really want that in the resulting message
-    final ArrayList<PropertyDescriptor> propList = new ArrayList<PropertyDescriptor> ();
-    for (PropertyDescriptor prop : PropertyUtils.getPropertyDescriptors (clazz)) {
-      if (!prop.getName ().equals ("class")) propList.add (prop);
+  private static class JBProperty {
+    private final String _name;
+    private final Integer _ordinal;
+    private final Method _read;
+    private final Method _write;
+    private final Class<?> _type;
+    private JBProperty (final String name, final Integer ordinal, final Method read, final Method write, final Class<?> type) {
+      _read = read;
+      _write = write;
+      _type = type;
+      _name = name;
+      _ordinal = ordinal;
     }
-    return new JavaBeanBuilder<T> (propList.toArray (new PropertyDescriptor[propList.size ()]), clazz.getName ());
+    private String getName () {
+      return _name;
+    }
+    private Integer getOrdinal () {
+      return _ordinal;
+    }
+    private Method getRead () {
+      return _read;
+    }
+    private Method getWrite () {
+      return _write;
+    }
+    private Class<?> getType () {
+      return _type;
+    }
   }
   
-  private JavaBeanBuilder (final PropertyDescriptor[] properties, final String beanName) {
+  private final JBProperty[] _properties;
+  private final String _beanName;
+  private final Constructor<T> _constructor;
+
+  /* package */ static <T> JavaBeanBuilder<T> create (final Class<T> clazz) {
+    // customise the properties
+    final ArrayList<JBProperty> propList = new ArrayList<JBProperty> ();
+    for (PropertyDescriptor prop : PropertyUtils.getPropertyDescriptors (clazz)) {
+      // ignore the class
+      if (prop.getName ().equals ("class")) continue;
+      // check for FudgeFieldName annotations on either accessor or mutator
+      FudgeFieldName annoName;
+      FudgeFieldOrdinal annoOrdinal;
+      String name = prop.getName ();
+      Integer ordinal = null;
+      if (prop.getWriteMethod () != null) {
+        // give up if it's a transient property
+        if (TransientUtil.hasTransientAnnotation (prop.getWriteMethod ())) continue;
+        if ((annoName = prop.getWriteMethod ().getAnnotation (FudgeFieldName.class)) != null) name = annoName.value ();
+        if ((annoOrdinal = prop.getWriteMethod ().getAnnotation (FudgeFieldOrdinal.class)) != null) {
+          ordinal = (int)annoOrdinal.value ();
+          if (annoOrdinal.noFieldName ()) name = null;
+        }
+      }
+      if (prop.getReadMethod () != null) {
+        // give up if it's a transient property
+        if (TransientUtil.hasTransientAnnotation (prop.getReadMethod ())) continue;
+        if ((annoName = prop.getReadMethod ().getAnnotation (FudgeFieldName.class)) != null) name = annoName.value ();
+        if ((annoOrdinal = prop.getReadMethod ().getAnnotation (FudgeFieldOrdinal.class)) != null) {
+          ordinal = (int)annoOrdinal.value ();
+          if (annoOrdinal.noFieldName ()) name = null;
+        }
+      }
+      propList.add (new JBProperty (name, ordinal, prop.getReadMethod (), prop.getWriteMethod (), prop.getPropertyType ()));
+    }
+    // try and find a constructor
+    try {
+      return new JavaBeanBuilder<T> (propList.toArray (new JBProperty[propList.size ()]), clazz.getConstructor ());
+    } catch (SecurityException e) {
+      // ignore
+    } catch (NoSuchMethodException e) {
+      // ignore
+    }
+    // otherwise bean behaviour (about 5 times slower!)
+    return new JavaBeanBuilder<T> (propList.toArray (new JBProperty[propList.size ()]), clazz.getName ());
+  }
+  
+  private JavaBeanBuilder (final JBProperty[] properties, final String beanName) {
     _properties = properties;
     _beanName = beanName;
+    _constructor = null;
   }
   
-  private PropertyDescriptor[] getProperties () {
+  private JavaBeanBuilder (final JBProperty[] properties, final Constructor<T> constructor) {
+    _properties = properties;
+    _beanName = null;
+    _constructor = constructor;
+  }
+  
+  private JBProperty[] getProperties () {
     return _properties;
   }
   
   private String getBeanName () {
     return _beanName;
+  }
+  
+  private Constructor<T> getConstructor () {
+    return _constructor;
+  }
+  
+  @SuppressWarnings("unchecked")
+  private T newBeanObject () throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException, IOException, ClassNotFoundException {
+    if (getConstructor () != null) {
+      return getConstructor ().newInstance ();
+    } else {
+      // Warning: the Beans.instantiate method below was about 5 times slower in the perf tests
+      return (T)Beans.instantiate (getClass ().getClassLoader (), getBeanName ());
+    }
   }
 
   @Override
@@ -67,12 +154,9 @@ import org.apache.commons.beanutils.PropertyUtils;
       FudgeSerialisationContext context, T object) {
     final MutableFudgeFieldContainer message = context.newMessage ();
     try {
-      for (PropertyDescriptor property : getProperties ()) {
-        final Method getter = property.getReadMethod ();
-        if (getter != null) {
-          //System.out.println (property.getName () + "; " + getter);
-          context.objectToFudgeMsg (message, property.getName (), null, getter.invoke (object));
-        }
+      for (JBProperty prop : getProperties ()) {
+        if (prop.getRead () == null) continue;
+        context.objectToFudgeMsg (message, prop.getName (), prop.getOrdinal (), prop.getRead ().invoke (object));
       }
       context.addClassHeader (message, object.getClass ());
     } catch (IllegalArgumentException e) {
@@ -85,25 +169,28 @@ import org.apache.commons.beanutils.PropertyUtils;
     return message;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public T buildObject(FudgeDeserialisationContext context,
       FudgeFieldContainer message) {
     final T object;
     try {
-      object = (T)Beans.instantiate (getClass ().getClassLoader (), getBeanName ());
-      for (PropertyDescriptor property : getProperties ()) {
-        final FudgeField field = message.getByName (property.getName ());
-        if (field != null) {
-          final Method setter = property.getWriteMethod ();
-          if (setter != null) {
-            setter.invoke (object, context.fieldValueToObject (property.getPropertyType (), field));
-          }
+      object = newBeanObject ();
+      for (JBProperty prop : getProperties ()) {
+        if (prop.getWrite () == null) continue;
+        final FudgeField field;
+        if (prop.getOrdinal () == null) {
+          field = message.getByName (prop.getName ());
+        } else {
+          field = message.getByOrdinal (prop.getOrdinal ());
         }
+        if (field == null) continue;
+        prop.getWrite ().invoke (object, context.fieldValueToObject (prop.getType (), field));
       }
     } catch (IOException e) {
       throw new FudgeRuntimeException ("Couldn't deserialise " + getBeanName (), e);
     } catch (ClassNotFoundException e) {
+      throw new FudgeRuntimeException ("Couldn't deserialise " + getBeanName (), e);
+    } catch (InstantiationException e) {
       throw new FudgeRuntimeException ("Couldn't deserialise " + getBeanName (), e);
     } catch (IllegalArgumentException e) {
       throw new FudgeRuntimeException ("Couldn't deserialise " + getBeanName (), e);
