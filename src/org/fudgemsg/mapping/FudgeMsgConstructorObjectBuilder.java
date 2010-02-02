@@ -33,7 +33,7 @@ import org.fudgemsg.FudgeRuntimeException;
 
   /* package */ static <T> FudgeMsgConstructorObjectBuilder<T> create (final Class<T> clazz) {
     try {
-      return new FudgeMsgConstructorObjectBuilder<T> (clazz.getConstructor (FudgeDeserialisationContext.class, FudgeFieldContainer.class), true);
+      return new FudgeMsgConstructorObjectBuilder<T> (clazz.getConstructor (FudgeDeserializationContext.class, FudgeFieldContainer.class), true);
     } catch (SecurityException e) {
       // ignore
     } catch (NoSuchMethodException e) {
@@ -58,7 +58,7 @@ import org.fudgemsg.FudgeRuntimeException;
   }
   
   @Override
-  public T buildObject (final FudgeDeserialisationContext context, final FudgeFieldContainer message) {
+  public T buildObject (final FudgeDeserializationContext context, final FudgeFieldContainer message) {
     try {
       return _passContext ? _constructor.newInstance (context, message) : _constructor.newInstance (message);
     } catch (IllegalArgumentException e) {

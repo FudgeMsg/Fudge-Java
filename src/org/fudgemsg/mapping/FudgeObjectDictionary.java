@@ -30,7 +30,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
  * (see FudgeDefaultBuilder) which will be used, or custom mappings can be supplied.
  * 
  * For example, registering builders for {@link Map} or {@link List} with a {@code FudgeObjectDictionary}
- * before it is used by a {@link FudgeDeserialisationContext} or {@link FudgeSerialisationContext} will
+ * before it is used by a {@link FudgeDeserializationContext} or {@link FudgeSerializationContext} will
  * override the default behaviours.
  * 
  * @author Andrew
@@ -39,14 +39,14 @@ public final class FudgeObjectDictionary {
   
   private static final FudgeMessageBuilder<?> NULL_MESSAGEBUILDER = new FudgeMessageBuilder<Object> () {
     @Override
-    public MutableFudgeFieldContainer buildMessage (FudgeSerialisationContext context, Object object) {
+    public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, Object object) {
       return null;
     }
   };
   
   private static final FudgeObjectBuilder<?> NULL_OBJECTBUILDER = new FudgeObjectBuilder<Object> () {
     @Override
-    public Object buildObject (FudgeDeserialisationContext context, FudgeFieldContainer message) {
+    public Object buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
       return null;
     }
   };

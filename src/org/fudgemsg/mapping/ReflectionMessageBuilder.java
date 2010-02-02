@@ -54,7 +54,7 @@ import org.fudgemsg.FudgeRuntimeException;
   }
   
   @Override
-  public MutableFudgeFieldContainer buildMessage (final FudgeSerialisationContext context, final T object) {
+  public MutableFudgeFieldContainer buildMessage (final FudgeSerializationContext context, final T object) {
     //System.out.println ("ReflectionMessageBuilder::buildMessage (" + context + ", " + object + ")");
     final MutableFudgeFieldContainer message;
     if (_baseBuilder != null) {

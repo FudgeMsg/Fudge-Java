@@ -151,7 +151,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 
   @Override
   public MutableFudgeFieldContainer buildMessage(
-      FudgeSerialisationContext context, T object) {
+      FudgeSerializationContext context, T object) {
     final MutableFudgeFieldContainer message = context.newMessage ();
     try {
       for (JBProperty prop : getProperties ()) {
@@ -170,7 +170,7 @@ import org.apache.commons.beanutils.PropertyUtils;
   }
 
   @Override
-  public T buildObject(FudgeDeserialisationContext context,
+  public T buildObject(FudgeDeserializationContext context,
       FudgeFieldContainer message) {
     final T object;
     try {

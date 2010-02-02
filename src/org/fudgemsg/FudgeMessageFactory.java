@@ -15,12 +15,12 @@
  */
 package org.fudgemsg;
 
-import org.fudgemsg.mapping.FudgeSerialisationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 /**
  * Cut down version of the newMessage operation from FudgeContext and FudgeSerialisationContext
  * as most object/message conversion operations only require the initial message creation hook
- * and not the full {@link FudgeContext} or {@link FudgeSerialisationContext}.
+ * and not the full {@link FudgeContext} or {@link FudgeSerializationContext}.
  * 
  * @author Andrew
  */

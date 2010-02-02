@@ -60,18 +60,6 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     _fudgeContext = fudgeContext;
   }
   
-  /*public FudgeMsg(FudgeMsg other) {
-    this (other, other.getFudgeContext ());
-  }*/
-  
-  /*public FudgeMsg(byte[] byteArray, FudgeContext fudgeContext) {
-    if(fudgeContext == null) {
-      throw new NullPointerException("Context must be provided.");
-    }
-    _fudgeContext = fudgeContext;
-    initializeFromByteArray(byteArray);
-  }*/
-  
   /**
    * Creates a new {@link FudgeMsg} from a set of fields bound to the given {@link FudgeContext}.
    * 
@@ -86,16 +74,6 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
       _fields.add (new FudgeMsgField (field));
     }
   }
-  
-  /*protected void initializeFromByteArray(byte[] byteArray) {
-    final FudgeMessageStreamReader reader = getFudgeContext ().allocateMessageReader (new ByteArrayInputStream (byteArray));
-    try {
-      _fields.addAll(reader.nextMessage ()._fields);
-    } catch (IOException ioe) {
-      throw new FudgeRuntimeException ("error reading byte[] data", ioe);
-    }
-    getFudgeContext ().releaseMessageReader (reader);
-  }*/
   
   /**
    * Returns this message's {@link FudgeContext}.
@@ -349,26 +327,6 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     }
     return null;
   }
-  
-  // Andrew - removed the byte[] conversions because they are working with a message envelope which I
-  // think is misleading as it isn't valid when called for nested submessages and is a different length
-  // to the calculated message size 
-  
-  /*public byte[] toByteArray() {
-    return toByteArray ((short)0);
-  }
-  
-  public byte[] toByteArray(short taxonomy) {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream(FudgeSize.calculateMessageSize(null, this));
-    FudgeMessageStreamWriter writer = getFudgeContext().allocateMessageWriter(baos);
-    try {
-      writer.writeMessage (this, taxonomy);
-    } catch (IOException e) {
-      return null;
-    }
-    getFudgeContext().releaseMessageWriter(writer);
-    return baos.toByteArray();
-  }*/
   
   // Primitive Queries:
   

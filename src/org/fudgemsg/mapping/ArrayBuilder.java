@@ -37,7 +37,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
   }
 
   @Override
-  public MutableFudgeFieldContainer buildMessage (FudgeSerialisationContext context, Object[] array) {
+  public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, Object[] array) {
     final MutableFudgeFieldContainer msg = context.newMessage ();
     for (Object entry : array) {
       context.objectToFudgeMsg (msg, null, null, entry);
@@ -47,7 +47,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
   
   @SuppressWarnings("unchecked")
   @Override
-  public E[] buildObject (FudgeDeserialisationContext context, FudgeFieldContainer message) {
+  public E[] buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
     final List<?> list = ListBuilder.INSTANCE.buildObject (context, message);
     return list.toArray ((E[])Array.newInstance (_clazz, list.size ()));
   }

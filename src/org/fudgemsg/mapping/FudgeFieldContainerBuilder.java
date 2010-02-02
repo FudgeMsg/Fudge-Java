@@ -32,12 +32,12 @@ import org.fudgemsg.MutableFudgeFieldContainer;
   }
 
   @Override
-  public MutableFudgeFieldContainer buildMessage (FudgeSerialisationContext context, FudgeFieldContainer fields) {
+  public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, FudgeFieldContainer fields) {
     return context.newMessage (fields);
   }
   
   @Override
-  public FudgeFieldContainer buildObject (FudgeDeserialisationContext context, FudgeFieldContainer message) {
+  public FudgeFieldContainer buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
     return context.getFudgeContext ().newMessage (message);
   }
 

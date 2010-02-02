@@ -32,10 +32,10 @@ public interface FudgeMessageBuilder<T> {
    * is to allow efficient implementation of sub-class builders that only need append data to the
    * super-class message.
    * 
-   * @param context the {@link FudgeSerialisationContext}
+   * @param context the {@link FudgeSerializationContext}
    * @param object the object to serialise
    * @return the Fudge message
    */
-  MutableFudgeFieldContainer buildMessage (FudgeSerialisationContext context, T object);
+  MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, T object);
   
 }

@@ -33,23 +33,23 @@ import org.fudgemsg.types.StringFieldType;
  * 
  * @author Andrew
  */
-public class FudgeSerialisationContext implements FudgeMessageFactory {
+public class FudgeSerializationContext implements FudgeMessageFactory {
   
   private final FudgeContext _fudgeContext;
   private final SerialisationBuffer _serialisationBuffer = new SerialisationBuffer ();
   
   /**
-   * Creates a new {@link FudgeSerialisationContext} for the given {@link FudgeContext}.
+   * Creates a new {@link FudgeSerializationContext} for the given {@link FudgeContext}.
    * 
    * @param fudgeContext the {@code FudgeContext} to use
    */
-  public FudgeSerialisationContext (final FudgeContext fudgeContext) {
+  public FudgeSerializationContext (final FudgeContext fudgeContext) {
     _fudgeContext = fudgeContext;
   }
 
   /**
    * Resets the buffers used for object graph logics. Calling {@code reset()} on this context
-   * should match a call to {@link FudgeDeserialisationContext#reset()} on the context used by the deserialiser
+   * should match a call to {@link FudgeDeserializationContext#reset()} on the context used by the deserialiser
    * to keep the states of both sender and receiver consistent.
    */
   public void reset () {

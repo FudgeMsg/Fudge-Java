@@ -30,10 +30,10 @@ public interface FudgeObjectBuilder<T> {
   /**
    * Decodes the message into an instance of type T.
    * 
-   * @param context the {@link FudgeDeserialisationContext}
+   * @param context the {@link FudgeDeserializationContext}
    * @param message the origin Fudge message
    * @return the created object
    */
-  T buildObject (FudgeDeserialisationContext context, FudgeFieldContainer message);
+  T buildObject (FudgeDeserializationContext context, FudgeFieldContainer message);
   
 }

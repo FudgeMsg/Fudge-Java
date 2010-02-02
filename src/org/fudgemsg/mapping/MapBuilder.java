@@ -39,7 +39,7 @@ import org.fudgemsg.FudgeRuntimeException;
   }
 
   @Override
-  public MutableFudgeFieldContainer buildMessage (FudgeSerialisationContext context, Map<?,?> map) {
+  public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, Map<?,?> map) {
     final MutableFudgeFieldContainer msg = context.newMessage ();
     for (Map.Entry<?,?> entry : map.entrySet ()) {
       context.objectToFudgeMsg (msg, null, 1, entry.getKey ());
@@ -49,7 +49,7 @@ import org.fudgemsg.FudgeRuntimeException;
   }
   
   @Override
-  public Map<?,?> buildObject (FudgeDeserialisationContext context, FudgeFieldContainer message) {
+  public Map<?,?> buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
     final Map<Object, Object> map = new HashMap<Object, Object> ();
     final Queue<Object> keys = new LinkedList<Object> ();
     final Queue<Object> values = new LinkedList<Object> ();

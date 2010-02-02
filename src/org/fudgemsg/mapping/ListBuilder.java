@@ -37,7 +37,7 @@ import org.fudgemsg.FudgeRuntimeException;
   }
 
   @Override
-  public MutableFudgeFieldContainer buildMessage (FudgeSerialisationContext context, List<?> list) {
+  public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, List<?> list) {
     final MutableFudgeFieldContainer msg = context.newMessage ();
     for (Object entry : list) {
       context.objectToFudgeMsg (msg, null, null, entry);
@@ -46,7 +46,7 @@ import org.fudgemsg.FudgeRuntimeException;
   }
   
   @Override
-  public List<?> buildObject (FudgeDeserialisationContext context, FudgeFieldContainer message) {
+  public List<?> buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
     final List<Object> list = new ArrayList<Object> ();
     for (FudgeField field : message) {
       if ((field.getOrdinal () != null) && (field.getOrdinal () != 1)) throw new FudgeRuntimeException ("Sub-message doesn't contain a list (bad field " + field + ")");

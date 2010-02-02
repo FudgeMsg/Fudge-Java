@@ -31,7 +31,7 @@ public class FudgeObjectWriter {
 
   private FudgeMsgWriter _messageWriter;
   
-  private FudgeSerialisationContext _serialisationContext;
+  private FudgeSerializationContext _serialisationContext;
   
   /**
    * Creates a new {@link FudgeObjectWriter} around a {@link FudgeMsgWriter}.
@@ -41,7 +41,7 @@ public class FudgeObjectWriter {
   public FudgeObjectWriter (final FudgeMsgWriter messageWriter) {
     if (messageWriter == null) throw new NullPointerException ("messageWriter cannot be null");
     _messageWriter = messageWriter;
-    _serialisationContext = new FudgeSerialisationContext (messageWriter.getFudgeContext ());
+    _serialisationContext = new FudgeSerializationContext (messageWriter.getFudgeContext ());
   }
   
   /**
@@ -64,7 +64,7 @@ public class FudgeObjectWriter {
     _messageWriter = messageWriter;
     if (getSerialisationContext ().getFudgeContext () != messageWriter.getFudgeContext ()) {
       // only reallocate the S-context if the new stream has a different F-context
-      _serialisationContext = new FudgeSerialisationContext (messageWriter.getFudgeContext ());
+      _serialisationContext = new FudgeSerializationContext (messageWriter.getFudgeContext ());
     }
   }
   
@@ -74,18 +74,18 @@ public class FudgeObjectWriter {
    * @return the {@code FudgeContext}
    */
   public FudgeContext getFudgeContext () {
-    final FudgeSerialisationContext context = getSerialisationContext ();
+    final FudgeSerializationContext context = getSerialisationContext ();
     if (context == null) return null;
     return context.getFudgeContext ();
   }
   
   /**
-   * Returns the current {@link FudgeSerialisationContext}. This is associated with the same {@link FudgeContext} as
+   * Returns the current {@link FudgeSerializationContext}. This is associated with the same {@link FudgeContext} as
    * the target message stream.
    * 
    * @return the {@code FudgeSerialisationContext}
    */
-  public FudgeSerialisationContext getSerialisationContext () {
+  public FudgeSerializationContext getSerialisationContext () {
     return _serialisationContext;
   }
   

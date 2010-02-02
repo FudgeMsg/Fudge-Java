@@ -21,7 +21,7 @@ import org.fudgemsg.FudgeFieldContainer;
 
 /**
  * Converts between Java objects and {@link FudgeFieldContainer} messages using the Fudge serialisation
- * framework. This class is provided for convenience, direct use of a {@link FudgeSerialisationContext} or {@link FudgeDeserialisationContext}
+ * framework. This class is provided for convenience, direct use of a {@link FudgeSerializationContext} or {@link FudgeDeserializationContext}
  * will be more efficient.
  *
  * @author kirk
@@ -37,7 +37,7 @@ public class FudgeObjectMessageFactory {
    * @return the serialised message
    */
   public static <T> FudgeFieldContainer serializeToMessage(T obj, FudgeContext context) {
-    final FudgeSerialisationContext fsc = new FudgeSerialisationContext (context);
+    final FudgeSerializationContext fsc = new FudgeSerializationContext (context);
     return fsc.objectToFudgeMsg (obj);
   }
   
@@ -50,7 +50,7 @@ public class FudgeObjectMessageFactory {
    * @return the deserialised object
    */
   public static Object deserializeToObject (FudgeFieldContainer message, FudgeContext context) {
-    final FudgeDeserialisationContext fdc = new FudgeDeserialisationContext (context);
+    final FudgeDeserializationContext fdc = new FudgeDeserializationContext (context);
     return fdc.fudgeMsgToObject (message);
   }
   
@@ -64,7 +64,7 @@ public class FudgeObjectMessageFactory {
    * @return the deserialised object
    */
   public static <T> T deserializeToObject (Class<T> clazz, FudgeFieldContainer message, FudgeContext context) {
-    final FudgeDeserialisationContext fdc = new FudgeDeserialisationContext (context);
+    final FudgeDeserializationContext fdc = new FudgeDeserializationContext (context);
     return fdc.fudgeMsgToObject (clazz, message);
   }
   

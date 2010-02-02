@@ -63,7 +63,7 @@ public class CustomBuilderTest {
   private static class CustomBuilder implements FudgeBuilder<CustomClass> {
 
     @Override
-    public MutableFudgeFieldContainer buildMessage(FudgeSerialisationContext context,
+    public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context,
         CustomClass object) {
       final MutableFudgeFieldContainer msg = context.newMessage ();
       int a = (object.getAB () - object.getBC () + object.getAC ()) / 2;
@@ -76,7 +76,7 @@ public class CustomBuilderTest {
     }
 
     @Override
-    public CustomClass buildObject(FudgeDeserialisationContext context,
+    public CustomClass buildObject(FudgeDeserializationContext context,
         FudgeFieldContainer message) {
       return new CustomClass (message.getInt ("a"), message.getInt ("b"), message.getInt ("c"));
     }
@@ -86,7 +86,7 @@ public class CustomBuilderTest {
   @Test
   public void withoutCustomBuilder () {
     final FudgeContext fudgeContext = new FudgeContext ();
-    final FudgeDeserialisationContext deserialisationContext = new FudgeDeserialisationContext (fudgeContext);
+    final FudgeDeserializationContext deserialisationContext = new FudgeDeserializationContext (fudgeContext);
     final CustomClass object = new CustomClass (2, 3, 5);
     final FudgeFieldContainer msg = FudgeObjectMessageFactory.serializeToMessage (object, fudgeContext);
     assert msg.getInt ("AB") == object.getAB ();
@@ -106,7 +106,7 @@ public class CustomBuilderTest {
   @Test
   public void withCustomBuilder () {
     final FudgeContext fudgeContext = new FudgeContext ();
-    final FudgeDeserialisationContext deserialisationContext = new FudgeDeserialisationContext (fudgeContext);
+    final FudgeDeserializationContext deserialisationContext = new FudgeDeserializationContext (fudgeContext);
     fudgeContext.getObjectDictionary ().addBuilder (CustomClass.class, new CustomBuilder ());
     final CustomClass object = new CustomClass (2, 3, 5);
     final FudgeFieldContainer msg = FudgeObjectMessageFactory.serializeToMessage (object, fudgeContext);
@@ -128,14 +128,14 @@ public class CustomBuilderTest {
     public static class Builder implements FudgeBuilder<FooHorse> {
       @Override
       public MutableFudgeFieldContainer buildMessage(
-          FudgeSerialisationContext context, FooHorse object) {
+          FudgeSerializationContext context, FooHorse object) {
         final MutableFudgeFieldContainer msg = context.newMessage ();
         msg.add (0, FooHorse.class.getName ());
         msg.add (1, "gibberish");
         return msg;
       }
       @Override
-      public FooHorse buildObject(FudgeDeserialisationContext context,
+      public FooHorse buildObject(FudgeDeserializationContext context,
           FudgeFieldContainer message) {
         assert message.getString (1).equals ("gibberish");
         return new FooHorse ();
@@ -151,14 +151,14 @@ public class CustomBuilderTest {
     public static class Builder implements FudgeBuilder<FooCow> {
       @Override
       public MutableFudgeFieldContainer buildMessage(
-          FudgeSerialisationContext context, FooCow object) {
+          FudgeSerializationContext context, FooCow object) {
         final MutableFudgeFieldContainer msg = context.newMessage ();
         msg.add (0, FooCow.class.getName ());
         msg.add ("gibberish", 1);
         return msg;
       }
       @Override
-      public FooCow buildObject(FudgeDeserialisationContext context,
+      public FooCow buildObject(FudgeDeserializationContext context,
           FudgeFieldContainer message) {
         assert message.getInt ("gibberish") == 1;
         return new FooCow ();
@@ -198,7 +198,7 @@ public class CustomBuilderTest {
       _n = n;
     }
     
-    public FudgeFieldContainer toFudgeMsg (FudgeSerialisationContext context) {
+    public FudgeFieldContainer toFudgeMsg (FudgeSerializationContext context) {
       MutableFudgeFieldContainer msg = context.newMessage ();
       msg.add ("foo", context.objectToFudgeMsg (_foo));
       msg.add ("bar", context.objectToFudgeMsg (_bar));
@@ -206,7 +206,7 @@ public class CustomBuilderTest {
       return msg;
     }
     
-    public static ProtoMessage fromFudgeMsg (FudgeDeserialisationContext context, FudgeFieldContainer fields) {
+    public static ProtoMessage fromFudgeMsg (FudgeDeserializationContext context, FudgeFieldContainer fields) {
       final FooInterface foo = context.fudgeMsgToObject (FooInterface.class, fields.getMessage ("foo"));
       final BeanClass bar = context.fudgeMsgToObject (BeanClass.class, fields.getMessage ("bar"));
       int n = fields.getInt ("n");

@@ -35,7 +35,7 @@ import org.fudgemsg.types.StringFieldType;
   }
 
   @Override
-  public MutableFudgeFieldContainer buildMessage (FudgeSerialisationContext context, Class<?> object) {
+  public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, Class<?> object) {
     final MutableFudgeFieldContainer msg = context.newMessage ();
     context.addClassHeader (msg, object.getClass ());
     msg.add ("name", null, StringFieldType.INSTANCE, object.getName ());
@@ -43,7 +43,7 @@ import org.fudgemsg.types.StringFieldType;
   }
   
   @Override
-  public Class<?> buildObject (FudgeDeserialisationContext context, FudgeFieldContainer message) {
+  public Class<?> buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
     final String str = message.getString ("name");
     if (str == null) throw new FudgeRuntimeException ("Sub-message doesn't contain a Java class name");
     try {

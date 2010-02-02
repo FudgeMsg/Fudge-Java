@@ -55,7 +55,7 @@ import org.fudgemsg.FudgeRuntimeException;
   }
   
   @Override
-  public T buildObject (final FudgeDeserialisationContext context, final FudgeFieldContainer message) {
+  public T buildObject (final FudgeDeserializationContext context, final FudgeFieldContainer message) {
     try {
       final T base = _constructor.newInstance ();
       for (FudgeField field : message.getAllFields ()) {

@@ -31,7 +31,7 @@ public class FudgeObjectReader {
   
   private FudgeMsgReader _messageReader;
   
-  private FudgeDeserialisationContext _deserialisationContext;
+  private FudgeDeserializationContext _deserialisationContext;
 
   /**
    * Creates a new {@link FudgeObjectReader} around the underlying {@link FudgeMsgReader} stream.
@@ -41,7 +41,7 @@ public class FudgeObjectReader {
   public FudgeObjectReader (final FudgeMsgReader messageReader) {
     if (messageReader == null) throw new NullPointerException ("messageReader cannot be null");
     _messageReader = messageReader;
-    _deserialisationContext = new FudgeDeserialisationContext (messageReader.getFudgeContext ());
+    _deserialisationContext = new FudgeDeserializationContext (messageReader.getFudgeContext ());
   }
   
   /**
@@ -64,7 +64,7 @@ public class FudgeObjectReader {
     _messageReader = messageReader;
     if (getDeserialisationContext ().getFudgeContext () != messageReader.getFudgeContext ()) {
       // only re-allocate the D-context if the F-context is different
-      _deserialisationContext = new FudgeDeserialisationContext (messageReader.getFudgeContext ());
+      _deserialisationContext = new FudgeDeserializationContext (messageReader.getFudgeContext ());
     }
   }
   
@@ -74,18 +74,18 @@ public class FudgeObjectReader {
    * @return the {@code FudgeContext}
    */
   public FudgeContext getFudgeContext () {
-    final FudgeDeserialisationContext context = getDeserialisationContext ();
+    final FudgeDeserializationContext context = getDeserialisationContext ();
     if (context == null) return null;
     return context.getFudgeContext ();
   }
   
   /**
-   * Returns the current {@link FudgeDeserialisationContext}. This is associated with the same {@link FudgeContext} as
+   * Returns the current {@link FudgeDeserializationContext}. This is associated with the same {@link FudgeContext} as
    * the source message stream.
    * 
    * @return the {@code FudgeDeserialisationContext}
    */
-  public FudgeDeserialisationContext getDeserialisationContext () {
+  public FudgeDeserializationContext getDeserialisationContext () {
     return _deserialisationContext;
   }
   
