@@ -26,7 +26,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
  */
 /* package */ class FudgeFieldContainerBuilder implements FudgeBuilder<FudgeFieldContainer> {
   
-  /* package */ static final FudgeFieldContainerBuilder INSTANCE = new FudgeFieldContainerBuilder (); 
+  /* package */ static final FudgeBuilder<FudgeFieldContainer> INSTANCE = new FudgeFieldContainerBuilder (); 
   
   private FudgeFieldContainerBuilder () {
   }

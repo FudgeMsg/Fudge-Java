@@ -29,7 +29,7 @@ import org.fudgemsg.types.StringFieldType;
  */
 /* package */ class JavaClassBuilder implements FudgeBuilder<Class<?>> {
   
-  /* package */ static final JavaClassBuilder INSTANCE = new JavaClassBuilder (); 
+  /* package */ static final FudgeBuilder<Class<?>> INSTANCE = new JavaClassBuilder (); 
   
   private JavaClassBuilder () {
   }

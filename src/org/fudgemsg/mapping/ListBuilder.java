@@ -31,7 +31,7 @@ import org.fudgemsg.FudgeRuntimeException;
  */
 /* package */ class ListBuilder implements FudgeBuilder<List<?>> {
   
-  /* package */ static final ListBuilder INSTANCE = new ListBuilder (); 
+  /* package */ static final FudgeBuilder<List<?>> INSTANCE = new ListBuilder (); 
   
   private ListBuilder () {
   }

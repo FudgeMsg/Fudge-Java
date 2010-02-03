@@ -20,9 +20,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.mapping.ObjectMappingTestUtil.SetBean;
@@ -35,6 +37,29 @@ import org.junit.Test;
  * @author kirk
  */
 public class FudgeObjectCodecTest {
+  
+  private static void assertSetsEqual (Set<?> a, Set<?> b) {
+    assertEquals (a.size (), b.size ());
+    for (Object o : a) {
+      assertEquals (true, b.contains (o));
+    }
+  }
+  
+  private static void assertLooseEquals (Object a, Object b) {
+    if ((a instanceof Number) && (b instanceof Number)) {
+      assertEquals (a.toString (), b.toString ());
+    } else {
+      assertEquals (a, b);
+    }
+  }
+  
+  private static void assertMapsEqual (Map<?,?> a, Map<?,?> b) {
+    if (a == b) return;
+    for (Map.Entry<?,?> ae : a.entrySet ()) {
+      assertEquals (true, b.containsKey (ae.getKey ()));
+      assertLooseEquals (ae.getValue (), b.get (ae.getKey ()));
+    }
+  }
   
   @Test
   public void simpleBean() throws IOException {
@@ -49,9 +74,7 @@ public class FudgeObjectCodecTest {
     assertNotNull(resultBean);
     assertEquals(inputBean.getFieldOne(), resultBean.getFieldOne());
     assertEquals(inputBean.getFieldThree(), resultBean.getFieldThree());
-    // Can't actually test this, as input is a HashMap and result is a TreeMap
-    // Other tests are far more comprehensive though.
-    assertEquals(inputBean.getFieldFour().size(), resultBean.getFieldFour().size());
+    assertMapsEqual(inputBean.getFieldFour(), resultBean.getFieldFour());
     assertEquals(inputBean.getFieldFive(), resultBean.getFieldFive());
     
     inputBean = inputBean.getFieldTwo();

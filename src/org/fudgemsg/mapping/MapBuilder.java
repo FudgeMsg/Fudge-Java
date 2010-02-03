@@ -33,7 +33,7 @@ import org.fudgemsg.FudgeRuntimeException;
  */
 /* package */ class MapBuilder implements FudgeBuilder<Map<?,?>> {
   
-  /* package */ static final MapBuilder INSTANCE = new MapBuilder (); 
+  /* package */ static final FudgeBuilder<Map<?,?>> INSTANCE = new MapBuilder (); 
   
   private MapBuilder () {
   }

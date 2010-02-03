@@ -16,8 +16,6 @@
 
 package org.fudgemsg.mapping;
 
-import java.util.Map;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -26,12 +24,10 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 
 /**
  * Contains mappings from Java objects to Fudge messages for the current classloader.
- * There are a set of default mappings built into this implementation
- * (see FudgeDefaultBuilder) which will be used, or custom mappings can be supplied.
- * 
- * For example, registering builders for {@link Map} or {@link List} with a {@code FudgeObjectDictionary}
- * before it is used by a {@link FudgeDeserializationContext} or {@link FudgeSerializationContext} will
- * override the default behaviours.
+ * There are a set of default mappings available through a {@link FudgeBuilderFactory}
+ * initially set as an instance of {@link FudgeDefaultBuilderFactory}. Registering a
+ * different builder factory, or registering additional/different generic builders can
+ * change the default behaviours for unrecognized classes.
  * 
  * @author Andrew
  */
@@ -54,10 +50,26 @@ public final class FudgeObjectDictionary {
   private final ConcurrentMap<Class<?>, FudgeObjectBuilder<?>> _objectBuilders = new ConcurrentHashMap<Class<?>, FudgeObjectBuilder<?>> ();
   private final ConcurrentMap<Class<?>, FudgeMessageBuilder<?>> _messageBuilders = new ConcurrentHashMap<Class<?>, FudgeMessageBuilder<?>> ();
   
+  private FudgeBuilderFactory _defaultBuilderFactory = new FudgeDefaultBuilderFactory ();
+  
   /**
    * Constructs a new (initially empty) {@link FudgeObjectDictionary}.
    */
   public FudgeObjectDictionary () {
+  }
+  
+  /**
+   * Returns the current builder factory for unregistered types.
+   */
+  public FudgeBuilderFactory getDefaultBuilderFactory () {
+    return _defaultBuilderFactory;
+  }
+  
+  /**
+   * Sets the builder factory to use for types that are not explicitly registered here.
+   */
+  public void setDefaultBuilderFactory (final FudgeBuilderFactory defaultBuilderFactory) {
+    _defaultBuilderFactory = defaultBuilderFactory;
   }
   
   /**
@@ -101,7 +113,7 @@ public final class FudgeObjectDictionary {
   
   /**
    * Returns a {@link FudgeObjectBuilder} for the given class to convert a Fudge message to a Java object. If none is already registered for the class,
-   * it will attempt to create one using {@link FudgeDefaultBuilder}. If it is not possible to create a builder (e.g. for an interface) returns {@code null}.
+   * it will attempt to create one using the registered {@link FudgeBuilderFactory}. If it is not possible to create a builder (e.g. for an interface) returns {@code null}.
    * 
    * @param <T> Java type of the objects to be built
    * @param clazz the Java class to look up
@@ -111,7 +123,7 @@ public final class FudgeObjectDictionary {
   public <T> FudgeObjectBuilder<T> getObjectBuilder (final Class<T> clazz) {
     FudgeObjectBuilder<T> builder = (FudgeObjectBuilder<T>)_objectBuilders.get (clazz);
     if (builder == null) {
-      FudgeObjectBuilder<T> freshBuilder = FudgeDefaultBuilder.defaultObjectBuilder (clazz);
+      FudgeObjectBuilder<T> freshBuilder = getDefaultBuilderFactory ().createObjectBuilder (clazz);
       if (freshBuilder == null) freshBuilder = (FudgeObjectBuilder<T>)NULL_OBJECTBUILDER;
       builder = (FudgeObjectBuilder<T>)_objectBuilders.putIfAbsent (clazz, freshBuilder);
       if (builder == null) {
@@ -127,7 +139,7 @@ public final class FudgeObjectDictionary {
   
   /**
    * Returns a {@link FudgeMessageBuilder} for the given class to convert a Fudge message to a Java object. If none is already registered for the class,
-   * it will attempt to create one using {@link FudgeDefaultBuilder}. If it is not possible to create a builder returns {@code null}.
+   * it will attempt to create one using the registered {@link FudgeBuilderFactory}. If it is not possible to create a builder returns {@code null}.
    * 
    * @param <T> Java type of the objects to be built
    * @param clazz the Java class to look up
@@ -137,7 +149,7 @@ public final class FudgeObjectDictionary {
   public <T> FudgeMessageBuilder<T> getMessageBuilder (final Class<T> clazz) {
     FudgeMessageBuilder<T> builder = (FudgeMessageBuilder<T>)_messageBuilders.get (clazz);
     if (builder == null) {
-      FudgeMessageBuilder<T> freshBuilder = FudgeDefaultBuilder.defaultMessageBuilder (clazz);
+      FudgeMessageBuilder<T> freshBuilder = getDefaultBuilderFactory ().createMessageBuilder (clazz);
       if (freshBuilder == null) freshBuilder = (FudgeMessageBuilder<T>)NULL_MESSAGEBUILDER;
       builder = (FudgeMessageBuilder<T>)_messageBuilders.putIfAbsent (clazz, freshBuilder);
       if (builder == null) {
