@@ -114,15 +114,11 @@ public class FudgeContextTest {
   @Test
   public void readerAllocation() {
     FudgeContext context = new FudgeContext();
-    FudgeStreamReader reader1 = context.allocateReader(System.in);
+    FudgeStreamReader reader1 = context.createReader(System.in);
     assertNotNull(reader1);
-    FudgeStreamReader reader2 = context.allocateReader(System.in);
+    FudgeStreamReader reader2 = context.createReader(System.in);
     assertNotNull(reader2);
     assertNotSame(reader1, reader2);
-    context.releaseReader(reader2);
-    FudgeStreamReader reader3 = context.allocateReader(System.in);
-    assertNotNull(reader3);
-    assertSame(reader2, reader3);
   }
   
 }

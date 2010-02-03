@@ -73,10 +73,9 @@ public class StandardMessageLoadingTest {
   protected static FudgeMsgEnvelope loadMessage(FudgeContext context, String fileName) {
     try {
       InputStream is = StandardMessageLoadingTest.class.getResourceAsStream(fileName);
-      FudgeMsgReader reader = context.allocateMessageReader (is);
+      FudgeMsgReader reader = context.createMessageReader (is);
       FudgeMsgEnvelope envelope = reader.nextMessageEnvelope ();
-      context.releaseMessageReader (reader);
-      is.close();
+      reader.close ();
       return envelope;
     } catch (IOException e) {
       throw new FudgeRuntimeException("Couldn't close stream for " + fileName, e);

@@ -30,12 +30,10 @@ import org.fudgemsg.types.FudgeMsgFieldType;
  */
 public class FudgeMsgReader {
   
-  /* package */ static int s_constructions = 0;
-  
   /**
    * The underlying source of Fudge elements.
    */
-  private FudgeStreamReader _streamReader;
+  private final FudgeStreamReader _streamReader;
   
   /**
    * A read-ahead buffer used to implement the {@link #hasNext()} method. Used in conjunction with {@link #_streamErrored} to identify EOF on
@@ -59,28 +57,15 @@ public class FudgeMsgReader {
       throw new NullPointerException ("streamReader cannot be null");
     }
     _streamReader = streamReader;
-    s_constructions++;
   }
   
   /**
-   * A hack for testing, so that we can profile the non-pooling performance.
-   */
-  /* package */ void closeWithoutRelease () {
-    if (_streamReader == null) return;
-    _streamReader.close ();
-    _streamReader = null;
-    _readAhead = null;
-    _streamErrored = false;
-  }
-  
-  /**
-   * Closes this {@link FudgeMsgReader} and releases the underlying {@link FudgeStreamReader} back to the context which may be pooling them for efficiency.
+   * Closes this {@link FudgeMsgReader} and the underlying {@link FudgeStreamReader}.
    */
   public void close () {
     //System.out.println ("FudgeMessageStreamReader::close()");
     if (_streamReader == null) return;
-    getFudgeContext ().releaseReader (_streamReader);
-    _streamReader = null;
+    _streamReader.close ();
     _readAhead = null;
     _streamErrored = false;
   }
@@ -94,21 +79,6 @@ public class FudgeMsgReader {
     final FudgeStreamReader reader = getStreamReader ();
     if (reader == null) return null;
     return reader.getFudgeContext ();
-  }
-  
-  /**
-   * Reset the stream reader to a different source. This method exists to allow
-   * objects to be pooled. The previous source will be {@link #close()}ed if it is still active.
-   * 
-   * @param streamReader the new Fudge element source
-   */
-  public void reset (final FudgeStreamReader streamReader) {
-    //System.out.println ("FudgeMessageStreamReader::reset(" + streamReader + ")");
-    close ();
-    if (streamReader == null) {
-      throw new NullPointerException ("streamReader cannot be null");
-    }
-    _streamReader = streamReader;
   }
   
   protected FudgeStreamReader getStreamReader () {

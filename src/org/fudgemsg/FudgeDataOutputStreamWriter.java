@@ -30,10 +30,8 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
  */
 public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
   
-  public static int s_constructions = 0;
-  
   private final FudgeContext _fudgeContext;
-  private DataOutput _dataOutput;
+  private final DataOutput _dataOutput;
   private FudgeTaxonomy _taxonomy;
   private int _taxonomyId;
   
@@ -50,8 +48,7 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
   
   /**
    * Creates a new {@link FudgeDataOutputStreamWriter} associated with the given {@link FudgeContext} and {@link DataOutput} target.
-   * The target can be changed later using the {@link #reset(DataOutput)} method. The Fudge context is fixed at construction and is used to hold
-   * all encoding parameters such as taxonomy and type resolution.
+   * The Fudge context is used to hold all encoding parameters such as taxonomy and type resolution.
    * 
    * @param fudgeContext the {@code FudgeContext} to associate with
    * @param dataOutput the target to write Fudge elements to
@@ -62,7 +59,6 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
     }
     _fudgeContext = fudgeContext;
     _dataOutput = dataOutput;
-    s_constructions++;
   }
   
   /**
@@ -76,21 +72,6 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
   }
   
   /**
-   * Resets the state of this writer for a new target. This exists to allow objects to be pooled as an optimisation in performance critical code.
-   * If the writer has not been closed, {@link #close()} is called before changing the target.
-   * 
-   * @param dataOutput the new target
-   * @throws IOException if the previous underlying stream throws one as it is closed
-   */
-  public void reset(DataOutput dataOutput) throws IOException {
-    close ();
-    if(dataOutput == null) {
-      throw new NullPointerException("Must specify a DataOutput for processing.");
-    }
-    _dataOutput = dataOutput;
-  }
-  
-  /**
    * Flushes and closes this writer and the underlying target.
    */
   @Override
@@ -100,7 +81,6 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
     if (_dataOutput instanceof Closeable) {
       ((Closeable)_dataOutput).close ();
     }
-    _dataOutput = null;
     _taxonomy = null;
     _taxonomyId = 0;
   }
@@ -116,16 +96,6 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
     }
   }
   
-  /**
-   * Resets the state of this writer for a new target by wrapping the {@link OutputStream} with a {@link DataOutput}.
-   * 
-   * @param outputStream the new target
-   * @throws IOException if the previous underlying stream throws one as it is closed
-   */
-  public void reset(OutputStream outputStream) throws IOException {
-    reset (convertOutputStream (outputStream));
-  }
-
   /**
    * {@inheritDoc}
    */

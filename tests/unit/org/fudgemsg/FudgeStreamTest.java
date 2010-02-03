@@ -42,14 +42,13 @@ public class FudgeStreamTest {
   @Test
   public void readMultipleMessages () throws IOException {
     final ByteArrayOutputStream baos = new ByteArrayOutputStream ();
-    final FudgeMsgWriter writer = _fudgeContext.allocateMessageWriter (baos);
+    final FudgeMsgWriter writer = _fudgeContext.createMessageWriter (baos);
     writer.setDefaultTaxonomyId (0);
     writer.writeMessage (simpleMessage (1));
     writer.writeMessage (simpleMessage (2));
     writer.writeMessage (simpleMessage (3));
-    _fudgeContext.releaseMessageWriter (writer);
     final ByteArrayInputStream bais = new ByteArrayInputStream (baos.toByteArray ());
-    final FudgeMsgReader reader = _fudgeContext.allocateMessageReader (bais);
+    final FudgeMsgReader reader = _fudgeContext.createMessageReader (bais);
     for (int i = 1; i <= 3; i++) {
       assert reader.hasNext ();
       final FudgeFieldContainer msg = reader.nextMessage ();

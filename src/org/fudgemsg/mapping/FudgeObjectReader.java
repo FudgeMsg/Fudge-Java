@@ -29,9 +29,7 @@ import org.fudgemsg.FudgeMsgReader;
  */
 public class FudgeObjectReader {
   
-  public static int s_constructions = 0;
-  
-  private FudgeMsgReader _messageReader;
+  private final FudgeMsgReader _messageReader;
   
   private FudgeDeserializationContext _deserialisationContext;
 
@@ -44,7 +42,6 @@ public class FudgeObjectReader {
     if (messageReader == null) throw new NullPointerException ("messageReader cannot be null");
     _messageReader = messageReader;
     _deserialisationContext = new FudgeDeserializationContext (messageReader.getFudgeContext ());
-    s_constructions++;
   }
   
   /**
@@ -52,23 +49,7 @@ public class FudgeObjectReader {
    */
   public void close () {
     if (_messageReader == null) return;
-    getFudgeContext ().releaseMessageReader (_messageReader);
-    _messageReader = null;
-  }
-  
-  /**
-   * Resets the reader for use with a different message stream.
-   * 
-   * @param messageReader the new message source
-   */
-  public void reset (final FudgeMsgReader messageReader) {
-    close ();
-    if (messageReader == null) throw new NullPointerException ("messageReader cannot be null");
-    _messageReader = messageReader;
-    if (getDeserialisationContext ().getFudgeContext () != messageReader.getFudgeContext ()) {
-      // only re-allocate the D-context if the F-context is different
-      _deserialisationContext = new FudgeDeserializationContext (messageReader.getFudgeContext ());
-    }
+    _messageReader.close ();
   }
   
   /**

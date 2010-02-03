@@ -29,9 +29,7 @@ import org.fudgemsg.FudgeFieldContainer;
  */
 public class FudgeObjectWriter {
   
-  public static int s_constructions = 0;
-
-  private FudgeMsgWriter _messageWriter;
+  private final FudgeMsgWriter _messageWriter;
   
   private FudgeSerializationContext _serialisationContext;
   
@@ -44,31 +42,14 @@ public class FudgeObjectWriter {
     if (messageWriter == null) throw new NullPointerException ("messageWriter cannot be null");
     _messageWriter = messageWriter;
     _serialisationContext = new FudgeSerializationContext (messageWriter.getFudgeContext ());
-    s_constructions++;
   }
   
   /**
    * Closes the underlying target stream.
    */
-  public void close () {
+  public void close () throws IOException {
     if (_messageWriter == null) return;
-    getFudgeContext ().releaseMessageWriter (_messageWriter);
-    _messageWriter = null;
-  }
-  
-  /**
-   * Resets the writer to use a different Fudge message target.
-   * 
-   * @param messageWriter the new target.
-   */
-  public void reset (final FudgeMsgWriter messageWriter) {
-    close ();
-    if (messageWriter == null) throw new NullPointerException ("messageReader cannot be null");
-    _messageWriter = messageWriter;
-    if (getSerialisationContext ().getFudgeContext () != messageWriter.getFudgeContext ()) {
-      // only reallocate the S-context if the new stream has a different F-context
-      _serialisationContext = new FudgeSerializationContext (messageWriter.getFudgeContext ());
-    }
+    _messageWriter.close ();
   }
   
   /**

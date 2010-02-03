@@ -86,7 +86,7 @@ public class FudgeMsgFormatterTest {
   @Test
   public void xmlStreamWriterAllNames () throws IOException, XMLStreamException {
     System.out.println("FudgeMsgFormatterTest.xmlStreamWriterAllNames()");
-    final FudgeMsgWriter fmw = s_fudgeContext.allocateMessageWriter (new FudgeXMLStreamWriter (s_fudgeContext, new PrintWriter (System.out)));
+    final FudgeMsgWriter fmw = new FudgeMsgWriter (new FudgeXMLStreamWriter (s_fudgeContext, new PrintWriter (System.out)));
     fmw.writeMessage (allNames (), 0);
     System.out.println ();
     fmw.writeMessage (allNames (), 1);
@@ -96,7 +96,7 @@ public class FudgeMsgFormatterTest {
   @Test
   public void xmlStreamWriterAllOrdinals () throws IOException, XMLStreamException {
     System.out.println("FudgeMsgFormatterTest.xmlStreamWriterAllOrdinals()");
-    final FudgeMsgWriter fmw = s_fudgeContext.allocateMessageWriter (new FudgeXMLStreamWriter (s_fudgeContext, new PrintWriter (System.out)));
+    final FudgeMsgWriter fmw = new FudgeMsgWriter (new FudgeXMLStreamWriter (s_fudgeContext, new PrintWriter (System.out)));
     fmw.writeMessage (allOrdinals (), 0);
     System.out.println ();
     fmw.writeMessage (allOrdinals (), 1);

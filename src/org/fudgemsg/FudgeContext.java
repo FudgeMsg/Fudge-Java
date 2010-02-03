@@ -55,12 +55,6 @@ import org.fudgemsg.taxon.TaxonomyResolver;
  * @author kirk
  */
 public class FudgeContext implements FudgeMessageFactory {
-  private final Queue<FudgeDataInputStreamReader> _streamReaders = new LinkedBlockingQueue<FudgeDataInputStreamReader>();
-  private final Queue<FudgeDataOutputStreamWriter> _streamWriters = new LinkedBlockingQueue<FudgeDataOutputStreamWriter>();
-  private final Queue<FudgeMsgReader> _messageStreamReaders = new LinkedBlockingQueue<FudgeMsgReader>();
-  private final Queue<FudgeMsgWriter> _messageStreamWriters = new LinkedBlockingQueue<FudgeMsgWriter>();
-  private final Queue<FudgeObjectReader> _objectStreamReaders = new LinkedBlockingQueue<FudgeObjectReader>();
-  private final Queue<FudgeObjectWriter> _objectStreamWriters = new LinkedBlockingQueue<FudgeObjectWriter>();
   private FudgeTypeDictionary _typeDictionary = new FudgeTypeDictionary();
   private FudgeObjectDictionary _objectDictionary = new FudgeObjectDictionary ();
   private TaxonomyResolver _taxonomyResolver;
@@ -176,10 +170,9 @@ public class FudgeContext implements FudgeMessageFactory {
    */
   public void serialize(FudgeFieldContainer msg, Short taxonomyId, OutputStream os) throws IOException {
     int realTaxonomyId = (taxonomyId == null) ? 0 : taxonomyId.intValue();
-    FudgeMsgWriter writer = allocateMessageWriter (os);
+    FudgeMsgWriter writer = createMessageWriter (os);
     FudgeMsgEnvelope envelope = new FudgeMsgEnvelope(msg);
     writer.writeMessageEnvelope(envelope, realTaxonomyId);
-    releaseMessageWriter(writer);
   }
   
   /**
@@ -219,9 +212,8 @@ public class FudgeContext implements FudgeMessageFactory {
    *  @throws IOException if the target {@code InputStream} errors
    */
   public FudgeMsgEnvelope deserialize(InputStream is) throws IOException {
-    FudgeMsgReader reader = allocateMessageReader (is);
+    FudgeMsgReader reader = createMessageReader (is);
     FudgeMsgEnvelope envelope = reader.nextMessageEnvelope ();
-    releaseMessageReader (reader);
     return envelope;
   }
 
@@ -242,352 +234,124 @@ public class FudgeContext implements FudgeMessageFactory {
     }
   }
   
-  // TODO 2010-01-20 Andrew -- the pooling of reader and writer objects needs
-  // reviewing; how big can the pools get etc...? Is there a standard component
-  // in the Java libraries for managing it? Do we need to pool them?
-  
   /**
-   * Creates a new, or returns a pooled, reader for extracting Fudge stream elements from an {@link InputStream}.
+   * Creates a new reader for extracting Fudge stream elements from an {@link InputStream}.
    * 
    * @param is the {@code InputStream} to read from
    * @return the {@link FudgeStreamReader}
    */
-  public FudgeStreamReader allocateReader (final InputStream is) {
-    FudgeDataInputStreamReader reader = _streamReaders.poll();
-    if (reader == null) {
-      reader = new FudgeDataInputStreamReader (this, is);
-    } else {
-      reader.reset (is);
-    }
-    return reader;
+  public FudgeStreamReader createReader (final InputStream is) {
+    return new FudgeDataInputStreamReader (this, is);
   }
   
   /**
-   * Creates a new, or returns a pooled, reader for extracting Fudge stream elements from a {@link DataInput}.
+   * Creates a new reader for extracting Fudge stream elements from a {@link DataInput}.
    * 
    * @param di the {@code DataInput} to read from
    * @return the {@link FudgeStreamReader}
    */
-  public FudgeStreamReader allocateReader (final DataInput di) {
-    FudgeDataInputStreamReader reader = _streamReaders.poll();
-    if (reader == null) {
-      reader = new FudgeDataInputStreamReader (this, di);
-    } else {
-      reader.reset (di);
-    }
-    return reader;
+  public FudgeStreamReader createReader (final DataInput di) {
+    return new FudgeDataInputStreamReader (this, di);
   }
   
   /**
-   * Releases a {@link FudgeStreamReader} allocated by a call to {@link #allocateReader(DataInput)} to a common pool. The
-   * caller must not retain any references or continue to use the {@code FudgeStreamReader} after calling this
-   * method. {@link FudgeStreamReader#close()} will be called on the reader first.
-   * 
-   * @param reader the {@code FudgeStreamReader} to return
-   */
-  public void releaseReader(FudgeStreamReader reader) {
-    if(reader == null) {
-      return;
-    }
-    reader.close ();
-    if ((reader.getFudgeContext () == this) && (reader instanceof FudgeDataInputStreamReader)) {
-      // Only put back in the pool if it was the correct type and for our context
-      _streamReaders.add((FudgeDataInputStreamReader)reader);
-    }
-  }
-  
-  /**
-   * Creates a new, or returns a pooled, writer for encoding Fudge stream elements to a {@link OutputStream}.
+   * Creates a new writer for encoding Fudge stream elements to a {@link OutputStream}.
    * 
    * @param outputStream the {@code OutputStream} to write to
    * @return the {@link FudgeStreamWriter}
    */
-  public FudgeStreamWriter allocateWriter (final OutputStream outputStream) {
-    FudgeDataOutputStreamWriter writer = _streamWriters.poll();
-    if(writer == null) {
-      writer = new FudgeDataOutputStreamWriter(this, outputStream);
-    } else {
-      try {
-        writer.reset (outputStream);
-      } catch (IOException ioe) {
-        throw new FudgeRuntimeException ("Couldn't reallocate writer " + writer, ioe);
-      }
-    }
-    return writer;
+  public FudgeStreamWriter createWriter (final OutputStream outputStream) {
+    return new FudgeDataOutputStreamWriter(this, outputStream);
   }
   
   /**
-   * Creates a new, or returns a pooled, writer for encoding Fudge stream elements to a {@link DataOutput}.
+   * Creates a new writer for encoding Fudge stream elements to a {@link DataOutput}.
    * 
    * @param dataOutput the {@code DataOutput} to write to
    * @return the {@link FudgeStreamWriter}
    */
-  public FudgeStreamWriter allocateWriter (final DataOutput dataOutput) {
-    FudgeDataOutputStreamWriter writer = _streamWriters.poll();
-    if(writer == null) {
-      writer = new FudgeDataOutputStreamWriter(this, dataOutput);
-    } else {
-      try {
-        writer.reset (dataOutput);
-      } catch (IOException ioe) {
-        throw new FudgeRuntimeException ("Couldn't reallocate writer " + writer, ioe);
-      }
-    }
-    return writer;
+  public FudgeStreamWriter createWriter (final DataOutput dataOutput) {
+    return new FudgeDataOutputStreamWriter (this, dataOutput);
   }
   
   /**
-   * Releases a {@link FudgeStreamWriter} allocated by a call to {@link #allocateWriter(DataOutput)} to a common pool. The
-   * caller must not retain any references or continue to use the {@code FudgeStreamWriter} after calling this
-   * method. {@link FudgeStreamWriter#close()} will be called on the writer first. Any {@link IOException} from closing the
-   * writer will be wrapped in a {@link FudgeRuntimeException}. If the underlying exception is required, the caller should
-   * call {@code close()} on the stream before releasing it.
-   * 
-   * @param writer the {@code FudgeStreamWriter} to return
-   */
-  public void releaseWriter(FudgeStreamWriter writer) {
-    if(writer == null) {
-      return;
-    }
-    try {
-      writer.close ();
-    } catch (IOException ioe) {
-      throw new FudgeRuntimeException ("Couldn't release writer " + writer, ioe);
-    }
-    if ((writer.getFudgeContext () == this) && (writer instanceof FudgeDataOutputStreamWriter)) {
-      // Only put back in the pool if it was the correct type and our context
-      _streamWriters.add((FudgeDataOutputStreamWriter)writer);
-    }
-  }
-  
-  /**
-   * Creates a new, or returns a pooled, reader for extracting whole Fudge messages from a {@link FudgeStreamReader}.
-   * 
-   * @param streamReader the source of Fudge message elements
-   * @return the {@code FudgeMsgReader}
-   */
-  public FudgeMsgReader allocateMessageReader (final FudgeStreamReader streamReader) {
-    FudgeMsgReader reader = _messageStreamReaders.poll ();
-    if (reader == null) {
-      reader = new FudgeMsgReader (streamReader);
-    } else {
-      reader.reset (streamReader);
-    }
-    return reader;
-  }
-  
-  /**
-   * Creates a new, or returns a pooled, reader for extracting whole Fudge messages from a {@link DataInput} source.
+   * Creates a new reader for extracting whole Fudge messages from a {@link DataInput} source.
    * 
    * @param dataInput the source of data
    * @return the {@code FudgeMsgReader}
    */
-  public FudgeMsgReader allocateMessageReader (final DataInput dataInput) {
-    return allocateMessageReader (allocateReader (dataInput));
+  public FudgeMsgReader createMessageReader (final DataInput dataInput) {
+    return new FudgeMsgReader (createReader (dataInput));
   }
   
   /**
-   * Creates a new, or returns a pooled, reader for extracting whole Fudge messages from a {@link InputStream} source.
+   * Creates a new reader for extracting whole Fudge messages from a {@link InputStream} source.
    * 
    * @param inputStream the source of data
    * @return the {@code FudgeMsgReader}
    */
-  public FudgeMsgReader allocateMessageReader (final InputStream inputStream) {
-    return allocateMessageReader (allocateReader (inputStream));
+  public FudgeMsgReader createMessageReader (final InputStream inputStream) {
+    return new FudgeMsgReader (createReader (inputStream));
   }
   
   /**
-   * Releases a {@link FudgeMsgReader} allocated by a call to {@code allocateMessageReader} back to a common pool. The
-   * caller must not retain any references or continue to use the {@code FudgeMsgReader} after calling this method.
-   * {@link FudgeMsgReader#close()} will be called on the reader.
-   * 
-   * @param reader the {@code FudgeMsgReader} to release
-   */
-  public void releaseMessageReader (final FudgeMsgReader reader) {
-    if (reader == null) {
-      return;
-    }
-    reader.close ();
-    _messageStreamReaders.add (reader);
-  }
-  
-  /**
-   * Creates a new, or returns a pooled, writer for sending whole Fudge messages to a {@link FudgeStreamWriter} target.
-   * 
-   * @param streamWriter the target to write to
-   * @return the {@link FudgeMsgWriter}
-   */
-  public FudgeMsgWriter allocateMessageWriter (final FudgeStreamWriter streamWriter) {
-    FudgeMsgWriter writer = _messageStreamWriters.poll ();
-    if (writer == null) {
-      writer = new FudgeMsgWriter (streamWriter);
-    } else {
-      try {
-        writer.reset (streamWriter);
-      } catch (IOException ioe) {
-        throw new FudgeRuntimeException ("Couldn't reallocate writer " + writer, ioe);
-      }
-    }
-    return writer;
-  }
-  
-  /**
-   * Creates a new, or returns a pooled, writer for sending whole Fudge messages to a {@link DataOutput} target.
+   * Creates a new writer for sending whole Fudge messages to a {@link DataOutput} target.
    * 
    * @param dataOutput the target to write to
    * @return the {@link FudgeMsgWriter}
    */
-  public FudgeMsgWriter allocateMessageWriter (final DataOutput dataOutput) {
-    return allocateMessageWriter (allocateWriter (dataOutput));
+  public FudgeMsgWriter createMessageWriter (final DataOutput dataOutput) {
+    return new FudgeMsgWriter (createWriter (dataOutput));
   }
   
   /**
-   * Creates a new, or returns a pooled, writer for sending whole Fudge messages to a {@link OutputStream} target.
+   * Creates a new writer for sending whole Fudge messages to a {@link OutputStream} target.
    * 
    * @param outputStream the target to write to
    * @return the {@link FudgeMsgWriter}
    */
-  public FudgeMsgWriter allocateMessageWriter (final OutputStream outputStream) {
-    return allocateMessageWriter (allocateWriter (outputStream));
+  public FudgeMsgWriter createMessageWriter (final OutputStream outputStream) {
+    return new FudgeMsgWriter (createWriter (outputStream));
   }
   
   /**
-   * Releases a {@link FudgeMsgWriter} allocated by a call to {@code allocateMessageWriter} back to a common pool. The
-   * caller must not retain any references or continue to use the {@code FudgeMsgWriter} after calling this method.
-   * {@link FudgeMsgWriter#close()} will be called on the writer first. Any {@link IOException} from closing the
-   * writer will be wrapped in a {@link FudgeRuntimeException}. If the underlying exception is required, the caller should
-   * call {@code close()} on the writer before releasing it.
-   * 
-   * @param writer the {@code FudgeMsgWriter} to return
-   */
-  public void releaseMessageWriter (final FudgeMsgWriter writer) {
-    if (writer == null) {
-      return;
-    }
-    try {
-      writer.close ();
-    } catch (IOException ioe) {
-      throw new FudgeRuntimeException ("Couldn't release writer " + writer, ioe);
-    }
-    _messageStreamWriters.add (writer);
-  }
-  
-  /**
-   * Creates a new, or returns a pooled, reader for deserialising Java objects from a source of Fudge messages.
-   * 
-   * @param messageReader the {@link FudgeMsgReader} to read from
-   * @return the {@link FudgeObjectReader}
-   */
-  public FudgeObjectReader allocateObjectReader (final FudgeMsgReader messageReader) {
-    FudgeObjectReader reader = _objectStreamReaders.poll ();
-    if (reader == null) {
-      reader = new FudgeObjectReader (messageReader);
-    } else {
-      reader.reset (messageReader);
-    }
-    return reader;
-  }
-  
-  /**
-   * Creates a new, or returns a pooled, reader for deserialising Java objects from a Fudge message stream.
-   * 
-   * @param streamReader the {@link FudgeStreamReader} to read from
-   * @return the {@link FudgeObjectReader}
-   */
-  public FudgeObjectReader allocateObjectReader (final FudgeStreamReader streamReader) {
-    return allocateObjectReader (allocateMessageReader (streamReader));
-  }
-  
-  /**
-   * Creates a new, or returns a pooled, reader for deserialising Java objects from a Fudge data source.
+   * Creates a new reader for deserialising Java objects from a Fudge data source.
    * 
    * @param dataInput the {@code DataInput} to read from
    * @return the {@link FudgeObjectReader}
    */
-  public FudgeObjectReader allocateObjectReader (final DataInput dataInput) {
-    return allocateObjectReader (allocateMessageReader (dataInput));
+  public FudgeObjectReader createObjectReader (final DataInput dataInput) {
+    return new FudgeObjectReader (createMessageReader (dataInput));
   }
   
   /**
-   * Creates a new, or returns a pooled, reader for deserialising Java objects from a Fudge data source.
+   * Creates a new reader for deserialising Java objects from a Fudge data source.
    * 
    * @param inputStream the {@code InputStream} to read from
    * @return the {@link FudgeObjectReader}
    */
-  public FudgeObjectReader allocateObjectReader (final InputStream inputStream) {
-    return allocateObjectReader (allocateMessageReader (inputStream));
+  public FudgeObjectReader createObjectReader (final InputStream inputStream) {
+    return new FudgeObjectReader (createMessageReader (inputStream));
   }
   
   /**
-   * Releases a {@link FudgeObjectReader} created by a call to {@code allocateObjectReader} back to a common pool.
-   * The caller must not retain a reference to or continue to use the reader after this method call. {@link FudgeObjectReader#close()}
-   * will be called on the reader first.
-   * 
-   * @param reader the {@code FudgeObjectReader} to release
-   */
-  public void releaseObjectReader (final FudgeObjectReader reader) {
-    if (reader == null) return;
-    reader.close ();
-    _objectStreamReaders.add (reader);
-  }
-  
-  /**
-   * Creates a new, or returns a pooled, writer for serialising Java objects to a Fudge message stream.
-   * 
-   * @param messageWriter the target for Fudge messages
-   * @return the {@link FudgeObjectWriter}
-   */
-  public FudgeObjectWriter allocateObjectWriter (final FudgeMsgWriter messageWriter) {
-    FudgeObjectWriter writer = _objectStreamWriters.poll ();
-    if (writer == null) {
-      writer = new FudgeObjectWriter (messageWriter);
-    } else {
-      writer.reset (messageWriter);
-    }
-    return writer;
-  }
-  
-  /**
-   * Creates a new, or returns a pooled, writer for serialising Java objects to a Fudge stream.
-   * 
-   * @param streamWriter the target to write to
-   * @return the {@link FudgeObjectWriter}
-   */
-  public FudgeObjectWriter allocateObjectWriter (final FudgeStreamWriter streamWriter) {
-    return allocateObjectWriter (allocateMessageWriter (streamWriter));
-  }
-  
-  /**
-   * Creates a new, or returns a pooled, writer for serialising Java objects to a Fudge stream.
+   * Creates a new writer for serialising Java objects to a Fudge stream.
    * 
    * @param dataOutput the target to write to
    * @return the {@link FudgeObjectWriter}
    */
-  public FudgeObjectWriter allocateObjectWriter (final DataOutput dataOutput) {
-    return allocateObjectWriter (allocateMessageWriter (dataOutput));
+  public FudgeObjectWriter createObjectWriter (final DataOutput dataOutput) {
+    return new FudgeObjectWriter (createMessageWriter (dataOutput));
   }
   
   /**
-   * Creates a new, or returns a pooled, writer for serialising Java objects to a Fudge stream.
+   * Creates a new writer for serialising Java objects to a Fudge stream.
    * 
    * @param outputStream the target to write to
    * @return the {@link FudgeObjectWriter}
    */
-  public FudgeObjectWriter allocateObjectWriter (final OutputStream outputStream) {
-    return allocateObjectWriter (allocateMessageWriter (outputStream));
-  }
-  
-  /**
-   * Releases a {@link FudgeObjectWriter} created by a call to {@code allocateObjectWriter} back to a common pool.
-   * The caller must not retain a reference to or continue to use the writer after this method call. {@link FudgeObjectWriter#close()}
-   * will be called on the writer first.
-   * 
-   * @param writer the {@code FudgeObjectWriter} to release
-   */
-  public void releaseObjectWriter (final FudgeObjectWriter writer) {
-    if (writer == null) return;
-    writer.close ();
-    _objectStreamWriters.add (writer);
+  public FudgeObjectWriter createObjectWriter (final OutputStream outputStream) {
+    return new FudgeObjectWriter (createMessageWriter (outputStream));
   }
   
   /**
@@ -603,9 +367,8 @@ public class FudgeContext implements FudgeMessageFactory {
     if(object == null) {
       return;
     }
-    FudgeObjectWriter osw = allocateObjectWriter (outputStream);
+    FudgeObjectWriter osw = createObjectWriter (outputStream);
     osw.write (object);
-    releaseObjectWriter (osw);
   }
   
   /**
@@ -621,9 +384,8 @@ public class FudgeContext implements FudgeMessageFactory {
    * @return the object read
    */
   public <T> T readObject(Class<T> objectClass, InputStream inputStream) throws IOException {
-    FudgeObjectReader osr = allocateObjectReader (inputStream);
+    FudgeObjectReader osr = createObjectReader (inputStream);
     T result = osr.read (objectClass);
-    releaseObjectReader (osr);
     return result;
   }
   

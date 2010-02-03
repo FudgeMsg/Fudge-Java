@@ -39,8 +39,6 @@ import org.fudgemsg.FudgeRuntimeException;
  */
 public class FudgeDeserializationContext {
   
-  public static int s_constructions = 0;
-  
   private final FudgeContext _fudgeContext;
   private final SerialisationBuffer _serialisationBuffer = new SerialisationBuffer ();
   
@@ -51,7 +49,6 @@ public class FudgeDeserializationContext {
    */
   public FudgeDeserializationContext (final FudgeContext fudgeContext) {
     _fudgeContext = fudgeContext;
-    s_constructions++;
   }
   
   /**

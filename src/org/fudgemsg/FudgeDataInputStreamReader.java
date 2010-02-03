@@ -30,15 +30,13 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
  */
 public class FudgeDataInputStreamReader implements FudgeStreamReader {
   
-  public static int s_constructions = 0;
-
   private static class MessageProcessingState {
     public int messageSize;
     public int consumed;
   }
   
   // Injected Inputs:
-  private DataInput _dataInput;
+  private final DataInput _dataInput;
   private final FudgeContext _fudgeContext;
   
   // Runtime State:
@@ -72,8 +70,7 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
   
   /**
    * Creates a new {@link FudgeDataInputStreamReader} associated with the given {@link FudgeContext} and {@link DataInput} data source.
-   * The data source can be changed later using the {@link #reset(DataInput)} method. The Fudge context is fixed at construction and is used to hold
-   * all decoding parameters such as taxonomy and type resolution.
+   * The Fudge context is used to hold all decoding parameters such as taxonomy and type resolution.
    * 
    * @param fudgeContext the {@code FudgeContext} to associate with
    * @param dataInput the source of data to read Fudge elements from
@@ -88,7 +85,6 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
     }
     _fudgeContext = fudgeContext;
     _dataInput = dataInput;
-    s_constructions++;
   }
   
   /**
@@ -102,24 +98,7 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
   }
   
   /**
-   * Reset the state of this reader for a new message source.
-   * This method is primarily designed so that instances can be pooled to minimize
-   * object creation in performance sensitive code.
-   * 
-   * @param dataInput new message source
-   */
-  public void reset (final DataInput dataInput) {
-    //System.out.println ("FudgeDataInputStreamReader::reset(" + dataInput + ")");
-    close ();
-    if(dataInput == null) {
-      throw new NullPointerException("Must provide a DataInput to consume data from.");
-    }
-    _dataInput = dataInput;
-  }
-  
-  /**
    * Closes this reader. If the underlying data source implements the {@link Closeable} interface, {@link Closeable#close()} will be called on it.
-   * The reader must not be used until {@link #reset(DataInput)} has been called to reinitialise it for use again.
    */
   @Override
   public void close () {
@@ -132,7 +111,6 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
         // ignore
       }
     }
-    _dataInput = null;
     _currentElement = null;
     _processingStack.clear();
     
@@ -147,16 +125,6 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
     _fieldValue = null;
   }
 
-  /**
-   * Resets the state of this reader for a new message source from a {@link InputStream} data source by wrapping it in a {@link DataInput}.
-   * 
-   * @param inputStream new message source
-   */
-  public void reset(InputStream inputStream) {
-    //System.out.println ("FudgeDataInputStreamReader::reset(" + inputStream + ")");
-    reset(convertInputStream (inputStream));
-  }
-  
   /**
    * {@inheritDoc}
    */

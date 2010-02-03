@@ -247,16 +247,14 @@ public class ShortPerformanceTest {
   private static byte[] fudgeObjectMappingToMsg () throws Exception {
     SmallFinancialTick tick = new SmallFinancialTick();
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    FudgeObjectWriter osw = s_fudgeContext.allocateObjectWriter (baos);
+    FudgeObjectWriter osw = s_fudgeContext.createObjectWriter (baos);
     osw.write (tick);
-    s_fudgeContext.releaseObjectWriter(osw);
     return baos.toByteArray();
   }
   
   private static int fudgeObjectMappingFromMsg (final byte[] data) throws Exception {
-    FudgeObjectReader osr = s_fudgeContext.allocateObjectReader (new ByteArrayInputStream (data));
+    FudgeObjectReader osr = s_fudgeContext.createObjectReader (new ByteArrayInputStream (data));
     osr.read(SmallFinancialTick.class);
-    s_fudgeContext.releaseObjectReader(osr);
     return data.length;
   }
 

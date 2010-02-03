@@ -28,12 +28,10 @@ import java.io.IOException;
  */
 public class FudgeMsgWriter implements Flushable {
   
-  public static int s_constructions = 0;
-  
   /**
    * The underlying target for Fudge stream elements.
    */
-  private FudgeStreamWriter _streamWriter;
+  private final FudgeStreamWriter _streamWriter;
   
   /**
    * The taxonomy identifier to use for any messages that are passed without envelopes. If the default taxonomy is not set, the {@code writeMessage} methods will raise exceptions. 
@@ -60,7 +58,6 @@ public class FudgeMsgWriter implements Flushable {
       throw new NullPointerException ("streamWriter cannot be null");
     }
     _streamWriter = streamWriter;
-    s_constructions++;
   }
   
   /**
@@ -73,43 +70,15 @@ public class FudgeMsgWriter implements Flushable {
   }
   
   /**
-   * A hack for testing, so that we can profile the non-pooling performance.
-   * 
-   * @throws IOException if the stream raises one when flushed
-   */
-  /* package */ void closeWithoutRelease () throws IOException {
-    if (_streamWriter == null) return;
-    flush ();
-    _streamWriter.close ();
-    _streamWriter = null;
-    _defaultTaxonomyId = null;
-  }
-  
-  /**
-   * Flushes the underlying {@link FudgeStreamWriter} and releases it to the {@link FudgeContext} that may be pooling them for efficiency.
+   * Flushes and closes the underlying {@link FudgeStreamWriter}.
    * 
    * @throws IOException if the stream raises one when flushed
    */
   public void close () throws IOException {
     if (_streamWriter == null) return;
     flush ();
-    getFudgeContext ().releaseWriter (_streamWriter);
-    _streamWriter = null;
+    _streamWriter.close ();
     _defaultTaxonomyId = null;
-  }
-  
-  /**
-   * Closes the current underlying {@link FudgeStreamWriter} and resets this object to work with another.
-   *
-   * @param streamWriter the new target stream
-   * @throws IOException if the old target stream raises one when closed
-   */
-  public void reset (final FudgeStreamWriter streamWriter) throws IOException {
-    close ();
-    if (streamWriter == null) {
-      throw new NullPointerException ("streamWriter cannot be null");
-    }
-    _streamWriter = streamWriter;
   }
   
   protected FudgeStreamWriter getStreamWriter () {
