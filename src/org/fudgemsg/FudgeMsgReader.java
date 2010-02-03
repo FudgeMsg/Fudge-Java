@@ -30,6 +30,8 @@ import org.fudgemsg.types.FudgeMsgFieldType;
  */
 public class FudgeMsgReader {
   
+  /* package */ static int s_constructions = 0;
+  
   /**
    * The underlying source of Fudge elements.
    */
@@ -57,6 +59,18 @@ public class FudgeMsgReader {
       throw new NullPointerException ("streamReader cannot be null");
     }
     _streamReader = streamReader;
+    s_constructions++;
+  }
+  
+  /**
+   * A hack for testing, so that we can profile the non-pooling performance.
+   */
+  /* package */ void closeWithoutRelease () {
+    if (_streamReader == null) return;
+    _streamReader.close ();
+    _streamReader = null;
+    _readAhead = null;
+    _streamErrored = false;
   }
   
   /**

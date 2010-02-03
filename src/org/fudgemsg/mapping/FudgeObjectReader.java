@@ -29,6 +29,8 @@ import org.fudgemsg.FudgeMsgReader;
  */
 public class FudgeObjectReader {
   
+  public static int s_constructions = 0;
+  
   private FudgeMsgReader _messageReader;
   
   private FudgeDeserializationContext _deserialisationContext;
@@ -42,6 +44,7 @@ public class FudgeObjectReader {
     if (messageReader == null) throw new NullPointerException ("messageReader cannot be null");
     _messageReader = messageReader;
     _deserialisationContext = new FudgeDeserializationContext (messageReader.getFudgeContext ());
+    s_constructions++;
   }
   
   /**

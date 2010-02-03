@@ -28,6 +28,8 @@ import java.io.IOException;
  */
 public class FudgeMsgWriter implements Flushable {
   
+  public static int s_constructions = 0;
+  
   /**
    * The underlying target for Fudge stream elements.
    */
@@ -58,6 +60,7 @@ public class FudgeMsgWriter implements Flushable {
       throw new NullPointerException ("streamWriter cannot be null");
     }
     _streamWriter = streamWriter;
+    s_constructions++;
   }
   
   /**
@@ -67,6 +70,19 @@ public class FudgeMsgWriter implements Flushable {
    */
   public void flush () throws IOException {
     getStreamWriter ().flush ();
+  }
+  
+  /**
+   * A hack for testing, so that we can profile the non-pooling performance.
+   * 
+   * @throws IOException if the stream raises one when flushed
+   */
+  /* package */ void closeWithoutRelease () throws IOException {
+    if (_streamWriter == null) return;
+    flush ();
+    _streamWriter.close ();
+    _streamWriter = null;
+    _defaultTaxonomyId = null;
   }
   
   /**

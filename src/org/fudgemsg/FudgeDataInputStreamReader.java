@@ -29,6 +29,8 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
  * An implementation of {@link FudgeStreamReader} for consuming data from a {@link DataInput}.
  */
 public class FudgeDataInputStreamReader implements FudgeStreamReader {
+  
+  public static int s_constructions = 0;
 
   private static class MessageProcessingState {
     public int messageSize;
@@ -86,6 +88,7 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
     }
     _fudgeContext = fudgeContext;
     _dataInput = dataInput;
+    s_constructions++;
   }
   
   /**

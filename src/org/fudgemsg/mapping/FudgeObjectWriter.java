@@ -28,6 +28,8 @@ import org.fudgemsg.FudgeFieldContainer;
  * @author Andrew
  */
 public class FudgeObjectWriter {
+  
+  public static int s_constructions = 0;
 
   private FudgeMsgWriter _messageWriter;
   
@@ -42,6 +44,7 @@ public class FudgeObjectWriter {
     if (messageWriter == null) throw new NullPointerException ("messageWriter cannot be null");
     _messageWriter = messageWriter;
     _serialisationContext = new FudgeSerializationContext (messageWriter.getFudgeContext ());
+    s_constructions++;
   }
   
   /**

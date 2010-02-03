@@ -30,6 +30,8 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
  */
 public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
   
+  public static int s_constructions = 0;
+  
   private final FudgeContext _fudgeContext;
   private DataOutput _dataOutput;
   private FudgeTaxonomy _taxonomy;
@@ -60,6 +62,7 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
     }
     _fudgeContext = fudgeContext;
     _dataOutput = dataOutput;
+    s_constructions++;
   }
   
   /**
