@@ -29,8 +29,9 @@ import org.fudgemsg.types.LongArrayFieldType;
 import org.fudgemsg.types.PrimitiveFieldTypes;
 import org.fudgemsg.types.ShortArrayFieldType;
 import org.fudgemsg.types.StringFieldType;
+import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.types.UnknownFudgeFieldType;
-
+import org.fudgemsg.types.secondary.UUIDFieldType;
 
 /**
  * Contains all the {@link FudgeFieldType} definitions for a particular
@@ -44,9 +45,11 @@ public final class FudgeTypeDictionary {
   private volatile FudgeFieldType<?>[] _typesById = new FudgeFieldType<?>[0];
   private volatile UnknownFudgeFieldType[] _unknownTypesById = new UnknownFudgeFieldType[0];
   private final Map<Class<?>, FudgeFieldType<?>> _typesByJavaType = new ConcurrentHashMap<Class<?>, FudgeFieldType<?>>();
+  private final Map<Class<?>, SecondaryFieldType<?,?>> _secondaryTypesByJavaType = new ConcurrentHashMap<Class<?>, SecondaryFieldType<?,?>> ();
   
   /**
-   * Creates a new {@link FudgeTypeDictionary} configured with the default types from the Fudge specification.
+   * Creates a new {@link FudgeTypeDictionary} configured with the default types from the Fudge specification. Also
+   * includes some standard secondary types.
    */
   public FudgeTypeDictionary() {
     addType(ByteArrayFieldType.LENGTH_4_INSTANCE);
@@ -58,7 +61,6 @@ public final class FudgeTypeDictionary {
     addType(ByteArrayFieldType.LENGTH_128_INSTANCE);
     addType(ByteArrayFieldType.LENGTH_256_INSTANCE);
     addType(ByteArrayFieldType.LENGTH_512_INSTANCE);
-    
     addType(PrimitiveFieldTypes.BOOLEAN_TYPE, Boolean.class);
     addType(PrimitiveFieldTypes.BYTE_TYPE, Byte.class);
     addType(PrimitiveFieldTypes.SHORT_TYPE, Short.class);
@@ -75,6 +77,7 @@ public final class FudgeTypeDictionary {
     addType(ByteArrayFieldType.VARIABLE_SIZED_INSTANCE);
     addType(StringFieldType.INSTANCE);
     addType(FudgeMsgFieldType.INSTANCE);
+    addType(UUIDFieldType.INSTANCE);
   }
   
   /**
@@ -88,16 +91,19 @@ public final class FudgeTypeDictionary {
     if(type == null) {
       throw new NullPointerException("Must not provide a null FudgeFieldType to add.");
     }
-    synchronized(this) {
-      int newLength = Math.max(type.getTypeId() + 1, _typesById.length);
-      FudgeFieldType<?>[] newArray = Arrays.copyOf(_typesById, newLength);
-      newArray[type.getTypeId()] = type;
-      _typesById = newArray;
-      
-      _typesByJavaType.put(type.getJavaType(), type);
-      for(Class<?> alternativeType : alternativeTypes) {
-        _typesByJavaType.put(alternativeType, type);
+    synchronized (this) {
+      if (type instanceof SecondaryFieldType<?,?>) {
+        _secondaryTypesByJavaType.put (type.getJavaType (), (SecondaryFieldType<?,?>)type);
+      } else {
+        int newLength = Math.max(type.getTypeId() + 1, _typesById.length);
+        FudgeFieldType<?>[] newArray = Arrays.copyOf(_typesById, newLength);
+        newArray[type.getTypeId()] = type;
+        _typesById = newArray;
       }
+    }
+    _typesByJavaType.put(type.getJavaType(), type);
+    for(Class<?> alternativeType : alternativeTypes) {
+      _typesByJavaType.put(alternativeType, type);
     }
   }
   
@@ -116,6 +122,16 @@ public final class FudgeTypeDictionary {
       if (fieldType != null) return fieldType;
     }
     return getByJavaType (javaType.getSuperclass ());
+  }
+  
+  /**
+   * Resolves a Java class to a {@link SecondaryFieldType} registered with this dictionary.
+   * 
+   * @param javaType class to look up
+   * @return the registered field type, or {@code null} if none is registered
+   */
+  protected SecondaryFieldType<?,?> getSecondaryByJavaType (final Class<?> javaType) {
+    return _secondaryTypesByJavaType.get (javaType);
   }
   
   /**
@@ -154,6 +170,57 @@ public final class FudgeTypeDictionary {
     }
     assert _unknownTypesById[typeId] != null;
     return _unknownTypesById[typeId];
+  }
+  
+  /**
+   * Type conversion for secondary types.
+   * 
+   * @param <T> type to convert to
+   * @param clazz target class for the converted value
+   * @param field field containing the value to convert
+   * @return the converted value
+   */
+  @SuppressWarnings("unchecked")
+  public <T> T getFieldValue (final Class<T> clazz, final FudgeField field) {
+    final Object value = field.getValue ();
+    if (value == null) return null;
+    if (clazz.isAssignableFrom (value.getClass ())) return (T)value;
+    final FudgeFieldType<?> type = field.getType ();
+    if (type instanceof SecondaryFieldType) {
+      final SecondaryFieldType sourceType = (SecondaryFieldType)type;
+      if (clazz.isAssignableFrom (sourceType.getPrimaryType ().getJavaType ())) {
+        // been asked for the primary type
+        return (T)sourceType.secondaryToPrimary (value);
+      } else {
+        final SecondaryFieldType targetType = getSecondaryByJavaType (clazz);
+        if (targetType == null) {
+          // don't recognise the requested type
+          throw new FudgeRuntimeException ("cannot convert " + sourceType + " to unregistered secondary type " + clazz.getName ());
+        } else {
+          if (targetType.getPrimaryType ().getJavaType ().isAssignableFrom (sourceType.getPrimaryType ().getJavaType ())) {
+            // primary and requested have a common base
+            return (T)targetType.primaryToSecondary (sourceType.secondaryToPrimary (value));
+          } else {
+            // no common ground
+            throw new FudgeRuntimeException ("no Fudge primary type allows conversion from " + sourceType + " to " + targetType);
+          }
+        }
+      }
+    } else {
+      final SecondaryFieldType targetType = getSecondaryByJavaType (clazz);
+      if (targetType == null) {
+        // don't recognise the requested type
+        throw new FudgeRuntimeException ("cannot convert " + type + " to unregistered secondary type " + clazz.getName ());
+      } else {
+        if (targetType.getPrimaryType ().getJavaType ().isAssignableFrom (value.getClass ())) {
+          // secondary type extends our current type
+          return (T)targetType.primaryToSecondary (value);
+        } else {
+          // secondary type doesn't extend our current type
+          throw new FudgeRuntimeException ("secondary type " + targetType + " does not allow conversion from " + value.getClass ().getName ());
+        }
+      }
+    }
   }
   
   // --------------------------

@@ -17,7 +17,11 @@ package org.fudgemsg;
 
 /**
  * A read-only representation of a field which is contained in a fudge
- * message, or a stream of fudge encoded data.
+ * message, or a stream of fudge encoded data. For a well formed field,
+ * the underlying field type must correspond to the value held. I.e.
+ * {@code getType ().getJavaType ().isAssignableFrom (getValue ().getClass ())}
+ * must hold. The current implementation of secondary types relies on this
+ * predicate.
  *
  * @author kirk
  */

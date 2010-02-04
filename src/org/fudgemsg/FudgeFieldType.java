@@ -35,7 +35,7 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
  */
 public class FudgeFieldType<TValue> implements Serializable {
   private final int _typeId;
-  private final Class<?> _javaType;
+  private final Class<TValue> _javaType;
   private final boolean _isVariableSize;
   private final int _fixedSize;
   
@@ -50,7 +50,7 @@ public class FudgeFieldType<TValue> implements Serializable {
    * @param isVariableSize true if the field may contain variable width data
    * @param fixedSize the fixed width if the field does not contain variable width data. Can be set to 0 for types that always encode a variable width.
    */
-  public FudgeFieldType(int typeId, Class<?> javaType, boolean isVariableSize, int fixedSize)
+  public FudgeFieldType(int typeId, Class<TValue> javaType, boolean isVariableSize, int fixedSize)
   {
     if(javaType == null)
     {
@@ -81,7 +81,7 @@ public class FudgeFieldType<TValue> implements Serializable {
    * 
    * @return the javaType
    */
-  public final Class<?> getJavaType() {
+  public final Class<TValue> getJavaType() {
     return _javaType;
   }
 
