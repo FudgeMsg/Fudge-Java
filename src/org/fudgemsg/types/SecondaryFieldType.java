@@ -49,7 +49,8 @@ public abstract class SecondaryFieldType<SecondaryType,PrimitiveType> extends Fu
   }
   
   /**
-   * Converts an object from the secondary type to a primitive Fudge type for writing.
+   * Converts an object from the secondary type to a primitive Fudge type for writing. An implementation
+   * may assume that the {@code object} parameter is not {@code null}.
    * 
    * @param object the secondary instance
    * @return the underlying Fudge data to write out
@@ -59,7 +60,7 @@ public abstract class SecondaryFieldType<SecondaryType,PrimitiveType> extends Fu
   /**
    * Converts Fudge primitive data to the secondary type. This is an optional operation - it will only be
    * invoked if the user attempts to convert from the underlying type used for transport back to the 
-   * secondary type.
+   * secondary type. An implementation may assume that the {@code object} parameter is not {@code null}.
    * 
    * @param object the Fudge data
    * @return a secondary type instance

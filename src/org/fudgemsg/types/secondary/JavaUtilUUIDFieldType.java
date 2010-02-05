@@ -26,11 +26,11 @@ import org.fudgemsg.types.SecondaryFieldType;
  *
  * @author Andrew
  */
-public class UUIDFieldType extends SecondaryFieldType<UUID,byte[]> {
+public class JavaUtilUUIDFieldType extends SecondaryFieldType<UUID,byte[]> {
   
-  public static final UUIDFieldType INSTANCE = new UUIDFieldType ();
+  public static final JavaUtilUUIDFieldType INSTANCE = new JavaUtilUUIDFieldType ();
   
-  private UUIDFieldType () {
+  private JavaUtilUUIDFieldType () {
     super (ByteArrayFieldType.LENGTH_16_INSTANCE, UUID.class);
     
   }

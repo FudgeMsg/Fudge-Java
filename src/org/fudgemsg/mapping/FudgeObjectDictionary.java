@@ -81,7 +81,7 @@ public final class FudgeObjectDictionary {
    * @param clazz the Java class to register the builder against
    * @param builder the builder to register
    */
-  public <T> void addObjectBuilder (final Class<T> clazz, final FudgeObjectBuilder<T> builder) {
+  public <T> void addObjectBuilder (final Class<T> clazz, final FudgeObjectBuilder<? extends T> builder) {
     _objectBuilders.put (clazz, builder);
   }
   
@@ -94,7 +94,7 @@ public final class FudgeObjectDictionary {
    * @param clazz the Java class to register the builder against
    * @param builder builder to register
    */
-  public <T> void addMessageBuilder (final Class<T> clazz, final FudgeMessageBuilder<T> builder) {
+  public <T> void addMessageBuilder (final Class<T> clazz, final FudgeMessageBuilder<? super T> builder) {
     _messageBuilders.put (clazz, builder);
   }
   

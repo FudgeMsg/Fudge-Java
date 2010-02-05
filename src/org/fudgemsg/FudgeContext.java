@@ -387,4 +387,17 @@ public class FudgeContext implements FudgeMessageFactory {
     return result;
   }
   
+  /**
+   * Type conversion for secondary types using information registered in the current type dictionary.
+   * See {@link FudgeTypeDictionary#getFieldValue} for more information.
+   * 
+   * @param <T> type to convert to
+   * @param clazz target class for the converted value
+   * @param field field containing the value to convert
+   * @return the converted value
+   */
+  public <T> T getFieldValue (final Class<T> clazz, final FudgeField field) {
+    return getTypeDictionary ().getFieldValue (clazz, field);
+  }
+  
 }

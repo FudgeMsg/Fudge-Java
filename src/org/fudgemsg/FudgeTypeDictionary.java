@@ -31,7 +31,11 @@ import org.fudgemsg.types.ShortArrayFieldType;
 import org.fudgemsg.types.StringFieldType;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.types.UnknownFudgeFieldType;
-import org.fudgemsg.types.secondary.UUIDFieldType;
+import org.fudgemsg.types.DateFieldType;
+import org.fudgemsg.types.TimeFieldType;
+import org.fudgemsg.types.DateTimeFieldType;
+import org.fudgemsg.types.secondary.JavaUtilDateFieldType;
+import org.fudgemsg.types.secondary.JavaUtilUUIDFieldType;
 
 /**
  * Contains all the {@link FudgeFieldType} definitions for a particular
@@ -52,6 +56,7 @@ public final class FudgeTypeDictionary {
    * includes some standard secondary types.
    */
   public FudgeTypeDictionary() {
+    // primary types
     addType(ByteArrayFieldType.LENGTH_4_INSTANCE);
     addType(ByteArrayFieldType.LENGTH_8_INSTANCE);
     addType(ByteArrayFieldType.LENGTH_16_INSTANCE);
@@ -77,7 +82,12 @@ public final class FudgeTypeDictionary {
     addType(ByteArrayFieldType.VARIABLE_SIZED_INSTANCE);
     addType(StringFieldType.INSTANCE);
     addType(FudgeMsgFieldType.INSTANCE);
-    addType(UUIDFieldType.INSTANCE);
+    addType(DateFieldType.INSTANCE);
+    addType(TimeFieldType.INSTANCE);
+    addType(DateTimeFieldType.INSTANCE);
+    // secondary types
+    addType(JavaUtilUUIDFieldType.INSTANCE);
+    addType(JavaUtilDateFieldType.INSTANCE);
   }
   
   /**
@@ -357,4 +367,19 @@ public final class FudgeTypeDictionary {
    * Standard Fudge field type: byte array of length 512. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
    */
   public static final byte BYTE_ARR_512_TYPE_ID = (byte)25;
+  
+  /**
+   * Standard Fudge field type: date. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
+  public static final byte DATE_TYPE_ID = (byte)26;
+  
+  /**
+   * Standard Fudge field type: time. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
+  public static final byte TIME_TYPE_ID = (byte)27;
+  
+  /**
+   * Standard Fudge field type: combined date and time. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   */
+  public static final byte DATETIME_TYPE_ID = (byte)28;
 }
