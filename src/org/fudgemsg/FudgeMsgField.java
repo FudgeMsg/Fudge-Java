@@ -128,4 +128,26 @@ public class FudgeMsgField implements FudgeField, Serializable, Cloneable {
     return sb.toString();
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean equals (final Object o) {
+    if (o == null) return false;
+    if (o == this) return true;
+    if (!(o instanceof FudgeMsgField)) return false;
+    FudgeMsgField fmf = (FudgeMsgField)o;
+    if (!getType ().equals (fmf.getType ())
+      || refsDifferent (getOrdinal (), fmf.getOrdinal ())
+      || refsDifferent (getName (), fmf.getName ())
+      || refsDifferent (getValue (), fmf.getValue ())) return false;
+    return true;
+  }
+  
+  private <T> boolean refsDifferent (final T a, final T b) {
+    if (a == b) return false;
+    if ((a == null) || (b == null)) return true;
+    return !a.equals (b);
+  }
+  
 }

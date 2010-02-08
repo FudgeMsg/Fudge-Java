@@ -29,7 +29,7 @@ import org.fudgemsg.FudgeFieldType;
  *
  * @author Andrew
  */
-public abstract class SecondaryFieldType<SecondaryType,PrimitiveType> extends FudgeFieldType<SecondaryType> {
+public abstract class SecondaryFieldType<SecondaryType,PrimitiveType> extends FudgeFieldType<SecondaryType> implements FudgeTypeConverter<PrimitiveType,SecondaryType> {
   
   private final FudgeFieldType<PrimitiveType> _delegate;
 
@@ -69,6 +69,14 @@ public abstract class SecondaryFieldType<SecondaryType,PrimitiveType> extends Fu
     throw new UnsupportedOperationException ("cannot convert from " + getTypeId () + " to " + getJavaType ()); 
   }
 
+  /**
+   * {@docInherit}
+   */
+  @Override
+  public boolean canConvertPrimary (Class<? extends PrimitiveType> clazz) {
+    return getPrimaryType ().getJavaType ().isAssignableFrom (clazz);
+  }
+  
   /**
    * {@docInherit}
    */

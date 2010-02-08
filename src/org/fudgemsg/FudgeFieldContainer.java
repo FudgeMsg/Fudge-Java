@@ -89,6 +89,25 @@ public interface FudgeFieldContainer extends Iterable<FudgeField> {
    * @return the field
    */
   FudgeField getByName(String name);
+  
+  /**
+   * Attempts to convert a field to a specific value type. Depending on the underlying implementation this may mean
+   * a conversion through a related {@link FudgeTypeDictionary}, use of a {@link FudgeObjectDictionary}, that the
+   * message arrived through.
+   * 
+   * The conversion logic has to be at the message level rather than the field as a field is not able to resolve
+   * any context - e.g. it's underlying {@link FudgeType} may be shared between a number of encoding strategies. If
+   * an implementation does not have any conversion abilities available, it must as a minimum return {@code null}
+   * for a {@code null} field value, and return the field value unchanged if it is assignable to the type
+   * requested.
+   * 
+   * @param <T> class to convert to
+   * @param clazz Java class to convert to
+   * @param field field whose data to convert
+   * @throws IllegalArgumentException if the requested target class is not appropriate for the field
+   * @return the converted field value
+   */
+  <T> T getFieldValue (Class<T> clazz, FudgeField field) throws IllegalArgumentException;
 
   /**
    * Returns the value of the first field in the message with the given name, or {@code null} if the name does not exist.
@@ -97,7 +116,7 @@ public interface FudgeFieldContainer extends Iterable<FudgeField> {
    * @return field value
    */
   Object getValue(String name);
-
+  
   /**
    * Returns the value of the first field in the message with the given ordinal, or {@code null} if the ordinal does not exist.
    * 

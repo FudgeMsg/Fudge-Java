@@ -60,34 +60,95 @@ public class FudgeTime {
     return hasTimezoneOffset () ? _timezoneOffset : 0;
   }
   
+  /**
+   * Nanoseconds since midnight
+   */
   public long getNanos () {
     return _nanos;
   }
   
+  /**
+   * Microseconds since midnight
+   */
+  public long getMicros () {
+    return getNanos () / 1000l;
+  }
+  
+  /**
+   * Milliseconds since midnight
+   */
+  public int getMillis () {
+    return (int)(getNanos () / 1000000l);
+  }
+  
+  /**
+   * Seconds since midnight
+   */
+  public int getSeconds () {
+    return (int)(getNanos () / 1000000000l);
+  }
+  
+  /**
+   * Nanoseconds within the second since midnight
+   */
+  public int getTimeNanos () {
+    return (int)(getNanos () % 1000000000l);
+  }
+  
+  /**
+   * Microseconds within the second since midnight
+   */
+  public int getTimeMicros () {
+    return (int)(getTimeNanos () / 1000l);
+  }
+  
+  /**
+   * Milliseconds within the second since midnight
+   */
+  public int getTimeMillis () {
+    return (int)(getTimeNanos () / 1000000l);
+  }
+  
+  /**
+   * Seconds within the minute since midnight
+   */
+  public int getTimeSeconds () {
+    return getSeconds () % 60;
+  }
+  
+  /**
+   * Minutes within the hour since midnight
+   */
+  public int getTimeMinutes () {
+    return (getSeconds () / 60) % 60;
+  }
+  
+  /**
+   * Hours since midnight
+   */
+  public int getTimeHours () {
+    return getSeconds () / 3600;
+  }
+  
   @Override
   public String toString () {
-    long n = getNanos ();
-    final long fraction = (n % 1000000000l);
-    n /= 1000000000l;
-    final int seconds = (int)(n % 60l);
-    n /= 60l;
-    final int minutes = (int)(n % 60l);
-    n /= 60l;
-    final int hours = (int)n;
+    final int hours = getTimeHours ();
     final StringBuilder sb = new StringBuilder ();
     if (hours < 10) sb.append ('0');
     sb.append (hours);
     if (getAccuracy ().getEncodedValue () < DateTimeAccuracy.HOUR.getEncodedValue ()) {
       sb.append (':');
+      int minutes = getTimeMinutes ();
       if (minutes < 10) sb.append ('0');
       sb.append (minutes);
       if (getAccuracy ().getEncodedValue () < DateTimeAccuracy.MINUTE.getEncodedValue ()) {
         sb.append (':');
+        int seconds = getTimeSeconds ();
         if (seconds < 10) sb.append ('0');
         sb.append (seconds);
         if (getAccuracy ().getEncodedValue () < DateTimeAccuracy.SECOND.getEncodedValue ()) {
           sb.append ('.');
-          sb.append (fraction);
+          sb.append (getTimeNanos ());
         }
       }
     } else {

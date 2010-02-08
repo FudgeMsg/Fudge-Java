@@ -619,4 +619,30 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return sb.toString();
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public <T> T getFieldValue (final Class<T> clazz, final FudgeField field) throws IllegalArgumentException {
+    return getFudgeContext ().getTypeDictionary ().getFieldValue (clazz, field);
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean equals (final Object o) {
+    if (o == null) return false;
+    if (o == this) return true;
+    if (!(o instanceof FudgeMsg)) return false;
+    final FudgeMsg fm = (FudgeMsg)o;
+    if (!getFudgeContext ().equals (fm.getFudgeContext ())) return false;
+    Iterator<FudgeField> me = iterator ();
+    Iterator<FudgeField> other = fm.iterator ();
+    while (me.hasNext () && other.hasNext ()) {
+      if (!me.next ().equals (other.next ())) return false;
+    }
+    return me.hasNext () == other.hasNext ();
+  }
+  
 }

@@ -18,33 +18,57 @@ package org.fudgemsg.types.secondary;
 import java.util.Date;
 import java.util.Calendar;
 
+import org.fudgemsg.FudgeFieldType;
+import org.fudgemsg.types.FudgeDate;
+import org.fudgemsg.types.FudgeTime;
 import org.fudgemsg.types.DateTimeFieldType;
 import org.fudgemsg.types.SecondaryFieldType;
+import org.fudgemsg.types.FudgeTypeConverter;
 
 /**
- * Secondary type for {@link Date} conversion to/from a {@link Calendar}.
+ * Secondary type for {@link Date} conversion to/from a {@link Calendar}. Also supports conversions from
+ * the {@link FudgeDate} temporary class.
  *
  * @author Andrew
  */
-public class JavaUtilDateFieldType extends SecondaryFieldType<Date,Calendar> {
+public class JavaUtilDateFieldType extends SecondaryFieldType<Date,Object> {
   
   public static final JavaUtilDateFieldType INSTANCE = new JavaUtilDateFieldType ();
   
+  @SuppressWarnings("unchecked")
   private JavaUtilDateFieldType () {
-    super (DateTimeFieldType.INSTANCE, Date.class);
-    
+    super ((FudgeFieldType<Object>)(FudgeFieldType<? extends Object>)DateTimeFieldType.INSTANCE, Date.class);
   }
 
   @Override
-  public Calendar secondaryToPrimary(Date object) {
+  public Object secondaryToPrimary (Date object) {
     final Calendar calendar = Calendar.getInstance ();
     calendar.setTime (object);
     return calendar;
   }
   
   @Override
-  public Date primaryToSecondary (Calendar object) {
+  public Date primaryToSecondary (Object object) {
+    if (object instanceof Calendar) {
+      return primaryToSecondary ((Calendar)object);
+    } else if (object instanceof FudgeDate) {
+      return primaryToSecondary ((FudgeDate)object);
+    } else {
+      throw new IllegalArgumentException ("cannot convert from type " + object.getClass ().getName ());
+    }
+  }
+  
+  protected Date primaryToSecondary (Calendar object) {
     return object.getTime ();
+  }
+  
+  protected Date primaryToSecondary (FudgeDate object) {
+    return object.getDate ();
+  }
+  
+  @Override
+  public boolean canConvertPrimary (Class<?> javaType) {
+    return Calendar.class.isAssignableFrom (javaType) || FudgeDate.class.isAssignableFrom (javaType);
   }
   
 }

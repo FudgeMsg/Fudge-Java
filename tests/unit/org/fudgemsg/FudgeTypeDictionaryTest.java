@@ -168,7 +168,7 @@ public class FudgeTypeDictionaryTest {
     assertArrayEquals (fooIn.getData (), fooOut.getData ());
   }
   
-  @Test(expected=FudgeRuntimeException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void secondaryToNullError () {
     final FudgeTypeDictionary dictionary = new FudgeTypeDictionary ();
     final UUID uuid = UUID.randomUUID ();
@@ -176,7 +176,7 @@ public class FudgeTypeDictionaryTest {
     dictionary.getFieldValue (Thread.class, uuidField);
   }
   
-  @Test(expected=FudgeRuntimeException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void secondaryToNoCommonBaseError () {
     final FudgeTypeDictionary dictionary = new FudgeTypeDictionary ();
     dictionary.addType (BarSecondaryType.INSTANCE);
@@ -185,14 +185,14 @@ public class FudgeTypeDictionaryTest {
     dictionary.getFieldValue (Bar.class, uuidField);
   }
   
-  @Test(expected=FudgeRuntimeException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void primaryToNullError () {
     final FudgeTypeDictionary dictionary = new FudgeTypeDictionary ();
     final FudgeField stringField = new FudgeMsgField (dictionary.getByJavaType (String.class), "hello world", null, null);
     dictionary.getFieldValue (Thread.class, stringField);
   }
   
-  @Test(expected=FudgeRuntimeException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void primaryToBadSecondaryError () {
     final FudgeTypeDictionary dictionary = new FudgeTypeDictionary ();
     dictionary.addType (BarSecondaryType.INSTANCE);
