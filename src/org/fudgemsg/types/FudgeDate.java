@@ -32,19 +32,37 @@ public class FudgeDate {
     _days = days;
   }
   
-  public FudgeDate (final Date d) {
+  /*public FudgeDate (final Date d) {
     // The code below is wrong
     this ((int)(d.getTime () / (86400l * 1000l)));
+  }*/
+  public FudgeDate (final Date d) {
+    final Calendar cal = Calendar.getInstance ();
+    cal.clear ();
+    cal.setTime (d);
+    cal.get (Calendar.MONTH);
+    cal.get (Calendar.DAY_OF_MONTH);
+    _days = cal.get (Calendar.YEAR) * 1000
+          + cal.get (Calendar.MONTH) * 100
+          + cal.get (Calendar.DAY_OF_MONTH);
   }
   
   public int getDays () {
     return _days;
   }
   
-  public Date getDate () {
+  /*public Date getDate () {
     final Calendar cal = Calendar.getInstance ();
     cal.clear ();
     cal.add (Calendar.DAY_OF_MONTH, getDays ());
+    return cal.getTime ();
+  }*/
+  public Date getDate () {
+    final Calendar cal = Calendar.getInstance ();
+    cal.clear ();
+    cal.set (Calendar.YEAR, getDays () / 1000);
+    cal.set (Calendar.MONTH, (getDays () / 100) % 100);
+    cal.set (Calendar.DAY_OF_MONTH, getDays () % 100);
     return cal.getTime ();
   }
   
