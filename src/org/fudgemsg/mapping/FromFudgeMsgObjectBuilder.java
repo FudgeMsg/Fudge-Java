@@ -34,6 +34,13 @@ import org.fudgemsg.FudgeRuntimeException;
  */
 /* package */ class FromFudgeMsgObjectBuilder<T> implements FudgeObjectBuilder<T> {
   
+  /**
+   * Creates a new {@link FromFudgeMsgObjectBuilder} if possible.
+   * 
+   * @param <T> target class to build from the message 
+   * @param clazz target class to build from the message
+   * @return the {@link FromFudgeMsgObjectBuilder} or {@code null} if none is available
+   */
   /* package */ static <T> FromFudgeMsgObjectBuilder<T> create (final Class<T> clazz) {
     try {
       return new FromFudgeMsgObjectBuilder<T> (clazz.getMethod ("fromFudgeMsg", FudgeDeserializationContext.class, FudgeFieldContainer.class), true);
@@ -60,6 +67,9 @@ import org.fudgemsg.FudgeRuntimeException;
     _passContext = passContext;
   }
 
+  /**
+   * {@docInherit}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public T buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {

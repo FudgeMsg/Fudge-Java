@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeObjectMessageFactory;
 import org.junit.Test;
@@ -40,6 +39,9 @@ public class MongoDBEncoderTest {
     MongoDBFudgeBuilder.register (s_fudgeContext);
   }
   
+  /**
+   * 
+   */
   @Test
   public void subMsgEncoding() {
     MutableFudgeFieldContainer msg = s_fudgeContext.newMessage();
@@ -59,6 +61,9 @@ public class MongoDBEncoderTest {
     assertEquals("MongoDB", dbObject.get("val1"));
   }
   
+  /**
+   * 
+   */
   @SuppressWarnings("unchecked")
   @Test
   public void repeatedValueEncoding() {

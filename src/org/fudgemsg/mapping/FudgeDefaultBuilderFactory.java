@@ -46,6 +46,9 @@ public class FudgeDefaultBuilderFactory implements FudgeBuilderFactory {
   
   // TODO 2010-01-29 Andrew -- we could have a builder builder, e.g. search for static methods that return a FudgeObjectBuilder/FudgeMessageBuilder/FudgeBuilder instance for that class
   
+  /**
+   * 
+   */
   public FudgeDefaultBuilderFactory () {
     addGenericBuilderInternal (Map.class, MapBuilder.INSTANCE);
     addGenericBuilderInternal (List.class, ListBuilder.INSTANCE);

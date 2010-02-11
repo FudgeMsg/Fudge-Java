@@ -270,6 +270,13 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
     return _currentElement;
   }
 
+  /**
+   * Detects the end of a sub-message field; i.e. the last field within the sub-message has been fully consumed.
+   * After the end has been reached, further calls to {@link #next()} will resume consuming fields from the containing
+   * message again.
+   * 
+   * @return {@code true} if the end of the sub-message has been reached, {@code false} otherwise. 
+   */
   protected boolean isEndOfSubMessage() {
     //System.out.println ("FudgeDataInputStreamReader::isEndOfSubMessage()");
     if(_processingStack.size() == 1) {
@@ -284,6 +291,11 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
     return false;
   }
   
+  /**
+   * Returns the underlying {@link DataInput}.
+   * 
+   * @return the {@code DataInput}
+   */
   protected DataInput getDataInput () {
     return _dataInput;
   }

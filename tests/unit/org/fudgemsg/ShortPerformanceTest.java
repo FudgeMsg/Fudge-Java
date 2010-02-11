@@ -19,14 +19,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeRuntimeException;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeObjectReader;
 import org.fudgemsg.mapping.FudgeObjectWriter;
 import org.junit.BeforeClass;
@@ -44,6 +39,9 @@ public class ShortPerformanceTest {
   private static final int HOT_SPOT_WARMUP_CYCLES = 50000;
   private static final FudgeContext s_fudgeContext = new FudgeContext();
   
+  /**
+   * @throws Exception [documentation not available]
+   */
   @BeforeClass
   public static void warmUpHotSpot() throws Exception {
     System.out.println("Fudge size, Names Only: " + fudgeCycle(true, false));
@@ -60,11 +58,17 @@ public class ShortPerformanceTest {
     }
   }
   
+  /**
+   * @throws Exception [documentation not available]
+   */
   @Test
   public void performanceVersusSerialization10000Cycles() throws Exception {
     performanceVersusSerialization(10000);
   }
   
+  /**
+   * @throws Exception [documentation not available]
+   */
   @Test
   @Ignore("This is just for really large tests")
   public void performanceVersusSerialization1000000Cycles() throws Exception {
@@ -259,7 +263,9 @@ public class ShortPerformanceTest {
   }
 
   /**
-   * Split the serialisation cycles into two so that we can identify where the bottle neck is.
+   * Split the serialization cycles into two so that we can identify where the bottle neck is.
+   * 
+   * @throws Exception [documentation not available]
    */
   @Test
   @Ignore

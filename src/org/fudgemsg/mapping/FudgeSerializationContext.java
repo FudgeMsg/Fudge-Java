@@ -36,7 +36,7 @@ import org.fudgemsg.types.StringFieldType;
 public class FudgeSerializationContext implements FudgeMessageFactory {
   
   private final FudgeContext _fudgeContext;
-  private final SerialisationBuffer _serialisationBuffer = new SerialisationBuffer ();
+  private final SerializationBuffer _serialisationBuffer = new SerializationBuffer ();
   
   /**
    * Creates a new {@link FudgeSerializationContext} for the given {@link FudgeContext}.
@@ -81,7 +81,7 @@ public class FudgeSerializationContext implements FudgeMessageFactory {
     return _fudgeContext;
   }
   
-  private SerialisationBuffer getSerialisationBuffer () {
+  private SerializationBuffer getSerialisationBuffer () {
     return _serialisationBuffer;
   }
   

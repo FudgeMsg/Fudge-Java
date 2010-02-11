@@ -38,7 +38,13 @@ public class DateTimeFieldType extends FudgeFieldType<Calendar> {
    */
   public static final DateTimeFieldType INSTANCE = new DateTimeFieldType();
   
+  /**
+   * 
+   */
   protected static final int MASK_ACCURACY = 0x0F;
+  /**
+   * 
+   */
   protected static final int FLAG_HASTIMEZONE = 0x10;
   
   private DateTimeFieldType() {

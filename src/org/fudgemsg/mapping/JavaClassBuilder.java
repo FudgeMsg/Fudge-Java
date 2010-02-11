@@ -29,11 +29,17 @@ import org.fudgemsg.types.StringFieldType;
  */
 /* package */ class JavaClassBuilder implements FudgeBuilder<Class<?>> {
   
+  /**
+   * 
+   */
   /* package */ static final FudgeBuilder<Class<?>> INSTANCE = new JavaClassBuilder (); 
   
   private JavaClassBuilder () {
   }
 
+  /**
+   *
+   */
   @Override
   public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, Class<?> object) {
     final MutableFudgeFieldContainer msg = context.newMessage ();
@@ -42,6 +48,9 @@ import org.fudgemsg.types.StringFieldType;
     return msg;
   }
   
+  /**
+   *
+   */
   @Override
   public Class<?> buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
     final String str = message.getString ("name");

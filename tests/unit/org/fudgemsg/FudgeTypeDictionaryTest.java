@@ -37,6 +37,9 @@ import org.junit.Test;
  */
 public class FudgeTypeDictionaryTest {
   
+  /**
+   * 
+   */
   @Test
   public void simpleTypeLookup() {
     FudgeFieldType<?> type = null;
@@ -51,6 +54,9 @@ public class FudgeTypeDictionaryTest {
     assertEquals(PrimitiveFieldTypes.BOOLEAN_TYPE.getTypeId(), type.getTypeId());
   }
   
+  /**
+   * 
+   */
   @Test
   public void simpleTypeConversion () {
     final FudgeTypeDictionary dictionary = new FudgeTypeDictionary ();
@@ -153,6 +159,9 @@ public class FudgeTypeDictionaryTest {
     
   }
   
+  /**
+   * 
+   */
   @Test
   public void complexTypeConversion () {
     final FudgeTypeDictionary dictionary = new FudgeTypeDictionary ();
@@ -168,6 +177,9 @@ public class FudgeTypeDictionaryTest {
     assertArrayEquals (fooIn.getData (), fooOut.getData ());
   }
   
+  /**
+   * 
+   */
   @Test(expected=IllegalArgumentException.class)
   public void secondaryToNullError () {
     final FudgeTypeDictionary dictionary = new FudgeTypeDictionary ();
@@ -176,6 +188,9 @@ public class FudgeTypeDictionaryTest {
     dictionary.getFieldValue (Thread.class, uuidField);
   }
   
+  /**
+   * 
+   */
   @Test(expected=IllegalArgumentException.class)
   public void secondaryToNoCommonBaseError () {
     final FudgeTypeDictionary dictionary = new FudgeTypeDictionary ();
@@ -185,6 +200,9 @@ public class FudgeTypeDictionaryTest {
     dictionary.getFieldValue (Bar.class, uuidField);
   }
   
+  /**
+   * 
+   */
   @Test(expected=IllegalArgumentException.class)
   public void primaryToNullError () {
     final FudgeTypeDictionary dictionary = new FudgeTypeDictionary ();
@@ -192,6 +210,9 @@ public class FudgeTypeDictionaryTest {
     dictionary.getFieldValue (Thread.class, stringField);
   }
   
+  /**
+   * 
+   */
   @Test(expected=IllegalArgumentException.class)
   public void primaryToBadSecondaryError () {
     final FudgeTypeDictionary dictionary = new FudgeTypeDictionary ();

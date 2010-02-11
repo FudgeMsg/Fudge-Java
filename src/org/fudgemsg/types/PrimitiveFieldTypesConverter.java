@@ -21,9 +21,13 @@ package org.fudgemsg.types;
  * support field value conversion between the various width integral types.
  * 
  * @author Andrew
+ * @param <Target> primitive field type to convert to
  */
 public abstract class PrimitiveFieldTypesConverter<Target> implements FudgeTypeConverter<Object,Target> {
   
+  /**
+   * Singleton converter for the {@link Boolean} type.
+   */
   public static final PrimitiveFieldTypesConverter<Boolean> BOOLEAN_CONVERTER = new PrimitiveFieldTypesConverter<Boolean> ("boolean", 0, 0) {
     @Override
     public Boolean primaryToSecondary (final Object value) {
@@ -38,6 +42,9 @@ public abstract class PrimitiveFieldTypesConverter<Target> implements FudgeTypeC
     }
   };
   
+  /**
+   * Singleton converter for the {@link Byte} type.
+   */
   public static final PrimitiveFieldTypesConverter<Byte> BYTE_CONVERTER = new PrimitiveFieldTypesConverter<Byte> ("byte", Byte.MIN_VALUE, Byte.MAX_VALUE) {
     @Override
     public Byte primaryToSecondary (final Object value) {
@@ -52,6 +59,9 @@ public abstract class PrimitiveFieldTypesConverter<Target> implements FudgeTypeC
     }
   };
   
+  /**
+   * Singleton converter for the {@link Short} type.
+   */
   public static final PrimitiveFieldTypesConverter<Short> SHORT_CONVERTER = new PrimitiveFieldTypesConverter<Short> ("short", Short.MIN_VALUE, Short.MAX_VALUE) {
     @Override
     public Short primaryToSecondary (final Object value) {
@@ -66,6 +76,9 @@ public abstract class PrimitiveFieldTypesConverter<Target> implements FudgeTypeC
     }
   };
   
+  /**
+   * Singleton converter for the {@link Integer} type.
+   */
   public static final PrimitiveFieldTypesConverter<Integer> INT_CONVERTER = new PrimitiveFieldTypesConverter<Integer> ("int", Integer.MIN_VALUE, Integer.MAX_VALUE) {
     @Override
     public Integer primaryToSecondary (final Object value) {
@@ -80,6 +93,9 @@ public abstract class PrimitiveFieldTypesConverter<Target> implements FudgeTypeC
     }
   };
   
+  /**
+   * Singleton converter for the {@link Long} type.
+   */
   public static final PrimitiveFieldTypesConverter<Long> LONG_CONVERTER = new PrimitiveFieldTypesConverter<Long> ("long", 0, 0) {
     @Override
     public Long primaryToSecondary (final Object value) {
@@ -91,6 +107,9 @@ public abstract class PrimitiveFieldTypesConverter<Target> implements FudgeTypeC
     }
   };
   
+  /**
+   * Singleton converter for the {@link Float} type.
+   */
   public static final PrimitiveFieldTypesConverter<Float> FLOAT_CONVERTER = new PrimitiveFieldTypesConverter<Float> ("float", 0, 0) {
     @Override
     public Float primaryToSecondary (final Object value) {
@@ -100,6 +119,9 @@ public abstract class PrimitiveFieldTypesConverter<Target> implements FudgeTypeC
     }
   };
   
+  /**
+   * Singleton converter for the {@link Double} type.
+   */
   public static final PrimitiveFieldTypesConverter<Double> DOUBLE_CONVERTER = new PrimitiveFieldTypesConverter<Double> ("double", 0, 0) {
     @Override
     public Double primaryToSecondary (final Object value) {
@@ -119,24 +141,59 @@ public abstract class PrimitiveFieldTypesConverter<Target> implements FudgeTypeC
     _rangeHi = hi;
   }
   
+  /**
+   * Returns the descriptive target type name (e.g. for error messages). 
+   * 
+   * @return the target type name
+   */
   protected String getTargetTypeName () {
     return _targetTypeName;
   }
   
+  /**
+   * Checks a value is within the range specified at construction.
+   * 
+   * @param value value to check
+   * @return the value
+   * @throws IllegalArgumentException if the value is out of range
+   */
   protected int rangeCheck (int value) {
     if ((value >= _rangeLo) && (value <= _rangeHi)) return value;
     throw new IllegalArgumentException ("value " + value + " out of range for " + getTargetTypeName ());
   }
   
+  /**
+   * Checks a value is within the range specified at construction.
+   * 
+   * @param value value to check
+   * @return the value
+   * @throws IllegalArgumentException if the value is out of range
+   */
   protected long rangeCheck (long value) {
     if ((value >= _rangeLo) && (value <= _rangeHi)) return value;
     throw new IllegalArgumentException ("value " + value + " out of range for " + getTargetTypeName ());
   }
   
+  /**
+   * Checks a value is within the range specified at construction
+   * 
+   * @param value value to check
+   * @return the value
+   * @throws IllegalArgumentException if the value is out of range
+   */
   protected double rangeCheck (double value) {
     return rangeCheck (_rangeLo, _rangeHi, value);
   }
   
+  /**
+   * Checks a value is within the range (inclusive)
+   * 
+   * @param lo lower-bound of the range
+   * @param hi upper-bound of the range
+   * @param value value to check
+   * @return the value
+   * @throws IllegalArgumentException if the value is out of range
+   */
   protected double rangeCheck (double lo, double hi, double value) {
     if ((value >= lo) && (value <= hi)) return value;
     throw new IllegalArgumentException ("value " + value + " out of range for " + getTargetTypeName ());

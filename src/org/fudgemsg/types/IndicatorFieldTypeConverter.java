@@ -22,6 +22,9 @@ package org.fudgemsg.types;
  */
 public class IndicatorFieldTypeConverter implements FudgeTypeConverter<Object,IndicatorType> {
   
+  /**
+   * Singleton instance of the converter.
+   */
   public static IndicatorFieldTypeConverter INSTANCE = new IndicatorFieldTypeConverter ();
   
   private IndicatorFieldTypeConverter () {

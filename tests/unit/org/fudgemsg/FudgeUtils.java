@@ -32,10 +32,19 @@ import java.util.List;
  */
 public class FudgeUtils {
   
+  /**
+   * @param expectedMsg [documentation not available]
+   * @param actualMsg [documentation not available]
+   */
   public static void assertAllFieldsMatch(FudgeFieldContainer expectedMsg, FudgeFieldContainer actualMsg) {
     assertAllFieldsMatch(expectedMsg, actualMsg, true);
   }
 
+  /**
+   * @param expectedMsg [documentation not available]
+   * @param actualMsg [documentation not available]
+   * @param fieldOrderMatters [documentation not available]
+   */
   public static void assertAllFieldsMatch(
       FudgeFieldContainer expectedMsg,
       FudgeFieldContainer actualMsg,
@@ -89,10 +98,6 @@ public class FudgeUtils {
     assertFalse(actualIter.hasNext());
   }
 
-  /**
-   * @param expectedFields
-   * @return
-   */
   private static List<FudgeField> order(List<FudgeField> expectedFields) {
     expectedFields = new ArrayList<FudgeField>(expectedFields);
     Collections.sort(expectedFields, new Comparator<FudgeField>() {
@@ -129,6 +134,10 @@ public class FudgeUtils {
     return expectedFields;
   }
   
+  /**
+   * @param expected [documentation not available]
+   * @param actual [documentation not available]
+   */
   public static void assertArraysMatch(double[] expected, double[] actual) {
     assertEquals(expected.length, actual.length);
     for(int i = 0; i < expected.length; i++) {
@@ -137,6 +146,10 @@ public class FudgeUtils {
     }
   }
 
+  /**
+   * @param expected [documentation not available]
+   * @param actual [documentation not available]
+   */
   public static void assertArraysMatch(float[] expected, float[] actual) {
     assertEquals(expected.length, actual.length);
     for(int i = 0; i < expected.length; i++) {
@@ -145,6 +158,10 @@ public class FudgeUtils {
     }
   }
 
+  /**
+   * @param expected [documentation not available]
+   * @param actual [documentation not available]
+   */
   public static void assertArraysMatch(long[] expected, long[] actual) {
     assertEquals(expected.length, actual.length);
     for(int i = 0; i < expected.length; i++) {
@@ -152,6 +169,10 @@ public class FudgeUtils {
     }
   }
 
+  /**
+   * @param expected [documentation not available]
+   * @param actual [documentation not available]
+   */
   public static void assertArraysMatch(int[] expected, int[] actual) {
     assertEquals(expected.length, actual.length);
     for(int i = 0; i < expected.length; i++) {
@@ -159,6 +180,10 @@ public class FudgeUtils {
     }
   }
 
+  /**
+   * @param expected [documentation not available]
+   * @param actual [documentation not available]
+   */
   public static void assertArraysMatch(short[] expected, short[] actual) {
     assertEquals(expected.length, actual.length);
     for(int i = 0; i < expected.length; i++) {
@@ -166,6 +191,10 @@ public class FudgeUtils {
     }
   }
 
+  /**
+   * @param expected [documentation not available]
+   * @param actual [documentation not available]
+   */
   public static void assertArraysMatch(byte[] expected, byte[] actual) {
     assertEquals(expected.length, actual.length);
     for(int i = 0; i < expected.length; i++) {

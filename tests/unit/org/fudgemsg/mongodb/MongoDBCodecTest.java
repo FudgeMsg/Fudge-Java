@@ -39,6 +39,9 @@ public class MongoDBCodecTest {
     MongoDBFudgeBuilder.register (s_fudgeContext);
   }
 
+  /**
+   * 
+   */
   @Test
   public void allNamesCodec() {
     FudgeFieldContainer inputMsg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
@@ -49,6 +52,9 @@ public class MongoDBCodecTest {
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
 
+  /**
+   * 
+   */
   @Test
   public void containsList() {
     MutableFudgeFieldContainer inputMsg = s_fudgeContext.newMessage();
@@ -61,6 +67,9 @@ public class MongoDBCodecTest {
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
 
+  /**
+   * 
+   */
   @Test
   public void byteArrays() {
     FudgeFieldContainer inputMsg = StandardFudgeMessages.createMessageAllByteArrayLengths(s_fudgeContext);
@@ -71,6 +80,9 @@ public class MongoDBCodecTest {
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
 
+  /**
+   * 
+   */
   @Test
   public void subMsg() {
     MutableFudgeFieldContainer inputMsg = s_fudgeContext.newMessage();

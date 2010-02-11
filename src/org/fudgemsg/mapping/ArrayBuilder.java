@@ -32,10 +32,16 @@ import org.fudgemsg.MutableFudgeFieldContainer;
   
   private final Class<E> _clazz;
   
+  /**
+   * @param clazz type of the array element
+   */
   /* package */ ArrayBuilder (Class<E> clazz) {
     _clazz = clazz;
   }
 
+  /**
+   * {@docInherit}
+   */
   @Override
   public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, Object[] array) {
     final MutableFudgeFieldContainer msg = context.newMessage ();
@@ -45,6 +51,9 @@ import org.fudgemsg.MutableFudgeFieldContainer;
     return msg;
   }
   
+  /**
+   * {docInherit}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public E[] buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {

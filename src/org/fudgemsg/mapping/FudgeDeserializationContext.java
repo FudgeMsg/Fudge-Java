@@ -40,7 +40,7 @@ import org.fudgemsg.FudgeRuntimeException;
 public class FudgeDeserializationContext {
   
   private final FudgeContext _fudgeContext;
-  private final SerialisationBuffer _serialisationBuffer = new SerialisationBuffer ();
+  private final SerializationBuffer _serialisationBuffer = new SerializationBuffer ();
   
   /**
    * Creates a new {@link FudgeDeserializationContext} for the given {@link FudgeContext}.
@@ -60,7 +60,7 @@ public class FudgeDeserializationContext {
     getSerialisationBuffer ().reset ();
   }
   
-  private SerialisationBuffer getSerialisationBuffer () {
+  private SerializationBuffer getSerialisationBuffer () {
     return _serialisationBuffer;
   }
   

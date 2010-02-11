@@ -18,6 +18,8 @@ package org.fudgemsg;
 import java.util.List;
 import java.util.Set;
 
+import org.fudgemsg.mapping.FudgeObjectDictionary;
+
 /**
  * An interface defining any arbitrary container for fields that can
  * be described by the Fudge specification. Applications working with
@@ -91,15 +93,15 @@ public interface FudgeFieldContainer extends Iterable<FudgeField> {
   FudgeField getByName(String name);
   
   /**
-   * Attempts to convert a field to a specific value type. Depending on the underlying implementation this may mean
+   * <p>Attempts to convert a field to a specific value type. Depending on the underlying implementation this may mean
    * a conversion through a related {@link FudgeTypeDictionary}, use of a {@link FudgeObjectDictionary}, that the
-   * message arrived through.
+   * message arrived through.</p>
    * 
-   * The conversion logic has to be at the message level rather than the field as a field is not able to resolve
-   * any context - e.g. it's underlying {@link FudgeType} may be shared between a number of encoding strategies. If
+   * <p>The conversion logic has to be at the message level rather than the field as a field is not able to resolve
+   * any context - e.g. it's underlying {@link FudgeFieldType} may be shared between a number of encoding strategies. If
    * an implementation does not have any conversion abilities available, it must as a minimum return {@code null}
    * for a {@code null} field value, and return the field value unchanged if it is assignable to the type
-   * requested.
+   * requested.</p>
    * 
    * @param <T> class to convert to
    * @param clazz Java class to convert to

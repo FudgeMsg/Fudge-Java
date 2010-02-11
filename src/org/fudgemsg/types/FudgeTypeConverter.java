@@ -22,6 +22,8 @@ import org.fudgemsg.FudgeTypeDictionary;
  * secondary type conversion within a {@link FudgeTypeDictionary} and also for
  * some other standard Java types.
  * 
+ * @param <Primary> type to convert from (or {@link Object} to support any type
+ * @param <Secondary> type to convert to
  * @author Andrew
  */
 public interface FudgeTypeConverter<Primary,Secondary> {

@@ -22,20 +22,34 @@ import java.util.Calendar;
  * Dummy class for holding a date value on its own, as Java does not have a
  * standard type for doing so.
  * 
+ * <p>This part of the specification is not finalized and should not be used. The {@code DateTime}
+ * Fudge type should be used instead. For more details, please refer to {@link "http://wiki.fudgemsg.org/display/FDG/DateTime+encoding"}.</p>
+
+ * 
  * @author Andrew
  */
 public class FudgeDate {
   
   private final int _days;
   
+  /**
+   * Constructs a new {@link FudgeDate} object for a decimal date representation.
+   * 
+   * @param days the initial value, a decimal representation of the date
+   */
   public FudgeDate (final int days) {
     _days = days;
   }
   
+  /**
+   * Constructs a new {@link FudgeDate} object from a {@link Date}.
+   * 
+   * @param d the {@code Date} to copy the date from
+   */
   /*public FudgeDate (final Date d) {
-    // The code below is wrong
-    this ((int)(d.getTime () / (86400l * 1000l)));
-  }*/
+  // The code below is wrong
+  this ((int)(d.getTime () / (86400l * 1000l)));
+}*/
   public FudgeDate (final Date d) {
     final Calendar cal = Calendar.getInstance ();
     cal.clear ();
@@ -47,10 +61,20 @@ public class FudgeDate {
           + cal.get (Calendar.DAY_OF_MONTH);
   }
   
+  /**
+   * Avoid calling this. At the moment it is returning the decimal representation of the date, but this may change.
+   * 
+   * @return the decimal representation of the date
+   */
   public int getDays () {
     return _days;
   }
   
+  /**
+   * Returns a {@link Date} representation of this date. The time on the {@code Date} object will be set to Midnight on that day.
+   * 
+   * @return a {@code Date}
+   */
   /*public Date getDate () {
     final Calendar cal = Calendar.getInstance ();
     cal.clear ();
@@ -66,11 +90,17 @@ public class FudgeDate {
     return cal.getTime ();
   }
   
+  /**
+   * {@docInherit}
+   */
   @Override
   public String toString () {
     return getDate ().toString (); 
   }
   
+  /**
+   * {@docInherit}
+   */
   @Override
   public boolean equals (final Object o) {
     if (o == null) return false;
@@ -79,6 +109,9 @@ public class FudgeDate {
     return other.getDays () == getDays ();
   }
   
+  /**
+   * {@docInherit}
+   */
   @Override
   public int hashCode () {
     return getDays ();

@@ -81,6 +81,11 @@ public class FudgeMsgWriter implements Flushable {
     _defaultTaxonomyId = null;
   }
   
+  /**
+   * Returns the underlying {@link FudgeStreamWriter}.
+   * 
+   * @return the {@code FudgeStreamWriter}
+   */
   protected FudgeStreamWriter getStreamWriter () {
     return _streamWriter;
   }

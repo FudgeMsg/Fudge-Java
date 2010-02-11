@@ -18,28 +18,36 @@ package org.fudgemsg.mapping;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.FudgeRuntimeException;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
 
 /**
- * Implementation of FudgeMessageBuilder for an object which supports a toFudgeMsg
- * function of the form (in order of search):
+ * <p>Implementation of FudgeMessageBuilder for an object which supports a toFudgeMsg
+ * function of the form (in order of search):</p>
+ * <ol>
+ * <li>void toFudgeMsg (FudgeSerialisationContext, MutableFudgeFieldContainer)</li>
+ * <li>void toFudgeMsg (FudgeMessageFactory, MutableFudgeFieldContainer)</li>
+ * <li>FudgeMsg toFudgeMsg (FudgeSerialisationContext)</li>
+ * <li>FudgeMsg toFudgeMsg (FudgeMessageFactory)</li>
+ * <li>void toFudgeMsg (FudgeContext, MutableFudgeFieldContainer)</li>
+ * <li>FudgeMsg toFudgeMsg (FudgeContext)</li>
+ * </ol>
  * 
- *    void toFudgeMsg (FudgeSerialisationContext, MutableFudgeFieldContainer)
- *    void toFudgeMsg (FudgeMessageFactory, MutableFudgeFieldContainer)
- *    FudgeMsg toFudgeMsg (FudgeSerialisationContext)
- *    FudgeMsg toFudgeMsg (FudgeMessageFactory)
- *    void toFudgeMsg (FudgeContext, MutableFudgeFieldContainer)
- *    FudgeMsg toFudgeMsg (FudgeContext)
- * 
- * @param <T> class that can be serialised using this builder
+ * @param <T> class that can be serialized using this builder
  * @author Andrew
  */
 /* package */ abstract class ToFudgeMsgMessageBuilder<T> implements FudgeMessageBuilder<T> {
   
+  /**
+   * Attempts to create a new {@link ToFudgeMsgMessageBuilder} for a class.
+   * 
+   * @param <T> class to build messages for
+   * @param clazz class to build messages for
+   * @return Returns the {@code ToFudgeMsgMessageBuilder} or {@code null} if none is available
+   */
   /* package */ static <T> ToFudgeMsgMessageBuilder<T> create (final Class<T> clazz) {
     try {
       return new AddFields<T> (clazz.getMethod ("toFudgeMsg", FudgeSerializationContext.class, MutableFudgeFieldContainer.class), false);
@@ -92,6 +100,13 @@ import org.fudgemsg.FudgeMsg;
     _toFudgeMsg = toFudgeMsg;
   }
   
+  /**
+   * Invoke the {@code toFudgeMsg} method on the object.
+   * 
+   * @param obj object to invoke the method on
+   * @param args parameters to pass
+   * @return the value returned by the {@code toFudgeMsg} if any
+   */
   protected Object invoke (Object obj, Object... args) {
     try {
       return _toFudgeMsg.invoke (obj, args);
@@ -104,7 +119,7 @@ import org.fudgemsg.FudgeMsg;
     }
   }
   
-  /* package */ static class CreateMessage<T> extends ToFudgeMsgMessageBuilder<T> {
+  private static class CreateMessage<T> extends ToFudgeMsgMessageBuilder<T> {
     
     private final boolean _passContext;
     
@@ -114,13 +129,13 @@ import org.fudgemsg.FudgeMsg;
     }
     
     @Override
-    public FudgeMsg buildMessage(FudgeSerializationContext context, T object) {
-      return (FudgeMsg)invoke (object, _passContext ? context.getFudgeContext () : context);
+    public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, T object) {
+      return (MutableFudgeFieldContainer)invoke (object, _passContext ? context.getFudgeContext () : context);
     }
     
   }
   
-  /* package */ static class AddFields<T> extends ToFudgeMsgMessageBuilder<T> {
+  private static class AddFields<T> extends ToFudgeMsgMessageBuilder<T> {
     
     private final boolean _passContext;
     

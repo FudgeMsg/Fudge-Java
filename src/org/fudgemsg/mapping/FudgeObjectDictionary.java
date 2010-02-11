@@ -60,13 +60,19 @@ public final class FudgeObjectDictionary {
   
   /**
    * Returns the current builder factory for unregistered types.
+   * 
+   * @return the current {@link FudgeBuilderFactory}.
    */
   public FudgeBuilderFactory getDefaultBuilderFactory () {
     return _defaultBuilderFactory;
   }
   
   /**
-   * Sets the builder factory to use for types that are not explicitly registered here.
+   * Sets the builder factory to use for types that are not explicitly registered here. It is recommended that {@link FudgeBuilderFactory}
+   * implementations are made using the {@link FudgeBuilderFactoryAdapter}, constructed with the previously set factory so that the behaviours
+   * can be chained. 
+   * 
+   * @param defaultBuilderFactory the {@code FudgeBuilderFactory} to use
    */
   public void setDefaultBuilderFactory (final FudgeBuilderFactory defaultBuilderFactory) {
     _defaultBuilderFactory = defaultBuilderFactory;

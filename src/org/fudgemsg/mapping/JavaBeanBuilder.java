@@ -33,7 +33,7 @@ import org.apache.commons.beanutils.PropertyUtils;
  * A message and object builder implementation using the BeanUtils tools to work with
  * Java Beans.
  * 
- * @param <T> Bean class that can be serialised or deserialised using this builder
+ * @param <T> Bean class that can be serialized or deserialized using this builder
  * @author Andrew
  */
 /* package */ class JavaBeanBuilder<T> implements FudgeBuilder<T> {
@@ -72,6 +72,13 @@ import org.apache.commons.beanutils.PropertyUtils;
   private final String _beanName;
   private final Constructor<T> _constructor;
 
+  /**
+   * Creates a new {@link JavaBeanBuilder} for a class.
+   * 
+   * @param <T> class the builder should process
+   * @param clazz class the builder should process
+   * @return the {@code JavaBeanBuilder}
+   */
   /* package */ static <T> JavaBeanBuilder<T> create (final Class<T> clazz) {
     // customise the properties
     final ArrayList<JBProperty> propList = new ArrayList<JBProperty> ();
@@ -149,6 +156,9 @@ import org.apache.commons.beanutils.PropertyUtils;
     }
   }
 
+  /**
+   *
+   */
   @Override
   public MutableFudgeFieldContainer buildMessage(
       FudgeSerializationContext context, T object) {
@@ -169,6 +179,9 @@ import org.apache.commons.beanutils.PropertyUtils;
     return message;
   }
 
+  /**
+   *
+   */
   @Override
   public T buildObject(FudgeDeserializationContext context,
       FudgeFieldContainer message) {

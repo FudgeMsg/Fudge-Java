@@ -18,7 +18,6 @@ package org.fudgemsg;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +36,9 @@ public class FudgeContextTest {
   private static final int[] ORDINALS = new int[] {5, 14, 928, 74}; 
   private static final String[] NAMES = new String[] {"Kirk", "Wylie", "Jim", "Moores"}; 
 
+  /**
+   * 
+   */
   @Test
   public void allNamesCodecNoTaxonomy() {
     FudgeContext context = new FudgeContext();
@@ -48,6 +50,9 @@ public class FudgeContextTest {
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
   
+  /**
+   * 
+   */
   @Test
   public void allNamesCodecWithTaxonomy() {
     FudgeContext context = new FudgeContext();
@@ -74,6 +79,9 @@ public class FudgeContextTest {
     assertEquals("value4", outputMsg.getString(ORDINALS[3]));
   }
 
+  /**
+   * 
+   */
   @Test
   public void allOrdinalsCodecWithTaxonomy() {
     FudgeContext context = new FudgeContext();
@@ -111,6 +119,9 @@ public class FudgeContextTest {
     return outputMsgEnvelope.getMessage ();
   }
   
+  /**
+   * 
+   */
   @Test
   public void readerAllocation() {
     FudgeContext context = new FudgeContext();

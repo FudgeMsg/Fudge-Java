@@ -33,11 +33,17 @@ import org.fudgemsg.FudgeRuntimeException;
  */
 /* package */ class MapBuilder implements FudgeBuilder<Map<?,?>> {
   
+  /**
+   * 
+   */
   /* package */ static final FudgeBuilder<Map<?,?>> INSTANCE = new MapBuilder (); 
   
   private MapBuilder () {
   }
 
+  /**
+   *
+   */
   @Override
   public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, Map<?,?> map) {
     final MutableFudgeFieldContainer msg = context.newMessage ();
@@ -48,6 +54,9 @@ import org.fudgemsg.FudgeRuntimeException;
     return msg;
   }
   
+  /**
+   *
+   */
   @Override
   public Map<?,?> buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
     final Map<Object, Object> map = new HashMap<Object, Object> ();

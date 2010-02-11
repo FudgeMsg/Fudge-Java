@@ -29,6 +29,10 @@ public final class StandardFudgeMessages {
   // will break interop tests. If you need a change, add a new standard test
   // message and then add a standard form to the interop test suite.
 
+  /**
+   * @param context [documentation not available]
+   * @return [documentation not available]
+   */
   public static MutableFudgeFieldContainer createMessageAllNames(FudgeContext context) {
     MutableFudgeFieldContainer msg = context.newMessage();
     
@@ -64,6 +68,10 @@ public final class StandardFudgeMessages {
     return msg;
   }
   
+  /**
+   * @param context [documentation not available]
+   * @return [documentation not available]
+   */
   public static MutableFudgeFieldContainer createMessageAllOrdinals(FudgeContext context) {
     MutableFudgeFieldContainer msg = context.newMessage();
     
@@ -94,6 +102,10 @@ public final class StandardFudgeMessages {
     return msg;
   }
   
+  /**
+   * @param context [documentation not available]
+   * @return [documentation not available]
+   */
   public static FudgeFieldContainer createMessageAllByteArrayLengths(FudgeContext context) {
     MutableFudgeFieldContainer msg = context.newMessage();
     msg.add("byte[4]", new byte[4]);
@@ -110,6 +122,10 @@ public final class StandardFudgeMessages {
     return msg;
   }
   
+  /**
+   * @param context [documentation not available]
+   * @return [documentation not available]
+   */
   public static FudgeFieldContainer createMessageWithSubMsgs(FudgeContext context) {
     MutableFudgeFieldContainer msg = context.newMessage();
     MutableFudgeFieldContainer sub1 = context.newMessage();

@@ -19,6 +19,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldType;
 
 /**
@@ -28,6 +29,8 @@ import org.fudgemsg.FudgeFieldType;
  * no access to the {@link FudgeContext} when the conversion takes place.
  *
  * @author Andrew
+ * @param <SecondaryType> secondary type
+ * @param <PrimitiveType> type there is a primary {@link FudgeFieldType} for
  */
 public abstract class SecondaryFieldType<SecondaryType,PrimitiveType> extends FudgeFieldType<SecondaryType> implements FudgeTypeConverter<PrimitiveType,SecondaryType> {
   
@@ -44,6 +47,11 @@ public abstract class SecondaryFieldType<SecondaryType,PrimitiveType> extends Fu
     _delegate = type;
   }
   
+  /**
+   * Returns the underlying (primary) Fudge type.
+   * 
+   * @return the primary type
+   */
   public FudgeFieldType<PrimitiveType> getPrimaryType () {
     return _delegate;
   }

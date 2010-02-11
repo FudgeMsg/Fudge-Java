@@ -31,30 +31,45 @@ import org.junit.Test;
 public class FudgeStreamParserTest {
   private static final FudgeContext s_fudgeContext = new FudgeContext();
 
+  /**
+   * 
+   */
   @Test
   public void standardMessageAllNames() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
     checkResultsMatch(msg);
   }
 
+  /**
+   * 
+   */
   @Test
   public void standardMessageAllOrdinals() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext);
     checkResultsMatch(msg);
   }
   
+  /**
+   * 
+   */
   @Test
   public void standardMessageByteArrays() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllByteArrayLengths(s_fudgeContext);
     checkResultsMatch(msg);
   }
   
+  /**
+   * 
+   */
   @Test
   public void standardMessageSubMessages() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageWithSubMsgs(s_fudgeContext);
     checkResultsMatch(msg);
   }
   
+  /**
+   * 
+   */
   @Test
   public void allMessagesSameContext() {
     FudgeContext fudgeContext = new FudgeContext();
@@ -69,10 +84,17 @@ public class FudgeStreamParserTest {
     checkResultsMatch(msg, fudgeContext);
   }
   
+  /**
+   * @param msg [documentation not available]
+   */
   protected void checkResultsMatch(FudgeFieldContainer msg) {
     checkResultsMatch(msg, new FudgeContext());
   }
   
+  /**
+   * @param msg [documentation not available]
+   * @param fudgeContext [documentation not available]
+   */
   protected void checkResultsMatch(FudgeFieldContainer msg, FudgeContext fudgeContext) {
     FudgeMsgEnvelope result = cycleMessage(fudgeContext, msg);
     assertNotNull(result);
@@ -81,6 +103,11 @@ public class FudgeStreamParserTest {
     FudgeUtils.assertAllFieldsMatch(msg, resultMsg);
   }
   
+  /**
+   * @param context [documentation not available]
+   * @param msg [documentation not available]
+   * @return [documentation not available]
+   */
   protected FudgeMsgEnvelope cycleMessage(FudgeContext context, FudgeFieldContainer msg) {
     byte[] msgAsBytes = context.toByteArray(msg);
     try {

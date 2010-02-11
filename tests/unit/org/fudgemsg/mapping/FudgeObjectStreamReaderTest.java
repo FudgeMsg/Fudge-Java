@@ -40,6 +40,9 @@ import org.junit.Test;
 public class FudgeObjectStreamReaderTest {
   private static final FudgeContext s_fudgeContext = new FudgeContext();
   
+  /**
+   * @throws IOException [documentation not available]
+   */
   @Test
   public void simpleBean() throws IOException {
     byte[] msgBytes = s_fudgeContext.toByteArray(ObjectMappingTestUtil.constructSimpleMessage(s_fudgeContext));
@@ -73,6 +76,9 @@ public class FudgeObjectStreamReaderTest {
     assertEquals(99999, simple.getFieldThree());
   }
   
+  /**
+   * @throws IOException [documentation not available]
+   */
   @Test
   public void staticAndTransient() throws IOException {
     MutableFudgeFieldContainer msg = s_fudgeContext.newMessage();

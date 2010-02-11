@@ -22,9 +22,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Base class for ReflectionObjectBuilder and ReflectionMessageBuilder. Contains some helper methods common to reading class methods.
+ * Base class for {@link ReflectionObjectBuilder} and {@link ReflectionMessageBuilder}.
+ * Contains some helper methods common to reading class methods. The {@link JavaBeanBuilder}
+ * is superior - good old commons-beanutils - these classes have been left in if that
+ * package is not available to remove any dependency on other packages. It may be removed
+ * from future releases.
  * 
- * @param <T> class that can be serialised or deserialised by this builder
+ * @param <T> class that can be serialized or deserialized by this builder
  * @author Andrew
  */
 /* package */ class ReflectionBuilderBase<T> {
@@ -51,11 +55,24 @@ import java.util.Map;
     }
   }
   
+  /**
+   * Creates a new {@link ReflectionBuilderBase} instance, resolving any methods that match the accessor or mutator pattern.
+   * 
+   * @param clazz class to be serialized or deserialize by the builder
+   * @param prefix method prefix, e.g. {@code get} or {@code set}
+   * @param paramLength number of expected parameters
+   * @param recurseLimit class to stop at when processing the superclasses
+   */
   protected ReflectionBuilderBase (final Class<T> clazz, final String prefix, final int paramLength, final Class<?> recurseLimit) {
     _methods = new HashMap<String, Method> ();
     findMethods (clazz, _methods, prefix, paramLength, recurseLimit);
   }
   
+  /**
+   * Returns the map of attribute names to method calls.
+   * 
+   * @return the {@link Map}
+   */
   protected Map<String, Method> getMethods () {
     return _methods;
   }

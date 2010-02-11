@@ -25,18 +25,26 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeRuntimeException;
 
 /**
- * Attempt to create an object using a no-arg constructor and Java-bean style
- * setX methods.
+ * <p>Attempt to create an object using a no-arg constructor and Java-bean style
+ * setX methods.</p>
  * 
- * This has been superceded by the JavaBeanBuilder which uses the BeanUtils package.
+ * <p>This has been superceded by the JavaBeanBuilder which uses the BeanUtils package.</p>
  * 
- * @param <T> class that can be deserialised using this builder
+ * @param <T> class that can be deserialized using this builder
  * @author Andrew
  */
 /* package */ class ReflectionObjectBuilder<T> extends ReflectionBuilderBase<T> implements FudgeObjectBuilder<T> {
   
   private final Constructor<T> _constructor;
   
+  /**
+   * Creates a new {@link ReflectionObjectBuilder} for a class if possible. This is only possible if the class
+   * has a visible no-arg constructor.
+   * 
+   * @param <T> class to build objects of
+   * @param clazz class to build objects of
+   * @return the {@code ReflectionObjectBuilder}
+   */
   /* package */ static <T> ReflectionObjectBuilder<T> create (final Class<T> clazz) {
     try {
       final Constructor<T> constructor = clazz.getConstructor ();
@@ -54,6 +62,9 @@ import org.fudgemsg.FudgeRuntimeException;
     _constructor = constructor;
   }
   
+  /**
+   * {@docInherit}
+   */
   @Override
   public T buildObject (final FudgeDeserializationContext context, final FudgeFieldContainer message) {
     try {

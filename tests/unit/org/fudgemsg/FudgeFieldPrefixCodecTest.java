@@ -29,6 +29,9 @@ import org.junit.Test;
  */
 public class FudgeFieldPrefixCodecTest {
 
+  /**
+   * 
+   */
   @Test
   public void fieldPrefixComposition() {
     assertEquals(0x20, FudgeFieldPrefixCodec.composeFieldPrefix(false, 10, false, false));
@@ -37,24 +40,36 @@ public class FudgeFieldPrefixCodecTest {
     assertEquals(0x98, FudgeFieldPrefixCodec.composeFieldPrefix(true, 0, true, true));
   }
   
+  /**
+   * 
+   */
   @Test
   public void hasNameChecks() {
     assertFalse(FudgeFieldPrefixCodec.hasName(0x20));
     assertTrue(FudgeFieldPrefixCodec.hasName(0x98));
   }
   
+  /**
+   * 
+   */
   @Test
   public void fixedWidthChecks() {
     assertFalse(FudgeFieldPrefixCodec.isFixedWidth(0x20));
     assertTrue(FudgeFieldPrefixCodec.isFixedWidth(0x98));
   }
   
+  /**
+   * 
+   */
   @Test
   public void hasOrdinalChecks() {
     assertFalse(FudgeFieldPrefixCodec.hasOrdinal(0x20));
     assertTrue(FudgeFieldPrefixCodec.hasOrdinal(0x98));
   }
   
+  /**
+   * 
+   */
   @Test
   public void varWidthSizeChecks() {
     assertEquals(0, FudgeFieldPrefixCodec.getFieldWidthByteCount(0x98));

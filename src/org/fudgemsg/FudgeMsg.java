@@ -30,17 +30,17 @@ import org.fudgemsg.types.PrimitiveFieldTypes;
 
 
 /**
- * A container for {@link FudgeMsgField}s.
+ * <p>A container for {@link FudgeMsgField}s.
  * This instance will contain all data fully extracted from a Fudge-encoded
  * stream, unlike other systems where fields are unpacked as required.
  * Therefore, constructing a {@code FudgeMsg} from a field is relatively more
  * expensive in CPU and memory usage than just holding the original byte array,
- * but lookups are substantially faster.
+ * but lookups are substantially faster.</p>
  * 
- * Instead of constructing an instance of this directly, a preferred approach is
+ * <p>Instead of constructing an instance of this directly, a preferred approach is
  * to request a MutableFudgeFieldContainer from the main context, or a
  * serialisation context as that may return an implementation more appropriate
- * to the underlying or target stream.
+ * to the underlying or target stream.</p>
  *
  * @author kirk
  */
@@ -165,6 +165,12 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     _fields.add(field);
   }
   
+  /**
+   * Resolves an arbitrary Java object to an underlying Fudge type (if possible).
+   * 
+   * @param value the object to resolve
+   * @return the {@link FudgeFieldType} or {@code null} if no intrinsic type (or registered secondary type) is available
+   */
   protected FudgeFieldType<?> determineTypeFromValue(Object value) {
     if(value == null) {
       throw new NullPointerException("Cannot determine type for null value.");
@@ -346,6 +352,13 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return getAsDoubleInternal(null, ordinal);
   }
   
+  /**
+   * Returns the value from {@link #getValue} as a {@link Double}.
+   * 
+   * @param fieldName the field name
+   * @param ordinal the field ordinal
+   * @return the {@code Double} or {@code null} if no matching or compatible field was found
+   */
   protected Double getAsDoubleInternal(String fieldName, Integer ordinal) {
     Object value = getValue(fieldName, ordinal);
     if(value instanceof Number) {
@@ -371,6 +384,13 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return getAsFloatInternal(null, ordinal);
   }
   
+  /**
+   * Returns the value from {@link #getValue} as a {@link Float}.
+   * 
+   * @param fieldName the field name
+   * @param ordinal the field ordinal
+   * @return the {@code Float} or {@code null} if no matching or compatible field was found
+   */
   protected Float getAsFloatInternal(String fieldName, Integer ordinal) {
     Object value = getValue(fieldName, ordinal);
     if(value instanceof Number) {
@@ -396,6 +416,13 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return getAsLongInternal(null, ordinal);
   }
   
+  /**
+   * Returns the value from {@link #getValue} as a {@link Long}.
+   * 
+   * @param fieldName the field name
+   * @param ordinal the field ordinal
+   * @return the {@code Long} or {@code null} if no matching or compatible field was found
+   */
   protected Long getAsLongInternal(String fieldName, Integer ordinal) {
     Object value = getValue(fieldName, ordinal);
     if(value instanceof Number) {
@@ -421,6 +448,13 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return getAsIntInternal(null, ordinal);
   }
   
+  /**
+   * Returns the value from {@link #getValue} as a {@link Integer}.
+   * 
+   * @param fieldName the field name
+   * @param ordinal the field ordinal
+   * @return the {@code Integer} or {@code null} if no matching or compatible field was found
+   */
   protected Integer getAsIntInternal(String fieldName, Integer ordinal) {
     Object value = getValue(fieldName, ordinal);
     if(value instanceof Number) {
@@ -446,6 +480,13 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return getAsShortInternal(null, ordinal);
   }
   
+  /**
+   * Returns the value from {@link #getValue} as a {@link Short}.
+   * 
+   * @param fieldName the field name
+   * @param ordinal the field ordinal
+   * @return the {@code Short} or {@code null} if no matching or compatible field was found
+   */
   protected Short getAsShortInternal(String fieldName, Integer ordinal) {
     Object value = getValue(fieldName, ordinal);
     if(value instanceof Number) {
@@ -472,6 +513,13 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return getAsByteInternal(null, ordinal);
   }
   
+  /**
+   * Returns the value from {@link #getValue} as a {@link Byte}.
+   * 
+   * @param fieldName the field name
+   * @param ordinal the field ordinal
+   * @return the {@code Byte} or {@code null} if no matching or compatible field was found
+   */
   protected Byte getAsByteInternal(String fieldName, Integer ordinal) {
     Object value = getValue(fieldName, ordinal);
     if(value instanceof Number) {
@@ -529,6 +577,13 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return (FudgeFieldContainer) getFirstTypedValue(name, FudgeTypeDictionary.FUDGE_MSG_TYPE_ID);
   }
 
+  /**
+   * Returns the first field value with the given field name and requested type identifier.
+   * 
+   * @param fieldName the field name
+   * @param typeId the type identifier
+   * @return the field value or {@code null} if no matching field was found
+   */
   protected final Object getFirstTypedValue(String fieldName, int typeId) {
     for(FudgeMsgField field : _fields) {
       if(ObjectUtils.equals(fieldName, field.getName())
@@ -539,6 +594,13 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return null;
   }
   
+  /**
+   * Returns the first field value with the given ordinal index and requested type identifier.
+   * 
+   * @param ordinal the ordinal index
+   * @param typeId the type identifier
+   * @return the field value or {@code null} if no matching field was found
+   */
   protected final Object getFirstTypedValue(int ordinal, int typeId) {
     for(FudgeMsgField field : _fields) {
       if(field.getOrdinal() == null) {
@@ -548,7 +610,7 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
       if((field.getOrdinal() == ordinal)
           && (field.getType().getTypeId() == typeId)) {
         return field.getValue();
-      }
+      } 
     }
     return null;
   }

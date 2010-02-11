@@ -93,6 +93,10 @@ public class SmallFinancialTick implements Serializable {
     _timestamp = timestamp;
   }
   
+  /**
+   * @param fc [documentation not available]
+   * @return [documentation not available]
+   */
   public FudgeFieldContainer toFudgeMsg (final FudgeMessageFactory fc) {
     MutableFudgeFieldContainer msg = fc.newMessage ();
     msg.add ("bid", (Double)_bid);

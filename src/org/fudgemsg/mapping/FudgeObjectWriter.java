@@ -46,6 +46,8 @@ public class FudgeObjectWriter {
   
   /**
    * Closes the underlying target stream.
+   * 
+   * @throws IOException if the underlying stream errors
    */
   public void close () throws IOException {
     if (_messageWriter == null) return;

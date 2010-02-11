@@ -83,6 +83,10 @@ public class FudgeMsgFormatterTest {
     (new FudgeMsgFormatter(new PrintWriter(System.out))).format(allOrdinals ());
   }
 
+  /**
+   * @throws IOException [documentation not available]
+   * @throws XMLStreamException [documentation not available]
+   */
   @Test
   public void xmlStreamWriterAllNames () throws IOException, XMLStreamException {
     System.out.println("FudgeMsgFormatterTest.xmlStreamWriterAllNames()");
@@ -93,6 +97,10 @@ public class FudgeMsgFormatterTest {
     fmw.close ();
   }
   
+  /**
+   * @throws IOException [documentation not available]
+   * @throws XMLStreamException [documentation not available]
+   */
   @Test
   public void xmlStreamWriterAllOrdinals () throws IOException, XMLStreamException {
     System.out.println("FudgeMsgFormatterTest.xmlStreamWriterAllOrdinals()");

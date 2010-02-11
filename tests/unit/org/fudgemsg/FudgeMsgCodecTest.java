@@ -34,6 +34,9 @@ public class FudgeMsgCodecTest {
   private final Random _random = new Random();
   private static final FudgeContext s_fudgeContext = new FudgeContext();
   
+  /**
+   * @throws IOException [documentation not available]
+   */
   @Test
   public void allNames() throws IOException {
     FudgeFieldContainer inputMsg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
@@ -44,6 +47,9 @@ public class FudgeMsgCodecTest {
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
   
+  /**
+   * @throws IOException [documentation not available]
+   */
   @Test
   public void variableWidthColumnSizes() throws IOException {
     MutableFudgeFieldContainer inputMsg = s_fudgeContext.newMessage();
@@ -58,6 +64,9 @@ public class FudgeMsgCodecTest {
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
   
+  /**
+   * @throws IOException [documentation not available]
+   */
   @Test
   public void subMsg() throws IOException {
     FudgeFieldContainer inputMsg = StandardFudgeMessages.createMessageWithSubMsgs(s_fudgeContext);
@@ -69,6 +78,9 @@ public class FudgeMsgCodecTest {
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
   
+  /**
+   * @throws IOException [documentation not available]
+   */
   @Test
   public void unknown() throws IOException {
     MutableFudgeFieldContainer inputMsg = s_fudgeContext.newMessage();
@@ -77,12 +89,19 @@ public class FudgeMsgCodecTest {
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
   
+  /**
+   * @param length [documentation not available]
+   * @return [documentation not available]
+   */
   protected byte[] createRandomArray(int length) {
     byte[] bytes = new byte[length];
     _random.nextBytes(bytes);
     return bytes;
   }
 
+  /**
+   * @throws IOException [documentation not available]
+   */
   @Test
   public void fixedWidthByteArrays() throws IOException {
     MutableFudgeFieldContainer inputMsg = s_fudgeContext.newMessage();
@@ -102,6 +121,11 @@ public class FudgeMsgCodecTest {
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
 
+  /**
+   * @param msg [documentation not available]
+   * @return [documentation not available]
+   * @throws IOException [documentation not available]
+   */
   protected FudgeFieldContainer cycleMessage(FudgeFieldContainer msg) throws IOException {
     byte[] content = s_fudgeContext.toByteArray(msg);
     

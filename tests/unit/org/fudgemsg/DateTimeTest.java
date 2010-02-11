@@ -17,20 +17,14 @@ package org.fudgemsg;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
 
-import java.util.Date;
 import java.util.Calendar;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
-import org.junit.Test;
+import java.util.Date;
 
 import org.fudgemsg.types.DateTimeAccuracy;
 import org.fudgemsg.types.FudgeDate;
 import org.fudgemsg.types.FudgeTime;
+import org.junit.Test;
 
 /**
  * Tests the Date, Time and DateTime implementations
@@ -42,6 +36,9 @@ public class DateTimeTest {
   private final Calendar _reference; // 5 Feb 2010, 11:12:13.987, +1 hour
   private final FudgeContext _fudgeContext = new FudgeContext ();
   
+  /**
+   * 
+   */
   public DateTimeTest () {
     _reference = Calendar.getInstance ();
     _reference.clear ();
@@ -55,6 +52,7 @@ public class DateTimeTest {
     return (Calendar)_reference.clone ();
   }
   
+  @SuppressWarnings("unused")
   private void printMessage (final byte[] data) {
     int i = 0;
     System.out.println ();
@@ -91,9 +89,11 @@ public class DateTimeTest {
     assertEquals (a.getTime (), b.getTime ());
   }
   
+  /**
+   * 
+   */
   @Test
   public void calendarCycle () {
-    final Calendar cal = getReferenceCopy ();
     final MutableFudgeFieldContainer msg = _fudgeContext.newMessage ();
     msg.add ("milliseconds", millisTest ());
     msg.add ("seconds", secondsTest ());
@@ -116,18 +116,23 @@ public class DateTimeTest {
     //System.out.println (msgOut);
   }
   
+  /**
+   * 
+   */
   @Test
   public void dateCycle () {
     final Date date = getReferenceCopy ().getTime ();
     final MutableFudgeFieldContainer msg = _fudgeContext.newMessage ();
     msg.add ("date", date);
     final FudgeFieldContainer msgOut = cycle (msg);
-    final Date dout = _fudgeContext.getFieldValue (Date.class, msgOut.getByName ("date"));
     assertEquals (date, _fudgeContext.getFieldValue (Date.class, msgOut.getByName ("date")));
     //System.out.println (msg);
     //System.out.println (msgOut);
   }
   
+  /**
+   * 
+   */
   @Test
   public void fudgeDateCycle () {
     final FudgeDate date = new FudgeDate (getReferenceCopy ().getTime ());
@@ -139,6 +144,9 @@ public class DateTimeTest {
     //System.out.println (msgOut);
   }
   
+  /**
+   * 
+   */
   @Test
   public void fudgeTimeCycle () {
     final MutableFudgeFieldContainer msg = _fudgeContext.newMessage ();
@@ -167,17 +175,6 @@ public class DateTimeTest {
     assertEquals (_fudgeContext.getFieldValue (FudgeTime.class, msg.getByOrdinal (4)), _fudgeContext.getFieldValue (FudgeTime.class, msgOut.getByOrdinal (4)));
     assertEquals (_fudgeContext.getFieldValue (FudgeTime.class, msg.getByOrdinal (5)), _fudgeContext.getFieldValue (FudgeTime.class, msgOut.getByOrdinal (5)));
     assertEquals (_fudgeContext.getFieldValue (FudgeTime.class, msg.getByOrdinal (6)), _fudgeContext.getFieldValue (FudgeTime.class, msgOut.getByOrdinal (6)));
-  }
-  
-  private <T> T serializationCycle (Class<T> clazz, T object) {
-    try {
-      final ByteArrayOutputStream baos = new ByteArrayOutputStream ();
-      _fudgeContext.writeObject (object, baos);
-      final ByteArrayInputStream bais = new ByteArrayInputStream (baos.toByteArray ());
-      return _fudgeContext.readObject (clazz, bais);
-    } catch (IOException e) {
-      throw new FudgeRuntimeException ("ioexception", e);
-    }
   }
   
   private Calendar millisTest () {

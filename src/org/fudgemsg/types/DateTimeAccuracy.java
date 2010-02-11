@@ -22,15 +22,45 @@ package org.fudgemsg.types;
  */
 public enum DateTimeAccuracy {
   
+  /**
+   * Century precision.
+   */
   CENTURY (9),
+  /**
+   * Year precision.
+   */
   YEAR (8),
+  /**
+   * Month precision. 
+   */
   MONTH (7),
+  /**
+   * Day precision. 
+   */
   DAY (6),
+  /**
+   * Hour precision. 
+   */
   HOUR (5),
+  /**
+   * Minute precision.
+   */
   MINUTE (4),
+  /**
+   * Second precision.
+   */
   SECOND (3),
+  /**
+   * Millisecond precision.
+   */
   MILLISECOND (2),
+  /**
+   * Microsecond precision.
+   */
   MICROSECOND (1),
+  /**
+   * Nanosecond precision.
+   */
   NANOSECOND (0);
   
   private final int _encodedValue;
@@ -39,10 +69,21 @@ public enum DateTimeAccuracy {
     _encodedValue = encodedValue;
   }
   
+  /**
+   * The numeric value to be encoded in Fudge time and datetime representations. See {@link "http://wiki.fudgemsg.org/display/FDG/DateTime+encoding"}.
+   * 
+   * @return the numeric value
+   */
   /* package */ int getEncodedValue () {
     return _encodedValue;
   }
   
+  /**
+   * Resolves the symbolic enum value from an encoded value (e.g. one returned by {@link #getEncodedValue} or received in a Fudge message).
+   * 
+   * @param n numeric value
+   * @return the {@link DateTimeAccuracy} or {@code null} if the value is invalid
+   */
   /* package */ static DateTimeAccuracy fromEncodedValue (int n) {
     switch (n) {
     case 0 : return NANOSECOND;

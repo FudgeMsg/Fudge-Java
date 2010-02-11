@@ -171,6 +171,7 @@ public final class FudgeTypeDictionary {
    * classes that represent the Fudge primitive types, or explicitly registered with
    * {@link #addTypeConverter}.
    * 
+   * @param <T> Java type of the class to look up
    * @param javaType class to look up
    * @return the registered converter, or {@code null} if none is available
    */

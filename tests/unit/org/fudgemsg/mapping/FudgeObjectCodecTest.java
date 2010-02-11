@@ -24,7 +24,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Map;
-import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.mapping.ObjectMappingTestUtil.SetBean;
@@ -37,13 +36,6 @@ import org.junit.Test;
  * @author kirk
  */
 public class FudgeObjectCodecTest {
-  
-  private static void assertSetsEqual (Set<?> a, Set<?> b) {
-    assertEquals (a.size (), b.size ());
-    for (Object o : a) {
-      assertEquals (true, b.contains (o));
-    }
-  }
   
   private static void assertLooseEquals (Object a, Object b) {
     if ((a instanceof Number) && (b instanceof Number)) {
@@ -61,6 +53,9 @@ public class FudgeObjectCodecTest {
     }
   }
   
+  /**
+   * @throws IOException [documentation not available]
+   */
   @Test
   public void simpleBean() throws IOException {
     FudgeContext fudgeContext = new FudgeContext();
@@ -86,6 +81,9 @@ public class FudgeObjectCodecTest {
     
   }
 
+  /**
+   * @throws IOException [documentation not available]
+   */
   @Test
   public void setBean() throws IOException {
     FudgeContext fudgeContext = new FudgeContext();
