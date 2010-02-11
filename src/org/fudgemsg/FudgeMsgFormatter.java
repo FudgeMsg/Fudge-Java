@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Allows for pretty-printing of Fudge messages ({@link FudgeFieldContainer} instances).
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeMsgFormatter {
   

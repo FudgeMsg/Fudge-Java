@@ -21,7 +21,7 @@ package org.fudgemsg.types;
  * but that the type does not matter.
  * It is intentionally a pure singleton.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public final class IndicatorType {
   private IndicatorType() {

@@ -36,7 +36,7 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
  * of Fudge messages will be published at {@link "http://wiki.fudgemsg.org/display/FDG/XML+Fudge+Messages"}
  * when it is available.</p>
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class FudgeXMLStreamWriter implements FudgeStreamWriter {
   

@@ -36,7 +36,7 @@ import com.mongodb.DBObject;
  * {@link FudgeBuilder} instance for encoding and decoding MongoDB objects. This must be
  * registered before use with one of the {@code register} methods.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class MongoDBFudgeBuilder implements FudgeBuilder<DBObject> {
   

@@ -30,7 +30,7 @@ import org.fudgemsg.FudgeFieldContainer;
 /**
  * 
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class ObjectMappingTestUtil {
 

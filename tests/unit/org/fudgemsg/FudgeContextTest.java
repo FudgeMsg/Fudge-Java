@@ -30,7 +30,7 @@ import org.junit.Test;
 /**
  * 
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeContextTest {
   private static final int[] ORDINALS = new int[] {5, 14, 928, 74}; 

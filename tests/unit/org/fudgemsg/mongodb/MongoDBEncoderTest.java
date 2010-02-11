@@ -30,7 +30,7 @@ import org.junit.Test;
 import com.mongodb.DBObject;
 
 /**
- * @author kirk
+ * @author Kirk Wylie
  */
 public class MongoDBEncoderTest {
   private static final FudgeContext s_fudgeContext = new FudgeContext();

@@ -25,7 +25,7 @@ import org.fudgemsg.types.StringFieldType;
  * Builder for Class objects. This is a trivial hack so that getClass can be processed safely
  * by the Bean based serialisers. The class object is reduced to just the name.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 /* package */ class JavaClassBuilder implements FudgeBuilder<Class<?>> {
   

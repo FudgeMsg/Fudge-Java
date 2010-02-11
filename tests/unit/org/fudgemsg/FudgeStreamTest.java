@@ -25,7 +25,7 @@ import org.junit.Test;
 /**
  * 
  *
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class FudgeStreamTest {
   

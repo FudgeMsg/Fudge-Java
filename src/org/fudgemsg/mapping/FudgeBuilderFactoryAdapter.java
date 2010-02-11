@@ -21,7 +21,7 @@ package org.fudgemsg.mapping;
  * instance for unrecognized classes. This pattern is to allow factories to be
  * chained together.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class FudgeBuilderFactoryAdapter implements FudgeBuilderFactory {
 
@@ -47,7 +47,7 @@ public class FudgeBuilderFactoryAdapter implements FudgeBuilderFactory {
   }
   
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public <T> void addGenericBuilder(Class<T> clazz, FudgeBuilder<T> builder) {
@@ -55,7 +55,7 @@ public class FudgeBuilderFactoryAdapter implements FudgeBuilderFactory {
   }
 
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public <T> FudgeMessageBuilder<T> createMessageBuilder(Class<T> clazz) {
@@ -63,7 +63,7 @@ public class FudgeBuilderFactoryAdapter implements FudgeBuilderFactory {
   }
 
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public <T> FudgeObjectBuilder<T> createObjectBuilder(Class<T> clazz) {

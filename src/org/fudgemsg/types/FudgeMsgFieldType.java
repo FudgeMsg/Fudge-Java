@@ -28,7 +28,7 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
 /**
  * The type definition for a sub-message in a hierarchical message format.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeMsgFieldType extends FudgeFieldType<FudgeFieldContainer> {
 

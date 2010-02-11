@@ -21,7 +21,7 @@ package org.fudgemsg.mapping;
  * registered with a {@link FudgeObjectDictionary}. The factory should not attempt to
  * cache results - the {@code FudgeObjectDictionary} will do that.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 public interface FudgeBuilderFactory {
   

@@ -21,7 +21,7 @@ import java.io.Serializable;
  * A concrete implementation of {@link FudgeField} suitable for inclusion in
  * a pre-constructed {@link FudgeMsg} or a stream of data.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeMsgField implements FudgeField, Serializable, Cloneable {
   @SuppressWarnings("unchecked")

@@ -22,7 +22,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
  * as most object/message conversion operations only require the initial message creation hook
  * and not the full {@link FudgeContext} or {@link FudgeSerializationContext}.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 public interface FudgeMessageFactory {
   

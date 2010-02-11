@@ -29,7 +29,7 @@ import org.fudgemsg.FudgeRuntimeException;
 /**
  * Builder for Map objects.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 /* package */ class MapBuilder implements FudgeBuilder<Map<?,?>> {
   

@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 import org.fudgemsg.types.ByteArrayFieldType;
 import org.fudgemsg.types.PrimitiveFieldTypes;
@@ -42,7 +41,7 @@ import org.fudgemsg.types.PrimitiveFieldTypes;
  * serialisation context as that may return an implementation more appropriate
  * to the underlying or target stream.</p>
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Iterable<FudgeField> {
   private final FudgeContext _fudgeContext;
@@ -264,6 +263,22 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
     return null;
   }
   
+  private boolean fieldNameEquals (final String name, final FudgeField field) {
+    if (name == null) {
+      return field.getName () == null;
+    } else {
+      return name.equals (field.getName ());
+    }
+  }
+  
+  private boolean fieldOrdinalEquals (final Short ordinal, final FudgeField field) {
+    if (ordinal == null) {
+      return field.getOrdinal () == null;
+    } else {
+      return ordinal.equals (field.getOrdinal ());
+    }
+  }
+  
   /**
    * {@inheritDoc}
    */
@@ -271,7 +286,7 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
   public List<FudgeField> getAllByName(String name) {
     List<FudgeField> fields = new ArrayList<FudgeField>();
     for(FudgeMsgField field : _fields) {
-      if(ObjectUtils.equals(name, field.getName())) {
+      if(fieldNameEquals(name, field)) {
         fields.add(field);
       }
     }
@@ -284,7 +299,7 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
   @Override
   public FudgeField getByName(String name) {
     for(FudgeMsgField field : _fields) {
-      if(ObjectUtils.equals(name, field.getName())) {
+      if(fieldNameEquals(name, field)) {
         return field;
       }
     }
@@ -297,7 +312,7 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
   @Override
   public Object getValue(String name) {
     for(FudgeMsgField field : _fields) {
-      if((name != null) && ObjectUtils.equals(name, field.getName())) {
+      if((name != null) && name.equals (field.getName ())) {
         return field.getValue();
       }
     }
@@ -311,7 +326,7 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
   public Object getValue(int ordinal) {
     Short ordinalAsShort = (short) ordinal;
     for(FudgeMsgField field : _fields) {
-      if(ObjectUtils.equals(ordinalAsShort, field.getOrdinal())) {
+      if(fieldOrdinalEquals(ordinalAsShort, field)) {
         return field.getValue();
       }
     }
@@ -327,7 +342,7 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
       if((ordinal != null) && (field.getOrdinal() != null) && (ordinal == field.getOrdinal().intValue())) {
         return field.getValue();
       }
-      if((name != null) && ObjectUtils.equals(name, field.getName())) {
+      if((name != null) && name.equals (field.getName ())) {
         return field.getValue();
       }
     }
@@ -586,7 +601,7 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
    */
   protected final Object getFirstTypedValue(String fieldName, int typeId) {
     for(FudgeMsgField field : _fields) {
-      if(ObjectUtils.equals(fieldName, field.getName())
+      if(fieldNameEquals(fieldName, field)
           && (field.getType().getTypeId() == typeId)) {
         return field.getValue();
       }

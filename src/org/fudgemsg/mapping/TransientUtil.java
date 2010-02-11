@@ -24,7 +24,7 @@ import java.lang.reflect.AnnotatedElement;
  * Java Persistence Framework should be used where available. Otherwise, there is a Transient annotation defined
  * within the org.fudgemsg.mapping package.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 @SuppressWarnings("unchecked")
 /* package */ class TransientUtil {

@@ -27,7 +27,7 @@ import org.fudgemsg.types.SecondaryFieldType;
  * Secondary type for {@link Date} conversion to/from a {@link Calendar}. Also supports conversions from
  * the {@link FudgeDate} temporary class.
  *
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class JavaUtilDateFieldType extends SecondaryFieldType<Date,Object> {
   
@@ -42,7 +42,7 @@ public class JavaUtilDateFieldType extends SecondaryFieldType<Date,Object> {
   }
 
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public Object secondaryToPrimary (Date object) {
@@ -52,7 +52,7 @@ public class JavaUtilDateFieldType extends SecondaryFieldType<Date,Object> {
   }
   
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public Date primaryToSecondary (Object object) {
@@ -86,7 +86,7 @@ public class JavaUtilDateFieldType extends SecondaryFieldType<Date,Object> {
   }
   
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public boolean canConvertPrimary (Class<?> javaType) {

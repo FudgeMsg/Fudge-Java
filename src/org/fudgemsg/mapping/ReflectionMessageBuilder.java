@@ -33,7 +33,7 @@ import org.fudgemsg.FudgeRuntimeException;
  * and will probably be removed from future releases.</p>
  * 
  * @param <T> class that can be serialized using this builder
- * @author Andrew
+ * @author Andrew Griffin
  */
 /* package */ class ReflectionMessageBuilder<T> extends ReflectionBuilderBase<T> implements FudgeMessageBuilder<T> {
   
@@ -63,7 +63,7 @@ import org.fudgemsg.FudgeRuntimeException;
   }
   
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public MutableFudgeFieldContainer buildMessage (final FudgeSerializationContext context, final T object) {

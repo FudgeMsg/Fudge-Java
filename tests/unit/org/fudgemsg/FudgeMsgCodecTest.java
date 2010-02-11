@@ -28,7 +28,7 @@ import org.junit.Test;
  * A test class that will encode and decode a number of different Fudge messages
  * to test that encoding and decoding works properly.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeMsgCodecTest {
   private final Random _random = new Random();

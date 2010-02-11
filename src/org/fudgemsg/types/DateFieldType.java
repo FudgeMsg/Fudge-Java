@@ -31,7 +31,7 @@ import org.fudgemsg.FudgeTypeDictionary;
  * <p>This part of the specification is not finalized and should not be used. The {@code DateTime}
  * Fudge type should be used instead. For more details, please refer to {@link "http://wiki.fudgemsg.org/display/FDG/DateTime+encoding"}.</p>
  *
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class DateFieldType extends FudgeFieldType<FudgeDate> {
 

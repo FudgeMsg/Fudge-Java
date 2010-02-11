@@ -265,27 +265,27 @@
 	</target>
 
 	<target name="dist" depends="jar,src-jar,javadoc-jar">
-		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${dist.dir}/${dist.name}-${version}" />
 		<copy todir="${dist.dir}/${dist.name}-${version}" file="${basedir}/LICENSE.txt" failonerror="false"/>
-		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/README.txt" failonerror="false"/>
-		<copy todir="${dist.dir}/${dist.name}" file="${jar.file}" />
-		<copy todir="${dist.dir}/${dist.name}" file="${src.jar.file}" />
-		<copy todir="${dist.dir}/${dist.name}" file="${javadocs.jar.file}" />
-		<mkdir dir="${dist.dir}/${dist.name}/lib" />
+		<copy todir="${dist.dir}/${dist.name}-${version}" file="${basedir}/README.txt" failonerror="false"/>
+		<copy todir="${dist.dir}/${dist.name}-${version}" file="${jar.file}" />
+		<copy todir="${dist.dir}/${dist.name}-${version}" file="${src.jar.file}" />
+		<copy todir="${dist.dir}/${dist.name}-${version}" file="${javadocs.jar.file}" />
+		<mkdir dir="${dist.dir}/${dist.name}-${version}/lib" />
 		<ivy:retrieve
-			pattern="${dist.dir}/${dist.name}/lib/[artifact]-[revision].[ext]" />
+			pattern="${dist.dir}/${dist.name}-${version}/lib/[artifact]-[revision].[ext]" />
 	</target>
 
 	<target name="tarball" depends="dist" description="--> generate a tarball for distribution">
 		<tar destfile="${dist.dir}/${dist.name}-${version}.tar" basedir="${dist.dir}">
-			<include name="${dist.name}/**/*" />
+			<include name="${dist.name}-${version}/**/*" />
 		</tar>
 		<bzip2 src="${dist.dir}/${dist.name}-${version}.tar" destfile="${dist.dir}/${dist.name}-${version}.tar.bz2" />
 	</target>
 
 	<target name="zipfile" depends="dist" description="--> generate a zip file for distribution">
 		<zip destfile="${dist.dir}/${dist.name}-${version}.zip" basedir="${dist.dir}">
-			<include name="${dist.name}/**/*" />
+			<include name="${dist.name}-${version}/**/*" />
 		</zip>
 	</target>
 
@@ -318,11 +318,11 @@
 		description="--> clean the project" />
 
 	<property name="rpm.spec.file" value="${dist.name}.spec" />
-        <target name="rpm" depends="jar,javadoc-jar" description="--> build the RPM distribution">
+        <target name="rpm" depends="dist" description="--> build the RPM distribution">
                 <copy file="${rpm.source.dir}/${rpm.spec.file}" todir="${rpm.build.dir}/SPECS" />
-                <copy file="build/${dist.name}.jar" todir="${rpm.build.dir}/SOURCES" />
-                <copy file="build/${dist.name}-javadocs.jar" todir="${rpm.build.dir}/SOURCES" />
-                <copy file="LICENSE.txt" todir="${rpm.build.dir}/SOURCES" />
+                <copy file="${jar.file}" todir="${rpm.build.dir}/SOURCES" />
+                <copy file="${javadocs.jar.file}" todir="${rpm.build.dir}/SOURCES" />
+                <copy file="${basedir}/LICENSE.txt" todir="${rpm.build.dir}/SOURCES" />
                 <copy todir="${rpm.build.dir}/SOURCES">
                 	<fileset dir="${rpm.source.dir}">
                 		<exclude name="**/*.spec" />

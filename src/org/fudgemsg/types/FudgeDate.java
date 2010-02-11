@@ -26,7 +26,7 @@ import java.util.Calendar;
  * Fudge type should be used instead. For more details, please refer to {@link "http://wiki.fudgemsg.org/display/FDG/DateTime+encoding"}.</p>
 
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class FudgeDate {
   
@@ -91,7 +91,7 @@ public class FudgeDate {
   }
   
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public String toString () {
@@ -99,7 +99,7 @@ public class FudgeDate {
   }
   
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public boolean equals (final Object o) {
@@ -110,7 +110,7 @@ public class FudgeDate {
   }
   
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public int hashCode () {

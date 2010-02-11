@@ -27,7 +27,7 @@ import org.fudgemsg.FudgeRuntimeException;
 /**
  * Builder for List objects.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 /* package */ class ListBuilder implements FudgeBuilder<List<?>> {
   

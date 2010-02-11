@@ -30,7 +30,7 @@ import org.fudgemsg.FudgeRuntimeException;
  *    static <T> fromFudgeMsg (FudgeDeserialisationContext, FudgeFieldContainer)
  * 
  * @param <T> class supporting a {@code fromFudgeMsg} method which can be deserialised by this builder
- * @author Andrew
+ * @author Andrew Griffin
  */
 /* package */ class FromFudgeMsgObjectBuilder<T> implements FudgeObjectBuilder<T> {
   
@@ -68,7 +68,7 @@ import org.fudgemsg.FudgeRuntimeException;
   }
 
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @SuppressWarnings("unchecked")
   @Override

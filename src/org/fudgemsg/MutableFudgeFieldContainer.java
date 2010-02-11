@@ -21,7 +21,7 @@ package org.fudgemsg;
  * Note that although this interface is currently extremely sparse, eventually
  * there will be substantially more functionality added.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public interface MutableFudgeFieldContainer extends FudgeFieldContainer {
 

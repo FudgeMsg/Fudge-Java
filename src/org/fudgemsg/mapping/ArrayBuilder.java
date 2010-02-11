@@ -26,7 +26,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
  * Builder for Array objects (lists).
  *
  * @param <E> element type of the array
- * @author Andrew
+ * @author Andrew Griffin
  */
 /* package */ class ArrayBuilder<E> implements FudgeBuilder<E[]> {
   
@@ -40,7 +40,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
   }
 
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, Object[] array) {

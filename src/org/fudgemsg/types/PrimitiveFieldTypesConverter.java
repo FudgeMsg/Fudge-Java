@@ -20,7 +20,7 @@ package org.fudgemsg.types;
  * data (i.e. out of range) are not permitted and will trigger exceptions. The main use of these is to
  * support field value conversion between the various width integral types.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  * @param <Target> primitive field type to convert to
  */
 public abstract class PrimitiveFieldTypesConverter<Target> implements FudgeTypeConverter<Object,Target> {
@@ -200,7 +200,7 @@ public abstract class PrimitiveFieldTypesConverter<Target> implements FudgeTypeC
   }
   
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public boolean canConvertPrimary (Class<?> clazz) {
@@ -210,7 +210,7 @@ public abstract class PrimitiveFieldTypesConverter<Target> implements FudgeTypeC
   }
   
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public Target primaryToSecondary (final Object value) {

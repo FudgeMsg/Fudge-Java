@@ -22,7 +22,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 /**
  * Dummy builder wrapper for objects that are already fudge messages.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 /* package */ class FudgeFieldContainerBuilder implements FudgeBuilder<FudgeFieldContainer> {
   

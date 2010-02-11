@@ -28,7 +28,7 @@ import org.fudgemsg.FudgeFieldType;
  * the tools available in the mapping package, but also limited as there is
  * no access to the {@link FudgeContext} when the conversion takes place.
  *
- * @author Andrew
+ * @author Andrew Griffin
  * @param <SecondaryType> secondary type
  * @param <PrimitiveType> type there is a primary {@link FudgeFieldType} for
  */
@@ -78,7 +78,7 @@ public abstract class SecondaryFieldType<SecondaryType,PrimitiveType> extends Fu
   }
 
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public boolean canConvertPrimary (Class<? extends PrimitiveType> clazz) {
@@ -86,7 +86,7 @@ public abstract class SecondaryFieldType<SecondaryType,PrimitiveType> extends Fu
   }
   
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public void writeValue(DataOutput output, SecondaryType value) throws IOException {
@@ -94,7 +94,7 @@ public abstract class SecondaryFieldType<SecondaryType,PrimitiveType> extends Fu
   }
   
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public SecondaryType readValue (DataInput input, int dataSize) throws IOException {

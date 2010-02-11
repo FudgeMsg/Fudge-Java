@@ -28,7 +28,7 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
 /**
  * The type definition for a Modified UTF-8 encoded string.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class StringFieldType extends FudgeFieldType<String> {
 

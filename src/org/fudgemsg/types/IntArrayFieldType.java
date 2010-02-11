@@ -27,7 +27,7 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
 /**
  * Type definition for arrays of 32-bit integers.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class IntArrayFieldType extends FudgeFieldType<int[]> {
   

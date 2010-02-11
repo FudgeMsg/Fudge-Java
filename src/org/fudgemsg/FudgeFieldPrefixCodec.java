@@ -18,7 +18,7 @@ package org.fudgemsg;
 /**
  * A container for all the utilities for working with fudge field prefixes.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public final class FudgeFieldPrefixCodec {
   // Yes, these are actually bytes.

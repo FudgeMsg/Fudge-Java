@@ -31,7 +31,7 @@ import org.fudgemsg.types.StringFieldType;
  * of the way the builder interfaces are structured (i.e. we don't have access to an
  * outer object until it's builder returned) so this will not send any.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class FudgeSerializationContext implements FudgeMessageFactory {
   

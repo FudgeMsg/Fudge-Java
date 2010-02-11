@@ -22,7 +22,7 @@ import java.io.Serializable;
  * This is the object which is encoded for a top-level fudge message; sub-messages don't
  * contain a separate envelope.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeMsgEnvelope implements Serializable {
   private final FudgeFieldContainer _message;

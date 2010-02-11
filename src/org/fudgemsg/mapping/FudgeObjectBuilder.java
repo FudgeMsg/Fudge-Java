@@ -23,7 +23,7 @@ import org.fudgemsg.FudgeFieldContainer;
  * 
  * @param <T> the Java type this builder deserialises Fudge messages to
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 public interface FudgeObjectBuilder<T> {
   

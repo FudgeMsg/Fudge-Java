@@ -34,7 +34,7 @@ import org.apache.commons.beanutils.PropertyUtils;
  * Java Beans.
  * 
  * @param <T> Bean class that can be serialized or deserialized using this builder
- * @author Andrew
+ * @author Andrew Griffin
  */
 /* package */ class JavaBeanBuilder<T> implements FudgeBuilder<T> {
   

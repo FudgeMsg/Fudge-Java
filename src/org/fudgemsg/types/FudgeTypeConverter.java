@@ -24,7 +24,7 @@ import org.fudgemsg.FudgeTypeDictionary;
  * 
  * @param <Primary> type to convert from (or {@link Object} to support any type
  * @param <Secondary> type to convert to
- * @author Andrew
+ * @author Andrew Griffin
  */
 public interface FudgeTypeConverter<Primary,Secondary> {
   

@@ -29,7 +29,7 @@ import org.fudgemsg.FudgeTypeDictionary;
  * The type definition for a composite date and time (a {@link Calendar} object). A {@link Date}
  * is defined as a secondary type.
  *
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class DateTimeFieldType extends FudgeFieldType<Calendar> {
 

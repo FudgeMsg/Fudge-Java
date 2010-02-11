@@ -31,7 +31,7 @@ import org.fudgemsg.FudgeRuntimeException;
  * <p>This has been superceded by the JavaBeanBuilder which uses the BeanUtils package.</p>
  * 
  * @param <T> class that can be deserialized using this builder
- * @author Andrew
+ * @author Andrew Griffin
  */
 /* package */ class ReflectionObjectBuilder<T> extends ReflectionBuilderBase<T> implements FudgeObjectBuilder<T> {
   
@@ -63,7 +63,7 @@ import org.fudgemsg.FudgeRuntimeException;
   }
   
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public T buildObject (final FudgeDeserializationContext context, final FudgeFieldContainer message) {

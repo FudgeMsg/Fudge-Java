@@ -25,7 +25,7 @@ import org.junit.Test;
 /**
  * 
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class CustomBuilderTest {
   
@@ -179,7 +179,7 @@ public class CustomBuilderTest {
   /**
    * 
    *
-   * @author andrew
+   * @author Andrew Griffin
    */
   public static class BeanClass {
     private String _bar;
@@ -210,7 +210,7 @@ public class CustomBuilderTest {
   /**
    * 
    *
-   * @author andrew
+   * @author Andrew Griffin
    */
   public static class ProtoMessage {
     
@@ -254,7 +254,7 @@ public class CustomBuilderTest {
     }
     
     /**
-     * {@docInherit}
+     * {@inheritDoc}
      */
     @Override
     public boolean equals (final Object o) {

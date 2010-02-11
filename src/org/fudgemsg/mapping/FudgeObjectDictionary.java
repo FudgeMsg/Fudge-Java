@@ -29,7 +29,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
  * different builder factory, or registering additional/different generic builders can
  * change the default behaviours for unrecognized classes.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 public final class FudgeObjectDictionary {
   

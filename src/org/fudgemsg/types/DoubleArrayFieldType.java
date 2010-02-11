@@ -26,7 +26,7 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
 /**
  * The type definition for an array of double-precision floating point numbers.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class DoubleArrayFieldType extends FudgeFieldType<double[]> {
   

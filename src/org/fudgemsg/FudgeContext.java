@@ -50,7 +50,7 @@ import org.fudgemsg.taxon.TaxonomyResolver;
  * {@link FudgeTaxonomy}, it would configure two different instances of
  * {@code FudgeContext}, one per feed.</p>
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeContext implements FudgeMessageFactory {
   private FudgeTypeDictionary _typeDictionary = new FudgeTypeDictionary();

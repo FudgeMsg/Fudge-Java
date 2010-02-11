@@ -20,7 +20,7 @@ package org.fudgemsg.types;
  * standard type for doing so. See {@link "http://wiki.fudgemsg.org/display/FDG/DateTime+encoding"}
  * for more details.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class FudgeTime {
   
@@ -174,7 +174,7 @@ public class FudgeTime {
   }
   
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public String toString () {
@@ -215,7 +215,7 @@ public class FudgeTime {
   }
   
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public boolean equals (final Object o) {
@@ -234,7 +234,7 @@ public class FudgeTime {
   }
   
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public int hashCode () {

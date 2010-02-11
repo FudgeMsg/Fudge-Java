@@ -32,7 +32,7 @@ import org.junit.Test;
 /**
  * 
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeObjectMessageFactoryTest {
 

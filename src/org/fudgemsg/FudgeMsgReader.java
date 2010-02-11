@@ -26,7 +26,7 @@ import org.fudgemsg.types.FudgeMsgFieldType;
  * This implementation constructs the whole Fudge message in memory before returning to the caller. This is provided for convenience - greater
  * runtime efficiency may be possible by working directly with the {@link FudgeStreamReader} to process stream elements as they are decoded.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class FudgeMsgReader {
   

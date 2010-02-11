@@ -29,7 +29,7 @@ import org.junit.Test;
 /**
  * Tests the Date, Time and DateTime implementations
  *
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class DateTimeTest {
   

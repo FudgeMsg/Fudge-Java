@@ -35,7 +35,7 @@ import org.junit.Test;
 /**
  * 
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeObjectStreamReaderTest {
   private static final FudgeContext s_fudgeContext = new FudgeContext();

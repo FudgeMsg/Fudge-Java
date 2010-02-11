@@ -26,7 +26,7 @@ import org.fudgemsg.mapping.FudgeObjectDictionary;
  * messages received should use this interface in place of a concrete
  * instantiation for flexibility in how the message can be decoded. 
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public interface FudgeFieldContainer extends Iterable<FudgeField> {
 

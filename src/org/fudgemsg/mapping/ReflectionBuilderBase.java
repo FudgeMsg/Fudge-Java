@@ -29,7 +29,7 @@ import java.util.Map;
  * from future releases.
  * 
  * @param <T> class that can be serialized or deserialized by this builder
- * @author Andrew
+ * @author Andrew Griffin
  */
 /* package */ class ReflectionBuilderBase<T> {
   

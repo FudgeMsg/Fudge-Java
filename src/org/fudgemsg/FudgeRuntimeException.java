@@ -23,7 +23,7 @@ import java.io.IOException;
  * The Fudge libraries will never throw a checked exception other than {@link IOException}, and wrap all checked
  * exceptions (except for {@code IOException} in a {@code FudgeRuntimeException}.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeRuntimeException extends RuntimeException {
   

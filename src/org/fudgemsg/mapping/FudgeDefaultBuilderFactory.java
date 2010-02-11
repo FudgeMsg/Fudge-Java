@@ -38,7 +38,7 @@ import org.fudgemsg.FudgeFieldContainer;
  *  
  * Generic builders are provided for {@link Map}, {@link List}, {@link FudgeFieldContainer} and array types. 
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */ 
 public class FudgeDefaultBuilderFactory implements FudgeBuilderFactory {
   

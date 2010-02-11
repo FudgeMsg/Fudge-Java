@@ -32,7 +32,7 @@ import org.junit.Test;
 /**
  * This saves (and subsequently reloads) data files containing the binary fudge representation of the messages.
  *
- * @author jim
+ * @author Jim Moores
  */
 public class FudgeInteropTest {
   private static final boolean LEAVE_FILES_IN_PLACE = false;

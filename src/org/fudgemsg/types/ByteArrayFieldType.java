@@ -27,7 +27,7 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
 /**
  * The type definition for a byte array.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class ByteArrayFieldType extends FudgeFieldType<byte[]> {
   
@@ -114,7 +114,7 @@ public class ByteArrayFieldType extends FudgeFieldType<byte[]> {
   }
 
   /**
-   * {@inheitDoc}
+   * {@inheritDoc}
    */
   @Override
   public int getVariableSize(byte[] value, FudgeTaxonomy taxonomy) {

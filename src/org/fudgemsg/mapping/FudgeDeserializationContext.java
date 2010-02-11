@@ -35,7 +35,7 @@ import org.fudgemsg.FudgeRuntimeException;
  * deserialiser can refer any sub-messages to this for construction if it does not have
  * sufficient information to process them directly. 
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class FudgeDeserializationContext {
   

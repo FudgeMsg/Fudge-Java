@@ -33,7 +33,7 @@ import org.junit.Test;
  * A very short test just to establish some simple performance metrics
  * for Fudge encoding compared with Java Serialization. 
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class ShortPerformanceTest {
   private static final int HOT_SPOT_WARMUP_CYCLES = 50000;

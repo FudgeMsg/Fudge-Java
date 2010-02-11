@@ -21,7 +21,7 @@ import org.fudgemsg.types.IndicatorType;
 /**
  * 
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public final class StandardFudgeMessages {
   

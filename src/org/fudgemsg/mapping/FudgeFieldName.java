@@ -24,7 +24,7 @@ import java.lang.annotation.ElementType;
 /**
  * Annotation for mapping a field within a Bean to a specific name in corresponding Fudge messages.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 @Retention (RetentionPolicy.RUNTIME)
 @Target (ElementType.METHOD)

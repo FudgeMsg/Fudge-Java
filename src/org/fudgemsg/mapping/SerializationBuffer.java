@@ -25,7 +25,7 @@ import org.fudgemsg.FudgeRuntimeException;
  * the cycles they can't deal with. When the method for processing object graphs has
  * been agreed, this will process back and forward references.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 /* package */ class SerializationBuffer {
   

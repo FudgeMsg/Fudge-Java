@@ -27,7 +27,7 @@ import org.junit.Test;
 /**
  * Writes out messages again and makes sure that we're writing out the same things as before.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class StandardMessageRewritingTest {
 

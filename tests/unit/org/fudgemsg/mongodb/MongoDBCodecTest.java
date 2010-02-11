@@ -29,7 +29,7 @@ import com.mongodb.DBObject;
 /**
  * Tests bidirectional encoding/decoding of Fudge messages into MongoDB objects.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class MongoDBCodecTest {
   

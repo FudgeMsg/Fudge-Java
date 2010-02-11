@@ -27,7 +27,7 @@ import org.fudgemsg.FudgeRuntimeException;
  * accepts a {@link FudgeFieldContainer} or a {@link FudgeDeserializationContext} and {@link FudgeFieldContainer}.
  * 
  * @param <T> class supporting a {@code FudgeFieldContainer} constructor that can be deserialized by this builder
- * @author Andrew
+ * @author Andrew Griffin
  */
 /* package */ class FudgeMsgConstructorObjectBuilder<T> implements FudgeObjectBuilder<T> {
 
@@ -65,7 +65,7 @@ import org.fudgemsg.FudgeRuntimeException;
   }
   
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public T buildObject (final FudgeDeserializationContext context, final FudgeFieldContainer message) {

@@ -26,7 +26,7 @@ import java.util.Map;
  * {@link Map} is fixed at instantiation time, it is not appropriate for
  * situations where the set of taxonomies will change at runtime.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class ImmutableMapTaxonomyResolver implements TaxonomyResolver {
   private final Map<Short, FudgeTaxonomy> _taxonomiesById;

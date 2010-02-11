@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * 
  *
- * @author jim
+ * @author Jim Moores
  */
 public class FudgeUtils {
   

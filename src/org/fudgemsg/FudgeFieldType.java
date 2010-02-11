@@ -30,7 +30,7 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
  * using your own instance of {@code FudgeFieldType}, making sure to register the
  * instance with the {@link FudgeTypeDictionary} at application startup.
  *
- * @author kirk
+ * @author Kirk Wylie
  * @param <TValue> underlying Java class this type represents
  */
 public class FudgeFieldType<TValue> implements Serializable {
@@ -138,8 +138,7 @@ public class FudgeFieldType<TValue> implements Serializable {
   }
   
   /**
-   * Returns the number of bytes used to encode a value of this type. If the type does not support a variable width, will always be the same as {@link #getFixedSize()}.
-   * This method must be overridden for variable size types.
+   * Returns the number of bytes used to encode a value of this type. If the type does not support a variable width, will always be the same as {@link #getFixedSize()}. This method must be overridden for variable size types.
    * 
    * @param value value to check (for variable width types)
    * @param taxonomy the taxonomy being used for the encoding (e.g. for sub-message fields)

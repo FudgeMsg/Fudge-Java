@@ -26,7 +26,7 @@ import org.fudgemsg.FudgeTypeDictionary;
  * Because these are fast-pathed inside the encoder/decoder sequence,
  * there's no point in breaking them out to other classes.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public final class PrimitiveFieldTypes {
 

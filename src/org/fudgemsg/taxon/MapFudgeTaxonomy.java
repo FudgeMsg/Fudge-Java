@@ -26,7 +26,7 @@ import java.util.Map;
  * or as a building block for loading taxonomy definitions from persistent
  * storage.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class MapFudgeTaxonomy implements FudgeTaxonomy {
   private final Map<Integer, String> _namesByOrdinal;

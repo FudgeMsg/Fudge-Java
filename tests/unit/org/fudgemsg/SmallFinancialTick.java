@@ -24,7 +24,7 @@ import java.io.Serializable;
 /**
  * Intended to model a very small tick, with just a few key fields.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class SmallFinancialTick implements Serializable {
   private double _bid;
