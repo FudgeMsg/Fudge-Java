@@ -250,7 +250,7 @@
 	<target name="javadoc-jar" depends="version, javadoc"
 		description="--> make a javadoc jar file for this project">
 		<jar destfile="${javadocs.jar.file}" basedir="${docs.dir}/javadoc"
-			compress="${jar.compress}" />
+			compress="true" />
 	</target>
 
 	<target name="publish" depends="clean-build, jar"
