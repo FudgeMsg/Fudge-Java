@@ -19,9 +19,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
-import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.FudgeFieldContainer;
 
 /**
@@ -109,8 +109,8 @@ public class MapFudgeTaxonomy implements FudgeTaxonomy {
    * Encodes the taxonomy as a Fudge message as per the specification. An encoded taxonomy can be decoded back to a taxonomy object by the
    * MapFudgeTaxonomy.fromFudgeMsg method on this class or equivalent function in any other language implementation. 
    */
-  public FudgeMsg toFudgeMsg (final FudgeContext context) {
-    final FudgeMsg msg = context.newMessage ();
+  public MutableFudgeFieldContainer toFudgeMsg (final FudgeMessageFactory context) {
+    final MutableFudgeFieldContainer msg = context.newMessage ();
     for (Map.Entry<Integer,String> entry : _namesByOrdinal.entrySet ()) {
       msg.add (entry.getKey (), entry.getValue ());
     }
