@@ -271,11 +271,19 @@
 
 	<target name="dist" depends="jar,src-jar,javadoc-jar">
 		<mkdir dir="${dist.dir}/${dist.name}-${version}" />
-		<copy todir="${dist.dir}/${dist.name}-${version}" file="${basedir}/LICENSE.txt" failonerror="false"/>
-		<copy todir="${dist.dir}/${dist.name}-${version}" file="${basedir}/README.txt" failonerror="false"/>
-		<copy todir="${dist.dir}/${dist.name}-${version}" file="${jar.file}" />
-		<copy todir="${dist.dir}/${dist.name}-${version}" file="${src.jar.file}" />
-		<copy todir="${dist.dir}/${dist.name}-${version}" file="${javadocs.jar.file}" />
+		<copy todir="${dist.dir}/${dist.name}-${version}" enablemultiplemappings="true">
+			<resources>
+				<file file="${basedir}/LICENSE.txt" />
+				<file file="${basedir}/README.txt" />
+				<file file="${jar.file}" />
+				<file file="${src.jar.file}" />
+				<file file="${javadocs.jar.file}" />
+			</resources>
+			<chainedmapper>
+				<flattenmapper />
+				<globmapper from="*.jar" to="*-${version}.jar" />
+			</chainedmapper>
+		</copy>
 		<mkdir dir="${dist.dir}/${dist.name}-${version}/lib" />
 		<ivy:retrieve
 			pattern="${dist.dir}/${dist.name}-${version}/lib/[artifact]-[revision].[ext]" />
