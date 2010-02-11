@@ -14,7 +14,7 @@
 
 Name:		fudge-java
 Version:	0.2
-Release:	1%{?dist}
+Release:	beta1%{?dist}
 Summary:	Fudge message encoding library for Java
 
 Group:		Development/Libraries
