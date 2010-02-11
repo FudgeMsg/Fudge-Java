@@ -17,14 +17,42 @@ package org.fudgemsg;
 
 /**
  * A read-only representation of a field which is contained in a fudge
- * message, or a stream of fudge encoded data.
+ * message, or a stream of fudge encoded data. For a well formed field,
+ * the underlying field type must correspond to the value held. I.e.
+ * {@code getType ().getJavaType ().isAssignableFrom (getValue ().getClass ())}
+ * must hold. The current implementation of secondary types relies on this
+ * predicate.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public interface FudgeField {
+  
+  /**
+   * Returns the {@link FudgeFieldType} of the field data.
+   * 
+   * @return the {@code FudgeFieldType}
+   */
   FudgeFieldType<?> getType();
+  
+  /**
+   * Returns the value of the field.
+   * 
+   * @return the field value
+   */
   Object getValue();
+  
+  /**
+   * Returns the ordinal index of the field, or {@code null} if none is specified.
+   * 
+   * @return the field ordinal, or {@code null} if none
+   */
   Short getOrdinal();
+  
+  /**
+   * Returns the name of the field, or {@code null} if none is specified.
+   * 
+   * @return the field name, or {@code null} if none 
+   */
   String getName();
 
 }

@@ -13,14 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fudgemsg.perf;
+package org.fudgemsg;
+
+import org.fudgemsg.FudgeMessageFactory;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
 
 import java.io.Serializable;
 
 /**
  * Intended to model a very small tick, with just a few key fields.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class SmallFinancialTick implements Serializable {
   private double _bid;
@@ -87,6 +91,20 @@ public class SmallFinancialTick implements Serializable {
    */
   public void setTimestamp(long timestamp) {
     _timestamp = timestamp;
+  }
+  
+  /**
+   * @param fc [documentation not available]
+   * @return [documentation not available]
+   */
+  public FudgeFieldContainer toFudgeMsg (final FudgeMessageFactory fc) {
+    MutableFudgeFieldContainer msg = fc.newMessage ();
+    msg.add ("bid", (Double)_bid);
+    msg.add ("ask", (Double)_ask);
+    msg.add ("bidVolume", (Double)_bidVolume);
+    msg.add ("askVolume", (Double)_askVolume);
+    msg.add ("timestamp", (Long)_timestamp);
+    return msg;
   }
 
 }

@@ -22,12 +22,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeStreamReader;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.ObjectMappingTestUtil.SimpleBean;
 import org.fudgemsg.mapping.ObjectMappingTestUtil.StaticTransientBean;
 import org.junit.Test;
@@ -35,18 +35,20 @@ import org.junit.Test;
 /**
  * 
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeObjectStreamReaderTest {
   private static final FudgeContext s_fudgeContext = new FudgeContext();
   
+  /**
+   * @throws IOException [documentation not available]
+   */
   @Test
-  public void simpleBean() {
-    FudgeObjectStreamReader reader = new FudgeObjectStreamReader();
+  public void simpleBean() throws IOException {
     byte[] msgBytes = s_fudgeContext.toByteArray(ObjectMappingTestUtil.constructSimpleMessage(s_fudgeContext));
     ByteArrayInputStream bais = new ByteArrayInputStream(msgBytes);
-    FudgeStreamReader streamReader = s_fudgeContext.allocateReader(bais);
-    Object obj = reader.read(SimpleBean.class, streamReader);
+    FudgeObjectReader reader = s_fudgeContext.createObjectReader(bais);
+    Object obj = reader.read(SimpleBean.class);
     assertNotNull(obj);
     assertTrue(obj instanceof SimpleBean);
     SimpleBean simple = (SimpleBean) obj;
@@ -74,19 +76,20 @@ public class FudgeObjectStreamReaderTest {
     assertEquals(99999, simple.getFieldThree());
   }
   
+  /**
+   * @throws IOException [documentation not available]
+   */
   @Test
-  public void staticAndTransient() {
-    FudgeObjectStreamReader reader = new FudgeObjectStreamReader();
-    FudgeMsg msg = s_fudgeContext.newMessage();
+  public void staticAndTransient() throws IOException {
+    MutableFudgeFieldContainer msg = s_fudgeContext.newMessage();
     msg.add("s_static", 9999);
     msg.add("static", 9988);
     msg.add("transient", "Not Transient 1");
     msg.add("_transient", "Not Transient 2");
     byte[] msgBytes = s_fudgeContext.toByteArray(msg);
     ByteArrayInputStream bais = new ByteArrayInputStream(msgBytes);
-    FudgeStreamReader streamReader = s_fudgeContext.allocateReader(bais);
-    Object obj = reader.read(StaticTransientBean.class, streamReader);
-    s_fudgeContext.releaseReader(streamReader);
+    FudgeObjectReader reader = s_fudgeContext.createObjectReader(bais);
+    Object obj = reader.read(StaticTransientBean.class);
     StaticTransientBean staticTransientBean = (StaticTransientBean) obj;
     assertEquals(92, StaticTransientBean.s_static);
     assertEquals("Transient", staticTransientBean._transient);

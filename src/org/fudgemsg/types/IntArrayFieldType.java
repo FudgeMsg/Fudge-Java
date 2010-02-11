@@ -25,25 +25,32 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
 
 
 /**
- * 
+ * Type definition for arrays of 32-bit integers.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class IntArrayFieldType extends FudgeFieldType<int[]> {
   
+  /**
+   * Standard Fudge field type: array of 32-bit integers. See {@link FudgeTypeDictionary#INT_ARRAY_TYPE_ID}.
+   */
   public static final IntArrayFieldType INSTANCE = new IntArrayFieldType();
 
-  /**
-   */
-  public IntArrayFieldType() {
+  private IntArrayFieldType() {
     super(FudgeTypeDictionary.INT_ARRAY_TYPE_ID, int[].class, true, 0);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getVariableSize(int[] value, FudgeTaxonomy taxonomy) {
     return value.length * 4;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int[] readValue(DataInput input, int dataSize) throws IOException {
     int nInts = dataSize / 4;
@@ -54,6 +61,9 @@ public class IntArrayFieldType extends FudgeFieldType<int[]> {
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void writeValue(DataOutput output, int[] value) throws IOException {
     for(int i : value) {

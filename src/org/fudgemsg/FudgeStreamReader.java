@@ -16,338 +16,23 @@
 
 package org.fudgemsg;
 
-import java.io.DataInput;
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Stack;
+import java.io.Closeable;
 
+import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 
 /**
- * A Pull-Parser suitable for reading Fudge messages.
- *
- * @author kirk
+ * Abstract interface for reading Fudge elements from a source. This base can be used
+ * to build full Fudge message parsers or deserialisers to construct Java objects directly
+ * from Fudge streams.
  */
-public class FudgeStreamReader {
-  // Injected Inputs:
-  private DataInput _dataInput;
-  private final FudgeContext _fudgeContext;
-  // Runtime State:
-  private final Stack<MessageProcessingState> _processingStack = new Stack<MessageProcessingState>();
-  private FudgeStreamElement _currentElement;
-  private FudgeTaxonomy _taxonomy;
-  // Set for the envelope
-  private int _processingDirectives;
-  private int _schemaVersion;
-  private short _taxonomyId;
-  private int _envelopeSize;
-  
-  // Set for each non-sub-msg field
-  private FudgeFieldType<?> _fieldType;
-  private Integer _fieldOrdinal;
-  private String _fieldName;
-  private Object _fieldValue;
-  
-  public FudgeStreamReader(FudgeContext fudgeContext) {
-    if(fudgeContext == null) {
-      throw new NullPointerException("Must provide a FudgeContext");
-    }
-    _fudgeContext = fudgeContext;
-  }
-  
-  public FudgeStreamReader(FudgeContext fudgeContext, DataInput dataInput) {
-    this(fudgeContext);
-    reset(dataInput);
-  }
-
-  /**
-   * @return the inputStream
-   */
-  protected DataInput getDataInput() {
-    return _dataInput;
-  }
-
-  /**
-   * Reset the state of this parser for a new message.
-   * This method is primarily designed so that instances can be pooled to minimize
-   * object creation in performance sensitive code.
-   * 
-   * @param dataInput
-   */
-  public void reset(DataInput dataInput) {
-    if(dataInput == null) {
-      throw new NullPointerException("Must provide a DataInput to consume data from.");
-    }
-    _dataInput = dataInput;
-    _currentElement = null;
-    _processingStack.clear();
-    
-    _processingDirectives = 0;
-    _schemaVersion = 0;
-    _taxonomyId = 0;
-    _envelopeSize = 0;
-    
-    _fieldType = null;
-    _fieldOrdinal = null;
-    _fieldName = null;
-    _fieldValue = null;
-  }
-  
-  public void reset(InputStream inputStream) {
-    if(inputStream == null) {
-      throw new NullPointerException("Must provide an InputStream to consume data from.");
-    }
-    reset((DataInput) new DataInputStream(inputStream));
-  }
+public interface FudgeStreamReader extends Closeable {
   
   /**
-   * @return the fudgeContext
+   * Constants for the four stream element types as returned by {@link #next()} and {@link #getCurrentElement()}.
    */
-  public FudgeContext getFudgeContext() {
-    return _fudgeContext;
-  }
-
-  public FudgeStreamElement next() {
-    try {
-      if(_processingStack.isEmpty()) {
-        // Must be an envelope.
-        consumeMessageEnvelope();
-      } else if(isEndOfSubMessage()) {
-        _currentElement = FudgeStreamElement.SUBMESSAGE_FIELD_END;
-        _fieldName = null;
-        _fieldOrdinal = null;
-        _fieldType = null; 
-      } else {
-        consumeFieldData();
-      }
-    } catch (IOException ioe) {
-      throw new FudgeRuntimeException("Unable to consume data", ioe);
-    }
-    assert _currentElement != null;
-    return _currentElement;
-  }
-  
-  /**
-   * @return
-   */
-  protected boolean isEndOfSubMessage() {
-    if(_processingStack.size() == 1) {
-      return false;
-    }
-    MessageProcessingState processingState = _processingStack.peek();
-    if(processingState.consumed >= processingState.messageSize) {
-      _processingStack.pop();
-      _processingStack.peek().consumed += processingState.consumed;
-      return true;
-    }
-    return false;
-  }
-  
-  /**
-   * 
-   */
-  protected void consumeFieldData() throws IOException {
-    byte fieldPrefix = getDataInput().readByte();
-    int typeId = getDataInput().readUnsignedByte();
-    int nRead = 2;
-    boolean fixedWidth = FudgeFieldPrefixCodec.isFixedWidth(fieldPrefix);
-    boolean hasOrdinal = FudgeFieldPrefixCodec.hasOrdinal(fieldPrefix);
-    boolean hasName = FudgeFieldPrefixCodec.hasName(fieldPrefix);
-    
-    Integer ordinal = null;
-    if(hasOrdinal) {
-      ordinal = new Integer(getDataInput().readShort());
-      nRead += 2;
-    }
-    
-    String name = null;
-    if(hasName) {
-      int nameSize = getDataInput().readUnsignedByte();
-      nRead++;
-      name = ModifiedUTF8Util.readString(getDataInput(), nameSize);
-      nRead += nameSize;
-    } else if(ordinal != null) {
-      if(getTaxonomy() != null) {
-        name = getTaxonomy().getFieldName(ordinal.shortValue());
-      }
-    }
-    
-    FudgeFieldType<?> type = getFudgeContext().getTypeDictionary().getByTypeId(typeId);
-    if(type == null) {
-      if(fixedWidth) {
-        throw new FudgeRuntimeException("Unknown fixed width type " + typeId + " for field " + ordinal + ":" + name + " cannot be handled.");
-      }
-      type = getFudgeContext().getTypeDictionary().getUnknownType(typeId);
-    }
-    
-    int varSize = 0;
-    if(!fixedWidth) {
-      int varSizeBytes = FudgeFieldPrefixCodec.getFieldWidthByteCount(fieldPrefix);
-      switch(varSizeBytes) {
-      case 0: varSize = 0; break;
-      case 1: varSize = getDataInput().readUnsignedByte(); nRead+=1; break;
-      case 2: varSize = getDataInput().readShort(); nRead += 2; break;
-      case 4: varSize = getDataInput().readInt();  nRead += 4; break;
-      default:
-        throw new FudgeRuntimeException("Illegal number of bytes indicated for variable width encoding: " + varSizeBytes);
-      }
-    }
-    
-    _fieldName = name;
-    _fieldOrdinal = ordinal;
-    _fieldType = type;
-    MessageProcessingState currMsgProcessingState = _processingStack.peek();
-    currMsgProcessingState.consumed += nRead;
-    if(typeId == FudgeTypeDictionary.FUDGE_MSG_TYPE_ID) {
-      _currentElement = FudgeStreamElement.SUBMESSAGE_FIELD_START;
-      _fieldValue = null;
-      MessageProcessingState subState = new MessageProcessingState();
-      subState.messageSize = varSize;
-      subState.consumed = 0;
-      _processingStack.add(subState);
-    } else {
-      _currentElement = FudgeStreamElement.SIMPLE_FIELD;
-      _fieldValue = readFieldValue(getDataInput(), _fieldType, varSize);
-      if(fixedWidth) {
-        currMsgProcessingState.consumed += type.getFixedSize();
-      } else {
-        currMsgProcessingState.consumed += varSize;
-      }
-    }
-  }
-
-  public static Object readFieldValue(
-      DataInput is,
-      FudgeFieldType<?> type,
-      int varSize) throws IOException {
-    assert type != null;
-    assert is != null;
-    
-    // Special fast-pass for known field types
-    switch(type.getTypeId()) {
-    case FudgeTypeDictionary.BOOLEAN_TYPE_ID:
-      return is.readBoolean();
-    case FudgeTypeDictionary.BYTE_TYPE_ID:
-      return is.readByte();
-    case FudgeTypeDictionary.SHORT_TYPE_ID:
-      return is.readShort();
-    case FudgeTypeDictionary.INT_TYPE_ID:
-      return is.readInt();
-    case FudgeTypeDictionary.LONG_TYPE_ID:
-      return is.readLong();
-    case FudgeTypeDictionary.FLOAT_TYPE_ID:
-      return is.readFloat();
-    case FudgeTypeDictionary.DOUBLE_TYPE_ID:
-      return is.readDouble();
-    }
-    
-    return type.readValue(is, varSize);
-  }
-
-  /**
-   * 
-   */
-  protected void consumeMessageEnvelope() throws IOException {
-    _currentElement = FudgeStreamElement.MESSAGE_ENVELOPE;
-    _processingDirectives = getDataInput().readUnsignedByte();
-    _schemaVersion = getDataInput().readUnsignedByte();
-    _taxonomyId = getDataInput().readShort();
-    _envelopeSize = getDataInput().readInt();
-    if(getFudgeContext().getTaxonomyResolver() != null) {
-      FudgeTaxonomy taxonomy = getFudgeContext().getTaxonomyResolver().resolveTaxonomy(_taxonomyId);
-      _taxonomy = taxonomy;
-    }
-    MessageProcessingState processingState = new MessageProcessingState();
-    processingState.consumed = 8;
-    processingState.messageSize = _envelopeSize;
-    _processingStack.add(processingState);
-  }
-
-  public boolean hasNext() {
-    if(_processingStack.size() > 1) {
-      // Always have at least one more.
-      return true;
-    } else if(_processingStack.size() == 1) {
-      MessageProcessingState messageProcessingState = _processingStack.peek();
-      return messageProcessingState.consumed < messageProcessingState.messageSize;
-    } else {
-      // Always have the envelope to read.
-      return true;
-    }
-  }
-  
-  /**
-   * @return the currentElement
-   */
-  public FudgeStreamElement getCurrentElement() {
-    return _currentElement;
-  }
-
-  /**
-   * @return the processingDirectives
-   */
-  public int getProcessingDirectives() {
-    return _processingDirectives;
-  }
-
-  /**
-   * @return the schemaVersion
-   */
-  public int getSchemaVersion() {
-    return _schemaVersion;
-  }
-
-  /**
-   * @return the taxonomy
-   */
-  public short getTaxonomyId() {
-    return _taxonomyId;
-  }
-
-  /**
-   * @return the envelopeSize
-   */
-  public int getEnvelopeSize() {
-    return _envelopeSize;
-  }
-
-  /**
-   * @return the fieldType
-   */
-  public FudgeFieldType<?> getFieldType() {
-    return _fieldType;
-  }
-
-  /**
-   * @return the fieldOrdinal
-   */
-  public Integer getFieldOrdinal() {
-    return _fieldOrdinal;
-  }
-
-  /**
-   * @return the fieldName
-   */
-  public String getFieldName() {
-    return _fieldName;
-  }
-
-  /**
-   * @return the fieldValue
-   */
-  public Object getFieldValue() {
-    return _fieldValue;
-  }
-
-  /**
-   * @return the taxonomy
-   */
-  public FudgeTaxonomy getTaxonomy() {
-    return _taxonomy;
-  }
-
-  public enum FudgeStreamElement {
+  public static enum FudgeStreamElement {
     /**
      * Issued when the envelope header is parsed.
      */
@@ -361,14 +46,111 @@ public class FudgeStreamReader {
      */
     SUBMESSAGE_FIELD_START,
     /**
-     * Issued when the end of a sub-Message field is reached
+     * Issued when the end of a sub-Message field is reached.
      */
     SUBMESSAGE_FIELD_END
   }
   
-  private static class MessageProcessingState {
-    public int messageSize;
-    public int consumed;
-  }
+  /**
+   * Returns true if there is at least one more element to be returned by a call to {@link #next()}. A return of false
+   * indicates the end of a message has been reached. If the source contains a subsequent Fudge message, the next call
+   * will return true indicating {@code next()} will return the envelope header of the next message.
+   * 
+   * @return {@code true} if there is at least one more element to read
+   * @throws IOException if there is a problem (other than EOF) with the underlying source
+   */
+  public boolean hasNext () throws IOException;
   
+  /**
+   * Reads the next stream element from the source and returns the element type.
+   * 
+   * @return the type of the next element in the stream
+   * @throws IOException if there is a problem (e.g. EOF) that prevents reading a message
+   */
+  public FudgeStreamElement next () throws IOException;
+  
+  /**
+   * Returns the value last returned by {@link #next()}.
+   * 
+   * @return the type of the current element in the stream
+   */
+  public FudgeStreamElement getCurrentElement ();
+  
+  /**
+   * If the current stream element is a field, returns the field value.
+   * 
+   * @return current field value
+   */
+  public Object getFieldValue ();
+  
+  /**
+   * Returns the processing directivies specified in the last envelope header read.
+   * 
+   * @return current processing directive flags 
+   */
+  public int getProcessingDirectives ();
+  
+  /**
+   * Returns the schema version specified in the last envelope header read.
+   * 
+   * @return current message schema version
+   */
+  public int getSchemaVersion();
+
+  /**
+   * Returns the taxonomy identifier specified in the last envelope header read.
+   * 
+   * @return current taxonomy identifier
+   */
+  public short getTaxonomyId();
+
+  /**
+   * Returns the size of the current message envelope.
+   * 
+   * @return current envelope size
+   */
+  public int getEnvelopeSize();
+  
+  /**
+   * If the current stream element is a field, returns the {@link FudgeFieldType}.
+   * 
+   * @return current field type
+   */ 
+  public FudgeFieldType<?> getFieldType();
+
+  /**
+   * If the current stream element is a field, returns the ordinal index, or {@code null} if the field did not include an ordinal.
+   * 
+   * @return current field ordinal
+   */
+  public Integer getFieldOrdinal();
+
+  /**
+   * If the current stream element is a field, returns the field name. If the underlying stream does not specify a field
+   * name, but the ordinal can be resolved through a taxonomy, returns the resolved name.
+   * 
+   * @return current field name
+   */
+  public String getFieldName();
+  
+  /**
+   * Returns the current {@link FudgeTaxonomy} corresponding to the taxonomy identifier specified in the message envelope. Returns
+   * {@code null} if the message did not specify a taxonomy or the taxonomy identifier cannot be resolved by the bound {@link FudgeContext}.
+   * 
+   * @return current taxonomy if available
+   */
+  public FudgeTaxonomy getTaxonomy();
+  
+  /**
+   * Returns the {@link FudgeContext} bound to the reader used for type and taxonomy resolution.
+   * 
+   * @return the {@code FudgeContext}
+   */
+  public FudgeContext getFudgeContext ();
+  
+  /**
+   * Closes the {@link FudgeStreamReader} and attempts to close the underlying data source if appropriate.
+   */
+  public void close ();
+
 }

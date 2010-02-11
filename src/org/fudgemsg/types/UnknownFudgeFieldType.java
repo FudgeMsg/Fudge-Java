@@ -29,21 +29,32 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
  * A type class for handling variable sized field values where the type
  * isn't available in the current {@link FudgeTypeDictionary}.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class UnknownFudgeFieldType extends
     FudgeFieldType<UnknownFudgeFieldValue> {
   
+  /**
+   * Creates a new {@link UnknownFudgeFieldType} for the given type identifier.
+   * 
+   * @param typeId the type identifier not recognised by the {@link FudgeTypeDictionary}
+   */
   public UnknownFudgeFieldType(int typeId) {
     super(typeId, UnknownFudgeFieldValue.class, true, 0);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getVariableSize(UnknownFudgeFieldValue value,
       FudgeTaxonomy taxonomy) {
     return value.getContents().length;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public UnknownFudgeFieldValue readValue(DataInput input, int dataSize)
       throws IOException {
@@ -52,6 +63,9 @@ public class UnknownFudgeFieldType extends
     return new UnknownFudgeFieldValue(contents, this);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void writeValue(DataOutput output, UnknownFudgeFieldValue value) throws IOException {
     output.write(value.getContents());

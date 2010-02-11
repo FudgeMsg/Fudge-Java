@@ -17,22 +17,27 @@ package org.fudgemsg;
 
 import java.io.Serializable;
 
-import org.fudgemsg.taxon.FudgeTaxonomy;
-
-
 /**
  * A concrete implementation of {@link FudgeField} suitable for inclusion in
  * a pre-constructed {@link FudgeMsg} or a stream of data.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
-public class FudgeMsgField extends FudgeEncodingObject implements FudgeField, Serializable, Cloneable {
+public class FudgeMsgField implements FudgeField, Serializable, Cloneable {
   @SuppressWarnings("unchecked")
   private final FudgeFieldType _type;
   private final Object _value;
   private final String _name;
   private final Short _ordinal;
   
+  /**
+   * Creates a new {@link FudgeMsgField}.
+   * 
+   * @param type the underlying field type
+   * @param value the field value
+   * @param name the name of the field, or {@code null} to omit
+   * @param ordinal the ordinal index of the field, or {@code null} to omit
+   */
   public FudgeMsgField(FudgeFieldType<?> type, Object value, String name, Short ordinal) {
     if(type == null) {
       throw new NullPointerException("Must specify a type for this field.");
@@ -43,30 +48,50 @@ public class FudgeMsgField extends FudgeEncodingObject implements FudgeField, Se
     _ordinal = ordinal;
   }
   
+  /**
+   * Creates a new {@link FudgeMsgField} as a copy of another.
+   * 
+   * @param field the {@code FudgeMsgField} to copy.
+   */
   public FudgeMsgField(FudgeField field) {
     this(field.getType(), field.getValue(), field.getName(), field.getOrdinal());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FudgeFieldType<?> getType() {
     return _type;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Object getValue() {
     return _value;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String getName() {
     return _name;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Short getOrdinal() {
     return _ordinal;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FudgeMsgField clone() {
     Object cloned;
@@ -78,6 +103,9 @@ public class FudgeMsgField extends FudgeEncodingObject implements FudgeField, Se
     return (FudgeMsgField) cloned;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
@@ -100,42 +128,26 @@ public class FudgeMsgField extends FudgeEncodingObject implements FudgeField, Se
     return sb.toString();
   }
   
-  @SuppressWarnings("unchecked")
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public int computeSize(FudgeTaxonomy taxonomy) {
-    int size = 0;
-    // Field prefix
-    size += 2;
-    boolean hasOrdinal = _ordinal != null;
-    boolean hasName = _name != null;
-    if((_name != null) && (taxonomy != null)) {
-      if(taxonomy.getFieldOrdinal(_name) != null) {
-        hasOrdinal = true;
-        hasName = false;
-      }
-    }
-    if(hasOrdinal) {
-      size += 2;
-    }
-    if(hasName) {
-      // One for the size prefix
-      size++;
-      // Then for the UTF Encoding
-      size += ModifiedUTF8Util.modifiedUTF8Length(_name);
-    }
-    if(_type.isVariableSize()) {
-      int valueSize = _type.getVariableSize(_value, taxonomy);
-      if(valueSize <= 255) {
-        size += valueSize + 1;
-      } else if(valueSize <= Short.MAX_VALUE) {
-        size += valueSize + 2;
-      } else {
-        size += valueSize + 4;
-      }
-    } else {
-      size += _type.getFixedSize();
-    }
-    return size;
+  public boolean equals (final Object o) {
+    if (o == null) return false;
+    if (o == this) return true;
+    if (!(o instanceof FudgeMsgField)) return false;
+    FudgeMsgField fmf = (FudgeMsgField)o;
+    if (!getType ().equals (fmf.getType ())
+      || refsDifferent (getOrdinal (), fmf.getOrdinal ())
+      || refsDifferent (getName (), fmf.getName ())
+      || refsDifferent (getValue (), fmf.getValue ())) return false;
+    return true;
   }
-
+  
+  private <T> boolean refsDifferent (final T a, final T b) {
+    if (a == b) return false;
+    if ((a == null) || (b == null)) return true;
+    return !a.equals (b);
+  }
+  
 }

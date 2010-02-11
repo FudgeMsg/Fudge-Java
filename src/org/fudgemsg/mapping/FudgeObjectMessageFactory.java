@@ -16,92 +16,56 @@
 
 package org.fudgemsg.mapping;
 
-import java.lang.reflect.Field;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeRuntimeException;
+import org.fudgemsg.FudgeFieldContainer;
 
 /**
- * Constructs instances of {@link FudgeMsg} from any Java object by parsing
- * its fields.
+ * Converts between Java objects and {@link FudgeFieldContainer} messages using the Fudge serialisation
+ * framework. This class is provided for convenience, direct use of a {@link FudgeSerializationContext} or {@link FudgeDeserializationContext}
+ * will be more efficient.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeObjectMessageFactory {
-
+  
   /**
-   * @param obj
-   * @param descriptor 
-   * @return
+   * Serialises a Java object to a {@link FudgeFieldContainer} message.
+   * 
+   * @param <T> Java type
+   * @param obj object to serialise
+   * @param context the {@link FudgeContext} to use
+   * @return the serialised message
    */
-  public static FudgeMsg serializeToMessage(Object obj, FudgeContext context) {
-    ObjectDescriptor descriptor = FudgeObjectDescriptors.INSTANCE.getDescriptor(obj.getClass());
-    FudgeMsg msg = context.newMessage();
-    for(Field field : descriptor.getAllFields()) {
-      Object fieldValue;
-      try {
-        fieldValue = field.get(obj);
-      } catch (Exception e) {
-        throw new FudgeRuntimeException("Cannot extract value for field " + field + " from instance " + obj, e);
-      }
-      String fudgeFieldName = descriptor.getFudgeFieldName(field);
-      if(fudgeFieldName != null) {
-        addFieldToMsg(msg, fudgeFieldName, fieldValue, context);
-      }
-    }
-    return msg;
+  public static <T> FudgeFieldContainer serializeToMessage(T obj, FudgeContext context) {
+    final FudgeSerializationContext fsc = new FudgeSerializationContext (context);
+    return fsc.objectToFudgeMsg (obj);
   }
   
-  @SuppressWarnings("unchecked")
-  protected static void addFieldToMsg(FudgeMsg msg, String fudgeFieldName, Object fieldValue, FudgeContext context) {
-    if(fieldValue == null) {
-      return;
-    }
-    
-    if(context.getTypeDictionary().getByJavaType(fieldValue.getClass()) != null) {
-      // Natively supported by this dictionary. Just add it.
-      msg.add(fudgeFieldName, fieldValue);
-    } else if(fieldValue instanceof List) {
-      List list = (List) fieldValue;
-      for(Object obj : list) {
-        addFieldToMsg(msg, fudgeFieldName, obj, context);
-      }
-    } else if(fieldValue instanceof Set) {
-      Set set = (Set) fieldValue;
-      for(Object obj : set) {
-        addFieldToMsg(msg, fudgeFieldName, obj, context);
-      }
-    } else if(fieldValue instanceof Map) {
-      Map<String, Object> map = (Map<String, Object>) fieldValue;
-      FudgeMsg mapMsg = createMessageFromMap(context, map);
-      msg.add(fudgeFieldName, mapMsg);
-    } else {
-      // Descend into sub-message.
-      FudgeMsg subMsg = serializeToMessage(fieldValue, context);
-      msg.add(fudgeFieldName, subMsg);
-    }
-  }
-
   /**
-   * @param context
-   * @param map
-   * @return
+   * Deserialises a {@link FudgeFieldContainer} message to a Java object, trying to determine the 
+   * type of the object automatically.
+   * 
+   * @param message the Fudge message to deserialise
+   * @param context the {@link FudgeContext} to use
+   * @return the deserialised object
    */
-  @SuppressWarnings("unchecked")
-  public static FudgeMsg createMessageFromMap(FudgeContext context,
-      Map<String, Object> map) {
-    FudgeMsg mapMsg = context.newMessage();
-    for(Map.Entry entry : map.entrySet()) {
-      if(!(entry.getKey() instanceof String)) {
-        throw new IllegalArgumentException("Can only encode maps as FudgeMsg if all keys are Strings.");
-      }
-      addFieldToMsg(mapMsg, (String) entry.getKey(), entry.getValue(), context);
-    }
-    return mapMsg;
+  public static Object deserializeToObject (FudgeFieldContainer message, FudgeContext context) {
+    final FudgeDeserializationContext fdc = new FudgeDeserializationContext (context);
+    return fdc.fudgeMsgToObject (message);
+  }
+  
+  /**
+   * Deserialises a {@link FudgeFieldContainer} message to a Java object of type {@code clazz}.
+   * 
+   * @param <T> Java type
+   * @param clazz the target type to deserialise
+   * @param message the message to process
+   * @param context the underlying {@link FudgeContext} to use
+   * @return the deserialised object
+   */
+  public static <T> T deserializeToObject (Class<T> clazz, FudgeFieldContainer message, FudgeContext context) {
+    final FudgeDeserializationContext fdc = new FudgeDeserializationContext (context);
+    return fdc.fudgeMsgToObject (clazz, message);
   }
   
 }

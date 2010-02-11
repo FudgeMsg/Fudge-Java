@@ -27,43 +27,65 @@ import org.junit.Test;
 /**
  * Writes out messages again and makes sure that we're writing out the same things as before.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class StandardMessageRewritingTest {
 
   private static final FudgeContext s_fudgeContext = new FudgeContext();
   
+  /**
+   * 
+   */
   @Test
   public void allNames() {
     testFile(StandardFudgeMessages.createMessageAllNames(s_fudgeContext), "allNames.dat");
   }
   
+  /**
+   * 
+   */
   @Test
   public void allOrdinals() {
     testFile(StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext), "allOrdinals.dat");
   }
   
+  /**
+   * 
+   */
   @Test
   public void subMsg() {
     testFile(StandardFudgeMessages.createMessageWithSubMsgs(s_fudgeContext), "subMsg.dat");
   }
   
+  /**
+   * 
+   */
   @Test
   public void fixedWidthByteArrays() {
     testFile(FudgeInteropTest.createFixedWidthByteArrayMsg(s_fudgeContext), "fixedWidthByteArrays.dat");
   }
   
+  /**
+   * 
+   */
   @Test
   public void variableWidthColumnSizes() {
     testFile(FudgeInteropTest.createVariableWidthColumnSizes(s_fudgeContext), "variableWidthColumnSizes.dat");
   }
 
+  /**
+   * 
+   */
   @Test
   public void unknown() {
     testFile(FudgeInteropTest.createUnknown(s_fudgeContext), "unknown.dat");
   }
   
-  protected static void testFile(FudgeMsg msgToWrite, String fileName) {
+  /**
+   * @param msgToWrite [documentation not available]
+   * @param fileName [documentation not available]
+   */
+  protected static void testFile(FudgeFieldContainer msgToWrite, String fileName) {
     byte[] actualBytes = s_fudgeContext.toByteArray(msgToWrite);
     ByteArrayInputStream actualStream = new ByteArrayInputStream(actualBytes);
     InputStream expectedStream = StandardMessageRewritingTest.class.getResourceAsStream(fileName);

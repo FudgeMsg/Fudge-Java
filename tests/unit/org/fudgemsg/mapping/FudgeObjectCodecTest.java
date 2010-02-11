@@ -22,6 +22,8 @@ import static org.junit.Assert.assertNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.mapping.ObjectMappingTestUtil.SetBean;
@@ -31,12 +33,31 @@ import org.junit.Test;
 /**
  * 
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeObjectCodecTest {
   
+  private static void assertLooseEquals (Object a, Object b) {
+    if ((a instanceof Number) && (b instanceof Number)) {
+      assertEquals (a.toString (), b.toString ());
+    } else {
+      assertEquals (a, b);
+    }
+  }
+  
+  private static void assertMapsEqual (Map<?,?> a, Map<?,?> b) {
+    if (a == b) return;
+    for (Map.Entry<?,?> ae : a.entrySet ()) {
+      assertEquals (true, b.containsKey (ae.getKey ()));
+      assertLooseEquals (ae.getValue (), b.get (ae.getKey ()));
+    }
+  }
+  
+  /**
+   * @throws IOException [documentation not available]
+   */
   @Test
-  public void simpleBean() {
+  public void simpleBean() throws IOException {
     FudgeContext fudgeContext = new FudgeContext();
     SimpleBean inputBean = ObjectMappingTestUtil.constructSimpleBean();
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -48,9 +69,7 @@ public class FudgeObjectCodecTest {
     assertNotNull(resultBean);
     assertEquals(inputBean.getFieldOne(), resultBean.getFieldOne());
     assertEquals(inputBean.getFieldThree(), resultBean.getFieldThree());
-    // Can't actually test this, as input is a HashMap and result is a TreeMap
-    // Other tests are far more comprehensive though.
-    assertEquals(inputBean.getFieldFour().size(), resultBean.getFieldFour().size());
+    assertMapsEqual(inputBean.getFieldFour(), resultBean.getFieldFour());
     assertEquals(inputBean.getFieldFive(), resultBean.getFieldFive());
     
     inputBean = inputBean.getFieldTwo();
@@ -62,8 +81,11 @@ public class FudgeObjectCodecTest {
     
   }
 
+  /**
+   * @throws IOException [documentation not available]
+   */
   @Test
-  public void setBean() {
+  public void setBean() throws IOException {
     FudgeContext fudgeContext = new FudgeContext();
     SetBean inputBean = ObjectMappingTestUtil.constructSetBean();
     ByteArrayOutputStream baos = new ByteArrayOutputStream();

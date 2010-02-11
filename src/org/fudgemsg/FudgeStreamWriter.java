@@ -16,247 +16,101 @@
 
 package org.fudgemsg;
 
-import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.Flushable;
+import java.io.Closeable;
 
 import org.fudgemsg.taxon.FudgeTaxonomy;
 
 /**
- * 
- *
- * @author kirk
+ * Abstract interface for writing Fudge elements to a target. This base can be used
+ * to build full Fudge message writers or serialisers to convert Java objects directly
+ * to Fudge streams.
  */
-public class FudgeStreamWriter {
-  private final FudgeContext _fudgeContext;
-  private DataOutput _dataOutput;
-  private FudgeTaxonomy _taxonomy;
-  
-  public FudgeStreamWriter(FudgeContext fudgeContext) {
-    if(fudgeContext == null) {
-      throw new NullPointerException("Must provide a Fudge Context");
-    }
-    _fudgeContext = fudgeContext;
-  }
-  
-  public void reset(DataOutput dataOutput) {
-    if(dataOutput == null) {
-      throw new NullPointerException("Must specify a DataOutput for processing.");
-    }
-    _dataOutput = dataOutput;
-    _taxonomy = null;
-  }
-  
-  public void reset(OutputStream outputStream) {
-    if(outputStream == null) {
-      throw new NullPointerException("Must specify an OutputStream for processing.");
-    }
-    reset((DataOutput)new DataOutputStream(outputStream));
-  }
+public interface FudgeStreamWriter extends Flushable, Closeable {
 
   /**
-   * @return the fudgeContext
+   * Returns the bound {@link FudgeContext} used for type and taxonomy resolution.
+   * 
+   * @return the {@code FudgeContext}
    */
-  public FudgeContext getFudgeContext() {
-    return _fudgeContext;
-  }
+  public FudgeContext getFudgeContext ();
   
   /**
-   * @return the dataOutput
+   * Returns the taxonomy (if any) that is currently being used to encode fields. Returns {@code null}
+   * if no taxonomy is specified or the taxonomy identifier cannot be resolved by the bound {@link FudgeContext}.
+   * 
+   *  @return the {@code FudgeTaxonomy}
    */
-  protected DataOutput getDataOutput() {
-    return _dataOutput;
-  }
-
+  public FudgeTaxonomy getCurrentTaxonomy ();
+  
   /**
-   * @return the taxonomy
+   * Sets the current taxonomy, by identifier, to be used to encode fields.
+   * 
+   * @param taxonomyId the taxonomy identifier
    */
-  protected FudgeTaxonomy getTaxonomy() {
-    return _taxonomy;
-  }
-
+  public void setCurrentTaxonomyId (final int taxonomyId);
+  
   /**
-   * @param taxonomy the taxonomy to set
+   * Returns the current taxonomy identifier.
+   * 
+   * @return current taxonomy identifier
    */
-  protected void setTaxonomy(FudgeTaxonomy taxonomy) {
-    _taxonomy = taxonomy;
-  }
+  public int getCurrentTaxonomyId ();
   
-  public int writeMessageEnvelope(FudgeMsgEnvelope envelope, int taxonomyId) {
-    if(envelope == null) {
-      return 0;
-    }
-    int nWritten = 0;
-    setupTaxonomy(taxonomyId);
-    int messageSize = envelope.getSize(getTaxonomy());
-    nWritten += writeEnvelopeHeader(0, envelope.getVersion(), taxonomyId, messageSize);
-    nWritten += writeMessageFields(envelope.getMessage());
-    assert messageSize == nWritten;
-    return nWritten;
-  }
-  
-  public int writeEnvelopeHeader(
-      int processingDirectives,
-      int schemaVersion,
-      int taxonomyId,
-      int messageSize) {
-    try {
-      getDataOutput().writeByte(processingDirectives);
-      getDataOutput().writeByte(schemaVersion);
-      getDataOutput().writeShort(taxonomyId);
-      getDataOutput().writeInt(messageSize);
-    } catch (IOException ioe) {
-      throw new FudgeRuntimeException("Unable to write envelope header", ioe);
-    }
-    setupTaxonomy(taxonomyId);
-    return 8;
-  }
-  
-  protected void setupTaxonomy(int taxonomyId) {
-    if(getTaxonomy() != null) {
-      return;
-    }
-    if(getFudgeContext().getTaxonomyResolver() != null) {
-      FudgeTaxonomy taxonomy = getFudgeContext().getTaxonomyResolver().resolveTaxonomy((short)taxonomyId);
-      _taxonomy = taxonomy;
-    }
-  }
-  
-  public int writeMessageFields(FudgeFieldContainer msg) {
-    int nWritten = 0;
-    for(FudgeField field : msg.getAllFields()) {
-      nWritten += writeField(field.getOrdinal(), field.getName(), field.getType(), field.getValue());
-    }
-    return nWritten;
-  }
-
-  @SuppressWarnings("unchecked")
-  public int writeField(
-      Short ordinal,
-      String name,
-      FudgeFieldType type,
-      Object fieldValue) {
-    if(fieldValue == null) {
-      throw new NullPointerException("Cannot write a null field value to a Fudge stream.");
-    }
-    if((name != null) && (ordinal == null) && (getTaxonomy() != null)) {
-      ordinal = getTaxonomy().getFieldOrdinal(name);
-      if(ordinal != null) {
-        name = null;
-      }
-    }
-    int valueSize = 0;
-    int varDataSize = 0;
-    if(type.isVariableSize()) {
-      valueSize = type.getVariableSize(fieldValue, getTaxonomy());
-      varDataSize = valueSize;
-    } else {
-      valueSize = type.getFixedSize();
-      varDataSize = 0;
-    }
-    int fieldPrefix = FudgeFieldPrefixCodec.composeFieldPrefix(!type.isVariableSize(), varDataSize, (ordinal != null), (name != null));
-    
-    // Start writing.
-    int nWritten = 0;
-    try {
-      getDataOutput().writeByte(fieldPrefix);
-      getDataOutput().writeByte(type.getTypeId());
-      nWritten = 2;
-      if(ordinal != null) {
-        getDataOutput().writeShort(ordinal.intValue());
-        nWritten += 2;
-      }
-      if(name != null) {
-        int utf8size = ModifiedUTF8Util.modifiedUTF8Length(name);
-        if(utf8size > 0xFF) {
-          throw new IllegalArgumentException("UTF-8 encoded field name cannot exceed 255 characters. Name \"" + name + "\" is " + utf8size + " bytes encoded.");
-        }
-        getDataOutput().writeByte(utf8size);
-        nWritten++;
-        nWritten += ModifiedUTF8Util.writeModifiedUTF8(name, getDataOutput());
-      }
-      
-      nWritten += writeFieldValue(type, fieldValue, valueSize);
-    } catch (IOException ioe) {
-      throw new FudgeRuntimeException("Unable to write field to DataOutput", ioe);
-    }
-    
-    return nWritten;
-  }
-      
-
   /**
-   * @param type
-   * @param fieldValue
-   * @return
+   * Writes a message envelope header.
+   * 
+   * @param processingDirectives the processing directive flags
+   * @param schemaVersion the schema version value
+   * @param messageSize the size of the underlying message, including the message envelope
+   * @return the number of bytes encoded
+   * @throws IOException if the envelope header cannot be written
    */
-  @SuppressWarnings("unchecked")
-  protected int writeFieldValue(FudgeFieldType type, Object value, int valueSize) throws IOException {
-    // Note that we fast-path types for which at compile time we know how to handle
-    // in an optimized way. This is because this particular method is known to
-    // be a massive hot-spot for performance.
-    int nWritten = 0;
-    switch(type.getTypeId()) {
-    case FudgeTypeDictionary.BOOLEAN_TYPE_ID:
-      getDataOutput().writeBoolean((Boolean)value);
-      nWritten = 1;
-      break;
-    case FudgeTypeDictionary.BYTE_TYPE_ID:
-      getDataOutput().writeByte((Byte)value);
-      nWritten = 1;
-      break;
-    case FudgeTypeDictionary.SHORT_TYPE_ID:
-      getDataOutput().writeShort((Short)value);
-      nWritten = 2;
-      break;
-    case FudgeTypeDictionary.INT_TYPE_ID:
-      getDataOutput().writeInt((Integer)value);
-      nWritten = 4;
-      break;
-    case FudgeTypeDictionary.LONG_TYPE_ID:
-      getDataOutput().writeLong((Long)value);
-      nWritten = 8;
-      break;
-    case FudgeTypeDictionary.FLOAT_TYPE_ID:
-      getDataOutput().writeFloat((Float)value);
-      nWritten = 4;
-      break;
-    case FudgeTypeDictionary.DOUBLE_TYPE_ID:
-      getDataOutput().writeDouble((Double)value);
-      nWritten = 8;
-      break;
-    }
-    if(nWritten == 0) {
-      if(type.isVariableSize()) {
-        // This is correct. We read this using a .readUnsignedByte(), so we can go to
-        // 255 here.
-        if(valueSize <= 255) {
-          getDataOutput().writeByte(valueSize);
-          nWritten = valueSize + 1;
-        } else if(valueSize <= Short.MAX_VALUE) {
-          getDataOutput().writeShort(valueSize);
-          nWritten = valueSize + 2;
-        } else {
-          getDataOutput().writeInt(valueSize);
-          nWritten = valueSize + 4;
-        }
-      } else {
-        nWritten = type.getFixedSize();
-      }
-      if(value instanceof FudgeFieldContainer) {
-        FudgeFieldContainer subMsg = (FudgeFieldContainer) value;
-        writeMessageFields(subMsg);
-      } else {
-        type.writeValue(getDataOutput(), value);
-      }
-    }
-    return nWritten;
-  }
-
-  protected static void checkDataOutput(DataOutput dataOutput) {
-    if(dataOutput == null) {
-      throw new NullPointerException("Must specify a DataOutput for processing.");
-    }
-  }
+  public int writeEnvelopeHeader (int processingDirectives, int schemaVersion, int messageSize) throws IOException;
+  
+  /**
+   * Writes a message field.
+   * 
+   * @param field the message field to write
+   * @return the number of bytes encoded
+   * @throws IOException if the field cannot be written
+   */
+  public int writeField (FudgeField field) throws IOException;
+  
+  /**
+   * Writes a message field.
+   * 
+   * @param ordinal the ordinal index of the field, or {@code null} to omit.
+   * @param name the name of the field, {@code null} to omit. If the ordinal is omitted and the name matches an entry in the current taxonomy the name will be replaced by the taxonomy resolved ordinal.
+   * @param type the type of the underlying data
+   * @param fieldValue value of the field
+   * @return the number of bytes encoded
+   * @throws IOException if the field cannot be written
+   */
+  public int writeField (Short ordinal, String name, FudgeFieldType<?> type, Object fieldValue) throws IOException;
+  
+  /**
+   * Writes a set of fields.
+   * 
+   * @param fields the fields to write.
+   * @return the number of bytes encoded
+   * @throws IOException if one or more of the fields cannot be written
+   */
+  public int writeFields (FudgeFieldContainer fields) throws IOException;
+  
+  /**
+   * Flushes any data from the internal buffers to the target stream and attempts to flush the underlying stream if appropriate.
+   * 
+   * @throws IOException if any buffered data cannot be written
+   */
+  public void flush () throws IOException;
+  
+  /**
+   * Flushes and closes this writer and attempts to close the underlying stream if appropriate.
+   * 
+   * @throws IOException if any buffered data cannot be written
+   */
+  public void close () throws IOException;
+  
 }

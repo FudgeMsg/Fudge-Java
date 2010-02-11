@@ -19,46 +19,61 @@ package org.fudgemsg;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
+import java.io.IOException;
 
 import org.junit.Test;
 
 /**
  * 
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeStreamParserTest {
   private static final FudgeContext s_fudgeContext = new FudgeContext();
 
+  /**
+   * 
+   */
   @Test
   public void standardMessageAllNames() {
-    FudgeMsg msg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
+    FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
     checkResultsMatch(msg);
   }
 
+  /**
+   * 
+   */
   @Test
   public void standardMessageAllOrdinals() {
-    FudgeMsg msg = StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext);
+    FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext);
     checkResultsMatch(msg);
   }
   
+  /**
+   * 
+   */
   @Test
   public void standardMessageByteArrays() {
-    FudgeMsg msg = StandardFudgeMessages.createMessageAllByteArrayLengths(s_fudgeContext);
+    FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllByteArrayLengths(s_fudgeContext);
     checkResultsMatch(msg);
   }
   
+  /**
+   * 
+   */
   @Test
   public void standardMessageSubMessages() {
-    FudgeMsg msg = StandardFudgeMessages.createMessageWithSubMsgs(s_fudgeContext);
+    FudgeFieldContainer msg = StandardFudgeMessages.createMessageWithSubMsgs(s_fudgeContext);
     checkResultsMatch(msg);
   }
   
+  /**
+   * 
+   */
   @Test
   public void allMessagesSameContext() {
     FudgeContext fudgeContext = new FudgeContext();
-    FudgeMsg msg = null;
+    FudgeFieldContainer msg = null;
     msg = StandardFudgeMessages.createMessageAllNames(fudgeContext);
     checkResultsMatch(msg, fudgeContext);
     msg = StandardFudgeMessages.createMessageAllOrdinals(fudgeContext);
@@ -69,24 +84,37 @@ public class FudgeStreamParserTest {
     checkResultsMatch(msg, fudgeContext);
   }
   
-  protected void checkResultsMatch(FudgeMsg msg) {
+  /**
+   * @param msg [documentation not available]
+   */
+  protected void checkResultsMatch(FudgeFieldContainer msg) {
     checkResultsMatch(msg, new FudgeContext());
   }
   
   /**
-   * @param msg
+   * @param msg [documentation not available]
+   * @param fudgeContext [documentation not available]
    */
-  protected void checkResultsMatch(FudgeMsg msg, FudgeContext fudgeContext) {
+  protected void checkResultsMatch(FudgeFieldContainer msg, FudgeContext fudgeContext) {
     FudgeMsgEnvelope result = cycleMessage(fudgeContext, msg);
     assertNotNull(result);
-    assertNotNull(result.getMessage());
-    FudgeMsg resultMsg = result.getMessage();
+    assertNotNull(result.getMessage ());
+    FudgeFieldContainer resultMsg = result.getMessage ();
     FudgeUtils.assertAllFieldsMatch(msg, resultMsg);
   }
   
-  protected FudgeMsgEnvelope cycleMessage(FudgeContext context, FudgeMsg msg) {
-    FudgeStreamParser parser = new FudgeStreamParser(context);
+  /**
+   * @param context [documentation not available]
+   * @param msg [documentation not available]
+   * @return [documentation not available]
+   */
+  protected FudgeMsgEnvelope cycleMessage(FudgeContext context, FudgeFieldContainer msg) {
     byte[] msgAsBytes = context.toByteArray(msg);
-    return parser.parse(new DataInputStream(new ByteArrayInputStream(msgAsBytes)));
+    try {
+      final FudgeMsgReader reader = context.createMessageReader (new ByteArrayInputStream(msgAsBytes));
+      return reader.nextMessageEnvelope ();
+    } catch (IOException ioe) {
+      throw new FudgeRuntimeException ("parse failed", ioe);
+    }
   }
 }

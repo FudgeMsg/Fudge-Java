@@ -26,7 +26,7 @@ import java.util.Map;
  * {@link Map} is fixed at instantiation time, it is not appropriate for
  * situations where the set of taxonomies will change at runtime.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class ImmutableMapTaxonomyResolver implements TaxonomyResolver {
   private final Map<Short, FudgeTaxonomy> _taxonomiesById;
@@ -39,6 +39,11 @@ public class ImmutableMapTaxonomyResolver implements TaxonomyResolver {
     this(Collections.<Short,FudgeTaxonomy>emptyMap());
   }
   
+  /**
+   * Creates a taxonomy resolver from a map of taxonomy identifier to {@link FudgeTaxonomy} objects.
+   * 
+   * @param taxonomiesById a map of taxonomy identifiers to taxonomy instances
+   */
   public ImmutableMapTaxonomyResolver(Map<Short, FudgeTaxonomy> taxonomiesById) {
     if(taxonomiesById == null) {
       taxonomiesById = Collections.emptyMap();
@@ -46,6 +51,9 @@ public class ImmutableMapTaxonomyResolver implements TaxonomyResolver {
     _taxonomiesById = new HashMap<Short, FudgeTaxonomy>(taxonomiesById);
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FudgeTaxonomy resolveTaxonomy(short taxonomyId) {
     return _taxonomiesById.get(taxonomyId);

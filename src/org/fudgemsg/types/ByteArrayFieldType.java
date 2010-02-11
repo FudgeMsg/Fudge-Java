@@ -27,28 +27,74 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
 /**
  * The type definition for a byte array.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class ByteArrayFieldType extends FudgeFieldType<byte[]> {
+  
+  /**
+   * Standard Fudge field type: arbitrary length byte array. See {@link FudgeTypeDictionary#BYTE_ARRAY_TYPE_ID}.
+   */
   public static final ByteArrayFieldType VARIABLE_SIZED_INSTANCE = new ByteArrayFieldType();
+  
+  /**
+   * Standard Fudge field type: byte array of length 4. See {@link FudgeTypeDictionary#BYTE_ARR_4_TYPE_ID}.
+   */
   public static final ByteArrayFieldType LENGTH_4_INSTANCE = new ByteArrayFieldType(FudgeTypeDictionary.BYTE_ARR_4_TYPE_ID, 4);
+  
+  /**
+   * Standard Fudge field type: byte array of length 8. See {@link FudgeTypeDictionary#BYTE_ARR_8_TYPE_ID}.
+   */
   public static final ByteArrayFieldType LENGTH_8_INSTANCE = new ByteArrayFieldType(FudgeTypeDictionary.BYTE_ARR_8_TYPE_ID, 8);
+  
+  /**
+   * Standard Fudge field type: byte array of length 16. See {@link FudgeTypeDictionary#BYTE_ARR_16_TYPE_ID}.
+   */
   public static final ByteArrayFieldType LENGTH_16_INSTANCE = new ByteArrayFieldType(FudgeTypeDictionary.BYTE_ARR_16_TYPE_ID, 16);
+  
+  /**
+   * Standard Fudge field type: byte array of length 20. See {@link FudgeTypeDictionary#BYTE_ARR_20_TYPE_ID}.
+   */
   public static final ByteArrayFieldType LENGTH_20_INSTANCE = new ByteArrayFieldType(FudgeTypeDictionary.BYTE_ARR_20_TYPE_ID, 20);
+  
+  /**
+   * Standard Fudge field type: byte array of length 32. See {@link FudgeTypeDictionary#BYTE_ARR_32_TYPE_ID}.
+   */
   public static final ByteArrayFieldType LENGTH_32_INSTANCE = new ByteArrayFieldType(FudgeTypeDictionary.BYTE_ARR_32_TYPE_ID, 32);
+  
+  /**
+   * Standard Fudge field type: byte array of length 64. See {@link FudgeTypeDictionary#BYTE_ARR_64_TYPE_ID}.
+   */
   public static final ByteArrayFieldType LENGTH_64_INSTANCE = new ByteArrayFieldType(FudgeTypeDictionary.BYTE_ARR_64_TYPE_ID, 64);
+  
+  /**
+   * Standard Fudge field type: byte array of length 128. See {@link FudgeTypeDictionary#BYTE_ARR_128_TYPE_ID}.
+   */
   public static final ByteArrayFieldType LENGTH_128_INSTANCE = new ByteArrayFieldType(FudgeTypeDictionary.BYTE_ARR_128_TYPE_ID, 128);
+  
+  /**
+   * Standard Fudge field type: byte array of length 256. See {@link FudgeTypeDictionary#BYTE_ARR_256_TYPE_ID}.
+   */
   public static final ByteArrayFieldType LENGTH_256_INSTANCE = new ByteArrayFieldType(FudgeTypeDictionary.BYTE_ARR_256_TYPE_ID, 256);
+  
+  /**
+   * Standard Fudge field type: byte array of length 512. See {@link FudgeTypeDictionary#BYTE_ARR_512_TYPE_ID}.
+   */
   public static final ByteArrayFieldType LENGTH_512_INSTANCE = new ByteArrayFieldType(FudgeTypeDictionary.BYTE_ARR_512_TYPE_ID, 512);
   
-  public ByteArrayFieldType() {
+  private ByteArrayFieldType() {
     super(FudgeTypeDictionary.BYTE_ARRAY_TYPE_ID, byte[].class, true, 0);
   }
   
-  public ByteArrayFieldType(byte typeId, int length) {
+  private ByteArrayFieldType(byte typeId, int length) {
     super(typeId, byte[].class, false, length);
   }
   
+  /**
+   * Reduces an arbitrary byte array to the most efficient type from the standard Fudge types.
+   * 
+   * @param array the array
+   * @return the most efficient {@link ByteArrayFieldType} available
+   */
   public static ByteArrayFieldType getBestMatch(byte[] array) {
     if(array == null) {
       return VARIABLE_SIZED_INSTANCE;
@@ -67,11 +113,17 @@ public class ByteArrayFieldType extends FudgeFieldType<byte[]> {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getVariableSize(byte[] value, FudgeTaxonomy taxonomy) {
     return value.length;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public byte[] readValue(DataInput input, int dataSize) throws IOException {
     if(!isVariableSize()) {
@@ -82,6 +134,9 @@ public class ByteArrayFieldType extends FudgeFieldType<byte[]> {
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void writeValue(DataOutput output, byte[] value) throws IOException {
     if(!isVariableSize()) {

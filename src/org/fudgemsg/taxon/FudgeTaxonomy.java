@@ -19,7 +19,7 @@ package org.fudgemsg.taxon;
  * A Fudge Taxonomy is a mapping from ordinals to names for
  * fields in a Fudge Encoded data format. 
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public interface FudgeTaxonomy {
   

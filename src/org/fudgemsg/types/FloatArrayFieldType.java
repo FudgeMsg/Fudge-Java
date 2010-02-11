@@ -27,20 +27,30 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
 /**
  * The type definition for an array of single-precision floating point numbers.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FloatArrayFieldType extends FudgeFieldType<float[]> {
+
+  /**
+   * Standard Fudge field type: arbitrary length 32-bit floating point array. See {@link FudgeTypeDictionary#FLOAT_ARRAY_TYPE_ID}.
+   */
   public static final FloatArrayFieldType INSTANCE = new FloatArrayFieldType();
   
-  public FloatArrayFieldType() {
+  private FloatArrayFieldType() {
     super(FudgeTypeDictionary.FLOAT_ARRAY_TYPE_ID, float[].class, true, 0);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getVariableSize(float[] value, FudgeTaxonomy taxonomy) {
     return value.length * 4;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public float[] readValue(DataInput input, int dataSize) throws IOException {
     int nFloats = dataSize / 4;
@@ -51,6 +61,9 @@ public class FloatArrayFieldType extends FudgeFieldType<float[]> {
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void writeValue(DataOutput output, float[] value) throws IOException {
     for(float f : value) {

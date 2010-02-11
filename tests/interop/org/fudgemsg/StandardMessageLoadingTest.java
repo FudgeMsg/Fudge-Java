@@ -18,7 +18,6 @@ package org.fudgemsg;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -28,59 +27,86 @@ import org.junit.Test;
  * Checks that we can load all the files that correspond to standard messages
  * and that they match up.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class StandardMessageLoadingTest {
   private static final FudgeContext s_fudgeContext = new FudgeContext();
   
+  /**
+   * 
+   */
   @Test
   public void allNames() {
     testFile(StandardFudgeMessages.createMessageAllNames(s_fudgeContext), "allNames.dat");
   }
   
+  /**
+   * 
+   */
   @Test
   public void allOrdinals() {
     testFile(StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext), "allOrdinals.dat");
   }
   
+  /**
+   * 
+   */
   @Test
   public void subMsg() {
     testFile(StandardFudgeMessages.createMessageWithSubMsgs(s_fudgeContext), "subMsg.dat");
   }
   
+  /**
+   * 
+   */
   @Test
   public void fixedWidthByteArrays() {
     testFile(FudgeInteropTest.createFixedWidthByteArrayMsg(s_fudgeContext), "fixedWidthByteArrays.dat");
   }
   
+  /**
+   * 
+   */
   @Test
   public void variableWidthColumnSizes() {
     testFile(FudgeInteropTest.createVariableWidthColumnSizes(s_fudgeContext), "variableWidthColumnSizes.dat");
   }
 
+  /**
+   * 
+   */
   @Test
   public void unknown() {
     testFile(FudgeInteropTest.createUnknown(s_fudgeContext), "unknown.dat");
   }
   
+  /**
+   * @param expected [documentation not available]
+   * @param fileName [documentation not available]
+   */
   protected static void testFile(FudgeFieldContainer expected, String fileName) {
     FudgeMsgEnvelope envelope = loadMessage(s_fudgeContext, fileName);
     assertNotNull(envelope);
-    assertNotNull(envelope.getMessage());
-    FudgeFieldContainer actual = envelope.getMessage();
+    assertNotNull(envelope.getMessage ());
+    FudgeFieldContainer actual = envelope.getMessage ();
     FudgeUtils.assertAllFieldsMatch(expected, actual);
   }
   
+  /**
+   * @param context [documentation not available]
+   * @param fileName [documentation not available]
+   * @return [documentation not available]
+   */
   protected static FudgeMsgEnvelope loadMessage(FudgeContext context, String fileName) {
-    InputStream is = StandardMessageLoadingTest.class.getResourceAsStream(fileName);
-    FudgeStreamParser parser = context.getParser();
-    FudgeMsgEnvelope envelope = parser.parse(new DataInputStream(is));
     try {
-      is.close();
+      InputStream is = StandardMessageLoadingTest.class.getResourceAsStream(fileName);
+      FudgeMsgReader reader = context.createMessageReader (is);
+      FudgeMsgEnvelope envelope = reader.nextMessageEnvelope ();
+      reader.close ();
+      return envelope;
     } catch (IOException e) {
       throw new FudgeRuntimeException("Couldn't close stream for " + fileName, e);
     }
-    return envelope;
   }
 
 }

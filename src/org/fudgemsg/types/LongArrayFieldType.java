@@ -25,25 +25,32 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
 
 
 /**
- * 
+ * Type definition for arrays of 64-bit integers.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class LongArrayFieldType extends FudgeFieldType<long[]> {
   
+  /**
+   * Standard Fudge field type: arrays of 64-bit integers. See {@link FudgeTypeDictionary#LONG_ARRAY_TYPE_ID}.
+   */
   public static final LongArrayFieldType INSTANCE = new LongArrayFieldType();
 
-  /**
-   */
-  public LongArrayFieldType() {
+  private LongArrayFieldType() {
     super(FudgeTypeDictionary.LONG_ARRAY_TYPE_ID, long[].class, true, 0);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getVariableSize(long[] value, FudgeTaxonomy taxonomy) {
     return value.length * 8;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public long[] readValue(DataInput input, int dataSize) throws IOException {
     int nLongs = dataSize / 8;
@@ -54,6 +61,9 @@ public class LongArrayFieldType extends FudgeFieldType<long[]> {
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void writeValue(DataOutput output, long[] value) throws IOException {
     for(long l : value) {

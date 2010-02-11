@@ -23,27 +23,35 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeObjectMessageFactory;
 import org.junit.Test;
 
 import com.mongodb.DBObject;
 
 /**
- * @author kirk
+ * @author Kirk Wylie
  */
 public class MongoDBEncoderTest {
   private static final FudgeContext s_fudgeContext = new FudgeContext();
+
+  static {
+    MongoDBFudgeBuilder.register (s_fudgeContext);
+  }
   
+  /**
+   * 
+   */
   @Test
   public void subMsgEncoding() {
-    FudgeMsg msg = s_fudgeContext.newMessage();
+    MutableFudgeFieldContainer msg = s_fudgeContext.newMessage();
     msg.add("val1", 293836);
     msg.add("val2", "Kirk Wylie");
-    FudgeMsg subMsg = s_fudgeContext.newMessage();
+    MutableFudgeFieldContainer subMsg = s_fudgeContext.newMessage();
     subMsg.add("val1", "MongoDB");
     msg.add("val3", subMsg);
     
-    DBObject dbObject = MongoDBEncoder.encode(msg);
+    DBObject dbObject = FudgeObjectMessageFactory.deserializeToObject(DBObject.class, msg, s_fudgeContext);
     System.out.println("MongoDBEncoderTest.subMsgEncoding produced " + dbObject);
     assertNotNull(dbObject);
     assertEquals(293836, dbObject.get("val1"));
@@ -53,14 +61,17 @@ public class MongoDBEncoderTest {
     assertEquals("MongoDB", dbObject.get("val1"));
   }
   
+  /**
+   * 
+   */
   @SuppressWarnings("unchecked")
   @Test
   public void repeatedValueEncoding() {
-    FudgeMsg msg = s_fudgeContext.newMessage();
+    MutableFudgeFieldContainer msg = s_fudgeContext.newMessage();
     msg.add("val1", 293836);
     msg.add("val1", "Kirk Wylie");
     
-    DBObject dbObject = MongoDBEncoder.encode(msg);
+    DBObject dbObject = FudgeObjectMessageFactory.deserializeToObject(DBObject.class, msg, s_fudgeContext);
     System.out.println("MongoDBEncoderTest.repeatedValueEncoding produced " + dbObject);
     assertNotNull(dbObject);
     assertTrue(dbObject.get("val1") instanceof List);

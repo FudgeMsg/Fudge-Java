@@ -20,35 +20,48 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.fudgemsg.FudgeFieldType;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeSize;
 import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.taxon.FudgeTaxonomy;
-
 
 /**
  * The type definition for a sub-message in a hierarchical message format.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
-public class FudgeMsgFieldType extends FudgeFieldType<FudgeMsg> {
+public class FudgeMsgFieldType extends FudgeFieldType<FudgeFieldContainer> {
+
+  /**
+   * Standard Fudge field type: embedded sub-message. See {@link FudgeTypeDictionary#FUDGE_MSG_TYPE_ID}.
+   */
   public static final FudgeMsgFieldType INSTANCE = new FudgeMsgFieldType();
   
-  public FudgeMsgFieldType() {
-    super(FudgeTypeDictionary.FUDGE_MSG_TYPE_ID, FudgeMsg.class, true, 0);
+  private FudgeMsgFieldType() {
+    super(FudgeTypeDictionary.FUDGE_MSG_TYPE_ID, FudgeFieldContainer.class, true, 0);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public int getVariableSize(FudgeMsg value, FudgeTaxonomy taxonomy) {
-    return value.getSize(taxonomy);
+  public int getVariableSize(FudgeFieldContainer value, FudgeTaxonomy taxonomy) {
+    return FudgeSize.calculateMessageSize (taxonomy, value);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public FudgeMsg readValue(DataInput input, int dataSize) throws IOException {
+  public FudgeFieldContainer readValue(DataInput input, int dataSize) throws IOException {
     throw new UnsupportedOperationException("Sub-messages can only be decoded from FudgeStreamParser.");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public void writeValue(DataOutput output, FudgeMsg value) throws IOException {
+  public void writeValue(DataOutput output, FudgeFieldContainer value) throws IOException {
     throw new UnsupportedOperationException("Sub-messages can only be written using FudgeStreamWriter.");
   }
 

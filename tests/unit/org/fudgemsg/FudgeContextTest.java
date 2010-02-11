@@ -18,47 +18,45 @@ package org.fudgemsg;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.FudgeUtils;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 import org.fudgemsg.taxon.ImmutableMapTaxonomyResolver;
 import org.fudgemsg.taxon.MapFudgeTaxonomy;
 import org.junit.Test;
 
-
 /**
  * 
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeContextTest {
   private static final int[] ORDINALS = new int[] {5, 14, 928, 74}; 
   private static final String[] NAMES = new String[] {"Kirk", "Wylie", "Jim", "Moores"}; 
 
+  /**
+   * 
+   */
   @Test
   public void allNamesCodecNoTaxonomy() {
     FudgeContext context = new FudgeContext();
-    FudgeMsg inputMsg = StandardFudgeMessages.createMessageAllNames(context);
-    FudgeMsg outputMsg = cycleMessage(inputMsg, context, null);
+    FudgeFieldContainer inputMsg = StandardFudgeMessages.createMessageAllNames(context);
+    FudgeFieldContainer outputMsg = cycleMessage(inputMsg, context, null);
     
     assertNotNull(outputMsg);
     
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
   
+  /**
+   * 
+   */
   @Test
   public void allNamesCodecWithTaxonomy() {
     FudgeContext context = new FudgeContext();
-    FudgeMsg inputMsg = context.newMessage();
+    MutableFudgeFieldContainer inputMsg = context.newMessage();
     inputMsg.add(NAMES[0], "value1");
     inputMsg.add(NAMES[1], "value2");
     inputMsg.add(NAMES[2], "value3");
@@ -69,7 +67,7 @@ public class FudgeContextTest {
     context.setTaxonomyResolver(new ImmutableMapTaxonomyResolver(resolverMap));
     
     //FudgeMsgFormatter.outputToSystemOut(inputMsg);
-    FudgeMsg outputMsg = cycleMessage(inputMsg, context, (short)45);
+    FudgeFieldContainer outputMsg = cycleMessage(inputMsg, context, (short)45);
     //FudgeMsgFormatter.outputToSystemOut(outputMsg);
     assertEquals("value1", outputMsg.getString(NAMES[0]));
     assertEquals("value1", outputMsg.getString(ORDINALS[0]));
@@ -81,10 +79,13 @@ public class FudgeContextTest {
     assertEquals("value4", outputMsg.getString(ORDINALS[3]));
   }
 
+  /**
+   * 
+   */
   @Test
   public void allOrdinalsCodecWithTaxonomy() {
     FudgeContext context = new FudgeContext();
-    FudgeMsg inputMsg = context.newMessage();
+    MutableFudgeFieldContainer inputMsg = context.newMessage();
     inputMsg.add(ORDINALS[0], "value1");
     inputMsg.add(ORDINALS[1], "value2");
     inputMsg.add(ORDINALS[2], "value3");
@@ -94,7 +95,7 @@ public class FudgeContextTest {
     resolverMap.put((short)45, new MapFudgeTaxonomy(ORDINALS, NAMES));
     context.setTaxonomyResolver(new ImmutableMapTaxonomyResolver(resolverMap));
     
-    FudgeMsg outputMsg = cycleMessage(inputMsg, context, (short)45);
+    FudgeFieldContainer outputMsg = cycleMessage(inputMsg, context, (short)45);
     assertEquals("value1", outputMsg.getString(NAMES[0]));
     assertEquals("value1", outputMsg.getString(ORDINALS[0]));
     assertEquals("value2", outputMsg.getString(NAMES[1]));
@@ -110,31 +111,25 @@ public class FudgeContextTest {
    * @param context
    * @return
    */
-  private FudgeMsg cycleMessage(FudgeMsg msg, FudgeContext context, Short taxonomy) {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    context.serialize(msg, taxonomy, baos);
-    
-    byte[] content = baos.toByteArray();
-    
-    ByteArrayInputStream bais = new ByteArrayInputStream(content);
-    FudgeMsgEnvelope outputMsgEnvelope = context.deserialize(bais);
+  private FudgeFieldContainer cycleMessage(FudgeFieldContainer msg, FudgeContext context, Short taxonomy) {
+    byte[] content = context.toByteArray (msg, taxonomy);
+    FudgeMsgEnvelope outputMsgEnvelope = context.deserialize(content);
     assertNotNull(outputMsgEnvelope);
     assertNotNull(outputMsgEnvelope.getMessage());
-    return outputMsgEnvelope.getMessage();
+    return outputMsgEnvelope.getMessage ();
   }
   
+  /**
+   * 
+   */
   @Test
   public void readerAllocation() {
     FudgeContext context = new FudgeContext();
-    FudgeStreamReader reader1 = context.allocateReader();
+    FudgeStreamReader reader1 = context.createReader(System.in);
     assertNotNull(reader1);
-    FudgeStreamReader reader2 = context.allocateReader();
+    FudgeStreamReader reader2 = context.createReader(System.in);
     assertNotNull(reader2);
     assertNotSame(reader1, reader2);
-    context.releaseReader(reader2);
-    FudgeStreamReader reader3 = context.allocateReader();
-    assertNotNull(reader3);
-    assertSame(reader2, reader3);
   }
   
 }

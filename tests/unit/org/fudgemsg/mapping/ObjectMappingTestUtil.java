@@ -24,15 +24,19 @@ import java.util.Map;
 import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeFieldContainer;
 
 /**
  * 
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class ObjectMappingTestUtil {
 
+  /**
+   * 
+   */
   @SuppressWarnings("unchecked")
   public static class SimpleBean {
     private String _fieldOne;
@@ -102,29 +106,37 @@ public class ObjectMappingTestUtil {
     }
   }
   
-  public static FudgeMsg constructSimpleMessage(FudgeContext fudgeContext) {
-    FudgeMsg msg = fudgeContext.newMessage();
+  /**
+   * @param fudgeContext [documentation not available]
+   * @return [documentation not available]
+   */
+  public static FudgeFieldContainer constructSimpleMessage(FudgeContext fudgeContext) {
+    MutableFudgeFieldContainer msg = fudgeContext.newMessage();
     msg.add("fieldOne", "Kirk Wylie");
     msg.add("fieldThree", 98);
     
-    FudgeMsg subMsg = fudgeContext.newMessage();
+    MutableFudgeFieldContainer subMsg = fudgeContext.newMessage();
     subMsg.add("fieldThree", 99999);
     msg.add("fieldTwo", subMsg);
     
     subMsg = fudgeContext.newMessage();
-    subMsg.add("Kirk Wylie", "Wrote This Test");
-    subMsg.add("Life, Universe, and Everything", 42);
+    subMsg.add (1, "Kirk Wylie");
+    subMsg.add (2, "Wrote This Test");
+    subMsg.add (1, "Life, Universe, and Everything");
+    subMsg.add (2, 42);
     msg.add("fieldFour", subMsg);
     
-    msg.add("fieldFive", "Kirk Wylie");
-    msg.add("fieldFive", "Yan Tordoff");
-    msg.add("fieldFive", "Jim Moores");
+    subMsg = fudgeContext.newMessage ();
+    subMsg.add (1, "Kirk Wylie");
+    subMsg.add (1, "Yan Tordoff");
+    subMsg.add (1, "Jim Moores");
+    msg.add ("fieldFive", subMsg);
     
     return msg;
   }
   
   /**
-   * @return
+   * @return [documentation not available]
    */
   @SuppressWarnings("unchecked")
   public static SimpleBean constructSimpleBean() {
@@ -146,37 +158,89 @@ public class ObjectMappingTestUtil {
     return simpleBean;
   }
   
+  /**
+   * 
+   */
   public static class StaticTransientBean {
+    
+    /**
+     * 
+     */
     public static int s_static = 92;
+    
+    /**
+     * 
+     */
     public transient String _transient = "Transient";
+    
+    /**
+     * @return [documentation not available]
+     */
+    public static int getStatic () {
+      return s_static;
+    }
+    
+    /**
+     * @param s [documentation not available]
+     */
+    public static void setStatic (final int s) {
+      s_static = s;
+    }
+    
+    /**
+     * @return [documentation not available]
+     */
+    @FudgeTransient
+    public String getTransient () {
+      return _transient;
+    }
+    
+    /**
+     * @param value [documentation not available]
+     */
+    @FudgeTransient
+    public void setTransient (final String value) {
+      _transient = value;
+    }
+    
   }
   
+  /**
+   * 
+   */
   public static class SetBean {
     private Set<String> _strings;
 
     /**
-     * @return the strings
+     * @return the strings [documentation not available]
      */
     public Set<String> getStrings() {
       return _strings;
     }
 
     /**
-     * @param strings the strings to set
+     * @param strings the strings to set [documentation not available]
      */
     public void setStrings(Set<String> strings) {
       _strings = strings;
     }
   }
 
-  public static FudgeMsg constructSetMessage(FudgeContext fudgeContext) {
-    FudgeMsg msg = fudgeContext.newMessage();
+  /**
+   * @param fudgeContext [documentation not available]
+   * @return [documentation not available]
+   */
+  public static FudgeFieldContainer constructSetMessage(FudgeContext fudgeContext) {
+    MutableFudgeFieldContainer msg = fudgeContext.newMessage();
     msg.add("strings", "Kirk Wylie");
     msg.add("strings", "Yomi Ayodele");
     msg.add("strings", "Yan Tordoff");
     return msg;
   }
   
+  /**
+   * @return [documentation not available]
+   */
   public static SetBean constructSetBean() {
     SetBean setBean = new SetBean();
     Set<String> strings = new HashSet<String>();
@@ -185,5 +249,67 @@ public class ObjectMappingTestUtil {
     strings.add("Yan Tordoff");
     
     return setBean;
+  }
+  
+  /**
+   * 
+   */
+  public static class MappedNameBean {
+    private String _fieldOne;
+    private String _fieldTwo;
+    private String _fieldThree;
+    private String _fieldFour;
+    /**
+     * @param fieldOne [documentation not available]
+     */
+    public void setFieldOne (final String fieldOne) {
+      _fieldOne = fieldOne;
+    }
+    /**
+     * @return [documentation not available]
+     */
+    @FudgeFieldName ("foo")
+    public String getFieldOne () {
+      return _fieldOne;
+    }
+    /**
+     * @param fieldTwo [documentation not available]
+     */
+    public void setFieldTwo (final String fieldTwo) {
+      _fieldTwo = fieldTwo;
+    }
+    /**
+     * @return [documentation not available]
+     */
+    @FudgeFieldName ("bar")
+    public String getFieldTwo () {
+      return _fieldTwo;
+    }
+    /**
+     * @param fieldThree [documentation not available]
+     */
+    public void setFieldThree (final String fieldThree) {
+      _fieldThree = fieldThree;
+    }
+    /**
+     * @return [documentation not available]
+     */
+    @FudgeFieldOrdinal (99)
+    public String getFieldThree () {
+      return _fieldThree;
+    }
+    /**
+     * @param fieldFour [documentation not available]
+     */
+    public void setFieldFour (final String fieldFour) {
+      _fieldFour = fieldFour;
+    }
+    /**
+     * @return [documentation not available]
+     */
+    @FudgeFieldOrdinal (value = 100, noFieldName = true)
+    public String getFieldFour () {
+      return _fieldFour;
+    }
   }
 }
