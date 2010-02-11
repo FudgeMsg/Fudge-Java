@@ -149,8 +149,14 @@
 		<javac srcdir="${tests.src.dir}" destdir="${tests.classes.dir}"
 			classpathref="tests.build.classpath.id" debug="${build.debug}"
 			optimize="${build.optimize}" verbose="${build.verbose}" listfiles="${build.listfiles}" />
+		<javac srcdir="${tests.dir}/interop" destdir="${tests.classes.dir}"
+			classpathref="tests.build.classpath.id" debug="${build.debug}"
+			optimize="${build.optimize}" verbose="${build.verbose}" listfiles="${build.listfiles}" />
 		<copy todir="${tests.classes.dir}">
 			<fileset dir="${tests.src.dir}">
+				<exclude name="**/*.java" />
+			</fileset>
+			<fileset dir="${tests.dir}/interop">
 				<exclude name="**/*.java" />
 			</fileset>
 		</copy>
@@ -172,8 +178,7 @@
 			<formatter type="xml" />
 			<batchtest todir="${tests.junit.dir}/xml">
 				<fileset dir="${tests.src.dir}" includes="**/*Test.java" />
-				<!-- TODO: deal with interop, integration, etc -->
-				<!--fileset dir="${tests.dir}/interop" includes="**/*Test.java" /-->
+				<fileset dir="${tests.dir}/interop" includes="**/*Test.java" />
 			</batchtest>
 		</junit>
 	</target>

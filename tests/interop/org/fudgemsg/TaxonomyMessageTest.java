@@ -78,7 +78,7 @@ public class TaxonomyMessageTest {
   
   @Test
   public void messageRewritingTest () {
-    final FudgeMsg reference = testTaxonomyInstance ().toFudgeMsg (new FudgeContext ());
+    final FudgeFieldContainer reference = testTaxonomyInstance ().toFudgeMsg (new FudgeContext ());
     StandardMessageRewritingTest.testFile (reference, "taxonomy.dat");
   }
   
