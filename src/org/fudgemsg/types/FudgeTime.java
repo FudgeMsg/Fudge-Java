@@ -17,7 +17,7 @@ package org.fudgemsg.types;
 
 /**
  * Dummy class for holding a time value on its own, as Java does not have a
- * standard type for doing so. See {@link "http://wiki.fudgemsg.org/display/FDG/DateTime+encoding"}
+ * standard type for doing so. See <a href="http://wiki.fudgemsg.org/display/FDG/DateTime+encoding">DateTime encoding</a>
  * for more details.
  * 
  * @author Andrew Griffin

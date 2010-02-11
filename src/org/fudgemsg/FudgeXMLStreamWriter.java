@@ -33,7 +33,7 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
  * without having to inspect the binary output from a FudgeDataOutputStreamWriter.</p>
  * 
  * <p>This code is experimental and should not be relied upon at the moment. The XML specification
- * of Fudge messages will be published at {@link "http://wiki.fudgemsg.org/display/FDG/XML+Fudge+Messages"}
+ * of Fudge messages will be published at <a href="http://wiki.fudgemsg.org/display/FDG/XML+Fudge+Messages">XML Fudge Messages</a>
  * when it is available.</p>
  * 
  * @author Andrew Griffin

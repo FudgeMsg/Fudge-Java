@@ -29,7 +29,7 @@ import org.fudgemsg.FudgeTypeDictionary;
  * supported through the secondary type mechanism.</p>
  * 
  * <p>This part of the specification is not finalized and should not be used. The {@code DateTime}
- * Fudge type should be used instead. For more details, please refer to {@link "http://wiki.fudgemsg.org/display/FDG/DateTime+encoding"}.</p>
+ * Fudge type should be used instead. For more details, please refer to <a href="http://wiki.fudgemsg.org/display/FDG/DateTime+encoding">DateTime Encoding</a>.</p>
  *
  * @author Andrew Griffin
  */

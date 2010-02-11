@@ -24,19 +24,22 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.fudgemsg.FudgeFieldContainer;
 
 /**
- * Default factory for building Fudge message encoders and decoders.
+ * <p>Default factory for building Fudge message encoders and decoders.</p>
  * 
- * Building a Fudge message:
- * 
- *    If the object has a public toFudgeMsg method, that will be used
- *    Otherwise the JavaBeanBuilder will be used
+ * <p>Building a Fudge message:</p>
+ * <ul>
+ *   <li>If the object has a public {@code toFudgeMsg} method, that will be used</li>
+ *   <li>Otherwise the {@link JavaBeanBuilder} will be used</li>
+ * </ul>
  *    
- * Building an object
- *    If the object has a public fromFudgeMsg method, that will be used
- *    If the object has a public constructor that takes a FudgeFieldContainer, that will be used
- *    Otherwise the JavaBeanBuilder will be used
+ * <p>Building an object:</p>
+ * <ul>
+ *   <li>If the object has a public {@code fromFudgeMsg} method, that will be used</li>
+ *   <li>If the object has a public constructor that takes a {@link FudgeFieldContainer}, that will be used</li>
+ *   <li>Otherwise the {@link JavaBeanBuilder} will be used</li>
+ * </ul>
  *  
- * Generic builders are provided for {@link Map}, {@link List}, {@link FudgeFieldContainer} and array types. 
+ * <p>Generic builders are provided for {@link Map}, {@link List}, {@link FudgeFieldContainer} and array types.</p>
  * 
  * @author Andrew Griffin
  */ 

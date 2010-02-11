@@ -70,7 +70,7 @@ public enum DateTimeAccuracy {
   }
   
   /**
-   * The numeric value to be encoded in Fudge time and datetime representations. See {@link "http://wiki.fudgemsg.org/display/FDG/DateTime+encoding"}.
+   * The numeric value to be encoded in Fudge time and datetime representations. See <a href="http://wiki.fudgemsg.org/display/FDG/DateTime+encoding">DateTime encoding</a>
    * 
    * @return the numeric value
    */

@@ -22,7 +22,7 @@ import java.io.DataOutput;
 
 /**
  * Support for normal UTF-8 instead of the modified UTF-8 encoding used in the earlier versions of the specification.
- * Implemented from information at http://en.wikipedia.org/wiki/UTF-8, and other methods from ModifiedUTF8Util.
+ * Implemented from information at <a href="http://en.wikipedia.org/wiki/UTF-8">en.wikipedia.org/wiki/UTF-8</a>, and other methods from ModifiedUTF8Util.
  * 
  * Note that this has deprecated on it in a deliberately misleading fashion - it's the ModifiedUTF8Util one that should be; not this.
  */
