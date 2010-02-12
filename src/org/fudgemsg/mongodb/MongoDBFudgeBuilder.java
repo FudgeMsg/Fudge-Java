@@ -100,7 +100,7 @@ public class MongoDBFudgeBuilder implements FudgeBuilder<DBObject> {
         msg.add(key, decodeObjectValue(context, value));
       }
     }
-    context.addClassHeader (msg, dbObject.getClass ());
+    //context.addClassHeader (msg, dbObject.getClass ());
     return msg;
   }
 
