@@ -97,6 +97,7 @@
  	<target name="fudge-proto-present" depends="resolve">
  		<available classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" property="fudge.proto.present" />
  	</target>
+
  	<target name="fudge-proto-compile" if="fudge.proto.present">
                  <path id="fudge.proto.project.path">
                          <dirset dir="${projects.dir}">
@@ -115,6 +116,7 @@
                  	fudgeContext="${fudge.proto.fudgeContext}"
                  	rebuildAll="${fudge.proto.rebuildall}" />
  	</target>
+
  	<target name="fudge-proto" depends="fudge-proto-present,fudge-proto-compile"
 		description="--> compile any Fudge .proto files">
 	</target>
@@ -140,25 +142,35 @@
 			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}" />
 	</target>
 
-	<target name="compile-tests" depends="resolve" description="--> compile the tests">
-		<mkdir dir="${tests.classes.dir}" />
-		<path id="tests.build.classpath.id">
-			<path refid="lib.path.id" />
-			<pathelement path="${classes.dir}" />
-		</path>
+	<target name="compile-tests-mkdir" depends="resolve">
+	        <mkdir dir="${tests.classes.dir}" />
+                <path id="tests.build.classpath.id">
+                	<path refid="lib.path.id" />
+                	<pathelement path="${classes.dir}" />
+                </path>
+        </target>
+
+	<target name="compile-tests-main" depends="compile-tests-mkdir">
 		<javac srcdir="${tests.src.dir}" destdir="${tests.classes.dir}"
-			classpathref="tests.build.classpath.id" debug="${build.debug}"
-			optimize="${build.optimize}" verbose="${build.verbose}" listfiles="${build.listfiles}" />
+                        classpathref="tests.build.classpath.id" debug="${build.debug}"
+                        optimize="${build.optimize}" verbose="${build.verbose}" listfiles="${build.listfiles}" />
+	</target>
+
+	<available property="tests.interop" file="${tests.dir}/interop" />
+	<target name="compile-tests-interop" depends="compile-tests-mkdir" if="tests.interop">
 		<javac srcdir="${tests.dir}/interop" destdir="${tests.classes.dir}"
-			classpathref="tests.build.classpath.id" debug="${build.debug}"
-			optimize="${build.optimize}" verbose="${build.verbose}" listfiles="${build.listfiles}" />
+                        classpathref="tests.build.classpath.id" debug="${build.debug}"
+                        optimize="${build.optimize}" verbose="${build.verbose}" listfiles="${build.listfiles}" />
+	</target>
+
+	<target name="compile-tests" depends="compile-tests-main,compile-tests-interop" description="--> compile the tests">
 		<copy todir="${tests.classes.dir}">
 			<fileset dir="${tests.src.dir}">
 				<exclude name="**/*.java" />
 			</fileset>
-			<fileset dir="${tests.dir}/interop">
+			<fileset dir="${tests.dir}/interop" erroronmissingdir="false">
 				<exclude name="**/*.java" />
-			</fileset>
+			</fileset> 
 		</copy>
 	</target>
 	
@@ -168,8 +180,8 @@
 		<mkdir dir="${tests.junit.dir}/xml" />
 		<junit printSummary="true" fork="true" forkmode="once">
 			<classpath>
-	      <path refid="lib.path.id" />
-	      <pathelement path="${classes.dir}" />
+				<path refid="lib.path.id" />
+				<pathelement path="${classes.dir}" />
 				<pathelement path="${tests.classes.dir}" />
 			</classpath>
 			<assertions>
@@ -178,7 +190,7 @@
 			<formatter type="xml" />
 			<batchtest todir="${tests.junit.dir}/xml">
 				<fileset dir="${tests.src.dir}" includes="**/*Test.java" />
-				<fileset dir="${tests.dir}/interop" includes="**/*Test.java" />
+				<fileset dir="${tests.dir}/interop" includes="**/*Test.java" erroronmissingdir="false" />
 			</batchtest>
 		</junit>
 	</target>
@@ -232,6 +244,7 @@
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Build-Version" value="${version}" />
+                                <attribute name="Main-Class" value="${main.class.name}" />
 			</manifest>
 		</jar>
 	</target>
