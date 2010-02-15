@@ -18,8 +18,10 @@ package org.fudgemsg.mapping;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.fudgemsg.FudgeFieldContainer;
 
@@ -47,7 +49,23 @@ import com.mongodb.DBObject;
  */ 
 public class FudgeDefaultBuilderFactory implements FudgeBuilderFactory {
   
-  private final ConcurrentMap<Class<?>,FudgeBuilder<?>> _genericBuilders;
+  private static class MessageBuilderMapEntry {
+    private final Class<?> _clazz;
+    private final FudgeMessageBuilder<?> _builder;
+    <T> MessageBuilderMapEntry (Class<T> clazz, FudgeMessageBuilder<? extends T> builder) {
+      _clazz = clazz;
+      _builder = builder;
+    }
+    Class<?> getClazz () {
+      return _clazz;
+    }
+    FudgeMessageBuilder<?> getMessageBuilder () {
+      return _builder;
+    }
+  }
+  
+  private final ConcurrentMap<Class<?>,FudgeObjectBuilder<?>> _genericObjectBuilders;
+  private final List<MessageBuilderMapEntry> _genericMessageBuilders;
   
   // TODO 2010-01-29 Andrew -- we could have a builder builder, e.g. search for static methods that return a FudgeObjectBuilder/FudgeMessageBuilder/FudgeBuilder instance for that class
   
@@ -55,20 +73,26 @@ public class FudgeDefaultBuilderFactory implements FudgeBuilderFactory {
    * 
    */
   public FudgeDefaultBuilderFactory () {
-    _genericBuilders = new ConcurrentHashMap<Class<?>,FudgeBuilder<?>> ();
+    _genericObjectBuilders = new ConcurrentHashMap<Class<?>,FudgeObjectBuilder<?>> ();
+    _genericMessageBuilders = new CopyOnWriteArrayList<MessageBuilderMapEntry> ();
+    addGenericBuilderInternal (Class.class, JavaClassBuilder.INSTANCE);
     addGenericBuilderInternal (Map.class, MapBuilder.INSTANCE);
     addGenericBuilderInternal (List.class, ListBuilder.INSTANCE);
-    addGenericBuilderInternal (FudgeFieldContainer.class, FudgeFieldContainerBuilder.INSTANCE);
-    addGenericBuilderInternal (Class.class, JavaClassBuilder.INSTANCE);
     addGenericBuilderInternal (DBObject.class, MongoDBFudgeBuilder.INSTANCE);
+    addGenericBuilderInternal (FudgeFieldContainer.class, FudgeFieldContainerBuilder.INSTANCE);
   }
   
   /* package */ FudgeDefaultBuilderFactory (final FudgeDefaultBuilderFactory other) {
-    _genericBuilders = new ConcurrentHashMap<Class<?>,FudgeBuilder<?>> (other._genericBuilders);
+    _genericObjectBuilders = new ConcurrentHashMap<Class<?>,FudgeObjectBuilder<?>> (other._genericObjectBuilders);
+    _genericMessageBuilders = new CopyOnWriteArrayList<MessageBuilderMapEntry> (other._genericMessageBuilders);
   }
   
-  private Map<Class<?>,FudgeBuilder<?>> getGenericBuilders () {
-    return _genericBuilders;
+  private Map<Class<?>,FudgeObjectBuilder<?>> getGenericObjectBuilders () {
+    return _genericObjectBuilders;
+  }
+  
+  private List<MessageBuilderMapEntry> getGenericMessageBuilders () {
+    return _genericMessageBuilders;
   }
   
   /**
@@ -88,7 +112,7 @@ public class FudgeDefaultBuilderFactory implements FudgeBuilderFactory {
     if ((builder = FromFudgeMsgObjectBuilder.create (clazz)) != null) return builder;
     if ((builder = FudgeMsgConstructorObjectBuilder.create (clazz)) != null) return builder;
     if (clazz.isArray ()) return new ArrayBuilder (clazz.getComponentType ());
-    if ((builder = (FudgeObjectBuilder<T>)getGenericBuilders ().get (clazz)) != null) return builder;
+    if ((builder = (FudgeObjectBuilder<T>)getGenericObjectBuilders ().get (clazz)) != null) return builder;
     if (clazz.isInterface ()) return null;
     //return ReflectionObjectBuilder.create (clazz);
     return JavaBeanBuilder.create (clazz);
@@ -108,8 +132,8 @@ public class FudgeDefaultBuilderFactory implements FudgeBuilderFactory {
     FudgeMessageBuilder<T> builder;
     if ((builder = ToFudgeMsgMessageBuilder.create (clazz)) != null) return builder;
     if (clazz.isArray ()) return new ArrayBuilder (clazz.getComponentType ());
-    for (Map.Entry<Class<?>,FudgeBuilder<?>> defaultBuilder : getGenericBuilders ().entrySet ()) {
-      if (defaultBuilder.getKey ().isAssignableFrom (clazz)) return (FudgeMessageBuilder<T>)defaultBuilder.getValue ();
+    for (MessageBuilderMapEntry defaultBuilder : getGenericMessageBuilders ()) {
+      if (defaultBuilder.getClazz ().isAssignableFrom (clazz)) return (FudgeMessageBuilder<T>)defaultBuilder.getMessageBuilder ();
     }
     //return ReflectionMessageBuilder.create (clazz);
     return JavaBeanBuilder.create (clazz);
@@ -124,7 +148,8 @@ public class FudgeDefaultBuilderFactory implements FudgeBuilderFactory {
   }
   
   private <T> void addGenericBuilderInternal (final Class<T> clazz, final FudgeBuilder<? extends T> builder) {
-    getGenericBuilders ().put (clazz, builder);
+    getGenericObjectBuilders ().put (clazz, builder);
+    getGenericMessageBuilders ().add (0, new MessageBuilderMapEntry (clazz, builder));
   }
 
 }
