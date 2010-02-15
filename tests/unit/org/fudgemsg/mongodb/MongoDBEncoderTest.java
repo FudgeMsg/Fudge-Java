@@ -33,25 +33,20 @@ import com.mongodb.DBObject;
  * @author Kirk Wylie
  */
 public class MongoDBEncoderTest {
-  private static final FudgeContext s_fudgeContext = new FudgeContext();
 
-  static {
-    MongoDBFudgeBuilder.register (s_fudgeContext);
-  }
-  
   /**
    * 
    */
   @Test
   public void subMsgEncoding() {
-    MutableFudgeFieldContainer msg = s_fudgeContext.newMessage();
+    MutableFudgeFieldContainer msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg.add("val1", 293836);
     msg.add("val2", "Kirk Wylie");
-    MutableFudgeFieldContainer subMsg = s_fudgeContext.newMessage();
+    MutableFudgeFieldContainer subMsg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     subMsg.add("val1", "MongoDB");
     msg.add("val3", subMsg);
     
-    DBObject dbObject = FudgeObjectMessageFactory.deserializeToObject(DBObject.class, msg, s_fudgeContext);
+    DBObject dbObject = FudgeObjectMessageFactory.deserializeToObject(DBObject.class, msg, FudgeContext.GLOBAL_DEFAULT);
     System.out.println("MongoDBEncoderTest.subMsgEncoding produced " + dbObject);
     assertNotNull(dbObject);
     assertEquals(293836, dbObject.get("val1"));
@@ -67,11 +62,11 @@ public class MongoDBEncoderTest {
   @SuppressWarnings("unchecked")
   @Test
   public void repeatedValueEncoding() {
-    MutableFudgeFieldContainer msg = s_fudgeContext.newMessage();
+    MutableFudgeFieldContainer msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg.add("val1", 293836);
     msg.add("val1", "Kirk Wylie");
     
-    DBObject dbObject = FudgeObjectMessageFactory.deserializeToObject(DBObject.class, msg, s_fudgeContext);
+    DBObject dbObject = FudgeObjectMessageFactory.deserializeToObject(DBObject.class, msg, FudgeContext.GLOBAL_DEFAULT);
     System.out.println("MongoDBEncoderTest.repeatedValueEncoding produced " + dbObject);
     assertNotNull(dbObject);
     assertTrue(dbObject.get("val1") instanceof List);

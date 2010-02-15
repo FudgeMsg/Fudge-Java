@@ -18,10 +18,12 @@ package org.fudgemsg.mapping;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.fudgemsg.FudgeFieldContainer;
+
+import com.mongodb.DBObject;
 
 /**
  * <p>Default factory for building Fudge message encoders and decoders.</p>
@@ -39,13 +41,13 @@ import org.fudgemsg.FudgeFieldContainer;
  *   <li>Otherwise the {@link JavaBeanBuilder} will be used</li>
  * </ul>
  *  
- * <p>Generic builders are provided for {@link Map}, {@link List}, {@link FudgeFieldContainer} and array types.</p>
+ * <p>Generic builders are provided for {@link Map}, {@link List}, {@link FudgeFieldContainer}, {@link DBObject} and array types.</p>
  * 
  * @author Andrew Griffin
  */ 
 public class FudgeDefaultBuilderFactory implements FudgeBuilderFactory {
   
-  private final ConcurrentMap<Class<?>,FudgeBuilder<?>> _genericBuilders = new ConcurrentHashMap<Class<?>,FudgeBuilder<?>> ();
+  private final ConcurrentMap<Class<?>,FudgeBuilder<?>> _genericBuilders;
   
   // TODO 2010-01-29 Andrew -- we could have a builder builder, e.g. search for static methods that return a FudgeObjectBuilder/FudgeMessageBuilder/FudgeBuilder instance for that class
   
@@ -53,10 +55,16 @@ public class FudgeDefaultBuilderFactory implements FudgeBuilderFactory {
    * 
    */
   public FudgeDefaultBuilderFactory () {
+    _genericBuilders = new ConcurrentHashMap<Class<?>,FudgeBuilder<?>> ();
     addGenericBuilderInternal (Map.class, MapBuilder.INSTANCE);
     addGenericBuilderInternal (List.class, ListBuilder.INSTANCE);
     addGenericBuilderInternal (FudgeFieldContainer.class, FudgeFieldContainerBuilder.INSTANCE);
     addGenericBuilderInternal (Class.class, JavaClassBuilder.INSTANCE);
+    addGenericBuilderInternal (DBObject.class, MongoDBFudgeBuilder.INSTANCE);
+  }
+  
+  /* package */ FudgeDefaultBuilderFactory (final FudgeDefaultBuilderFactory other) {
+    _genericBuilders = new ConcurrentHashMap<Class<?>,FudgeBuilder<?>> (other._genericBuilders);
   }
   
   private Map<Class<?>,FudgeBuilder<?>> getGenericBuilders () {

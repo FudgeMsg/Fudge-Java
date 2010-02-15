@@ -48,18 +48,20 @@ import org.fudgemsg.types.secondary.JavaUtilUUIDFieldType;
  *
  * @author Kirk Wylie
  */
-public final class FudgeTypeDictionary {
+public class FudgeTypeDictionary {
   
   private volatile FudgeFieldType<?>[] _typesById = new FudgeFieldType<?>[0];
   private volatile UnknownFudgeFieldType[] _unknownTypesById = new UnknownFudgeFieldType[0];
-  private final ConcurrentMap<Class<?>, FudgeFieldType<?>> _typesByJavaType = new ConcurrentHashMap<Class<?>, FudgeFieldType<?>>();
-  private final ConcurrentMap<Class<?>, FudgeTypeConverter<?,?>> _convertersByJavaType = new ConcurrentHashMap<Class<?>, FudgeTypeConverter<?,?>> ();
+  private final ConcurrentMap<Class<?>, FudgeFieldType<?>> _typesByJavaType;
+  private final ConcurrentMap<Class<?>, FudgeTypeConverter<?,?>> _convertersByJavaType;
   
   /**
    * Creates a new {@link FudgeTypeDictionary} configured with the default types from the Fudge specification. Also
    * includes some standard secondary types.
    */
   public FudgeTypeDictionary() {
+    _typesByJavaType = new ConcurrentHashMap<Class<?>, FudgeFieldType<?>>();
+    _convertersByJavaType = new ConcurrentHashMap<Class<?>, FudgeTypeConverter<?,?>> ();
     // primary types
     addType(ByteArrayFieldType.LENGTH_4_INSTANCE);
     addType(ByteArrayFieldType.LENGTH_8_INSTANCE);
@@ -102,6 +104,16 @@ public final class FudgeTypeDictionary {
     // secondary types
     addType(JavaUtilUUIDFieldType.INSTANCE);
     addType(JavaUtilDateFieldType.INSTANCE);
+  }
+  
+  /**
+   * Creates a new {@link FudgeTypeDictionary} as a clone of another.
+   * 
+   * @param other {@code FudgeTypeDictionary} to copy data from
+   */
+  protected FudgeTypeDictionary (final FudgeTypeDictionary other) {
+    _typesByJavaType = new ConcurrentHashMap<Class<?>, FudgeFieldType<?>> (other._typesByJavaType);
+    _convertersByJavaType = new ConcurrentHashMap<Class<?>, FudgeTypeConverter<?,?>> (other._convertersByJavaType);
   }
   
   /**

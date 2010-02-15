@@ -31,7 +31,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
  * 
  * @author Andrew Griffin
  */
-public final class FudgeObjectDictionary {
+public class FudgeObjectDictionary {
   
   private static final FudgeMessageBuilder<?> NULL_MESSAGEBUILDER = new FudgeMessageBuilder<Object> () {
     @Override
@@ -47,8 +47,8 @@ public final class FudgeObjectDictionary {
     }
   };
   
-  private final ConcurrentMap<Class<?>, FudgeObjectBuilder<?>> _objectBuilders = new ConcurrentHashMap<Class<?>, FudgeObjectBuilder<?>> ();
-  private final ConcurrentMap<Class<?>, FudgeMessageBuilder<?>> _messageBuilders = new ConcurrentHashMap<Class<?>, FudgeMessageBuilder<?>> ();
+  private final ConcurrentMap<Class<?>, FudgeObjectBuilder<?>> _objectBuilders;
+  private final ConcurrentMap<Class<?>, FudgeMessageBuilder<?>> _messageBuilders;
   
   private FudgeBuilderFactory _defaultBuilderFactory = new FudgeDefaultBuilderFactory ();
   
@@ -56,6 +56,17 @@ public final class FudgeObjectDictionary {
    * Constructs a new (initially empty) {@link FudgeObjectDictionary}.
    */
   public FudgeObjectDictionary () {
+    _objectBuilders = new ConcurrentHashMap<Class<?>, FudgeObjectBuilder<?>> ();
+    _messageBuilders = new ConcurrentHashMap<Class<?>, FudgeMessageBuilder<?>> ();
+  }
+  
+  /**
+   * Constructs a new {@link FudgeObjectDictionary} as a clone of another.
+   */
+  /* package */ FudgeObjectDictionary (final FudgeObjectDictionary other) {
+    _objectBuilders = new ConcurrentHashMap<Class<?>, FudgeObjectBuilder<?>> (other._objectBuilders);
+    _messageBuilders = new ConcurrentHashMap<Class<?>, FudgeMessageBuilder<?>> (other._messageBuilders);
+    _defaultBuilderFactory = new ImmutableFudgeBuilderFactory (other._defaultBuilderFactory);
   }
   
   /**

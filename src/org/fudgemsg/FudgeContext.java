@@ -53,9 +53,17 @@ import org.fudgemsg.taxon.TaxonomyResolver;
  * @author Kirk Wylie
  */
 public class FudgeContext implements FudgeMessageFactory {
+  
+  /**
+   * A default global {@link FudgeContext} for getting code up and running quickly. The context cannot be modified
+   * in any way so can only be used for the core Fudge data types and will not support a taxonomy resolver. This
+   * should be used for trivial projects and code only.
+   */
+  public static final FudgeContext GLOBAL_DEFAULT = new ImmutableFudgeContext (new FudgeContext ());
+  
   private FudgeTypeDictionary _typeDictionary = new FudgeTypeDictionary();
   private FudgeObjectDictionary _objectDictionary = new FudgeObjectDictionary ();
-  private TaxonomyResolver _taxonomyResolver;
+  private TaxonomyResolver _taxonomyResolver = null;
   
   /**
    * Returns the current {@link TaxonomyResolver} used by this context. A new {@code FudgeContext} starts with its own, default,

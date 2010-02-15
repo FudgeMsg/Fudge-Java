@@ -33,21 +33,15 @@ import com.mongodb.DBObject;
  */
 public class MongoDBCodecTest {
   
-  private static final FudgeContext s_fudgeContext = new FudgeContext();
-  
-  static {
-    MongoDBFudgeBuilder.register (s_fudgeContext);
-  }
-
   /**
    * 
    */
   @Test
   public void allNamesCodec() {
-    FudgeFieldContainer inputMsg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
+    FudgeFieldContainer inputMsg = StandardFudgeMessages.createMessageAllNames(FudgeContext.GLOBAL_DEFAULT);
     
-    DBObject dbObject = FudgeObjectMessageFactory.deserializeToObject(DBObject.class, inputMsg, s_fudgeContext);
-    FudgeFieldContainer outputMsg = FudgeObjectMessageFactory.serializeToMessage(dbObject, s_fudgeContext);
+    DBObject dbObject = FudgeObjectMessageFactory.deserializeToObject(DBObject.class, inputMsg, FudgeContext.GLOBAL_DEFAULT);
+    FudgeFieldContainer outputMsg = FudgeObjectMessageFactory.serializeToMessage(dbObject, FudgeContext.GLOBAL_DEFAULT);
     
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
@@ -57,12 +51,12 @@ public class MongoDBCodecTest {
    */
   @Test
   public void containsList() {
-    MutableFudgeFieldContainer inputMsg = s_fudgeContext.newMessage();
+    MutableFudgeFieldContainer inputMsg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     inputMsg.add("val1", "Kirk Wylie");
     inputMsg.add("val1", "Jim Moores");
     inputMsg.add("val1", "Yan Tordoff");
-    DBObject dbObject = FudgeObjectMessageFactory.deserializeToObject(DBObject.class, inputMsg, s_fudgeContext);
-    FudgeFieldContainer outputMsg = FudgeObjectMessageFactory.serializeToMessage(dbObject, s_fudgeContext);
+    DBObject dbObject = FudgeObjectMessageFactory.deserializeToObject(DBObject.class, inputMsg, FudgeContext.GLOBAL_DEFAULT);
+    FudgeFieldContainer outputMsg = FudgeObjectMessageFactory.serializeToMessage(dbObject, FudgeContext.GLOBAL_DEFAULT);
     
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
@@ -72,10 +66,10 @@ public class MongoDBCodecTest {
    */
   @Test
   public void byteArrays() {
-    FudgeFieldContainer inputMsg = StandardFudgeMessages.createMessageAllByteArrayLengths(s_fudgeContext);
+    FudgeFieldContainer inputMsg = StandardFudgeMessages.createMessageAllByteArrayLengths(FudgeContext.GLOBAL_DEFAULT);
     
-    DBObject dbObject = FudgeObjectMessageFactory.deserializeToObject(DBObject.class, inputMsg, s_fudgeContext);
-    FudgeFieldContainer outputMsg = FudgeObjectMessageFactory.serializeToMessage(dbObject, s_fudgeContext);
+    DBObject dbObject = FudgeObjectMessageFactory.deserializeToObject(DBObject.class, inputMsg, FudgeContext.GLOBAL_DEFAULT);
+    FudgeFieldContainer outputMsg = FudgeObjectMessageFactory.serializeToMessage(dbObject, FudgeContext.GLOBAL_DEFAULT);
     
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
@@ -85,17 +79,17 @@ public class MongoDBCodecTest {
    */
   @Test
   public void subMsg() {
-    MutableFudgeFieldContainer inputMsg = s_fudgeContext.newMessage();
+    MutableFudgeFieldContainer inputMsg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     inputMsg.add("val1", "Kirk Wylie");
     inputMsg.add("val1", "Jim Moores");
     inputMsg.add("val1", "Yan Tordoff");
-    MutableFudgeFieldContainer subMsg = s_fudgeContext.newMessage();
+    MutableFudgeFieldContainer subMsg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     subMsg.add("val1", "Kirk Wylie");
     subMsg.add("val1", "Jim Moores");
     subMsg.add("val1", "Yan Tordoff");
     inputMsg.add("val2", subMsg);
-    DBObject dbObject = FudgeObjectMessageFactory.deserializeToObject(DBObject.class, inputMsg, s_fudgeContext);
-    FudgeFieldContainer outputMsg = FudgeObjectMessageFactory.serializeToMessage(dbObject, s_fudgeContext);
+    DBObject dbObject = FudgeObjectMessageFactory.deserializeToObject(DBObject.class, inputMsg, FudgeContext.GLOBAL_DEFAULT);
+    FudgeFieldContainer outputMsg = FudgeObjectMessageFactory.serializeToMessage(dbObject, FudgeContext.GLOBAL_DEFAULT);
     
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
