@@ -105,7 +105,7 @@ import com.mongodb.DBObject;
       if(field.getName() == null) {
         // REVIEW kirk 2009-10-22 -- Should this be configurable so that it just
         // silently drops unnamed fields?
-        throw new IllegalArgumentException("Field encountered without a name.");
+        throw new IllegalArgumentException("Field encountered without a name (" + field + ")");
       }
       Object value = field.getValue();
       value = encodeFieldValue(context, dbObject.get(field.getName()), value);
