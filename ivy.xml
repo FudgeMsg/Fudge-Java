@@ -1,6 +1,6 @@
 <ivy-module version="2.0">
     <info organisation="org.fudgemsg" module="fudge-java" status="integration">
-      <license name="APLv2" url="http://www.apache.org/licenses/LICENSE-2.0"/>
+      <license name="Apache License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>
       <ivyauthor name="Kirk Wylie" url="mailto:kirk@opengamma.com"/>
       <description homepage="http://www.fudgemsg.org/">
       </description>
