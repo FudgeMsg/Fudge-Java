@@ -16,7 +16,7 @@
     </publications>
     <dependencies>
         <dependency org="org.junit" name="junit" rev="[4.7,5.0[" conf="core->*"/>
-        <dependency org="org.apache.commons" name="commons-beanutils" rev="1.8.0" conf="core->*"/>
+        <dependency org="org.apache.commons" name="commons-beanutils" rev="[1.8.2,1.9[" conf="core->core"/>
         <dependency org="org.mongodb" name="java-driver" rev="1.0" conf="mongodb->*"/>
     </dependencies>
 </ivy-module>
