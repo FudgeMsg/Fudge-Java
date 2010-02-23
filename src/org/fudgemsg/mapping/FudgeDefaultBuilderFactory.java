@@ -71,7 +71,8 @@ public class FudgeDefaultBuilderFactory implements FudgeBuilderFactory {
   // TODO 2010-01-29 Andrew -- we could have a builder builder, e.g. search for static methods that return a FudgeObjectBuilder/FudgeMessageBuilder/FudgeBuilder instance for that class
   
   /**
-   * 
+   * Creates a new factory. {@code org.fudgemsg.mapping.FudgeDefaultBuilderFactory.properties} will be read and used to initialize
+   * the generic builders.
    */
   @SuppressWarnings("unchecked")
   public FudgeDefaultBuilderFactory () {
@@ -90,6 +91,11 @@ public class FudgeDefaultBuilderFactory implements FudgeBuilderFactory {
     }
   }
   
+  /**
+   * Creates a new factory as a clone of another.
+   * 
+   * @param other the factory to clone
+   */
   /* package */ FudgeDefaultBuilderFactory (final FudgeDefaultBuilderFactory other) {
     _genericObjectBuilders = new ConcurrentHashMap<Class<?>,FudgeObjectBuilder<?>> (other._genericObjectBuilders);
     _genericMessageBuilders = new CopyOnWriteArrayList<MessageBuilderMapEntry> (other._genericMessageBuilders);

@@ -26,6 +26,8 @@ public class ImmutableFudgeObjectDictionary extends FudgeObjectDictionary {
   
   /**
    * Creates a new {@link FudgeObjectDictionary} as an immutable clone of an existing one.
+   * 
+   * @param dictionary The {@code FudgeObjectDictionary} to clone
    */
   public ImmutableFudgeObjectDictionary (final FudgeObjectDictionary dictionary) {
     super (dictionary);

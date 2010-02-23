@@ -27,6 +27,11 @@ import java.util.ResourceBundle;
 import org.junit.Ignore;
 import org.junit.Test;
 
+/**
+ * Test the PropertyFileTaxonomy implementation
+ * 
+ * @author Andrew Griffin
+ */
 public class PropertyFileTaxonomyTest {
   
   private static final String XML_PATH = System.getProperty ("user.name") + "/PropertyFileTaxonomyTest.xml";
@@ -58,18 +63,27 @@ public class PropertyFileTaxonomyTest {
     return props;
   }
   
+  /**
+   * 
+   */
   @Test
   public void testResourceBundle () {
     final FudgeTaxonomy taxon = new PropertyFileTaxonomy (ResourceBundle.getBundle ("org.fudgemsg.taxon.MyTaxonomy"));
     verifyTaxon (taxon);
   }
   
+  /**
+   * 
+   */
   @Test
   public void testProperties () {
     final FudgeTaxonomy taxon = new PropertyFileTaxonomy (makeProperties ());
     verifyTaxon (taxon);
   }
   
+  /**
+   * @throws IOException if there's a problem with the webserver or filesystem
+   */
   @Test
   @Ignore // ignore this if there isn't a local webserver available
   public void testURL () throws IOException {

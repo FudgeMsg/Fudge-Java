@@ -62,6 +62,8 @@ public class FudgeObjectDictionary {
   
   /**
    * Constructs a new {@link FudgeObjectDictionary} as a clone of another.
+   * 
+   * @param other the {@code FudgeObjectDictionary} to clone
    */
   /* package */ FudgeObjectDictionary (final FudgeObjectDictionary other) {
     _objectBuilders = new ConcurrentHashMap<Class<?>, FudgeObjectBuilder<?>> (other._objectBuilders);

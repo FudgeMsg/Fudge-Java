@@ -15,22 +15,14 @@
  */
 package org.fudgemsg;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
-
-import org.fudgemsg.taxon.MapFudgeTaxonomy;
 import org.fudgemsg.taxon.FudgeTaxonomy;
+import org.fudgemsg.taxon.MapFudgeTaxonomy;
+import org.junit.Test;
 
 /**
  * This saves (and subsequently reloads) data files containing the message representation of taxonomy objects.
@@ -44,7 +36,7 @@ public class TaxonomyMessageTest {
   private static final String FIELD_3 = "email";
   private static final String FIELD_42 = "foo";
   
-  protected static MapFudgeTaxonomy testTaxonomyInstance () {
+  private static MapFudgeTaxonomy testTaxonomyInstance () {
     final Map<Integer,String> namesByOrdinal = new HashMap<Integer,String> ();
     namesByOrdinal.put (1, FIELD_1);
     namesByOrdinal.put (2, FIELD_2);
@@ -64,18 +56,27 @@ public class TaxonomyMessageTest {
     assertEquals (taxon.getFieldOrdinal (FIELD_42), (Short)(short)42);
   }
 
+  /**
+   * 
+   */
   @Test
   public void encodeDecodeCycle () {
     final FudgeTaxonomy taxon = MapFudgeTaxonomy.fromFudgeMsg (testTaxonomyInstance ().toFudgeMsg (new FudgeContext ()));
     testTaxonomy (taxon);
   }
   
+  /**
+   * 
+   */
   @Test
   public void messageLoadingTest () {
     final FudgeTaxonomy taxon = MapFudgeTaxonomy.fromFudgeMsg (StandardMessageLoadingTest.loadMessage (new FudgeContext (), "taxonomy.dat").getMessage ());
     testTaxonomy (taxon);
   }
   
+  /**
+   * 
+   */
   @Test
   public void messageRewritingTest () {
     final FudgeFieldContainer reference = testTaxonomyInstance ().toFudgeMsg (new FudgeContext ());

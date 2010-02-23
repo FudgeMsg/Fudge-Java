@@ -24,7 +24,9 @@ package org.fudgemsg.mapping;
 /* package */ class ImmutableFudgeBuilderFactory extends FudgeBuilderFactoryAdapter {
   
   /**
-   * {@docInherit} 
+   * {@docInherit}
+   * 
+   * @param delegate instance to pass non-overridden method calls to 
    */
   /* package */ ImmutableFudgeBuilderFactory(FudgeBuilderFactory delegate) {
     super(delegate);

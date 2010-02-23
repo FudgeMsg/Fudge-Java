@@ -27,6 +27,12 @@ import org.fudgemsg.taxon.TaxonomyResolver;
  */
 /* package */ class ImmutableFudgeContext extends FudgeContext {
   
+  /**
+   * Creates an immutable version of an existing {@link FudgeContext}. Immutable copies of the type and object dictionaries
+   * are taken from the source context.
+   * 
+   * @param context the {@code FudgeContext} to base this on
+   */
   /* package */ ImmutableFudgeContext (final FudgeContext context) {
     super.setTaxonomyResolver (context.getTaxonomyResolver ());
     super.setTypeDictionary (new ImmutableFudgeTypeDictionary (context.getTypeDictionary ()));

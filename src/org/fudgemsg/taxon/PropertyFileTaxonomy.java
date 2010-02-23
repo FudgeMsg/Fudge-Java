@@ -51,13 +51,17 @@ public class PropertyFileTaxonomy extends MapFudgeTaxonomy {
    * <pre>
    * new PropertyFileTaxonomy (ResourceBundle.getBundle ("MyTaxonomy")) 
    * </pre>
+   * 
+   * @param resourceBundle the taxonomy representation
    */
   public PropertyFileTaxonomy (final ResourceBundle resourceBundle) {
     super (resourceBundleToMap (resourceBundle));
   }
   
   /**
-   * <p>Creates a taxonomy from a {@link Properties}.</p>
+   * <p>Creates a taxonomy from a {@link Properties}. The keys correspond to ordinal values, and the values are field names</p>
+   * 
+   * @param properties the taxonomy representation
    */
   public PropertyFileTaxonomy (final Properties properties) {
     super (propertiesToMap (properties));
@@ -65,7 +69,9 @@ public class PropertyFileTaxonomy extends MapFudgeTaxonomy {
   
   /**
    * <p>Creates a taxonomy from a {@link URL}. The URL must point to an XML document that
-   * can be loaded with {@link Properties#loadFromXML}.</p> 
+   * can be loaded with {@link Properties#loadFromXML}.</p>
+   * 
+   * @param url URL pointing toward an XML document that describes the taxonomy
    */
   public PropertyFileTaxonomy (final URL url) {
     super (urlToMap (url));

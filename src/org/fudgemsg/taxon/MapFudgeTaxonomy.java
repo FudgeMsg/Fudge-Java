@@ -107,7 +107,10 @@ public class MapFudgeTaxonomy implements FudgeTaxonomy {
   
   /**
    * Encodes the taxonomy as a Fudge message as per the specification. An encoded taxonomy can be decoded back to a taxonomy object by the
-   * MapFudgeTaxonomy.fromFudgeMsg method on this class or equivalent function in any other language implementation. 
+   * MapFudgeTaxonomy.fromFudgeMsg method on this class or equivalent function in any other language implementation.
+   * 
+   * @param context a message source
+   * @return the message
    */
   public MutableFudgeFieldContainer toFudgeMsg (final FudgeMessageFactory context) {
     final MutableFudgeFieldContainer msg = context.newMessage ();
@@ -119,6 +122,9 @@ public class MapFudgeTaxonomy implements FudgeTaxonomy {
   
   /**
    * Decodes a taxonomy from a Fudge message as per the specification that is backed by a MapFudgeTaxonomy object.
+   * 
+   * @param msg the message
+   * @return the encoded taxonomy
    */
   public static FudgeTaxonomy fromFudgeMsg (final FudgeFieldContainer msg) {
     final List<FudgeField> fields = msg.getAllFields ();
