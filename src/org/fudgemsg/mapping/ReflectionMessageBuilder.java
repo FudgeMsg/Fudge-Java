@@ -79,7 +79,7 @@ import org.fudgemsg.FudgeRuntimeException;
         //System.out.println ("\t" + accessor.getValue ());
         context.objectToFudgeMsg (message, accessor.getKey (), null, accessor.getValue ().invoke (object));
       }
-      context.addClassHeader (message, object.getClass ());
+      FudgeSerializationContext.addClassHeader (message, object.getClass ());
     } catch (IllegalArgumentException e) {
       throw new FudgeRuntimeException ("Couldn't serialise " + object, e);
     } catch (IllegalAccessException e) {

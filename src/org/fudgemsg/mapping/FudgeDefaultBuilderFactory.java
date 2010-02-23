@@ -18,12 +18,13 @@ package org.fudgemsg.mapping;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
+import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeRuntimeException;
 
 import com.mongodb.DBObject;
 
@@ -72,14 +73,21 @@ public class FudgeDefaultBuilderFactory implements FudgeBuilderFactory {
   /**
    * 
    */
+  @SuppressWarnings("unchecked")
   public FudgeDefaultBuilderFactory () {
     _genericObjectBuilders = new ConcurrentHashMap<Class<?>,FudgeObjectBuilder<?>> ();
     _genericMessageBuilders = new CopyOnWriteArrayList<MessageBuilderMapEntry> ();
-    addGenericBuilderInternal (Class.class, JavaClassBuilder.INSTANCE);
-    addGenericBuilderInternal (Map.class, MapBuilder.INSTANCE);
-    addGenericBuilderInternal (List.class, ListBuilder.INSTANCE);
-    addGenericBuilderInternal (DBObject.class, MongoDBFudgeBuilder.INSTANCE);
-    addGenericBuilderInternal (FudgeFieldContainer.class, FudgeFieldContainerBuilder.INSTANCE);
+    final ResourceBundle genericBuilders = ResourceBundle.getBundle (getClass ().getName ());
+    for (final String javaClassName : genericBuilders.keySet ()) {
+      final String builderName = genericBuilders.getString (javaClassName);
+      try {
+        addGenericBuilderInternal (Class.forName (javaClassName), (FudgeBuilder)Class.forName (builderName).getDeclaredField ("INSTANCE").get (null));
+      } catch (ClassNotFoundException e) {
+        // ignore; e.g. if DBObject isn't in the classpath
+      } catch (Exception e) {
+        throw new FudgeRuntimeException ("couldn't register builder for " + javaClassName + " (" + builderName + ")", e);
+      }
+    }
   }
   
   /* package */ FudgeDefaultBuilderFactory (final FudgeDefaultBuilderFactory other) {

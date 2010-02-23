@@ -168,7 +168,7 @@ import org.apache.commons.beanutils.PropertyUtils;
         if (prop.getRead () == null) continue;
         context.objectToFudgeMsg (message, prop.getName (), prop.getOrdinal (), prop.getRead ().invoke (object));
       }
-      context.addClassHeader (message, object.getClass ());
+      FudgeSerializationContext.addClassHeader (message, object.getClass ());
     } catch (IllegalArgumentException e) {
       throw new FudgeRuntimeException ("Couldn't serialise " + object, e);
     } catch (IllegalAccessException e) {

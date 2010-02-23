@@ -43,7 +43,7 @@ import org.fudgemsg.types.StringFieldType;
   @Override
   public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, Class<?> object) {
     final MutableFudgeFieldContainer msg = context.newMessage ();
-    context.addClassHeader (msg, object.getClass ());
+    FudgeSerializationContext.addClassHeader (msg, object.getClass ());
     msg.add ("name", null, StringFieldType.INSTANCE, object.getName ());
     return msg;
   }

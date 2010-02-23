@@ -127,13 +127,13 @@ public class FudgeSerializationContext implements FudgeMessageFactory {
   }
   
   /**
-   * Adds class names to a message with ordinal 0 for use by a deserialiser. The preferred class name is written first, followed by subsequent super-classes that may
-   * be acceptable if the deserialiser doesn't recognise them.
+   * Adds class names to a message with ordinal 0 for use by a deserializer. The preferred class name is written first, followed by subsequent super-classes that may
+   * be acceptable if the deserializer doesn't recognize them.
    * 
    * @param message the message to add the fields to
    * @param clazz the Java class to add type data for
    */
-  public void addClassHeader (final MutableFudgeFieldContainer message, Class<?> clazz) {
+  public static void addClassHeader (final MutableFudgeFieldContainer message, Class<?> clazz) {
     while ((clazz != null) && (clazz != Object.class)) {
       message.add (null, 0, StringFieldType.INSTANCE, clazz.getName ());
       clazz = clazz.getSuperclass ();
