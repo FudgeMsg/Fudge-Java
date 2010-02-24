@@ -21,7 +21,7 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
  * Collects all of the size calculations for fudge stream elements together
  * to simplify size calculations without constructing a full FudgeMsg object.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class FudgeSize {
   

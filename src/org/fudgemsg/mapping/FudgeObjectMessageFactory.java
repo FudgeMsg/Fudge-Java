@@ -24,7 +24,7 @@ import org.fudgemsg.FudgeFieldContainer;
  * framework. This class is provided for convenience, direct use of a {@link FudgeSerializationContext} or {@link FudgeDeserializationContext}
  * will be more efficient.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeObjectMessageFactory {
   

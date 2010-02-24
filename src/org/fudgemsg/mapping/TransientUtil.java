@@ -24,7 +24,7 @@ import java.lang.reflect.AnnotatedElement;
  * Java Persistence Framework should be used where available. Otherwise, there is a Transient annotation defined
  * within the org.fudgemsg.mapping package.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 @SuppressWarnings("unchecked")
 /* package */ class TransientUtil {
@@ -45,6 +45,12 @@ import java.lang.reflect.AnnotatedElement;
     s_javaxTransient = javaxTransient;
   }
   
+  /**
+   * Detects whether the {@code javax.persistence.Transient} or {@link FudgeTransient} annotation has been used on an element
+   * 
+   * @param element element to check
+   * @return {@code true} if the annotation is present, {@code false} otherwise
+   */
   public static boolean hasTransientAnnotation (final AnnotatedElement element) {
     if (s_javaxTransient != null) {
       if (element.getAnnotation (s_javaxTransient) != null) return true;

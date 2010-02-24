@@ -1,4 +1,4 @@
-<project name="fudge" default="compile">
+<project name="fudge-java" default="compile">
 
 	<available file="${basedir}/../../common/common.xml" property="common.dir" value="${basedir}/../../common" />
 

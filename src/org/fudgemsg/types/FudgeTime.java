@@ -17,9 +17,10 @@ package org.fudgemsg.types;
 
 /**
  * Dummy class for holding a time value on its own, as Java does not have a
- * standard type for doing so.
+ * standard type for doing so. See <a href="http://wiki.fudgemsg.org/display/FDG/DateTime+encoding">DateTime encoding</a>
+ * for more details.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class FudgeTime {
   
@@ -31,10 +32,23 @@ public class FudgeTime {
   
   private final long _nanos;
   
+  /**
+   * Creates a new {@link FudgeTime}.
+   * 
+   * @param accuracy resolution of the time
+   * @param timezoneOffset timezoneOffset (15 minute intervals)
+   * @param nanos nanoseconds since Midnight
+   */
   public FudgeTime (final DateTimeAccuracy accuracy, final int timezoneOffset, final long nanos) {
     this (accuracy, true, timezoneOffset, nanos);
   }
   
+  /**
+   * Creates a new {@link FudgeTime} without a timezone.
+   * 
+   * @param accuracy resolution of the time
+   * @param nanos nanoseconds since Midnight
+   */
   public FudgeTime (final DateTimeAccuracy accuracy, final long nanos) {
     this (accuracy, false, 0, nanos);
   }
@@ -48,20 +62,31 @@ public class FudgeTime {
     _nanos = nanos;
   }
   
+  /**
+   * @return the resolution
+   */
   public DateTimeAccuracy getAccuracy () {
     return _accuracy;
   }
   
+  /**
+   * @return {@code true} if the {@link FudgeTime} has a timezone offset, {@code false} otherwise
+   */
   public boolean hasTimezoneOffset () {
     return _hasTimezoneOffset;
   }
   
+  /**
+   * @return the timezone offset (15 minute intervals) or 0 if there is no offset
+   */
   public int getTimezoneOffset () {
     return hasTimezoneOffset () ? _timezoneOffset : 0;
   }
   
   /**
    * Nanoseconds since midnight
+   * 
+   * @return the total nanoseconds
    */
   public long getNanos () {
     return _nanos;
@@ -69,6 +94,8 @@ public class FudgeTime {
   
   /**
    * Microseconds since midnight
+   * 
+   * @return the total microseconds
    */
   public long getMicros () {
     return getNanos () / 1000l;
@@ -76,6 +103,8 @@ public class FudgeTime {
   
   /**
    * Milliseconds since midnight
+   * 
+   * @return the total milliseconds
    */
   public int getMillis () {
     return (int)(getNanos () / 1000000l);
@@ -83,6 +112,8 @@ public class FudgeTime {
   
   /**
    * Seconds since midnight
+   * 
+   * @return the total seconds
    */
   public int getSeconds () {
     return (int)(getNanos () / 1000000000l);
@@ -90,6 +121,8 @@ public class FudgeTime {
   
   /**
    * Nanoseconds within the second since midnight
+   * 
+   * @return the nanoseconds
    */
   public int getTimeNanos () {
     return (int)(getNanos () % 1000000000l);
@@ -97,6 +130,8 @@ public class FudgeTime {
   
   /**
    * Microseconds within the second since midnight
+   * 
+   * @return the microseconds
    */
   public int getTimeMicros () {
     return (int)(getTimeNanos () / 1000l);
@@ -104,6 +139,8 @@ public class FudgeTime {
   
   /**
    * Milliseconds within the second since midnight
+   * 
+   * @return the milliseconds
    */
   public int getTimeMillis () {
     return (int)(getTimeNanos () / 1000000l);
@@ -111,6 +148,8 @@ public class FudgeTime {
   
   /**
    * Seconds within the minute since midnight
+   * 
+   * @return the seconds
    */
   public int getTimeSeconds () {
     return getSeconds () % 60;
@@ -118,6 +157,8 @@ public class FudgeTime {
   
   /**
    * Minutes within the hour since midnight
+   * 
+   * @return the minutes
    */
   public int getTimeMinutes () {
     return (getSeconds () / 60) % 60;
@@ -125,11 +166,16 @@ public class FudgeTime {
   
   /**
    * Hours since midnight
+   * 
+   * @return the hours
    */
   public int getTimeHours () {
     return getSeconds () / 3600;
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String toString () {
     final int hours = getTimeHours ();
@@ -168,6 +214,9 @@ public class FudgeTime {
     return sb.toString ();
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean equals (final Object o) {
     if (o == null) return false;
@@ -184,6 +233,9 @@ public class FudgeTime {
     return true;
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int hashCode () {
     int hc = 1;

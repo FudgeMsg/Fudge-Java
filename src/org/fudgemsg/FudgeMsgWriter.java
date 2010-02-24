@@ -24,7 +24,7 @@ import java.io.IOException;
  * assumes that the whole message (or envelope) is available to the caller before writing starts. This is provided for convenience - greater runtime
  * efficiency may be possible by working directly with a {@link FudgeStreamWriter} to emit Fudge stream elements as they are generated.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class FudgeMsgWriter implements Flushable {
   
@@ -80,6 +80,11 @@ public class FudgeMsgWriter implements Flushable {
     _defaultTaxonomyId = null;
   }
   
+  /**
+   * Returns the underlying {@link FudgeStreamWriter}.
+   * 
+   * @return the {@code FudgeStreamWriter}
+   */
   protected FudgeStreamWriter getStreamWriter () {
     return _streamWriter;
   }

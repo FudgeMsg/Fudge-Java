@@ -26,7 +26,7 @@ import org.fudgemsg.FudgeTypeDictionary;
 /**
  * The type handler for the singleton {@link IndicatorType} value.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class IndicatorFieldType extends FudgeFieldType<IndicatorType> {
 

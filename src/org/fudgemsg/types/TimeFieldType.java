@@ -28,7 +28,7 @@ import org.fudgemsg.FudgeTypeDictionary;
  * on its own, that will become the primary mapping and the {@code FudgeTime} type will be
  * supported through the secondary type mechanism.
  *
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class TimeFieldType extends FudgeFieldType<FudgeTime> {
   

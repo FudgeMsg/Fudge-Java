@@ -25,7 +25,7 @@ import org.fudgemsg.FudgeFieldContainer;
 /**
  * Serialises Java objects to a target Fudge message stream.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class FudgeObjectWriter {
   
@@ -46,6 +46,8 @@ public class FudgeObjectWriter {
   
   /**
    * Closes the underlying target stream.
+   * 
+   * @throws IOException if the underlying stream errors
    */
   public void close () throws IOException {
     if (_messageWriter == null) return;

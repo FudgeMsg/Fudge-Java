@@ -28,7 +28,7 @@ import java.io.UTFDataFormatException;
  * {@link DataOutputStream}, but it's been improved and modified
  * to suit the use of Fudge in a superior way.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 //@Deprecated
 public class ModifiedUTF8Util {

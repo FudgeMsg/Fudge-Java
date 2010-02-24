@@ -15,24 +15,25 @@
  */
 package org.fudgemsg.types.secondary;
 
-import java.util.Date;
 import java.util.Calendar;
+import java.util.Date;
 
 import org.fudgemsg.FudgeFieldType;
-import org.fudgemsg.types.FudgeDate;
-import org.fudgemsg.types.FudgeTime;
 import org.fudgemsg.types.DateTimeFieldType;
+import org.fudgemsg.types.FudgeDate;
 import org.fudgemsg.types.SecondaryFieldType;
-import org.fudgemsg.types.FudgeTypeConverter;
 
 /**
  * Secondary type for {@link Date} conversion to/from a {@link Calendar}. Also supports conversions from
  * the {@link FudgeDate} temporary class.
  *
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class JavaUtilDateFieldType extends SecondaryFieldType<Date,Object> {
   
+  /**
+   * Singleton instance of the type.
+   */
   public static final JavaUtilDateFieldType INSTANCE = new JavaUtilDateFieldType ();
   
   @SuppressWarnings("unchecked")
@@ -40,6 +41,9 @@ public class JavaUtilDateFieldType extends SecondaryFieldType<Date,Object> {
     super ((FudgeFieldType<Object>)(FudgeFieldType<? extends Object>)DateTimeFieldType.INSTANCE, Date.class);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Object secondaryToPrimary (Date object) {
     final Calendar calendar = Calendar.getInstance ();
@@ -47,6 +51,9 @@ public class JavaUtilDateFieldType extends SecondaryFieldType<Date,Object> {
     return calendar;
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Date primaryToSecondary (Object object) {
     if (object instanceof Calendar) {
@@ -58,14 +65,29 @@ public class JavaUtilDateFieldType extends SecondaryFieldType<Date,Object> {
     }
   }
   
+  /**
+   * Primary to secondary conversion, where the primary type is a {@link Calendar}.
+   * 
+   * @param object primary object
+   * @return the converted {@link Date} object
+   */
   protected Date primaryToSecondary (Calendar object) {
     return object.getTime ();
   }
   
+  /**
+   * Primary secondary conversion, where the primary type is a {@link FudgeDate}.
+   * 
+   * @param object primary object
+   * @return the converted {@link Date} object
+   */
   protected Date primaryToSecondary (FudgeDate object) {
     return object.getDate ();
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean canConvertPrimary (Class<?> javaType) {
     return Calendar.class.isAssignableFrom (javaType) || FudgeDate.class.isAssignableFrom (javaType);

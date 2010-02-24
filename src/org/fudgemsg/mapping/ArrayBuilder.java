@@ -26,16 +26,22 @@ import org.fudgemsg.MutableFudgeFieldContainer;
  * Builder for Array objects (lists).
  *
  * @param <E> element type of the array
- * @author Andrew
+ * @author Andrew Griffin
  */
 /* package */ class ArrayBuilder<E> implements FudgeBuilder<E[]> {
   
   private final Class<E> _clazz;
   
+  /**
+   * @param clazz type of the array element
+   */
   /* package */ ArrayBuilder (Class<E> clazz) {
     _clazz = clazz;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, Object[] array) {
     final MutableFudgeFieldContainer msg = context.newMessage ();
@@ -45,6 +51,9 @@ import org.fudgemsg.MutableFudgeFieldContainer;
     return msg;
   }
   
+  /**
+   * {docInherit}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public E[] buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {

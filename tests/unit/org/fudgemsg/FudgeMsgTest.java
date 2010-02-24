@@ -32,11 +32,14 @@ import org.junit.Test;
 /**
  * 
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeMsgTest {
   private static final FudgeContext s_fudgeContext = new FudgeContext();
   
+  /**
+   * 
+   */
   @Test
   public void lookupByNameSingleValue() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
@@ -71,6 +74,9 @@ public class FudgeMsgTest {
     assertSame(IndicatorType.INSTANCE, msg.getValue("indicator"));
   }
 
+  /**
+   * 
+   */
   @Test
   public void lookupByNameMultipleValues() {
     MutableFudgeFieldContainer msg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
@@ -105,6 +111,9 @@ public class FudgeMsgTest {
     assertNull(field.getOrdinal());
   }
   
+  /**
+   * 
+   */
   @Test
   public void primitiveExactQueriesNamesMatch() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
@@ -132,6 +141,9 @@ public class FudgeMsgTest {
     assertEquals("Kirk Wylie", msg.getString("String"));
   }
   
+  /**
+   * 
+   */
   @Test
   public void primitiveExactQueriesNamesNoMatch() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
@@ -144,6 +156,9 @@ public class FudgeMsgTest {
     assertNotNull(msg.getDouble("float"));
   }
   
+  /**
+   * 
+   */
   @Test
   public void primitiveExactQueriesNoNames() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
@@ -157,6 +172,9 @@ public class FudgeMsgTest {
     assertNull(msg.getString("foobar"));
   }
   
+  /**
+   * 
+   */
   @Test
   public void asQueriesToLongNames() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
@@ -182,6 +200,9 @@ public class FudgeMsgTest {
     assertEquals(new Long(0), msg.getLong("Double"));
   }
   
+  /**
+   * 
+   */
   @Test
   public void asQueriesToLongNoNames() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
@@ -196,6 +217,9 @@ public class FudgeMsgTest {
   }
   
   // ------------
+  /**
+   * 
+   */
   @Test
   public void primitiveExactQueriesOrdinalsMatch() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext);
@@ -223,6 +247,9 @@ public class FudgeMsgTest {
     assertEquals("Kirk Wylie", msg.getString((short)15));
   }
   
+  /**
+   * 
+   */
   @Test
   public void primitiveExactQueriesOrdinalsNoMatch() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext);
@@ -237,6 +264,9 @@ public class FudgeMsgTest {
     assertNotNull(msg.getDouble((short)11));
   }
   
+  /**
+   * 
+   */
   @Test
   public void primitiveExactOrdinalsNoOrdinals() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext);
@@ -250,6 +280,9 @@ public class FudgeMsgTest {
     assertNull(msg.getString((short)100));
   }
   
+  /**
+   * 
+   */
   @Test
   public void asQueriesToLongOrdinals() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext);
@@ -275,6 +308,9 @@ public class FudgeMsgTest {
     assertEquals(new Long(0), msg.getLong((short)14));
   }
   
+  /**
+   * 
+   */
   @Test
   public void toByteArray() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
@@ -283,6 +319,9 @@ public class FudgeMsgTest {
     assertTrue(bytes.length > 10);
   }
   
+  /**
+   * 
+   */
   @Test
   public void fixedLengthByteArrays() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllByteArrayLengths(s_fudgeContext);
@@ -299,6 +338,9 @@ public class FudgeMsgTest {
     assertSame(ByteArrayFieldType.VARIABLE_SIZED_INSTANCE, msg.getByName("byte[28]").getType());
   }
   
+  /**
+   * 
+   */
   @Test
   public void iterable() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
@@ -309,6 +351,9 @@ public class FudgeMsgTest {
     assertEquals(msg.getNumFields(), fieldCount);
   }
 
+  /**
+   * 
+   */
   @Test
   public void iterableContainer() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
@@ -319,6 +364,9 @@ public class FudgeMsgTest {
     assertEquals(msg.getNumFields(), fieldCount);
   }
   
+  /**
+   * 
+   */
   @Test
   public void getMessageMethodsFRJ11() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageWithSubMsgs(s_fudgeContext);

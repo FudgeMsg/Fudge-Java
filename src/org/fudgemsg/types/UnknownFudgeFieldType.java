@@ -29,7 +29,7 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
  * A type class for handling variable sized field values where the type
  * isn't available in the current {@link FudgeTypeDictionary}.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class UnknownFudgeFieldType extends
     FudgeFieldType<UnknownFudgeFieldValue> {

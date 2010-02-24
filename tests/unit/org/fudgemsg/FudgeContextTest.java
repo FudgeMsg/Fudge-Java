@@ -18,7 +18,6 @@ package org.fudgemsg;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,17 +25,21 @@ import java.util.Map;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 import org.fudgemsg.taxon.ImmutableMapTaxonomyResolver;
 import org.fudgemsg.taxon.MapFudgeTaxonomy;
+import org.fudgemsg.taxon.TaxonomyResolver;
 import org.junit.Test;
 
 /**
  * 
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeContextTest {
   private static final int[] ORDINALS = new int[] {5, 14, 928, 74}; 
   private static final String[] NAMES = new String[] {"Kirk", "Wylie", "Jim", "Moores"}; 
 
+  /**
+   * 
+   */
   @Test
   public void allNamesCodecNoTaxonomy() {
     FudgeContext context = new FudgeContext();
@@ -48,6 +51,9 @@ public class FudgeContextTest {
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
   
+  /**
+   * 
+   */
   @Test
   public void allNamesCodecWithTaxonomy() {
     FudgeContext context = new FudgeContext();
@@ -73,7 +79,16 @@ public class FudgeContextTest {
     assertEquals("value4", outputMsg.getString(NAMES[3]));
     assertEquals("value4", outputMsg.getString(ORDINALS[3]));
   }
+  
+  private TaxonomyResolver createTaxonomyResolver () {
+    Map<Short, FudgeTaxonomy> resolverMap = new HashMap<Short, FudgeTaxonomy>();
+    resolverMap.put((short)45, new MapFudgeTaxonomy(ORDINALS, NAMES));
+    return new ImmutableMapTaxonomyResolver (resolverMap);
+  }
 
+  /**
+   * 
+   */
   @Test
   public void allOrdinalsCodecWithTaxonomy() {
     FudgeContext context = new FudgeContext();
@@ -83,9 +98,7 @@ public class FudgeContextTest {
     inputMsg.add(ORDINALS[2], "value3");
     inputMsg.add(ORDINALS[3], "value4");
     
-    Map<Short, FudgeTaxonomy> resolverMap = new HashMap<Short, FudgeTaxonomy>();
-    resolverMap.put((short)45, new MapFudgeTaxonomy(ORDINALS, NAMES));
-    context.setTaxonomyResolver(new ImmutableMapTaxonomyResolver(resolverMap));
+    context.setTaxonomyResolver(createTaxonomyResolver ());
     
     FudgeFieldContainer outputMsg = cycleMessage(inputMsg, context, (short)45);
     assertEquals("value1", outputMsg.getString(NAMES[0]));
@@ -111,6 +124,9 @@ public class FudgeContextTest {
     return outputMsgEnvelope.getMessage ();
   }
   
+  /**
+   * 
+   */
   @Test
   public void readerAllocation() {
     FudgeContext context = new FudgeContext();
@@ -119,6 +135,96 @@ public class FudgeContextTest {
     FudgeStreamReader reader2 = context.createReader(System.in);
     assertNotNull(reader2);
     assertNotSame(reader1, reader2);
+  }
+  
+  /**
+   * 
+   */
+  @Test(expected=java.lang.UnsupportedOperationException.class)
+  public void immutableContextTest_setTypeDictionary () {
+    FudgeContext.GLOBAL_DEFAULT.setTypeDictionary (null);
+  }
+  
+  /**
+   * 
+   */
+  @Test(expected=java.lang.UnsupportedOperationException.class)
+  public void immutableContextTest_addType () {
+    FudgeContext.GLOBAL_DEFAULT.getTypeDictionary ().addType (null);
+  }
+
+  /**
+   * 
+   */
+  @Test(expected=java.lang.UnsupportedOperationException.class)
+  public void immutableContextTest_addTypeConverter () {
+    FudgeContext.GLOBAL_DEFAULT.getTypeDictionary ().addTypeConverter (null, null);
+  }
+
+  /**
+   * 
+   */
+  @Test(expected=java.lang.UnsupportedOperationException.class)
+  public void immutableContextTest_typeDictionary () {
+    FudgeContext.GLOBAL_DEFAULT.setTypeDictionary (null);
+    FudgeContext.GLOBAL_DEFAULT.getTypeDictionary ().addType (null);
+    FudgeContext.GLOBAL_DEFAULT.getTypeDictionary ().addTypeConverter (null, null);
+  }
+
+  /**
+   * 
+   */
+  @Test(expected=java.lang.UnsupportedOperationException.class)
+  public void immutableContextTest_setTaxonomyResolver () {
+    FudgeContext.GLOBAL_DEFAULT.setTaxonomyResolver (createTaxonomyResolver ());
+  }
+  
+  /**
+   * 
+   */
+  @Test(expected=java.lang.UnsupportedOperationException.class)
+  public void immutableContextTest_setObjectDictionary () {
+    FudgeContext.GLOBAL_DEFAULT.setObjectDictionary (null);
+  }
+  
+  /**
+   * 
+   */
+  @Test(expected=java.lang.UnsupportedOperationException.class)
+  public void immutableContextTest_setDefaultBuilderFactory () {
+    FudgeContext.GLOBAL_DEFAULT.getObjectDictionary ().setDefaultBuilderFactory (null);
+  }
+  
+  /**
+   * 
+   */
+  @Test(expected=java.lang.UnsupportedOperationException.class)
+  public void immutableContextTest_addGenericBuilder () {
+    FudgeContext.GLOBAL_DEFAULT.getObjectDictionary ().getDefaultBuilderFactory ().addGenericBuilder (null, null);
+  }
+  
+  /**
+   * 
+   */
+  @Test(expected=java.lang.UnsupportedOperationException.class)
+  public void immutableContextTest_addObjectBuilder () {
+    FudgeContext.GLOBAL_DEFAULT.getObjectDictionary ().addObjectBuilder (null, null);
+  }
+  
+  /**
+   * 
+   */
+  @Test(expected=java.lang.UnsupportedOperationException.class)
+  public void immutableContextTest_addMessageBuilder () {
+    FudgeContext.GLOBAL_DEFAULT.getObjectDictionary ().addMessageBuilder (null, null);
+  }
+  
+  /**
+   * 
+   */
+  @Test(expected=java.lang.UnsupportedOperationException.class)
+  public void immutableContextTest_addBuilder () {
+    FudgeContext.GLOBAL_DEFAULT.getObjectDictionary ().addBuilder (null, null);
   }
   
 }

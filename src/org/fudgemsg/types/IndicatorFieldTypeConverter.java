@@ -18,10 +18,13 @@ package org.fudgemsg.types;
 /**
  * Converts any object values to the indicator type.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class IndicatorFieldTypeConverter implements FudgeTypeConverter<Object,IndicatorType> {
   
+  /**
+   * Singleton instance of the converter.
+   */
   public static IndicatorFieldTypeConverter INSTANCE = new IndicatorFieldTypeConverter ();
   
   private IndicatorFieldTypeConverter () {

@@ -26,7 +26,7 @@ import org.fudgemsg.types.FudgeMsgFieldType;
  * This implementation constructs the whole Fudge message in memory before returning to the caller. This is provided for convenience - greater
  * runtime efficiency may be possible by working directly with the {@link FudgeStreamReader} to process stream elements as they are decoded.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class FudgeMsgReader {
   
@@ -81,6 +81,11 @@ public class FudgeMsgReader {
     return reader.getFudgeContext ();
   }
   
+  /**
+   * Returns the underlying {@link FudgeStreamReader} for this message reader.
+   * 
+   * @return the {@code FudgeStreamReader}
+   */
   protected FudgeStreamReader getStreamReader () {
     return _streamReader;
   }
@@ -132,25 +137,38 @@ public class FudgeMsgReader {
     return readMessageEnvelope ();
   }
   
+  /**
+   * Reads the next message envelope from the underlying stream. All fields are read and the stream is left
+   * positioned for the next envelope (if there is one).
+   * 
+   * @return the {@link FudgeMsgEnvelope} read
+   * @throws IOException if the underlying source errors
+   */
   protected FudgeMsgEnvelope readMessageEnvelope () throws IOException {
     //System.out.println ("FudgeMessageStreamReader::readMessageEnvelope()");
-    final FudgeStreamReader reader = getStreamReader ();
-    FudgeStreamElement element = reader.next();
+    FudgeStreamElement element = getStreamReader ().next();
     if(element == null) {
       return null;
     }
     if(element != FudgeStreamElement.MESSAGE_ENVELOPE) {
       throw new IllegalArgumentException("First element in encoding stream wasn't a message element.");
     }
-    int version = reader.getSchemaVersion();
+    int version = getStreamReader ().getSchemaVersion();
     MutableFudgeFieldContainer msg = getFudgeContext().newMessage();
     FudgeMsgEnvelope envelope = new FudgeMsgEnvelope (msg, version);
-    processFields(reader, msg);
+    processFields(msg);
     return envelope;
   }
   
-  protected void processFields(FudgeStreamReader reader, MutableFudgeFieldContainer msg) throws IOException {
+  /**
+   * Processes all of the fields from the current message (or sub-message) in the stream, adding them to the supplied container.
+   * 
+   * @param msg container to add fields read to
+   * @throws IOException if the underlying source errors
+   */
+  protected void processFields(MutableFudgeFieldContainer msg) throws IOException {
     //System.out.println ("FudgeMessageStreamReader::processFields(" + reader + ", " + msg + ")");
+    final FudgeStreamReader reader = getStreamReader ();
     while(reader.hasNext()) {
       FudgeStreamElement element = reader.next();
       switch(element) {
@@ -160,7 +178,7 @@ public class FudgeMsgReader {
       case SUBMESSAGE_FIELD_START:
         MutableFudgeFieldContainer subMsg = getFudgeContext().newMessage ();
         msg.add(reader.getFieldName(), reader.getFieldOrdinal(), FudgeMsgFieldType.INSTANCE, subMsg);
-        processFields(reader, subMsg);
+        processFields(subMsg);
         break;
       case SUBMESSAGE_FIELD_END:
         return;

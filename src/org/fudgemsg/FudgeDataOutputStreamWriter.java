@@ -36,9 +36,6 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
   private int _taxonomyId;
   
   private static DataOutput convertOutputStream (final OutputStream outputStream) {
-    if (outputStream == null) {
-      throw new NullPointerException ("Must specify an OutputStream for processing.");
-    }
     if (outputStream instanceof DataOutput) {
       return (DataOutput)outputStream;
     } else {
@@ -56,6 +53,9 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
   public FudgeDataOutputStreamWriter(FudgeContext fudgeContext, final DataOutput dataOutput) {
     if(fudgeContext == null) {
       throw new NullPointerException("Must provide a Fudge Context");
+    }
+    if (dataOutput == null) {
+      throw new NullPointerException("Must provide an output target");
     }
     _fudgeContext = fudgeContext;
     _dataOutput = dataOutput;
@@ -310,12 +310,6 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
     return nWritten;
   }
 
-  protected static void checkDataOutput(DataOutput dataOutput) {
-    if(dataOutput == null) {
-      throw new NullPointerException("Must specify a DataOutput for processing.");
-    }
-  }
-  
   /**
    * {@inheritDoc}
    */

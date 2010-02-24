@@ -24,13 +24,20 @@ import org.fudgemsg.FudgeRuntimeException;
 
 /**
  * Implementation of FudgeObjectBuilder for a class with a public constructor that
- * accepts a FudgeFieldContainer or a FudgeDeserialisationContext and FudgeFieldContainer.
+ * accepts a {@link FudgeFieldContainer} or a {@link FudgeDeserializationContext} and {@link FudgeFieldContainer}.
  * 
- * @param <T> class supporting a {@code FudgeFieldContainer} constructor that can be deserialised by this builder
- * @author Andrew
+ * @param <T> class supporting a {@code FudgeFieldContainer} constructor that can be deserialized by this builder
+ * @author Andrew Griffin
  */
 /* package */ class FudgeMsgConstructorObjectBuilder<T> implements FudgeObjectBuilder<T> {
 
+  /**
+   * Creates a new {@link FudgeMsgConstructorObjectBuilder} for the class if possible.
+   * 
+   * @param <T> class the builder should create objects of
+   * @param clazz class the builder should create objects of
+   * @return the {@code FudgeMsgConstructorObjectBuilder} or {@code null} if none is available
+   */
   /* package */ static <T> FudgeMsgConstructorObjectBuilder<T> create (final Class<T> clazz) {
     try {
       return new FudgeMsgConstructorObjectBuilder<T> (clazz.getConstructor (FudgeDeserializationContext.class, FudgeFieldContainer.class), true);
@@ -57,6 +64,9 @@ import org.fudgemsg.FudgeRuntimeException;
     _passContext = passContext;
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public T buildObject (final FudgeDeserializationContext context, final FudgeFieldContainer message) {
     try {

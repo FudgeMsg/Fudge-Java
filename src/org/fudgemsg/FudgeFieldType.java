@@ -30,7 +30,7 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
  * using your own instance of {@code FudgeFieldType}, making sure to register the
  * instance with the {@link FudgeTypeDictionary} at application startup.
  *
- * @author kirk
+ * @author Kirk Wylie
  * @param <TValue> underlying Java class this type represents
  */
 public class FudgeFieldType<TValue> implements Serializable {
@@ -38,8 +38,6 @@ public class FudgeFieldType<TValue> implements Serializable {
   private final Class<TValue> _javaType;
   private final boolean _isVariableSize;
   private final int _fixedSize;
-  
-  private final String _toStringValue;
   
   /**
    * Constructs a new {@link FudgeFieldType} for the underlying Java type. The type identifier must be unique within the {@link FudgeTypeDictionary} the type
@@ -63,8 +61,6 @@ public class FudgeFieldType<TValue> implements Serializable {
     _javaType = javaType;
     _isVariableSize = isVariableSize;
     _fixedSize = fixedSize;
-    
-    _toStringValue = generateToString();
   }
 
   /**
@@ -133,26 +129,16 @@ public class FudgeFieldType<TValue> implements Serializable {
     return getTypeId();
   }
   
-  protected String generateToString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("FudgeFieldType[");
-    sb.append(getTypeId()).append("-");
-    sb.append(getJavaType());
-    sb.append("]");
-    return sb.toString().intern();
-  }
-
   /**
    * {@inheritDoc}
    */
   @Override
   public final String toString() {
-    return _toStringValue;
+    return "FudgeFieldType[" + getTypeId () + "-" + getJavaType () + "]";
   }
   
   /**
-   * Returns the number of bytes used to encode a value of this type. If the type does not support a variable width, will always be the same as {@link #getFixedSize()}.
-   * This method must be overridden for variable size types.
+   * Returns the number of bytes used to encode a value of this type. If the type does not support a variable width, will always be the same as {@link #getFixedSize()}. This method must be overridden for variable size types.
    * 
    * @param value value to check (for variable width types)
    * @param taxonomy the taxonomy being used for the encoding (e.g. for sub-message fields)

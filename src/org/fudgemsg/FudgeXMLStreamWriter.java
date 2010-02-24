@@ -28,11 +28,15 @@ import javax.xml.stream.XMLStreamWriter;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 
 /**
- * Implementation of a {@link FudgeStreamWriter} that writes XML to a text stream. This can be
+ * <p>Implementation of a {@link FudgeStreamWriter} that writes XML to a text stream. This can be
  * used for XML output, or can be used to assist in developing/debugging a streaming serialiser
- * without having to inspect the binary output from a FudgeDataOutputStreamWriter.
+ * without having to inspect the binary output from a FudgeDataOutputStreamWriter.</p>
  * 
- * @author Andrew
+ * <p>This code is experimental and should not be relied upon at the moment. The XML specification
+ * of Fudge messages will be published at <a href="http://wiki.fudgemsg.org/display/FDG/XML+Fudge+Messages">XML Fudge Messages</a>
+ * when it is available.</p>
+ * 
+ * @author Andrew Griffin
  */
 public class FudgeXMLStreamWriter implements FudgeStreamWriter {
   
@@ -68,10 +72,20 @@ public class FudgeXMLStreamWriter implements FudgeStreamWriter {
     _taxonomyId = 0;
   }
   
+  /**
+   * Returns the underlying {@link XMLStreamWriter}.
+   * 
+   * @return the {@code XMLStreamWriter}
+   */
   protected XMLStreamWriter getWriter () {
     return _writer;
   }
   
+  /**
+   * @param operation the operation being attempted when the exception was caught
+   * @param e the exception caught
+   * @throws IOException if the triggered {@link XMLStreamException} was caused by an {@link IOException}
+   */
   protected void wrapException (final String operation, XMLStreamException e) throws IOException {
     if (e.getCause () instanceof IOException) {
       throw (IOException)e.getCause ();

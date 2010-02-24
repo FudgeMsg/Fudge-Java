@@ -25,7 +25,7 @@ import org.junit.Test;
 /**
  * 
  *
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class FudgeStreamTest {
   
@@ -39,6 +39,9 @@ public class FudgeStreamTest {
     return msg;
   }
   
+  /**
+   * @throws IOException [documentation not available]
+   */
   @Test
   public void readMultipleMessages () throws IOException {
     final ByteArrayOutputStream baos = new ByteArrayOutputStream ();

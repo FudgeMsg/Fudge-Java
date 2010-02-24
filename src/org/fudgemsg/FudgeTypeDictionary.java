@@ -46,20 +46,22 @@ import org.fudgemsg.types.secondary.JavaUtilUUIDFieldType;
  * Fudge installation.
  * You can control it through your {@link FudgeContext}.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
-public final class FudgeTypeDictionary {
+public class FudgeTypeDictionary {
   
   private volatile FudgeFieldType<?>[] _typesById = new FudgeFieldType<?>[0];
   private volatile UnknownFudgeFieldType[] _unknownTypesById = new UnknownFudgeFieldType[0];
-  private final ConcurrentMap<Class<?>, FudgeFieldType<?>> _typesByJavaType = new ConcurrentHashMap<Class<?>, FudgeFieldType<?>>();
-  private final ConcurrentMap<Class<?>, FudgeTypeConverter<?,?>> _convertersByJavaType = new ConcurrentHashMap<Class<?>, FudgeTypeConverter<?,?>> ();
+  private final ConcurrentMap<Class<?>, FudgeFieldType<?>> _typesByJavaType;
+  private final ConcurrentMap<Class<?>, FudgeTypeConverter<?,?>> _convertersByJavaType;
   
   /**
    * Creates a new {@link FudgeTypeDictionary} configured with the default types from the Fudge specification. Also
    * includes some standard secondary types.
    */
   public FudgeTypeDictionary() {
+    _typesByJavaType = new ConcurrentHashMap<Class<?>, FudgeFieldType<?>>();
+    _convertersByJavaType = new ConcurrentHashMap<Class<?>, FudgeTypeConverter<?,?>> ();
     // primary types
     addType(ByteArrayFieldType.LENGTH_4_INSTANCE);
     addType(ByteArrayFieldType.LENGTH_8_INSTANCE);
@@ -102,6 +104,16 @@ public final class FudgeTypeDictionary {
     // secondary types
     addType(JavaUtilUUIDFieldType.INSTANCE);
     addType(JavaUtilDateFieldType.INSTANCE);
+  }
+  
+  /**
+   * Creates a new {@link FudgeTypeDictionary} as a clone of another.
+   * 
+   * @param other {@code FudgeTypeDictionary} to copy data from
+   */
+  protected FudgeTypeDictionary (final FudgeTypeDictionary other) {
+    _typesByJavaType = new ConcurrentHashMap<Class<?>, FudgeFieldType<?>> (other._typesByJavaType);
+    _convertersByJavaType = new ConcurrentHashMap<Class<?>, FudgeTypeConverter<?,?>> (other._convertersByJavaType);
   }
   
   /**
@@ -171,6 +183,7 @@ public final class FudgeTypeDictionary {
    * classes that represent the Fudge primitive types, or explicitly registered with
    * {@link #addTypeConverter}.
    * 
+   * @param <T> Java type of the class to look up
    * @param javaType class to look up
    * @return the registered converter, or {@code null} if none is available
    */
@@ -274,84 +287,84 @@ public final class FudgeTypeDictionary {
   // --------------------------
   
   /**
-   * Standard Fudge field type: unsized indicator value. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: unsized indicator value. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte INDICATOR_TYPE_ID = (byte)0;
   
   /**
-   * Standard Fudge field type: boolean. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: boolean. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte BOOLEAN_TYPE_ID = (byte)1;
   
   /**
-   * Standard Fudge field type: 8-bit signed integer. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: 8-bit signed integer. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte BYTE_TYPE_ID = (byte)2;
   
   /**
-   * Standard Fudge field type: 16-bit signed integer. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: 16-bit signed integer. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte SHORT_TYPE_ID = (byte)3;
   
   /**
-   * Standard Fudge field type: 32-bit signed integer. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: 32-bit signed integer. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte INT_TYPE_ID = (byte)4;
   
   /**
-   * Standard Fudge field type: 64-bit signed integer. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: 64-bit signed integer. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte LONG_TYPE_ID = (byte)5;
   
   /**
-   * Standard Fudge field type: byte array. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: byte array. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte BYTE_ARRAY_TYPE_ID = (byte)6;
   
   /**
-   * Standard Fudge field type: array of 16-bit signed integers. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: array of 16-bit signed integers. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte SHORT_ARRAY_TYPE_ID = (byte)7;
   
   /**
-   * Standard Fudge field type: array of 32-bit signed integers. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: array of 32-bit signed integers. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte INT_ARRAY_TYPE_ID = (byte)8;
   
   /**
-   * Standard Fudge field type: array of 64-bit signed integers. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: array of 64-bit signed integers. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte LONG_ARRAY_TYPE_ID = (byte)9;
   
   /**
-   * Standard Fudge field type: 32-bit floating point. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: 32-bit floating point. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte FLOAT_TYPE_ID = (byte)10;
   
   /**
-   * Standard Fudge field type: 64-bit floating point. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: 64-bit floating point. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte DOUBLE_TYPE_ID = (byte)11;
   
   /**
-   * Standard Fudge field type: array of 32-bit floating point. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: array of 32-bit floating point. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte FLOAT_ARRAY_TYPE_ID = (byte)12;
   
   /**
-   * Standard Fudge field type: array of 64-bit floating point. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: array of 64-bit floating point. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte DOUBLE_ARRAY_TYPE_ID = (byte)13;
   
   /**
-   * Standard Fudge field type: string. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: string. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte STRING_TYPE_ID = (byte)14;
   
   // Indicators for controlling stack-based sub-message expressions:
   
   /**
-   * Standard Fudge field type: embedded Fudge sub-message. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: embedded Fudge sub-message. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte FUDGE_MSG_TYPE_ID = (byte)15;
   
@@ -360,62 +373,62 @@ public final class FudgeTypeDictionary {
   // The fixed-width byte arrays:
   
   /**
-   * Standard Fudge field type: byte array of length 4. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: byte array of length 4. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte BYTE_ARR_4_TYPE_ID = (byte)17;
   
   /**
-   * Standard Fudge field type: byte array of length 8. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: byte array of length 8. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte BYTE_ARR_8_TYPE_ID = (byte)18;
   
   /**
-   * Standard Fudge field type: byte array of length 16. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: byte array of length 16. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte BYTE_ARR_16_TYPE_ID = (byte)19;
   
   /**
-   * Standard Fudge field type: byte array of length 20. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: byte array of length 20. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte BYTE_ARR_20_TYPE_ID = (byte)20;
   
   /**
-   * Standard Fudge field type: byte array of length 32. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: byte array of length 32. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte BYTE_ARR_32_TYPE_ID = (byte)21;
   
   /**
-   * Standard Fudge field type: byte array of length 64. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: byte array of length 64. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte BYTE_ARR_64_TYPE_ID = (byte)22;
   
   /**
-   * Standard Fudge field type: byte array of length 128. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: byte array of length 128. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte BYTE_ARR_128_TYPE_ID = (byte)23;
   
   /**
-   * Standard Fudge field type: byte array of length 256. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: byte array of length 256. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte BYTE_ARR_256_TYPE_ID = (byte)24;
   
   /**
-   * Standard Fudge field type: byte array of length 512. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: byte array of length 512. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte BYTE_ARR_512_TYPE_ID = (byte)25;
   
   /**
-   * Standard Fudge field type: date. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: date. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte DATE_TYPE_ID = (byte)26;
   
   /**
-   * Standard Fudge field type: time. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: time. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte TIME_TYPE_ID = (byte)27;
   
   /**
-   * Standard Fudge field type: combined date and time. See {@link "http://wiki.fudgemsg.org/display/FDG/Types"} for more details.
+   * Standard Fudge field type: combined date and time. See <a href="http://wiki.fudgemsg.org/display/FDG/Types">Fudge Types</a> for more details.
    */
   public static final byte DATETIME_TYPE_ID = (byte)28;
 }

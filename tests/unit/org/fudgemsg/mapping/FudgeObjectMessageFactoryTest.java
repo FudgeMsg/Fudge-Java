@@ -32,10 +32,13 @@ import org.junit.Test;
 /**
  * 
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeObjectMessageFactoryTest {
 
+  /**
+   * 
+   */
   @Test
   public void simpleBean() {
     FudgeContext fudgeContext = new FudgeContext();
@@ -45,6 +48,9 @@ public class FudgeObjectMessageFactoryTest {
     FudgeUtils.assertAllFieldsMatch(ObjectMappingTestUtil.constructSimpleMessage(fudgeContext), msg, false);
   }
   
+  /**
+   * 
+   */
   @Test
   public void staticAndTransient() {
     FudgeContext fudgeContext = new FudgeContext();
@@ -55,6 +61,9 @@ public class FudgeObjectMessageFactoryTest {
     assertEquals(1, msg.getNumFields()); // the class identifier only
   }
   
+  /**
+   * 
+   */
   @Test
   public void fudgeFieldMappings () {
     FudgeContext fudgeContext = new FudgeContext ();
@@ -83,6 +92,9 @@ public class FudgeObjectMessageFactoryTest {
     assertEquals ("field 4", bean.getFieldFour ());
   }
   
+  /**
+   * 
+   */
   @Test
   public void objectGraph () {
     FudgeContext fudgeContext = new FudgeContext ();
@@ -93,7 +105,7 @@ public class FudgeObjectMessageFactoryTest {
       System.out.println (msg);
       assert false;
     } catch (FudgeRuntimeException fre) {
-      assertEquals ("Serialisation framework can't support cyclic references", fre.getMessage ());
+      assertEquals ("Serialization framework can't support cyclic references", fre.getMessage ());
     }
   }
   

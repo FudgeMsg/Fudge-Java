@@ -18,6 +18,11 @@ package org.fudgemsg.taxon;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import org.fudgemsg.FudgeMessageFactory;
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeFieldContainer;
 
 /**
  * An implementation of {@link FudgeTaxonomy} where all lookups are specified
@@ -26,7 +31,7 @@ import java.util.Map;
  * or as a building block for loading taxonomy definitions from persistent
  * storage.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class MapFudgeTaxonomy implements FudgeTaxonomy {
   private final Map<Integer, String> _namesByOrdinal;
@@ -98,6 +103,42 @@ public class MapFudgeTaxonomy implements FudgeTaxonomy {
       return null;
     }
     return ordinal.shortValue();
+  }
+  
+  /**
+   * Encodes the taxonomy as a Fudge message as per the specification. An encoded taxonomy can be decoded back to a taxonomy object by the
+   * MapFudgeTaxonomy.fromFudgeMsg method on this class or equivalent function in any other language implementation.
+   * 
+   * @param context a message source
+   * @return the message
+   */
+  public MutableFudgeFieldContainer toFudgeMsg (final FudgeMessageFactory context) {
+    final MutableFudgeFieldContainer msg = context.newMessage ();
+    for (Map.Entry<Integer,String> entry : _namesByOrdinal.entrySet ()) {
+      msg.add (entry.getKey (), entry.getValue ());
+    }
+    return msg;
+  }
+  
+  /**
+   * Decodes a taxonomy from a Fudge message as per the specification that is backed by a MapFudgeTaxonomy object.
+   * 
+   * @param msg the message
+   * @return the encoded taxonomy
+   */
+  public static FudgeTaxonomy fromFudgeMsg (final FudgeFieldContainer msg) {
+    final List<FudgeField> fields = msg.getAllFields ();
+    final Map<Integer,String> namesByOrdinal = new HashMap<Integer,String> (fields.size ());
+    int i = 0;
+    for (FudgeField field : fields) {
+      final Short ordinal = field.getOrdinal ();
+      if (ordinal == null) throw new IllegalArgumentException ("Fudge message does not contain a FudgeTaxonomy - field at index " + i + " has no ordinal");
+      final Object value = field.getValue ();
+      if (!(value instanceof String)) throw new IllegalArgumentException ("Fudge message does not contain a FudgeTaxonomy - field at index " + i + " (ordinal " + ordinal + ") does not contain a string");
+      if (namesByOrdinal.put (ordinal.intValue (), (String)value) != null) throw new IllegalArgumentException ("Fudge message does not contain a FudgeTaxonomy - field at index " + i + " redefines ordinal " + ordinal);
+      i++;
+    }
+    return new MapFudgeTaxonomy (namesByOrdinal);
   }
 
 }

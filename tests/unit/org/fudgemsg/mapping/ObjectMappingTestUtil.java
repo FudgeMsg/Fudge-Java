@@ -30,10 +30,13 @@ import org.fudgemsg.FudgeFieldContainer;
 /**
  * 
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class ObjectMappingTestUtil {
 
+  /**
+   * 
+   */
   @SuppressWarnings("unchecked")
   public static class SimpleBean {
     private String _fieldOne;
@@ -103,6 +106,10 @@ public class ObjectMappingTestUtil {
     }
   }
   
+  /**
+   * @param fudgeContext [documentation not available]
+   * @return [documentation not available]
+   */
   public static FudgeFieldContainer constructSimpleMessage(FudgeContext fudgeContext) {
     MutableFudgeFieldContainer msg = fudgeContext.newMessage();
     msg.add("fieldOne", "Kirk Wylie");
@@ -128,6 +135,9 @@ public class ObjectMappingTestUtil {
     return msg;
   }
   
+  /**
+   * @return [documentation not available]
+   */
   @SuppressWarnings("unchecked")
   public static SimpleBean constructSimpleBean() {
     SimpleBean simpleBean = new SimpleBean();
@@ -148,25 +158,46 @@ public class ObjectMappingTestUtil {
     return simpleBean;
   }
   
+  /**
+   * 
+   */
   public static class StaticTransientBean {
     
+    /**
+     * 
+     */
     public static int s_static = 92;
     
+    /**
+     * 
+     */
     public transient String _transient = "Transient";
     
+    /**
+     * @return [documentation not available]
+     */
     public static int getStatic () {
       return s_static;
     }
     
+    /**
+     * @param s [documentation not available]
+     */
     public static void setStatic (final int s) {
       s_static = s;
     }
     
+    /**
+     * @return [documentation not available]
+     */
     @FudgeTransient
     public String getTransient () {
       return _transient;
     }
     
+    /**
+     * @param value [documentation not available]
+     */
     @FudgeTransient
     public void setTransient (final String value) {
       _transient = value;
@@ -174,24 +205,31 @@ public class ObjectMappingTestUtil {
     
   }
   
+  /**
+   * 
+   */
   public static class SetBean {
     private Set<String> _strings;
 
     /**
-     * @return the strings
+     * @return the strings [documentation not available]
      */
     public Set<String> getStrings() {
       return _strings;
     }
 
     /**
-     * @param strings the strings to set
+     * @param strings the strings to set [documentation not available]
      */
     public void setStrings(Set<String> strings) {
       _strings = strings;
     }
   }
 
+  /**
+   * @param fudgeContext [documentation not available]
+   * @return [documentation not available]
+   */
   public static FudgeFieldContainer constructSetMessage(FudgeContext fudgeContext) {
     MutableFudgeFieldContainer msg = fudgeContext.newMessage();
     msg.add("strings", "Kirk Wylie");
@@ -200,6 +238,9 @@ public class ObjectMappingTestUtil {
     return msg;
   }
   
+  /**
+   * @return [documentation not available]
+   */
   public static SetBean constructSetBean() {
     SetBean setBean = new SetBean();
     Set<String> strings = new HashSet<String>();
@@ -210,35 +251,62 @@ public class ObjectMappingTestUtil {
     return setBean;
   }
   
+  /**
+   * 
+   */
   public static class MappedNameBean {
     private String _fieldOne;
     private String _fieldTwo;
     private String _fieldThree;
     private String _fieldFour;
+    /**
+     * @param fieldOne [documentation not available]
+     */
     public void setFieldOne (final String fieldOne) {
       _fieldOne = fieldOne;
     }
+    /**
+     * @return [documentation not available]
+     */
     @FudgeFieldName ("foo")
     public String getFieldOne () {
       return _fieldOne;
     }
+    /**
+     * @param fieldTwo [documentation not available]
+     */
     public void setFieldTwo (final String fieldTwo) {
       _fieldTwo = fieldTwo;
     }
+    /**
+     * @return [documentation not available]
+     */
     @FudgeFieldName ("bar")
     public String getFieldTwo () {
       return _fieldTwo;
     }
+    /**
+     * @param fieldThree [documentation not available]
+     */
     public void setFieldThree (final String fieldThree) {
       _fieldThree = fieldThree;
     }
+    /**
+     * @return [documentation not available]
+     */
     @FudgeFieldOrdinal (99)
     public String getFieldThree () {
       return _fieldThree;
     }
+    /**
+     * @param fieldFour [documentation not available]
+     */
     public void setFieldFour (final String fieldFour) {
       _fieldFour = fieldFour;
     }
+    /**
+     * @return [documentation not available]
+     */
     @FudgeFieldOrdinal (value = 100, noFieldName = true)
     public String getFieldFour () {
       return _fieldFour;

@@ -23,7 +23,7 @@ package org.fudgemsg;
  * must hold. The current implementation of secondary types relies on this
  * predicate.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public interface FudgeField {
   

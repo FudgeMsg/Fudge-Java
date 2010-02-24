@@ -24,7 +24,7 @@ import java.io.Serializable;
 /**
  * Intended to model a very small tick, with just a few key fields.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class SmallFinancialTick implements Serializable {
   private double _bid;
@@ -93,6 +93,10 @@ public class SmallFinancialTick implements Serializable {
     _timestamp = timestamp;
   }
   
+  /**
+   * @param fc [documentation not available]
+   * @return [documentation not available]
+   */
   public FudgeFieldContainer toFudgeMsg (final FudgeMessageFactory fc) {
     MutableFudgeFieldContainer msg = fc.newMessage ();
     msg.add ("bid", (Double)_bid);

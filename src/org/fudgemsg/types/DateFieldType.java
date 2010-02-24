@@ -19,18 +19,19 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import java.util.Date;
-
 import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeTypeDictionary;
 
 /**
- * The type definition for a date. Java doesn't have a standard class for representing a date
+ * <p>The type definition for a date. Java doesn't have a standard class for representing a date
  * without a time, so we are currently using {@link FudgeDate}. When Java can support a date
  * on its own, that will become the primary mapping and the {@code FudgeDate} type will be
- * supported through the secondary type mechanism.
+ * supported through the secondary type mechanism.</p>
+ * 
+ * <p>This part of the specification is not finalized and should not be used. The {@code DateTime}
+ * Fudge type should be used instead. For more details, please refer to <a href="http://wiki.fudgemsg.org/display/FDG/DateTime+encoding">DateTime Encoding</a>.</p>
  *
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class DateFieldType extends FudgeFieldType<FudgeDate> {
 

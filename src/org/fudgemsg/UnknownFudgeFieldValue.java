@@ -26,7 +26,7 @@ import org.fudgemsg.types.UnknownFudgeFieldType;
  * to obtain one for a particular context, which is what the Fudge decoding
  * routines will do. 
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class UnknownFudgeFieldValue {
   private final byte[] _contents;

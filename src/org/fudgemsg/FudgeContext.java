@@ -30,32 +30,40 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
 import org.fudgemsg.taxon.TaxonomyResolver;
 
 /**
- * The primary entry-point for code to interact with the rest of the Fudge system.
+ * <p>The primary entry-point for code to interact with the rest of the Fudge system.
  * For performance reasons, there are many options that are passed around as parameters
  * inside static methods for encoding and decoding, and many lightweight objects that
- * ideally don't know of their configuration context.
- * However, in a large application, it is often desirable to collect all configuration
- * parameters in one location and inject options into it.
- * <p/>
- * {@code FudgeContext} allows application developers to have a single location
+ * ideally don't know of their configuration context. However, in a large application,
+ * it is often desirable to collect all configuration parameters in one location and
+ * inject options into it.</p>
+ * 
+ * <p>{@code FudgeContext} allows application developers to have a single location
  * to inject dependent parameters and instances, and make them available through
  * simple method invocations. In addition, because it wraps all checked exceptions
  * into instances of {@link FudgeRuntimeException}, it is the ideal way to use
- * the Fudge encoding system from within Spring applications.
- * <p/>
- * While most applications will have a single instance of {@code FudgeContext},
+ * the Fudge encoding system from within Spring applications.</p>
+ * 
+ * <p>While most applications will have a single instance of {@code FudgeContext},
  * some applications will have one instance per unit of encoding/decoding parameters.
  * For example, if an application is consuming data from two messaging feeds, each
  * of which reuses the same taxonomy ID to represent a different
  * {@link FudgeTaxonomy}, it would configure two different instances of
- * {@code FudgeContext}, one per feed.
+ * {@code FudgeContext}, one per feed.</p>
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeContext implements FudgeMessageFactory {
+  
+  /**
+   * A default global {@link FudgeContext} for getting code up and running quickly. The context cannot be modified
+   * in any way so can only be used for the core Fudge data types and will not support a taxonomy resolver. This
+   * should be used for trivial projects and code only.
+   */
+  public static final FudgeContext GLOBAL_DEFAULT = new ImmutableFudgeContext (new FudgeContext ());
+  
   private FudgeTypeDictionary _typeDictionary = new FudgeTypeDictionary();
   private FudgeObjectDictionary _objectDictionary = new FudgeObjectDictionary ();
-  private TaxonomyResolver _taxonomyResolver;
+  private TaxonomyResolver _taxonomyResolver = null;
   
   /**
    * Returns the current {@link TaxonomyResolver} used by this context. A new {@code FudgeContext} starts with its own, default,

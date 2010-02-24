@@ -24,18 +24,27 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.FudgeRuntimeException;
 
 /**
- * Attempt to create an Fudge message containing values from Java-bean style getX
+ * <p>Attempt to create an Fudge message containing values from Java-bean style getX
  * methods. If the nearest superclass supports ToFudgeMsgMessageBuilder then that will
  * be used to create the initial message that is supplemented by subclass getX
- * methods.
+ * methods.</p>
  * 
- * This has been superceded by the JavaBeanBuilder which uses the BeanUtils package.
+ * <p>This has been superceded by the JavaBeanBuilder which uses the BeanUtils package
+ * and will probably be removed from future releases.</p>
  * 
- * @param <T> class that can be serialised using this builder
- * @author Andrew
+ * @param <T> class that can be serialized using this builder
+ * @author Andrew Griffin
  */
 /* package */ class ReflectionMessageBuilder<T> extends ReflectionBuilderBase<T> implements FudgeMessageBuilder<T> {
   
+  /**
+   * Creates a new {@link ReflectionMessageBuilder} for building messages from arbitrary Java objects. Always
+   * succeeds, although the builder may only be capable of generating empty messages.
+   * 
+   * @param <T> class to generate messages for
+   * @param clazz class to generate messages for
+   * @return the {@code ReflectionMessageBuilder}
+   */
   /* package */ static <T> ReflectionMessageBuilder<T> create (final Class<T> clazz) {
     FudgeMessageBuilder<? super T> builder = null;
     Class<? super T> superclazz = clazz;
@@ -53,6 +62,9 @@ import org.fudgemsg.FudgeRuntimeException;
     _baseBuilder = baseBuilder;
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public MutableFudgeFieldContainer buildMessage (final FudgeSerializationContext context, final T object) {
     //System.out.println ("ReflectionMessageBuilder::buildMessage (" + context + ", " + object + ")");
@@ -67,7 +79,7 @@ import org.fudgemsg.FudgeRuntimeException;
         //System.out.println ("\t" + accessor.getValue ());
         context.objectToFudgeMsg (message, accessor.getKey (), null, accessor.getValue ().invoke (object));
       }
-      context.addClassHeader (message, object.getClass ());
+      FudgeSerializationContext.addClassHeader (message, object.getClass ());
     } catch (IllegalArgumentException e) {
       throw new FudgeRuntimeException ("Couldn't serialise " + object, e);
     } catch (IllegalAccessException e) {

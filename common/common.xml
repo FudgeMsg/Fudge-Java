@@ -94,18 +94,31 @@
 	<target name="compile" depends="compile-src,compile-tests"
 		description="--> compile all source code" />
 
-	<available classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" property="fudge.proto.present" />
+ 	<target name="fudge-proto-present" depends="resolve">
+ 		<available classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" property="fudge.proto.present" />
+ 	</target>
 
-	<target name="fudge-proto" depends="resolve"
-		if="fudge.proto.present"
+ 	<target name="fudge-proto-compile" if="fudge.proto.present">
+                 <path id="fudge.proto.project.path">
+                         <dirset dir="${projects.dir}">
+                                 <include name="**/src" />
+                         </dirset>
+                 </path>
+                 <taskdef name="fudgeproto" classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" />
+                 <fudgeproto
+                 	srcdir="${src.dir}"
+                 	destdir="${src.dir}"
+                 	searchdir="${toString:fudge.proto.project.path}"
+                 	equals="${fudge.proto.equals}"
+                 	toString="${fudge.proto.toString}"
+                 	hashCode="${fudge.proto.hashCode}"
+                 	verbose="${build.verbose}"
+                 	fudgeContext="${fudge.proto.fudgeContext}"
+                 	rebuildAll="${fudge.proto.rebuildall}" />
+ 	</target>
+
+ 	<target name="fudge-proto" depends="fudge-proto-present,fudge-proto-compile"
 		description="--> compile any Fudge .proto files">
-		<path id="fudge.proto.project.path">
-			<dirset dir="${projects.dir}">
-				<include name="**/src" />
-			</dirset>
-		</path>
-		<taskdef name="fudgeproto" classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" />
-		<fudgeproto srcdir="${src.dir}" destdir="${src.dir}" searchdir="${toString:fudge.proto.project.path}" verbose="${build.verbose}" />
 	</target>
 
 	<target name="compile-src" depends="fudge-proto"
@@ -129,19 +142,35 @@
 			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}" />
 	</target>
 
-	<target name="compile-tests" depends="resolve" description="--> compile the tests">
-		<mkdir dir="${tests.classes.dir}" />
-		<path id="tests.build.classpath.id">
-			<path refid="lib.path.id" />
-			<pathelement path="${classes.dir}" />
-		</path>
+	<target name="compile-tests-mkdir" depends="resolve">
+	        <mkdir dir="${tests.classes.dir}" />
+                <path id="tests.build.classpath.id">
+                	<path refid="lib.path.id" />
+                	<pathelement path="${classes.dir}" />
+                </path>
+        </target>
+
+	<target name="compile-tests-main" depends="compile-tests-mkdir">
 		<javac srcdir="${tests.src.dir}" destdir="${tests.classes.dir}"
-			classpathref="tests.build.classpath.id" debug="${build.debug}"
-			optimize="${build.optimize}" verbose="${build.verbose}" listfiles="${build.listfiles}" />
+                        classpathref="tests.build.classpath.id" debug="${build.debug}"
+                        optimize="${build.optimize}" verbose="${build.verbose}" listfiles="${build.listfiles}" />
+	</target>
+
+	<available property="tests.interop" file="${tests.dir}/interop" />
+	<target name="compile-tests-interop" depends="compile-tests-mkdir" if="tests.interop">
+		<javac srcdir="${tests.dir}/interop" destdir="${tests.classes.dir}"
+                        classpathref="tests.build.classpath.id" debug="${build.debug}"
+                        optimize="${build.optimize}" verbose="${build.verbose}" listfiles="${build.listfiles}" />
+	</target>
+
+	<target name="compile-tests" depends="compile-tests-main,compile-tests-interop" description="--> compile the tests">
 		<copy todir="${tests.classes.dir}">
 			<fileset dir="${tests.src.dir}">
 				<exclude name="**/*.java" />
 			</fileset>
+			<fileset dir="${tests.dir}/interop" erroronmissingdir="false">
+				<exclude name="**/*.java" />
+			</fileset> 
 		</copy>
 	</target>
 	
@@ -151,8 +180,8 @@
 		<mkdir dir="${tests.junit.dir}/xml" />
 		<junit printSummary="true" fork="true" forkmode="once">
 			<classpath>
-	      <path refid="lib.path.id" />
-	      <pathelement path="${classes.dir}" />
+				<path refid="lib.path.id" />
+				<pathelement path="${classes.dir}" />
 				<pathelement path="${tests.classes.dir}" />
 			</classpath>
 			<assertions>
@@ -161,8 +190,7 @@
 			<formatter type="xml" />
 			<batchtest todir="${tests.junit.dir}/xml">
 				<fileset dir="${tests.src.dir}" includes="**/*Test.java" />
-				<!-- TODO: deal with interop, integration, etc -->
-				<!--fileset dir="${tests.dir}/interop" includes="**/*Test.java" /-->
+				<fileset dir="${tests.dir}/interop" includes="**/*Test.java" erroronmissingdir="false" />
 			</batchtest>
 		</junit>
 	</target>
@@ -216,6 +244,7 @@
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Build-Version" value="${version}" />
+                                <attribute name="Main-Class" value="${main.class.name}" />
 			</manifest>
 		</jar>
 	</target>
@@ -234,7 +263,7 @@
 	<target name="javadoc-jar" depends="version, javadoc"
 		description="--> make a javadoc jar file for this project">
 		<jar destfile="${javadocs.jar.file}" basedir="${docs.dir}/javadoc"
-			compress="${jar.compress}" />
+			compress="true" />
 	</target>
 
 	<target name="publish" depends="clean-build, jar"
@@ -254,27 +283,35 @@
 	</target>
 
 	<target name="dist" depends="jar,src-jar,javadoc-jar">
-		<mkdir dir="${dist.dir}" />
-		<copy todir="${dist.dir}/${dist.name}-${version}" file="${basedir}/LICENSE.txt" failonerror="false"/>
-		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/README.txt" failonerror="false"/>
-		<copy todir="${dist.dir}/${dist.name}" file="${jar.file}" />
-		<copy todir="${dist.dir}/${dist.name}" file="${src.jar.file}" />
-		<copy todir="${dist.dir}/${dist.name}" file="${javadocs.jar.file}" />
-		<mkdir dir="${dist.dir}/${dist.name}/lib" />
+		<mkdir dir="${dist.dir}/${dist.name}-${version}" />
+		<copy todir="${dist.dir}/${dist.name}-${version}" enablemultiplemappings="true">
+			<resources>
+				<file file="${basedir}/LICENSE.txt" />
+				<file file="${basedir}/README.txt" />
+				<file file="${jar.file}" />
+				<file file="${src.jar.file}" />
+				<file file="${javadocs.jar.file}" />
+			</resources>
+			<chainedmapper>
+				<flattenmapper />
+				<globmapper from="*.jar" to="*-${version}.jar" />
+			</chainedmapper>
+		</copy>
+		<mkdir dir="${dist.dir}/${dist.name}-${version}/lib" />
 		<ivy:retrieve
-			pattern="${dist.dir}/${dist.name}/lib/[artifact]-[revision].[ext]" />
+			pattern="${dist.dir}/${dist.name}-${version}/lib/[artifact]-[revision].[ext]" />
 	</target>
 
 	<target name="tarball" depends="dist" description="--> generate a tarball for distribution">
 		<tar destfile="${dist.dir}/${dist.name}-${version}.tar" basedir="${dist.dir}">
-			<include name="${dist.name}/**/*" />
+			<include name="${dist.name}-${version}/**/*" />
 		</tar>
 		<bzip2 src="${dist.dir}/${dist.name}-${version}.tar" destfile="${dist.dir}/${dist.name}-${version}.tar.bz2" />
 	</target>
 
 	<target name="zipfile" depends="dist" description="--> generate a zip file for distribution">
 		<zip destfile="${dist.dir}/${dist.name}-${version}.zip" basedir="${dist.dir}">
-			<include name="${dist.name}/**/*" />
+			<include name="${dist.name}-${version}/**/*" />
 		</zip>
 	</target>
 
@@ -291,22 +328,27 @@
 
 	<target name="clean-build" description="--> clean the project built files">
 		<delete includeemptydirs="true" dir="${build.dir}" />
-		<delete includeemptydirs="true" dir="${tests.build.dir}" />
+		<delete includeemptydirs="true" dir="${tests.classes.dir}" />
 	</target>
 	
 	<target name="clean-dist" description="--> clean the project distribution files">
 		<delete includeemptydirs="true" dir="${dist.dir}" />
 	</target>
-	
-	<target name="clean" depends="clean-build, clean-lib, clean-dist"
+
+	<target name="clean-docs" description="--> clean the automatically generated documentation">
+		<delete includeemptydirs="true" dir="${tests.junit.dir}" />
+		<delete includeemptydirs="true" dir="${docs.dir}" />
+	</target>
+
+	<target name="clean" depends="clean-build, clean-lib, clean-dist, clean-docs"
 		description="--> clean the project" />
 
 	<property name="rpm.spec.file" value="${dist.name}.spec" />
-        <target name="rpm" depends="jar,javadoc-jar" description="--> build the RPM distribution">
+        <target name="rpm" depends="dist" description="--> build the RPM distribution">
                 <copy file="${rpm.source.dir}/${rpm.spec.file}" todir="${rpm.build.dir}/SPECS" />
-                <copy file="build/${dist.name}.jar" todir="${rpm.build.dir}/SOURCES" />
-                <copy file="build/${dist.name}-javadocs.jar" todir="${rpm.build.dir}/SOURCES" />
-                <copy file="LICENSE.txt" todir="${rpm.build.dir}/SOURCES" />
+                <copy file="${jar.file}" todir="${rpm.build.dir}/SOURCES" />
+                <copy file="${javadocs.jar.file}" todir="${rpm.build.dir}/SOURCES" />
+                <copy file="${basedir}/LICENSE.txt" todir="${rpm.build.dir}/SOURCES" />
                 <copy todir="${rpm.build.dir}/SOURCES">
                 	<fileset dir="${rpm.source.dir}">
                 		<exclude name="**/*.spec" />

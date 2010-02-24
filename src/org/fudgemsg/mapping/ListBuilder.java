@@ -27,15 +27,21 @@ import org.fudgemsg.FudgeRuntimeException;
 /**
  * Builder for List objects.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 /* package */ class ListBuilder implements FudgeBuilder<List<?>> {
   
+  /**
+   * 
+   */
   /* package */ static final FudgeBuilder<List<?>> INSTANCE = new ListBuilder (); 
   
   private ListBuilder () {
   }
 
+  /**
+   *
+   */
   @Override
   public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, List<?> list) {
     final MutableFudgeFieldContainer msg = context.newMessage ();
@@ -45,6 +51,9 @@ import org.fudgemsg.FudgeRuntimeException;
     return msg;
   }
   
+  /**
+   *
+   */
   @Override
   public List<?> buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
     final List<Object> list = new ArrayList<Object> ();

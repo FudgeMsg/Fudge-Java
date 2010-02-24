@@ -23,7 +23,7 @@ package org.fudgemsg.taxon;
  * stream of data from a particular source, and some applications may have
  * multiple {@code TaxonomyResolver}s loaded into a single application. 
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public interface TaxonomyResolver {
   

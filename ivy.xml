@@ -1,6 +1,6 @@
 <ivy-module version="2.0">
-    <info organisation="org.fudgemsg" module="fudge" status="integration">
-      <license name="APLv2" url="http://www.apache.org/licenses/LICENSE-2.0"/>
+    <info organisation="org.fudgemsg" module="fudge-java" status="integration">
+      <license name="Apache License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>
       <ivyauthor name="Kirk Wylie" url="mailto:kirk@opengamma.com"/>
       <description homepage="http://www.fudgemsg.org/">
       </description>
@@ -12,12 +12,11 @@
     </configurations>
     
     <publications>
-      <artifact name="fudge" type="jar" conf="core"/>
+      <artifact name="fudge-java" type="jar" conf="core"/>
     </publications>
     <dependencies>
-        <dependency org="org.apache.commons" name="commons-lang" rev="[2.4,3.0[" conf="core->*"/>
         <dependency org="org.junit" name="junit" rev="[4.7,5.0[" conf="core->*"/>
-        <dependency org="org.apache.commons" name="commons-beanutils" rev="1.8.0" conf="core->*"/>
+        <dependency org="org.apache.commons" name="commons-beanutils" rev="[1.8.2,1.9[" conf="core->core"/>
         <dependency org="org.mongodb" name="java-driver" rev="1.0" conf="mongodb->*"/>
     </dependencies>
 </ivy-module>

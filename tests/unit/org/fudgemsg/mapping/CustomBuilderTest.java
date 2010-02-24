@@ -25,7 +25,7 @@ import org.junit.Test;
 /**
  * 
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class CustomBuilderTest {
   
@@ -83,6 +83,9 @@ public class CustomBuilderTest {
     
   }
   
+  /**
+   * 
+   */
   @Test
   public void withoutCustomBuilder () {
     final FudgeContext fudgeContext = new FudgeContext ();
@@ -103,6 +106,9 @@ public class CustomBuilderTest {
     }
   }
   
+  /**
+   * 
+   */
   @Test
   public void withCustomBuilder () {
     final FudgeContext fudgeContext = new FudgeContext ();
@@ -170,14 +176,29 @@ public class CustomBuilderTest {
     }
   }
   
+  /**
+   * 
+   *
+   * @author Andrew Griffin
+   */
   public static class BeanClass {
     private String _bar;
+    /**
+     * @param bar [documentation not available]
+     */
     public void setBar (final String bar) {
       _bar = bar;
     }
+    /**
+     * @return [documentation not available]
+     */
     public String getBar () {
       return _bar;
     }
+    /**
+     * @param o [documentation not available]
+     * @return [documentation not available]
+     */
     public boolean equals (final Object o) {
       if (o == null) return false;
       if (!(o instanceof BeanClass)) return false;
@@ -186,18 +207,32 @@ public class CustomBuilderTest {
     }
   }
   
+  /**
+   * 
+   *
+   * @author Andrew Griffin
+   */
   public static class ProtoMessage {
     
     private final FooInterface _foo;
     private final BeanClass _bar;
     private final int _n;
     
+    /**
+     * @param foo [documentation not available]
+     * @param bar [documentation not available]
+     * @param n [documentation not available]
+     */
     ProtoMessage (FooInterface foo, BeanClass bar, int n) {
       _foo = foo;
       _bar = bar;
       _n = n;
     }
     
+    /**
+     * @param context [documentation not available]
+     * @return [documentation not available]
+     */
     public FudgeFieldContainer toFudgeMsg (FudgeSerializationContext context) {
       MutableFudgeFieldContainer msg = context.newMessage ();
       msg.add ("foo", context.objectToFudgeMsg (_foo));
@@ -206,6 +241,11 @@ public class CustomBuilderTest {
       return msg;
     }
     
+    /**
+     * @param context [documentation not available]
+     * @param fields [documentation not available]
+     * @return [documentation not available]
+     */
     public static ProtoMessage fromFudgeMsg (FudgeDeserializationContext context, FudgeFieldContainer fields) {
       final FooInterface foo = context.fudgeMsgToObject (FooInterface.class, fields.getMessage ("foo"));
       final BeanClass bar = context.fudgeMsgToObject (BeanClass.class, fields.getMessage ("bar"));
@@ -213,6 +253,10 @@ public class CustomBuilderTest {
       return new ProtoMessage (foo, bar, n);
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean equals (final Object o) {
       if (o == null) return false;
       if (!(o instanceof ProtoMessage)) return false;
@@ -239,6 +283,9 @@ public class CustomBuilderTest {
     assert pmCow2.equals (pmCow);
   }
   
+  /**
+   * 
+   */
   @Test
   public void subclassBuilderTest () {
     final FudgeContext fc = new FudgeContext ();

@@ -27,7 +27,7 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
 /**
  * The type definition for an array of single-precision floating point numbers.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FloatArrayFieldType extends FudgeFieldType<float[]> {
 

@@ -21,30 +21,48 @@ import java.util.Stack;
 import org.fudgemsg.FudgeRuntimeException;
 
 /**
- * A basic buffer for the serialisation and deserialisation contexts that can detect
+ * A basic buffer for the serialization and deserialization contexts that can detect
  * the cycles they can't deal with. When the method for processing object graphs has
  * been agreed, this will process back and forward references.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
-/* package */ class SerialisationBuffer {
+/* package */ class SerializationBuffer {
   
   private final Stack<Object> _buffer;
   
-  /* package */ SerialisationBuffer () {
+  /**
+   * Creates a new {@link SerializationBuffer}.
+   */
+  SerializationBuffer () {
     _buffer = new Stack<Object> ();
   }
   
+  /**
+   * Registers the start of an object being processed. During serialization can detect a loop
+   * and raise a {@link FudgeRuntimeException}.
+   * 
+   * @param object the object currently being processed
+   * @throws FudgeRuntimeException if a cyclic reference is detected    
+   */
   /* package */ void beginObject (final Object object) {
-    if (_buffer.contains (object)) throw new FudgeRuntimeException ("Serialisation framework can't support cyclic references");
+    if (_buffer.contains (object)) throw new FudgeRuntimeException ("Serialization framework can't support cyclic references");
     _buffer.push (object);
   }
   
+  /**
+   * Registers the end of an object being processed.
+   * 
+   * @param object the object being processed
+   */
   /* package */ void endObject (final Object object) {
     final Object obj = _buffer.pop ();
     assert obj == object;
   }
   
+  /**
+   * Resets the state of the buffer.
+   */
   /* package */ void reset () {
     _buffer.clear ();
   }

@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Allows for pretty-printing of Fudge messages ({@link FudgeFieldContainer} instances).
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class FudgeMsgFormatter {
   
@@ -118,6 +118,12 @@ public class FudgeMsgFormatter {
     format(msg, 0);
   }
   
+  /**
+   * Formats (pretty-prints) a Fudge message to the target device, with the given left hand indent.
+   * 
+   * @param msg message to write
+   * @param depth indentation level
+   */
   protected void format(FudgeFieldContainer msg, int depth) {
     if(msg == null) {
       return;
@@ -140,10 +146,28 @@ public class FudgeMsgFormatter {
     }
   }
   
+  /**
+   * Calculates the length of a description (name + ordinal) of the field.
+   * 
+   * @param field field to describe
+   * @param index offset index of the field within the message
+   * @param depth indentation level
+   * @return length in characters
+   */
   protected int getFieldSpecWidth(FudgeField field, int index, int depth) {
     return getFieldSpec(field, index, depth).length();
   }
 
+  /**
+   * Lays out and writes a field description and value on a line to the output device.
+   * 
+   * @param field field to describe
+   * @param index offset index of the field within the message
+   * @param depth indentation level
+   * @param fieldSpec field description (name + ordinal)
+   * @param maxFieldSpecWidth maximum length (in characters) of all {@code fieldSpec}s within the message
+   * @param maxTypeNameWidth maximum length (in characters) of all type names within the message
+   */
   protected void format(FudgeField field, int index, int depth, String fieldSpec, int maxFieldSpecWidth, int maxTypeNameWidth) {
     if(field == null) {
       throw new NullPointerException("Cannot format a null field");
@@ -174,6 +198,14 @@ public class FudgeMsgFormatter {
     getWriter().flush();
   }
   
+  /**
+   * Describes the fields name and ordinal.
+   * 
+   * @param field field to describe
+   * @param index offset index into the containing message
+   * @param depth indentation level
+   * @return the description prefixed with the necessary indent
+   */
   protected String getFieldSpec(FudgeField field, int index, int depth) {
     StringBuilder sb = new StringBuilder();
     for(int i = 0; i < depth; i++) {
@@ -193,6 +225,12 @@ public class FudgeMsgFormatter {
     return sb.toString();
   }
 
+  /**
+   * Creates an indentation string for the given level.
+   *
+   * @param indent indentation level
+   * @return the string containing spaces
+   */
   protected String composeIndentText(int indent) {
     StringBuilder sb = new StringBuilder();
     for(int i = 0; i < indent; i++) {
@@ -201,6 +239,12 @@ public class FudgeMsgFormatter {
     return sb.toString();
   }
   
+  /**
+   * Creates a string type name for a Fudge type.
+   * 
+   * @param type the Fudge type
+   * @return the type name
+   */
   protected String getTypeName(FudgeFieldType<?> type) {
     if(type == null) {
       throw new NullPointerException("Must specify a type.");

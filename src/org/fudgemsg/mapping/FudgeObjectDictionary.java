@@ -29,9 +29,9 @@ import org.fudgemsg.MutableFudgeFieldContainer;
  * different builder factory, or registering additional/different generic builders can
  * change the default behaviours for unrecognized classes.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
-public final class FudgeObjectDictionary {
+public class FudgeObjectDictionary {
   
   private static final FudgeMessageBuilder<?> NULL_MESSAGEBUILDER = new FudgeMessageBuilder<Object> () {
     @Override
@@ -47,8 +47,8 @@ public final class FudgeObjectDictionary {
     }
   };
   
-  private final ConcurrentMap<Class<?>, FudgeObjectBuilder<?>> _objectBuilders = new ConcurrentHashMap<Class<?>, FudgeObjectBuilder<?>> ();
-  private final ConcurrentMap<Class<?>, FudgeMessageBuilder<?>> _messageBuilders = new ConcurrentHashMap<Class<?>, FudgeMessageBuilder<?>> ();
+  private final ConcurrentMap<Class<?>, FudgeObjectBuilder<?>> _objectBuilders;
+  private final ConcurrentMap<Class<?>, FudgeMessageBuilder<?>> _messageBuilders;
   
   private FudgeBuilderFactory _defaultBuilderFactory = new FudgeDefaultBuilderFactory ();
   
@@ -56,17 +56,36 @@ public final class FudgeObjectDictionary {
    * Constructs a new (initially empty) {@link FudgeObjectDictionary}.
    */
   public FudgeObjectDictionary () {
+    _objectBuilders = new ConcurrentHashMap<Class<?>, FudgeObjectBuilder<?>> ();
+    _messageBuilders = new ConcurrentHashMap<Class<?>, FudgeMessageBuilder<?>> ();
+  }
+  
+  /**
+   * Constructs a new {@link FudgeObjectDictionary} as a clone of another.
+   * 
+   * @param other the {@code FudgeObjectDictionary} to clone
+   */
+  /* package */ FudgeObjectDictionary (final FudgeObjectDictionary other) {
+    _objectBuilders = new ConcurrentHashMap<Class<?>, FudgeObjectBuilder<?>> (other._objectBuilders);
+    _messageBuilders = new ConcurrentHashMap<Class<?>, FudgeMessageBuilder<?>> (other._messageBuilders);
+    _defaultBuilderFactory = new ImmutableFudgeBuilderFactory (other._defaultBuilderFactory);
   }
   
   /**
    * Returns the current builder factory for unregistered types.
+   * 
+   * @return the current {@link FudgeBuilderFactory}.
    */
   public FudgeBuilderFactory getDefaultBuilderFactory () {
     return _defaultBuilderFactory;
   }
   
   /**
-   * Sets the builder factory to use for types that are not explicitly registered here.
+   * Sets the builder factory to use for types that are not explicitly registered here. It is recommended that {@link FudgeBuilderFactory}
+   * implementations are made using the {@link FudgeBuilderFactoryAdapter}, constructed with the previously set factory so that the behaviours
+   * can be chained. 
+   * 
+   * @param defaultBuilderFactory the {@code FudgeBuilderFactory} to use
    */
   public void setDefaultBuilderFactory (final FudgeBuilderFactory defaultBuilderFactory) {
     _defaultBuilderFactory = defaultBuilderFactory;

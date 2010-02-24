@@ -24,10 +24,13 @@ import org.fudgemsg.types.SecondaryFieldType;
  * Secondary type for UUID conversion to/from byte[]. The conversion is
  * most significant bits first.
  *
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class JavaUtilUUIDFieldType extends SecondaryFieldType<UUID,byte[]> {
   
+  /**
+   * Singleton instance of the type.
+   */
   public static final JavaUtilUUIDFieldType INSTANCE = new JavaUtilUUIDFieldType ();
   
   private JavaUtilUUIDFieldType () {
@@ -35,6 +38,9 @@ public class JavaUtilUUIDFieldType extends SecondaryFieldType<UUID,byte[]> {
     
   }
 
+  /**
+   *
+   */
   @Override
   public byte[] secondaryToPrimary(UUID object) {
     final byte[] data = new byte[16];
@@ -51,6 +57,9 @@ public class JavaUtilUUIDFieldType extends SecondaryFieldType<UUID,byte[]> {
     return data;
   }
   
+  /**
+   *
+   */
   @Override
   public UUID primaryToSecondary (byte[] data) {
     long lo = 0;

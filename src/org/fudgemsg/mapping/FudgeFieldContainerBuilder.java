@@ -22,20 +22,29 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 /**
  * Dummy builder wrapper for objects that are already fudge messages.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 /* package */ class FudgeFieldContainerBuilder implements FudgeBuilder<FudgeFieldContainer> {
   
+  /**
+   * 
+   */
   /* package */ static final FudgeBuilder<FudgeFieldContainer> INSTANCE = new FudgeFieldContainerBuilder (); 
   
   private FudgeFieldContainerBuilder () {
   }
 
+  /**
+   *
+   */
   @Override
   public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, FudgeFieldContainer fields) {
     return context.newMessage (fields);
   }
   
+  /**
+   *
+   */
   @Override
   public FudgeFieldContainer buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
     return context.getFudgeContext ().newMessage (message);

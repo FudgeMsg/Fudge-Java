@@ -13,19 +13,19 @@
 # limitations under the License.
 
 Name:		fudge-java
-Version:	0.1
-Release:	1%{?dist}
+Version:	0.2
+Release:	beta1%{?dist}
 Summary:	Fudge message encoding library for Java
 
 Group:		Development/Libraries
 License:	http://www.apache.org/licenses/LICENSE-2.0
 URL:		http://www.fudgemsg.org/
-Source0:	fudge.jar
-Source1:	fudge-javadocs.jar
+Source0:	fudge-java.jar
+Source1:	fudge-java-javadocs.jar
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch:	noarch
 
-Requires:	jpackage-utils
+Requires:	jpackage-utils jakarta-commons-beanutils
 
 %description
 Fudge is a hierarchical, typesafe, binary, self-describing message encoding system.

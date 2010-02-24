@@ -25,7 +25,7 @@ import org.fudgemsg.FudgeMsgReader;
 /**
  * Deserialises Java objects from an underlying stream of Fudge messages.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 public class FudgeObjectReader {
   

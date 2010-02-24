@@ -27,7 +27,7 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
 /**
  * Type definition for arrays of 64-bit integers.
  *
- * @author kirk
+ * @author Kirk Wylie
  */
 public class LongArrayFieldType extends FudgeFieldType<long[]> {
   

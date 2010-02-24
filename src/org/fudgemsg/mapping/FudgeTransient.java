@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
  * be deprecated in a future release when the JPF is more commonly available in Java implementations
  * other than EE.
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 @Retention (RetentionPolicy.RUNTIME)
 @Target (ElementType.METHOD)

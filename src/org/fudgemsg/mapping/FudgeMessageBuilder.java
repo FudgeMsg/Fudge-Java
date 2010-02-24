@@ -23,7 +23,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
  * 
  * @param <T> the Java type this builder creates Fudge message from
  * 
- * @author Andrew
+ * @author Andrew Griffin
  */
 public interface FudgeMessageBuilder<T> {
   
