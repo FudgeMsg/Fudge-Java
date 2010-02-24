@@ -15,6 +15,7 @@
  */
 package org.fudgemsg.taxon;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
@@ -31,6 +32,7 @@ public class RESTfulTaxonomyResolverTest {
    * 
    */
   @Test
+  @Ignore // ignore this if there isn't a local webserver available
   public void testResolver () {
     final TaxonomyResolver tr = new RESTfulTaxonomyResolver ("http://localhost/" + System.getProperty ("user.name") + "/rest/", ".xml");
     assertNotNull (tr.resolveTaxonomy ((short)42));
