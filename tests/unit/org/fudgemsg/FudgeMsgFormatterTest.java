@@ -15,7 +15,10 @@
  */
 package org.fudgemsg;
 
+import java.io.IOException;
 import java.io.PrintWriter;
+
+import javax.xml.stream.XMLStreamException;
 
 import org.junit.Test;
 

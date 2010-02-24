@@ -15,10 +15,11 @@
  */
 package org.fudgemsg.taxon;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * Tests the RESTfulTaxonomyResolver implementation
@@ -31,6 +32,7 @@ public class RESTfulTaxonomyResolverTest {
    * 
    */
   @Test
+  @Ignore
   public void testResolver () {
     final TaxonomyResolver tr = new RESTfulTaxonomyResolver ("http://localhost/" + System.getProperty ("user.name") + "/rest/", ".xml");
     assertNotNull (tr.resolveTaxonomy ((short)42));
