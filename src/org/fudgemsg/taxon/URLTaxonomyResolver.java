@@ -41,7 +41,7 @@ public abstract class URLTaxonomyResolver implements TaxonomyResolver {
   }
   
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   public FudgeTaxonomy resolveTaxonomy(final short taxonomyId) {

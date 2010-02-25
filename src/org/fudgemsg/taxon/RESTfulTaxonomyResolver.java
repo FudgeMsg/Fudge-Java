@@ -93,7 +93,7 @@ public class RESTfulTaxonomyResolver extends URLTaxonomyResolver {
   }
 
   /**
-   * {@docInherit}
+   * {@inheritDoc}
    */
   @Override
   protected URL createTaxonomyURL(final short taxonomyId) throws MalformedURLException {
