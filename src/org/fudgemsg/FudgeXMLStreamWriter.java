@@ -254,6 +254,10 @@ public class FudgeXMLStreamWriter implements FudgeStreamWriter {
       case FudgeTypeDictionary.LONG_TYPE_ID:
       case FudgeTypeDictionary.FLOAT_TYPE_ID:
       case FudgeTypeDictionary.DOUBLE_TYPE_ID:
+      case FudgeTypeDictionary.STRING_TYPE_ID:
+      case FudgeTypeDictionary.DATE_TYPE_ID:
+      case FudgeTypeDictionary.TIME_TYPE_ID:
+      case FudgeTypeDictionary.DATETIME_TYPE_ID:
         getWriter ().writeCharacters (fieldValue.toString ());
         break;
       default :
