@@ -75,9 +75,8 @@ public class FudgeMsgWriter implements Flushable {
    * @throws IOException if the stream raises one when flushed
    */
   public void close () throws IOException {
-    if (_streamWriter == null) return;
     flush ();
-    _streamWriter.close ();
+    getStreamWriter ().close ();
     _defaultTaxonomyId = null;
   }
   

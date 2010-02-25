@@ -17,16 +17,10 @@ package org.fudgemsg;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Map;
-import java.util.HashMap;
 
 import javax.xml.stream.XMLStreamException;
 
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgFormatter;
-import org.fudgemsg.taxon.FudgeTaxonomy;
-import org.fudgemsg.taxon.MapFudgeTaxonomy;
-import org.fudgemsg.taxon.ImmutableMapTaxonomyResolver;
+import org.fudgemsg.xml.FudgeXMLStreamWriter;
 import org.junit.Test;
 
 /**
@@ -48,19 +42,6 @@ public class FudgeMsgFormatterTest {
     MutableFudgeFieldContainer msg = StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext);
     msg.add("Sub Message", 9999, StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext));
     return msg;
-  }
-  
-  private static FudgeTaxonomy getTaxonomy () {
-    return new MapFudgeTaxonomy (
-        new int[] { 1, 2, 3, 4, 5, 6 },
-        new String[] { "boolean", "byte", "int", "string", "float", "double" }
-        );
-  }
-  
-  static {
-    final Map<Short,FudgeTaxonomy> tr = new HashMap<Short,FudgeTaxonomy> ();
-    tr.put ((short)1, getTaxonomy ());
-    s_fudgeContext.setTaxonomyResolver (new ImmutableMapTaxonomyResolver (tr));
   }
   
   /**
