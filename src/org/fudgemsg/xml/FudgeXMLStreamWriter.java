@@ -43,6 +43,10 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
  * 
  * <p>This code should adhere to the <a href="http://wiki.fudgemsg.org/display/FDG/XML+Fudge+Messages">XML Fudge Message specification</a>.</p>
  * 
+ * <p>Note that no pretty printing options are available here. This implementation uses the systems default {@link XMLOutputFactory} if only passed
+ * a {@link Writer} object at construction. If you require control over the output, you will need to use a suitable {@link XMLStreamWriter}
+ * implementation that allows it. For example <a href="http://www.java2s.com/Open-Source/Java-Document/XML/stax-utils/javanet.staxutils.htm">javanet.staxutils</a>.</p>
+ * 
  * @author Andrew Griffin
  */
 public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStreamWriter {
