@@ -20,6 +20,7 @@ import java.io.PrintWriter;
 
 import javax.xml.stream.XMLStreamException;
 
+import org.fudgemsg.xml.FudgeXMLStreamWriter;
 import org.junit.Test;
 
 /**
