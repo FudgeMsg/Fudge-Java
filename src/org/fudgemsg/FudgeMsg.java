@@ -701,7 +701,7 @@ public class FudgeMsg implements Serializable, MutableFudgeFieldContainer, Itera
    */
   @Override
   public <T> T getFieldValue (final Class<T> clazz, final FudgeField field) throws IllegalArgumentException {
-    return getFudgeContext ().getTypeDictionary ().getFieldValue (clazz, field);
+    return getFudgeContext ().getFieldValue (clazz, field);
   }
   
   /**

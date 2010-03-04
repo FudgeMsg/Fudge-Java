@@ -23,9 +23,11 @@ import java.io.OutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
 
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeObjectDictionary;
 import org.fudgemsg.mapping.FudgeObjectReader;
 import org.fudgemsg.mapping.FudgeObjectWriter;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 import org.fudgemsg.taxon.TaxonomyResolver;
 
@@ -361,9 +363,10 @@ public class FudgeContext implements FudgeMessageFactory {
   }
   
   /**
-   * Writes a Java object to an {@link OutputStream} using the Fudge serialisation framework. The
+   * Writes a Java object to an {@link OutputStream} using the Fudge serialization framework. The
    * current {@link FudgeObjectDictionary} will be used to identify any custom message builders or apply
-   * default serialisation behaviour.
+   * default serialization behavior. Either a new serialization context will be used or an existing
+   * one reset for this operation.
    * 
    * @param object the {@link Object} to write
    * @param outputStream the {@code OutputStream} to write the Fudge encoded form of the object to
@@ -378,10 +381,11 @@ public class FudgeContext implements FudgeMessageFactory {
   }
   
   /**
-   * Reads a Java object from an {@link InputStream} using the Fudge serialisation framework. The
+   * Reads a Java object from an {@link InputStream} using the Fudge serialization framework. The
    * current {@link FudgeObjectDictionary} will be used to identify any custom object builders or apply
-   * default deserialisation behaviour. Always reads the next available Fudge message from the
-   * stream even if the message cannot be converted to the requested Object.
+   * default deserialization behavior. Always reads the next available Fudge message from the
+   * stream even if the message cannot be converted to the requested Object. Either a new deserialization
+   * context will be used or an existing one reset for this operation.
    * 
    * @param <T> the target type to decode the message to
    * @param objectClass the target {@link Class} to decode a message of. If an object of this or a sub-class is not available, an exception will be thrown.
@@ -393,6 +397,48 @@ public class FudgeContext implements FudgeMessageFactory {
     FudgeObjectReader osr = createObjectReader (inputStream);
     T result = osr.read (objectClass);
     return result;
+  }
+  
+  /**
+   * Converts a Java object to a {@link FudgeMsgEnvelope} using the Fudge serialization framework. Note
+   * that for repeated operations, it would be more efficient to maintain a {@link FudgeSerializationContext}
+   * instance and use that.
+   * 
+   * @param <T> Java type
+   * @param obj object to serialize
+   * @return the serialized message
+   */
+  public <T> FudgeMsgEnvelope toFudgeMsg (T obj) {
+    final FudgeSerializationContext fsc = new FudgeSerializationContext (this);
+    return new FudgeMsgEnvelope (fsc.objectToFudgeMsg (obj));
+  }
+  
+  /**
+   * Deserializes a {@link FudgeFieldContainer} message to a Java object, trying to determine the 
+   * type of the object automatically. Note that for repeated operations, it would be more efficient to maintain
+   * a {@link FudgeDeserializationContext} instance and use that.
+   * 
+   * @param message the Fudge message to deserialize
+   * @return the deserialized object
+   */
+  public Object fromFudgeMsg (FudgeFieldContainer message) {
+    final FudgeDeserializationContext fdc = new FudgeDeserializationContext (this);
+    return fdc.fudgeMsgToObject (message);
+  }
+  
+  /**
+   * Deserializes a {@link FudgeFieldContainer} message to a Java object of type {@code clazz}. Note that for
+   * repeated operations, it would be more efficient to maintain a {@link FudgeDeserializationContext}
+   * instance and use that.
+   * 
+   * @param <T> Java type
+   * @param clazz the target type to deserialize
+   * @param message the message to process
+   * @return the deserialized object
+   */
+  public <T> T fromFudgeMsg (Class<T> clazz, FudgeFieldContainer message) {
+    final FudgeDeserializationContext fdc = new FudgeDeserializationContext (this);
+    return fdc.fudgeMsgToObject (clazz, message);
   }
   
   /**
