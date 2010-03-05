@@ -251,6 +251,22 @@ public class FudgeMsgTest {
    * 
    */
   @Test
+  public void immutableFudgeMsgTest() {
+    MutableFudgeFieldContainer mutableMsg = StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext);
+    ImmutableFudgeFieldContainer msg = new ImmutableFudgeMsg (mutableMsg, s_fudgeContext);
+
+    assertEquals (null, mutableMsg.getString ("field not there"));
+    assertEquals (null, msg.getString ("field not there"));
+    
+    mutableMsg.add ("field not there", "is now");
+    assertEquals ("is now", mutableMsg.getString ("field not there"));
+    assertEquals (null, msg.getString ("field not there"));
+  }
+
+  /**
+   * 
+   */
+  @Test
   public void primitiveExactQueriesOrdinalsNoMatch() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext);
     // these have changed since the decision to make get* == getAs*.
