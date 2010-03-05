@@ -43,8 +43,7 @@ import org.fudgemsg.types.secondary.JavaUtilUUIDFieldType;
 
 /**
  * Contains all the {@link FudgeFieldType} definitions for a particular
- * Fudge installation.
- * You can control it through your {@link FudgeContext}.
+ * Fudge installation. You can control it through your {@link FudgeContext}.
  *
  * @author Kirk Wylie
  */

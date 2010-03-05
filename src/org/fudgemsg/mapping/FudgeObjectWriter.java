@@ -89,10 +89,9 @@ public class FudgeObjectWriter {
    * 
    * @param <T> type of the Java object
    * @param obj the object to write
-   * @return number of bytes written
    * @throws IOException if the message cannot be written
    */
-  public <T> int write (final T obj) throws IOException {
+  public <T> void write (final T obj) throws IOException {
     getSerialisationContext ().reset ();
     FudgeFieldContainer message;
     if (obj == null) {
@@ -102,7 +101,7 @@ public class FudgeObjectWriter {
       // delegate to a message builder
       message = getSerialisationContext ().objectToFudgeMsg (obj);
     }
-    return getMessageWriter ().writeMessage (message, 0);
+    getMessageWriter ().writeMessage (message, 0);
   }
   
 }

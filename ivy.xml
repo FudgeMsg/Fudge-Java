@@ -19,6 +19,6 @@
         <dependency org="org.apache.commons" name="commons-beanutils" rev="[1.8.2,1.9[" conf="core->core" />
         <dependency org="org.apache.commons" name="commons-codec" rev="1.4" conf="core->*" />
         <dependency org="org.mongodb" name="java-driver" rev="1.0" conf="mongodb->*" />
+        <dependency org="org.json" name="json" rev="20090211" conf="core->*" />
     </dependencies>
 </ivy-module>
-

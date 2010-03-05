@@ -27,7 +27,8 @@ import org.fudgemsg.FudgeTypeDictionary;
 /**
  * Base class to hold common data for the Fudge XML reader and
  * writer as defined by the specification that can be customized for a
- * specific XML source or destination.
+ * specific XML source or destination. The default settings are based on
+ * <a href="http://wiki.fudgemsg.org/display/FDG/XML+Fudge+Messages">XML Fudge Message specification</a>.
  * 
  * @author Andrew Griffin
  */
@@ -46,25 +47,105 @@ public class FudgeXMLSettings {
     ENCODING;
   }
   
+  /**
+   * Default element name for the outer envelope tag. 
+   */
   public static final String DEFAULT_ENVELOPE_ELEMENT = "fudgeEnvelope";
+  
+  /**
+   * Default attribute name for the processing directives on the envelope.
+   */
   public static final String DEFAULT_ENVELOPE_ATTRIBUTE_PROCESSINGDIRECTIVES = "processingDirectives";
+  
+  /**
+   * Default attribute name for the schema version on the envelope.
+   */
   public static final String DEFAULT_ENVELOPE_ATTRIBUTE_SCHEMAVERSION = "schemaVersion";
+  
+  /**
+   * Default attribute name for the taxonomy on the envelope.
+   */
   public static final String DEFAULT_ENVELOPE_ATTRIBUTE_TAXONOMY = "taxonomy";
+  
+  /**
+   * Default element name for an anonymous or unnamed field.
+   */
   public static final String DEFAULT_FIELD_ELEMENT = "fudgeField";
+  
+  /**
+   * Default attribute name for the name of a field.
+   */
   public static final String DEFAULT_FIELD_ATTRIBUTE_NAME = "name";
+  
+  /**
+   * Default attribute name for the ordinal index of a field.
+   */
   public static final String DEFAULT_FIELD_ATTRIBUTE_ORDINAL = "ordinal";
+  
+  /**
+   * Alternative attribute name (not written but recognized by default) for the ordinal index of a field. 
+   */
   public static final String ALIAS_FIELD_ATTRIBUTE_ORDINAL_INDEX = "index";
+  
+  /**
+   * Alternative attribute name (not written but recognized by default) for the ordinal index of a field.
+   */
   public static final String ALIAS_FIELD_ATTRIBUTE_ORDINAL_KEY = "key";
+  
+  /**
+   * Default attribute name for the type of a field.
+   */
   public static final String DEFAULT_FIELD_ATTRIBUTE_TYPE = "type";
+  
+  /**
+   * Default attribute name for the encoding of a field.
+   */
   public static final String DEFAULT_FIELD_ATTRIBUTE_ENCODING = "encoding";
+  
+  /**
+   * Default value for a {@code true} boolean field.
+   */
   public static final String DEFAULT_BOOLEAN_TRUE = "true";
+  
+  /**
+   * Alternative value (not written but recognized by default) for a {@code true} boolean field.
+   */
   public static final String ALIAS_BOOLEAN_TRUE_ON = "on";
+  
+  /**
+   * Alternative value (not written but recognized by default) for a {@code true} boolean field.
+   */
   public static final String ALIAS_BOOLEAN_TRUE_T = "T";
+  
+  /**
+   * Alternative value (not written but recognized by default) for a {@code true} boolean field.
+   */
   public static final String ALIAS_BOOLEAN_TRUE_1 = "1";
+  
+  /**
+   * Default value for a {@code false} boolean field.
+   */
   public static final String DEFAULT_BOOLEAN_FALSE = "false";
+  
+  /**
+   * Alternative value (not written but recognized by default) for a {@code false} boolean field.
+   */
   public static final String ALIAS_BOOLEAN_FALSE_OFF = "off";
+  
+  /**
+   * Alternative value (not written but recognized by default) for a {@code false} boolean field.
+   */
   public static final String ALIAS_BOOLEAN_FALSE_F = "F";
+  
+  /**
+   * Alternative value (not written but recognized by default) for a {@code false} boolean field.
+   */
   public static final String ALIAS_BOOLEAN_FALSE_0 = "0";
+  
+  /**
+   * Default value for base-64 encoded data.
+   */
+  public static final String DEFAULT_ENCODING_BASE64 = "base64";
   
   private String _envelopeElementName;
   private final Set<String> _envelopeElementAliases = new HashSet<String> ();
@@ -84,10 +165,16 @@ public class FudgeXMLSettings {
   private boolean _appendFieldOrdinal = true;
   private boolean _base64UnknownTypes = false;
   
-  private Map<String,Boolean> _stringsToBoolean = new HashMap<String,Boolean> ();
+  private final Map<String,Boolean> _stringsToBoolean = new HashMap<String,Boolean> ();
   private String _booleanTrue;
   private String _booleanFalse;
   
+  private String _base64EncodingName;
+  private final Set<String> _base64EncodingAliases = new HashSet<String> ();
+  
+  /**
+   * Creates a new settings object with all of the defaults.
+   */
   public FudgeXMLSettings () {
     setEnvelopeElementName (DEFAULT_ENVELOPE_ELEMENT);
     setEnvelopeAttributeProcessingDirectives (DEFAULT_ENVELOPE_ATTRIBUTE_PROCESSINGDIRECTIVES);
@@ -136,8 +223,15 @@ public class FudgeXMLSettings {
     registerFudgeType (FudgeTypeDictionary.DATE_TYPE_ID, "date");
     registerFudgeType (FudgeTypeDictionary.TIME_TYPE_ID, "time");
     registerFudgeType (FudgeTypeDictionary.DATETIME_TYPE_ID, "datetime");
+    setBase64EncodingName (DEFAULT_ENCODING_BASE64);
   }
   
+  /**
+   * Creates a new settings object as a copy of another. After copying, changes can be made to the
+   * new instance without affecting the other.
+   * 
+   * @param other an existing settings object to copy
+   */
   public FudgeXMLSettings (final FudgeXMLSettings other) {
     if (other == null) throw new NullPointerException ("other cannot be null");
     setEnvelopeElementName (other.getEnvelopeElementName ());
@@ -153,6 +247,7 @@ public class FudgeXMLSettings {
     setPreserveFieldNames (other.getPreserveFieldNames ());
     setAppendFieldOrdinal (other.getAppendFieldOrdinal ());
     setBase64UnknownTypes (other.getBase64UnknownTypes ());
+    getBase64EncodingAliases ().addAll (other.getBase64EncodingAliases ());
   }
   
   /**
@@ -481,6 +576,25 @@ public class FudgeXMLSettings {
   
   protected Map<String,Boolean> getStringsToBoolean () {
     return _stringsToBoolean;
+  }
+  
+  public void setBase64EncodingName (final String value) {
+    if (value == null) throw new NullPointerException ("value cannot be null");
+    _base64EncodingName = value;
+    addBase64EncodingAlias (value);
+  }
+  
+  public String getBase64EncodingName () {
+    return _base64EncodingName;
+  }
+  
+  public void addBase64EncodingAlias (final String value) {
+    if (value == null) throw new NullPointerException ("value cannot be null");
+    getBase64EncodingAliases ().add (value);
+  }
+  
+  protected Set<String> getBase64EncodingAliases () {
+    return _base64EncodingAliases;
   }
   
   public boolean getBase64UnknownTypes () {

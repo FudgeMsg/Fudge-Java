@@ -20,12 +20,10 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.stream.XMLStreamException;
-
+import org.fudgemsg.json.FudgeJSONStreamWriter;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 import org.fudgemsg.taxon.ImmutableMapTaxonomyResolver;
 import org.fudgemsg.taxon.MapFudgeTaxonomy;
-import org.fudgemsg.xml.FudgeXMLStreamWriter;
 import org.junit.Test;
 
 /**
@@ -33,7 +31,7 @@ import org.junit.Test;
  *
  * @author Andrew
  */
-public class FudgeXMLTest {
+public class FudgeJSONTest {
   
   private final FudgeContext _fudgeContext;
 
@@ -47,7 +45,7 @@ public class FudgeXMLTest {
   /**
    * 
    */
-  public FudgeXMLTest () {
+  public FudgeJSONTest () {
     _fudgeContext = new FudgeContext ();
     final Map<Short,FudgeTaxonomy> tr = new HashMap<Short,FudgeTaxonomy> ();
     tr.put ((short)1, getTaxonomy ());
@@ -56,14 +54,12 @@ public class FudgeXMLTest {
   
   private void xmlTest (final FudgeFieldContainer message, final int taxonomy) {
     try {
-      final FudgeMsgWriter fmw = new FudgeMsgWriter (new FudgeXMLStreamWriter (_fudgeContext, new PrintWriter (System.out)));
+      final FudgeMsgWriter fmw = new FudgeMsgWriter (new FudgeJSONStreamWriter (_fudgeContext, new PrintWriter (System.out)));
       fmw.writeMessage (StandardFudgeMessages.createMessageAllNames (_fudgeContext), 0);
       fmw.flush ();
       System.out.println ();
     } catch (IOException e) {
       throw new FudgeRuntimeException ("IOException", e);
-    } catch (XMLStreamException e) {
-      throw new FudgeRuntimeException ("XMLStreamException", e);
     }
   }
   

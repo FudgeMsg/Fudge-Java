@@ -182,11 +182,10 @@ public class FudgeMsgWriter implements Flushable {
    * @param taxonomyId identifier of the taxonomy to use. If the taxonomy is recognised by the {@link FudgeContext} it will be used to reduce field names to ordinals where possible.
    * @param version schema version
    * @param processingDirectives processing directive flags
-   * @return Number of bytes written
    * @throws IOException if the message cannot be written
    */
-  public int writeMessage (final FudgeFieldContainer message, final int taxonomyId, final int version, final int processingDirectives) throws IOException {
-    return writeMessageEnvelope (new FudgeMsgEnvelope (message, version, processingDirectives), taxonomyId);
+  public void writeMessage (final FudgeFieldContainer message, final int taxonomyId, final int version, final int processingDirectives) throws IOException {
+    writeMessageEnvelope (new FudgeMsgEnvelope (message, version, processingDirectives), taxonomyId);
   }
   
   /**
@@ -194,57 +193,51 @@ public class FudgeMsgWriter implements Flushable {
    * 
    * @param message message to write
    * @param taxonomyId identifier of the taxonomy to use. If the taxonomy is recognised by the {@link FudgeContext} it will be used to reduce field names to ordinals where possible.
-   * @return Number of bytes written
    * @throws IOException if the message cannot be written
    */ 
-  public int writeMessage (final FudgeFieldContainer message, final int taxonomyId) throws IOException {
-    return writeMessage (message, taxonomyId, getDefaultMessageVersion (), getDefaultMessageProcessingDirectives ());
+  public void writeMessage (final FudgeFieldContainer message, final int taxonomyId) throws IOException {
+    writeMessage (message, taxonomyId, getDefaultMessageVersion (), getDefaultMessageProcessingDirectives ());
   }
   
   /**
    * Writes a message. Default taxonomy, schema version and processing directive flags are used.
    *
    * @param message message to write
-   * @return Number of bytes written
    * @throws NullPointerException if the default taxonomy has not been specified
    * @throws IOException if the message cannot be written
    */
-  public int writeMessage (final FudgeFieldContainer message) throws IOException {
-    return writeMessage (message, getDefaultTaxonomyId ());
+  public void writeMessage (final FudgeFieldContainer message) throws IOException {
+    writeMessage (message, getDefaultTaxonomyId ());
   }
   
   /**
    * Writes a message envelope with the given taxonomy.
    * 
    * @param envelope message envelope to write
-   * @param taxonomyId identifier of the taxonomy to use. If the taxonomy is recognised by the {@link FudgeContext} it will be used to reduce field names to ordinals where possible.
-   * @return Number of bytes written
+   * @param taxonomyId identifier of the taxonomy to use. If the taxonomy is recognized by the {@link FudgeContext} it will be used to reduce field names to ordinals where possible.
    * @throws IOException if the message envelope cannot be written
    */
-  public int writeMessageEnvelope (final FudgeMsgEnvelope envelope, final int taxonomyId) throws IOException {
-    if (envelope == null) return 0;
+  public void writeMessageEnvelope (final FudgeMsgEnvelope envelope, final int taxonomyId) throws IOException {
+    if (envelope == null) return;
     final FudgeStreamWriter writer = getStreamWriter ();
-    int nWritten = 0;
     if (taxonomyId != writer.getCurrentTaxonomyId ()) {
       writer.setCurrentTaxonomyId (taxonomyId);
     }
     int messageSize = FudgeSize.calculateMessageEnvelopeSize (writer.getCurrentTaxonomy (), envelope);
-    nWritten += writer.writeEnvelopeHeader (envelope.getProcessingDirectives (), envelope.getVersion (), messageSize);
-    nWritten += writer.writeFields (envelope.getMessage());
-    assert messageSize == nWritten;
-    return nWritten;
+    writer.writeEnvelopeHeader (envelope.getProcessingDirectives (), envelope.getVersion (), messageSize);
+    writer.writeFields (envelope.getMessage());
+    writer.envelopeComplete ();
   }
   
   /**
    * Writes a message envelope using the default taxonomy.
    * 
    * @param envelope message envelope to write
-   * @return Number of bytes written
    * @throws NullPointerException if the default taxonomy has not been specified
    * @throws IOException if the message envelope cannot be written
    */
-  public int writeMessageEnvelope (final FudgeMsgEnvelope envelope) throws IOException {
-    return writeMessageEnvelope (envelope, getDefaultTaxonomyId ());
+  public void writeMessageEnvelope (final FudgeMsgEnvelope envelope) throws IOException {
+    writeMessageEnvelope (envelope, getDefaultTaxonomyId ());
   }
   
 }

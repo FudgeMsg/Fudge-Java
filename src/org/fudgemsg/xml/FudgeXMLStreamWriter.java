@@ -26,12 +26,12 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.codec.binary.Base64OutputStream;
+import org.fudgemsg.AlternativeFudgeStreamWriter;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeRuntimeException;
-import org.fudgemsg.FudgeSize;
 import org.fudgemsg.FudgeStreamWriter;
 import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.taxon.FudgeTaxonomy;
@@ -51,11 +51,62 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
  */
 public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStreamWriter {
   
-  private final FudgeContext _fudgeContext;
+  private class DelegateWriter extends AlternativeFudgeStreamWriter {
+
+    protected DelegateWriter(FudgeContext fudgeContext) {
+      super(fudgeContext);
+    }
+    
+    @Override
+    protected void fudgeEnvelopeStart (final int processingDirectives, final int schemaVersion) throws IOException {
+      try {
+        FudgeXMLStreamWriter.this.fudgeEnvelopeStart (processingDirectives, schemaVersion);
+      } catch (XMLStreamException e) {
+        wrapException ("write envelope header to", e);
+      }
+    }
+    
+    @Override
+    protected void fudgeEnvelopeEnd () throws IOException {
+      try {
+        FudgeXMLStreamWriter.this.fudgeEnvelopeEnd ();
+      } catch (XMLStreamException e) {
+        wrapException ("write envelope end to", e);
+      }
+    }
+    
+    @Override
+    protected boolean fudgeFieldStart (final Short ordinal, final String name, final FudgeFieldType<?> type) throws IOException {
+      try {
+        return FudgeXMLStreamWriter.this.fudgeFieldStart (ordinal, name, type);
+      } catch (XMLStreamException e) {
+        wrapException ("write field start to", e);
+        return false;
+      }
+    }
+    
+    @Override
+    protected void fudgeFieldValue (final FudgeFieldType<?> type, final Object fieldValue) throws IOException {
+      try {
+        FudgeXMLStreamWriter.this.fudgeFieldValue (type, fieldValue);
+      } catch (XMLStreamException e) {
+        wrapException ("write field value to", e);
+      }
+    }
+    
+    @Override
+    protected void fudgeFieldEnd () throws IOException {
+      try {
+        FudgeXMLStreamWriter.this.fudgeFieldEnd ();
+      } catch (XMLStreamException e) {
+        wrapException ("write field end to", e);
+      }
+    }
+    
+  }
+  
+  private final FudgeStreamWriter _delegate;
   private final XMLStreamWriter _writer;
-  private FudgeTaxonomy _taxonomy = null;
-  private int _taxonomyId = 0;
-  private int _messageSizeToWrite = 0;
   
   /**
    * Creates a new {@link FudgeXMLStreamWriter} for writing to the target XML device.
@@ -79,13 +130,13 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
    * @param writer the underlying {@link Writer}
    */
   public FudgeXMLStreamWriter (final FudgeContext fudgeContext, final XMLStreamWriter writer) {
-    _fudgeContext = fudgeContext;
+    _delegate = new DelegateWriter (fudgeContext);
     _writer = writer;
   }
   
   public FudgeXMLStreamWriter (final FudgeXMLSettings settings, final FudgeContext fudgeContext, final XMLStreamWriter writer) {
     super (settings);
-    _fudgeContext = fudgeContext;
+    _delegate = new DelegateWriter (fudgeContext);
     _writer = writer;
   }
   
@@ -101,7 +152,6 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
   /**
    * @param operation the operation being attempted when the exception was caught
    * @param e the exception caught
-   * @throws IOException if the triggered {@link XMLStreamException} was caused by an {@link IOException}
    */
   protected void wrapException (final String operation, XMLStreamException e) throws IOException {
     if (e.getCause () instanceof IOException) {
@@ -110,12 +160,17 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
       throw new FudgeRuntimeException ("Couldn't " + operation + " XML stream", e);
     }
   }
+
+  protected FudgeStreamWriter getDelegate () {
+    return _delegate;
+  }
   
   /**
    * {@inheritDoc}
    */
   @Override
   public void close () throws IOException {
+    getDelegate ().close ();
     try {
       getWriter ().close ();
     } catch (XMLStreamException e) {
@@ -128,6 +183,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
    */
   @Override
   public void flush () throws IOException {
+    getDelegate ().flush ();
     try {
       getWriter ().flush ();
     } catch (XMLStreamException e) {
@@ -140,7 +196,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
    */
   @Override
   public FudgeContext getFudgeContext() {
-    return _fudgeContext;
+    return getDelegate ().getFudgeContext ();
   }
   
   /**
@@ -148,7 +204,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
    */
   @Override
   public FudgeTaxonomy getCurrentTaxonomy() {
-    return _taxonomy;
+    return getDelegate ().getCurrentTaxonomy ();
   }
 
   /**
@@ -156,13 +212,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
    */
   @Override
   public void setCurrentTaxonomyId (final int taxonomyId) {
-    _taxonomyId = taxonomyId;
-    if(getFudgeContext().getTaxonomyResolver() != null) {
-      FudgeTaxonomy taxonomy = getFudgeContext().getTaxonomyResolver().resolveTaxonomy((short)taxonomyId);
-      _taxonomy = taxonomy;
-    } else {
-      _taxonomy = null;
-    }
+    getDelegate ().setCurrentTaxonomyId (taxonomyId);
   }
   
   /**
@@ -170,62 +220,67 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
    */
   @Override
   public int getCurrentTaxonomyId () {
-    return _taxonomyId;
+    return getDelegate ().getCurrentTaxonomyId ();
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public int writeEnvelopeHeader(
+  public void writeEnvelopeHeader(
       int processingDirectives,
       int schemaVersion,
       int messageSize) throws IOException {
-    try {
-      _messageSizeToWrite = messageSize - 8; // the size passed in includes the 8 byte Fudge envelope header
-      getWriter ().writeStartDocument ();
-      if (getEnvelopeElementName () != null) {
-        getWriter ().writeStartElement (getEnvelopeElementName ());
-        if ((processingDirectives != 0) && (getEnvelopeAttributeProcessingDirectives () != null)) {
-          getWriter ().writeAttribute (getEnvelopeAttributeProcessingDirectives (), Integer.toString (processingDirectives));
-        }
-        if ((schemaVersion != 0) && (getEnvelopeAttributeSchemaVersion () != null)) {
-          getWriter ().writeAttribute (getEnvelopeAttributeSchemaVersion (), Integer.toString (schemaVersion));
-        }
+    getDelegate ().writeEnvelopeHeader (processingDirectives, schemaVersion, messageSize);
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void envelopeComplete () throws IOException {
+    getDelegate ().envelopeComplete ();
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void writeFields(FudgeFieldContainer msg) throws IOException {
+    getDelegate ().writeFields (msg);
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void writeField (FudgeField field) throws IOException {
+    getDelegate ().writeField (field);
+  }
+
+  @Override
+  public void writeField(Short ordinal, String name, FudgeFieldType<?> type,
+      Object fieldValue) throws IOException {
+    getDelegate ().writeField (ordinal, name, type, fieldValue);
+  }
+      
+  protected void fudgeEnvelopeStart (final int processingDirectives, final int schemaVersion) throws XMLStreamException {
+    getWriter ().writeStartDocument ();
+    if (getEnvelopeElementName () != null) {
+      getWriter ().writeStartElement (getEnvelopeElementName ());
+      if ((processingDirectives != 0) && (getEnvelopeAttributeProcessingDirectives () != null)) {
+        getWriter ().writeAttribute (getEnvelopeAttributeProcessingDirectives (), Integer.toString (processingDirectives));
       }
-    } catch (XMLStreamException e) {
-      wrapException ("write message envelope header to", e);
+      if ((schemaVersion != 0) && (getEnvelopeAttributeSchemaVersion () != null)) {
+        getWriter ().writeAttribute (getEnvelopeAttributeSchemaVersion (), Integer.toString (schemaVersion));
+      }
     }
-    return 8;
-  }
-  
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public int writeFields(FudgeFieldContainer msg) throws IOException {
-    int nWritten = 0;
-    for(FudgeField field : msg.getAllFields()) {
-      nWritten += writeField(field);
-    }
-    return nWritten;
-  }
-  
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public int writeField (FudgeField field) throws IOException {
-    if (field == null) {
-      throw new NullPointerException ("Cannot write a null field to a Fudge stream");
-    }
-    return writeField (field.getOrdinal (), field.getName (), field.getType (), field.getValue ());
   }
   
   /**
    * Remove any invalid characters to leave an XML element name.
    */
-  private String convertFieldName (String str) {
+  protected String convertFieldName (String str) {
     /*
      * nameStartChar :=  ":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF]
      *                | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF]
@@ -268,7 +323,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
     return (sb.length () > 0) ? sb.toString () : null;
   }
   
-  private void writeArray (final byte[] array) throws XMLStreamException {
+  protected void writeArray (final byte[] array) throws XMLStreamException {
     boolean first = true;
     for (byte value : array) {
       if (first) first = false; else getWriter ().writeCharacters (",");
@@ -276,7 +331,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
     }
   }
   
-  private void writeArray (final short[] array) throws XMLStreamException {
+  protected void writeArray (final short[] array) throws XMLStreamException {
     boolean first = true;
     for (short value : array) {
       if (first) first = false; else getWriter ().writeCharacters (",");
@@ -284,7 +339,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
     }
   }
   
-  private void writeArray (final int[] array) throws XMLStreamException {
+  protected void writeArray (final int[] array) throws XMLStreamException {
     boolean first = true;
     for (int value : array) {
       if (first) first = false; else getWriter ().writeCharacters (",");
@@ -292,7 +347,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
     }
   }
   
-  private void writeArray (final long[] array) throws XMLStreamException {
+  protected void writeArray (final long[] array) throws XMLStreamException {
     boolean first = true;
     for (long value : array) {
       if (first) first = false; else getWriter ().writeCharacters (",");
@@ -300,7 +355,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
     }
   }
   
-  private void writeArray (final float[] array) throws XMLStreamException {
+  protected void writeArray (final float[] array) throws XMLStreamException {
     boolean first = true;
     for (float value : array) {
       if (first) first = false; else getWriter ().writeCharacters (",");
@@ -308,7 +363,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
     }
   }
   
-  private void writeArray (final double[] array) throws XMLStreamException {
+  protected void writeArray (final double[] array) throws XMLStreamException {
     boolean first = true;
     for (double value : array) {
       if (first) first = false; else getWriter ().writeCharacters (",");
@@ -316,130 +371,115 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
     }
   }
   
-  /**
-   * {@inheritDoc}
-   */
-  @SuppressWarnings("unchecked")
-  @Override
-  public int writeField(
-      Short ordinal,
-      String name,
-      FudgeFieldType type,
-      Object fieldValue) throws IOException {
-    if (_messageSizeToWrite <= 0) throw new FudgeRuntimeException ("too many fields already written");
-    final int fudgeMessageBytes = FudgeSize.calculateFieldSize (getCurrentTaxonomy (), ordinal, name, type, fieldValue);
-    try {
-      String ename = null;
-      if (getPreserveFieldNames ()) {
-        ename = convertFieldName (name);
+  protected boolean fudgeFieldStart (final Short ordinal, final String name, final FudgeFieldType type) throws IOException, XMLStreamException {
+    String ename = null;
+    if (getPreserveFieldNames ()) {
+      ename = convertFieldName (name);
+    }
+    if (ename == null) {
+      if (ordinal != null) {
+        if (getCurrentTaxonomy () != null) {
+          ename = convertFieldName (getCurrentTaxonomy ().getFieldName (ordinal));
+        }
       }
       if (ename == null) {
-        if (ordinal != null) {
-          if (getCurrentTaxonomy () != null) {
-            ename = convertFieldName (getCurrentTaxonomy ().getFieldName (ordinal));
-          }
-        }
-        if (ename == null) {
-          ename = getFieldElementName ();
-          if ((ename != null) && (ordinal != null) && getAppendFieldOrdinal ()) {
-            ename = ename + ordinal;
-          }
+        ename = getFieldElementName ();
+        if ((ename != null) && (ordinal != null) && getAppendFieldOrdinal ()) {
+          ename = ename + ordinal;
         }
       }
-      if (ename != null) {
-        getWriter ().writeStartElement (ename);
-        if ((ordinal != null) && (getFieldAttributeOrdinal () != null)) {
-          getWriter ().writeAttribute (getFieldAttributeOrdinal (), ordinal.toString ());
-        }
-        if ((name != null) && !name.equals (ename) && (getFieldAttributeName () != null)) {
-          getWriter ().writeAttribute (getFieldAttributeName (), name);
-        }
-        if (getFieldAttributeType () != null) {
-          final String typeString = fudgeTypeIdToString (type.getTypeId ());
-          if (typeString != null) {
-            getWriter ().writeAttribute (getFieldAttributeType (), typeString);
-          }
-        }
-        switch (type.getTypeId ()) {
-        case FudgeTypeDictionary.INDICATOR_TYPE_ID :
-          // no content
-          break;
-        case FudgeTypeDictionary.FUDGE_MSG_TYPE_ID :
-          // the value returned from writeFields will have already been deducted from messageSizeToWrite so add it back on
-          final int n = writeFields ((FudgeFieldContainer)fieldValue);
-          _messageSizeToWrite += n;
-          break;
-        case FudgeTypeDictionary.BOOLEAN_TYPE_ID:
-          getWriter ().writeCharacters ((Boolean)fieldValue ? getBooleanTrue () : getBooleanFalse ());
-          break;
-        case FudgeTypeDictionary.BYTE_TYPE_ID:
-        case FudgeTypeDictionary.SHORT_TYPE_ID:
-        case FudgeTypeDictionary.INT_TYPE_ID:
-        case FudgeTypeDictionary.LONG_TYPE_ID:
-        case FudgeTypeDictionary.FLOAT_TYPE_ID:
-        case FudgeTypeDictionary.DOUBLE_TYPE_ID:
-        case FudgeTypeDictionary.STRING_TYPE_ID:
-        case FudgeTypeDictionary.DATE_TYPE_ID:
-        case FudgeTypeDictionary.TIME_TYPE_ID:
-        case FudgeTypeDictionary.DATETIME_TYPE_ID:
-          getWriter ().writeCharacters (fieldValue.toString ());
-          break;
-        case FudgeTypeDictionary.BYTE_ARRAY_TYPE_ID:
-        case FudgeTypeDictionary.BYTE_ARR_4_TYPE_ID:
-        case FudgeTypeDictionary.BYTE_ARR_8_TYPE_ID:
-        case FudgeTypeDictionary.BYTE_ARR_16_TYPE_ID:
-        case FudgeTypeDictionary.BYTE_ARR_20_TYPE_ID:
-        case FudgeTypeDictionary.BYTE_ARR_32_TYPE_ID:
-        case FudgeTypeDictionary.BYTE_ARR_64_TYPE_ID:
-        case FudgeTypeDictionary.BYTE_ARR_128_TYPE_ID:
-        case FudgeTypeDictionary.BYTE_ARR_256_TYPE_ID:
-        case FudgeTypeDictionary.BYTE_ARR_512_TYPE_ID:
-          writeArray ((byte[])fieldValue);
-          break;
-        case FudgeTypeDictionary.SHORT_ARRAY_TYPE_ID:
-          writeArray ((short[])fieldValue);
-          break;
-        case FudgeTypeDictionary.INT_ARRAY_TYPE_ID:
-          writeArray ((int[])fieldValue);
-          break;
-        case FudgeTypeDictionary.LONG_ARRAY_TYPE_ID:
-          writeArray ((long[])fieldValue);
-          break;
-        case FudgeTypeDictionary.FLOAT_ARRAY_TYPE_ID:
-          writeArray ((float[])fieldValue);
-          break;
-        case FudgeTypeDictionary.DOUBLE_ARRAY_TYPE_ID:
-          writeArray ((double[])fieldValue);
-          break;
-        default :
-          if (getBase64UnknownTypes ()) {
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream (fudgeMessageBytes);
-            final DataOutputStream dos = new DataOutputStream (new Base64OutputStream (baos));
-            type.writeValue (dos, fieldValue);
-            dos.close ();
-            if (getFieldAttributeEncoding () != null) {
-              getWriter ().writeAttribute (getFieldAttributeEncoding (), "base64");
-            }
-            getWriter ().writeCharacters (new String (baos.toByteArray ()));
-          } else {
-            getWriter ().writeCharacters (fieldValue.toString ());
-          }
-          break;
-        }
-        getWriter ().writeEndElement ();
-      }
-      _messageSizeToWrite -= fudgeMessageBytes;
-      if (_messageSizeToWrite < 0) throw new FudgeRuntimeException ("field data overflow");
-      if (_messageSizeToWrite == 0) {
-        if (getEnvelopeElementName () != null) {
-          getWriter ().writeEndElement (); // envelope
-        }
-        getWriter ().writeEndDocument ();
-      }
-    } catch (XMLStreamException e) {
-      wrapException ("write field to", e);
     }
-    return fudgeMessageBytes;
+    if (ename == null) return false;
+    getWriter ().writeStartElement (ename);
+    if ((ordinal != null) && (getFieldAttributeOrdinal () != null)) {
+      getWriter ().writeAttribute (getFieldAttributeOrdinal (), ordinal.toString ());
+    }
+    if ((name != null) && !name.equals (ename) && (getFieldAttributeName () != null)) {
+      getWriter ().writeAttribute (getFieldAttributeName (), name);
+    }
+    if (getFieldAttributeType () != null) {
+      final String typeString = fudgeTypeIdToString (type.getTypeId ());
+      if (typeString != null) {
+        getWriter ().writeAttribute (getFieldAttributeType (), typeString);
+      }
+    }
+    return true;
   }
-      
+  
+  @SuppressWarnings("unchecked")
+  protected void fudgeFieldValue (final FudgeFieldType type, final Object fieldValue) throws IOException, XMLStreamException {
+    switch (type.getTypeId ()) {
+    case FudgeTypeDictionary.INDICATOR_TYPE_ID :
+      // no content
+      break;
+    case FudgeTypeDictionary.BOOLEAN_TYPE_ID:
+      getWriter ().writeCharacters ((Boolean)fieldValue ? getBooleanTrue () : getBooleanFalse ());
+      break;
+    case FudgeTypeDictionary.BYTE_TYPE_ID:
+    case FudgeTypeDictionary.SHORT_TYPE_ID:
+    case FudgeTypeDictionary.INT_TYPE_ID:
+    case FudgeTypeDictionary.LONG_TYPE_ID:
+    case FudgeTypeDictionary.FLOAT_TYPE_ID:
+    case FudgeTypeDictionary.DOUBLE_TYPE_ID:
+    case FudgeTypeDictionary.STRING_TYPE_ID:
+    case FudgeTypeDictionary.DATE_TYPE_ID:
+    case FudgeTypeDictionary.TIME_TYPE_ID:
+    case FudgeTypeDictionary.DATETIME_TYPE_ID:
+      getWriter ().writeCharacters (fieldValue.toString ());
+      break;
+    case FudgeTypeDictionary.BYTE_ARRAY_TYPE_ID:
+    case FudgeTypeDictionary.BYTE_ARR_4_TYPE_ID:
+    case FudgeTypeDictionary.BYTE_ARR_8_TYPE_ID:
+    case FudgeTypeDictionary.BYTE_ARR_16_TYPE_ID:
+    case FudgeTypeDictionary.BYTE_ARR_20_TYPE_ID:
+    case FudgeTypeDictionary.BYTE_ARR_32_TYPE_ID:
+    case FudgeTypeDictionary.BYTE_ARR_64_TYPE_ID:
+    case FudgeTypeDictionary.BYTE_ARR_128_TYPE_ID:
+    case FudgeTypeDictionary.BYTE_ARR_256_TYPE_ID:
+    case FudgeTypeDictionary.BYTE_ARR_512_TYPE_ID:
+      writeArray ((byte[])fieldValue);
+      break;
+    case FudgeTypeDictionary.SHORT_ARRAY_TYPE_ID:
+      writeArray ((short[])fieldValue);
+      break;
+    case FudgeTypeDictionary.INT_ARRAY_TYPE_ID:
+      writeArray ((int[])fieldValue);
+      break;
+    case FudgeTypeDictionary.LONG_ARRAY_TYPE_ID:
+      writeArray ((long[])fieldValue);
+      break;
+    case FudgeTypeDictionary.FLOAT_ARRAY_TYPE_ID:
+      writeArray ((float[])fieldValue);
+      break;
+    case FudgeTypeDictionary.DOUBLE_ARRAY_TYPE_ID:
+      writeArray ((double[])fieldValue);
+      break;
+    default :
+      if (getBase64UnknownTypes ()) {
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream ();
+        final DataOutputStream dos = new DataOutputStream (new Base64OutputStream (baos));
+        type.writeValue (dos, fieldValue);
+        dos.close ();
+        if (getFieldAttributeEncoding () != null) {
+          getWriter ().writeAttribute (getFieldAttributeEncoding (), getBase64EncodingName ());
+        }
+        getWriter ().writeCharacters (new String (baos.toByteArray ()));
+      } else {
+        getWriter ().writeCharacters (fieldValue.toString ());
+      }
+      break;
+    }
+  }
+  
+  protected void fudgeFieldEnd () throws XMLStreamException {
+    getWriter ().writeEndElement ();
+  }
+  
+  protected void fudgeEnvelopeEnd () throws XMLStreamException {
+    if (getEnvelopeElementName () != null) {
+      getWriter ().writeEndElement (); // envelope
+    }
+    getWriter ().writeEndDocument ();
+  }
+
 }
