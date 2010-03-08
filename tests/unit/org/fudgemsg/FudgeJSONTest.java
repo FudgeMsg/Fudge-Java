@@ -53,14 +53,10 @@ public class FudgeJSONTest {
   }
   
   private void xmlTest (final FudgeFieldContainer message, final int taxonomy) {
-    try {
-      final FudgeMsgWriter fmw = new FudgeMsgWriter (new FudgeJSONStreamWriter (_fudgeContext, new PrintWriter (System.out)));
-      fmw.writeMessage (StandardFudgeMessages.createMessageAllNames (_fudgeContext), 0);
-      fmw.flush ();
-      System.out.println ();
-    } catch (IOException e) {
-      throw new FudgeRuntimeException ("IOException", e);
-    }
+    final FudgeMsgWriter fmw = new FudgeMsgWriter (new FudgeJSONStreamWriter (_fudgeContext, new PrintWriter (System.out)));
+    fmw.writeMessage (StandardFudgeMessages.createMessageAllNames (_fudgeContext), 0);
+    fmw.flush ();
+    System.out.println ();
   }
   
   /**

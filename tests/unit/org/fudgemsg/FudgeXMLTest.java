@@ -60,8 +60,6 @@ public class FudgeXMLTest {
       fmw.writeMessage (StandardFudgeMessages.createMessageAllNames (_fudgeContext), 0);
       fmw.flush ();
       System.out.println ();
-    } catch (IOException e) {
-      throw new FudgeRuntimeException ("IOException", e);
     } catch (XMLStreamException e) {
       throw new FudgeRuntimeException ("XMLStreamException", e);
     }
