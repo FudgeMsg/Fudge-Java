@@ -55,14 +55,10 @@ public class FudgeXMLTest {
   }
   
   private void xmlTest (final FudgeFieldContainer message, final int taxonomy) {
-    try {
-      final FudgeMsgWriter fmw = new FudgeMsgWriter (new FudgeXMLStreamWriter (_fudgeContext, new PrintWriter (System.out)));
-      fmw.writeMessage (StandardFudgeMessages.createMessageAllNames (_fudgeContext), 0);
-      fmw.flush ();
-      System.out.println ();
-    } catch (XMLStreamException e) {
-      throw new FudgeRuntimeException ("XMLStreamException", e);
-    }
+    final FudgeMsgWriter fmw = new FudgeMsgWriter (new FudgeXMLStreamWriter (_fudgeContext, new PrintWriter (System.out)));
+    fmw.writeMessage (StandardFudgeMessages.createMessageAllNames (_fudgeContext), 0);
+    fmw.flush ();
+    System.out.println ();
   }
   
   /**

@@ -63,7 +63,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
       try {
         FudgeXMLStreamWriter.this.fudgeEnvelopeStart (processingDirectives, schemaVersion);
       } catch (XMLStreamException e) {
-        wrapException ("write envelope header to", e);
+        throw wrapException ("write envelope header to", e);
       }
     }
     
@@ -72,7 +72,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
       try {
         FudgeXMLStreamWriter.this.fudgeEnvelopeEnd ();
       } catch (XMLStreamException e) {
-        wrapException ("write envelope end to", e);
+        throw wrapException ("write envelope end to", e);
       }
     }
     
@@ -81,8 +81,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
       try {
         return FudgeXMLStreamWriter.this.fudgeFieldStart (ordinal, name, type);
       } catch (XMLStreamException e) {
-        wrapException ("write field start to", e);
-        return false;
+        throw wrapException ("write field start to", e);
       }
     }
     
@@ -91,7 +90,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
       try {
         FudgeXMLStreamWriter.this.fudgeFieldValue (type, fieldValue);
       } catch (XMLStreamException e) {
-        wrapException ("write field value to", e);
+        throw wrapException ("write field value to", e);
       }
     }
     
@@ -100,7 +99,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
       try {
         FudgeXMLStreamWriter.this.fudgeFieldEnd ();
       } catch (XMLStreamException e) {
-        wrapException ("write field end to", e);
+        throw wrapException ("write field end to", e);
       }
     }
     
@@ -109,19 +108,26 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
   private final FudgeStreamWriter _delegate;
   private final XMLStreamWriter _writer;
   
+  private static XMLStreamWriter createXMLStreamWriter (final Writer writer) {
+    try {
+      return XMLOutputFactory.newInstance ().createXMLStreamWriter (writer);
+    } catch (XMLStreamException e) {
+      throw wrapException ("create", e);
+    }
+  }
+  
   /**
    * Creates a new {@link FudgeXMLStreamWriter} for writing to the target XML device.
    * 
    * @param fudgeContext the {@link FudgeContext}
    * @param writer the underlying {@link Writer}
-   * @throws XMLStreamException if the XML subsystem can't create a stream wrapper for {@code Writer}
    */
-  public FudgeXMLStreamWriter (final FudgeContext fudgeContext, final Writer writer) throws XMLStreamException {
-    this (fudgeContext, XMLOutputFactory.newInstance ().createXMLStreamWriter (writer));
+  public FudgeXMLStreamWriter (final FudgeContext fudgeContext, final Writer writer) {
+    this (fudgeContext, createXMLStreamWriter (writer));
   }
   
-  public FudgeXMLStreamWriter (final FudgeXMLSettings settings, final FudgeContext fudgeContext, final Writer writer) throws XMLStreamException {
-    this (settings, fudgeContext, XMLOutputFactory.newInstance ().createXMLStreamWriter (writer));
+  public FudgeXMLStreamWriter (final FudgeXMLSettings settings, final FudgeContext fudgeContext, final Writer writer) {
+    this (settings, fudgeContext, createXMLStreamWriter (writer));
   }
   
   /**
@@ -154,11 +160,11 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
    * @param operation the operation being attempted when the exception was caught
    * @param e the exception caught
    */
-  protected void wrapException (final String operation, XMLStreamException e) {
+  protected static FudgeRuntimeException wrapException (final String operation, XMLStreamException e) {
     if (e.getCause () instanceof IOException) {
-      throw new FudgeRuntimeIOException ((IOException)e.getCause ());
+      return new FudgeRuntimeIOException ((IOException)e.getCause ());
     } else {
-      throw new FudgeRuntimeException ("Couldn't " + operation + " XML stream", e);
+      return new FudgeRuntimeException ("Couldn't " + operation + " XML stream", e);
     }
   }
 
@@ -175,7 +181,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
     try {
       getWriter ().close ();
     } catch (XMLStreamException e) {
-      wrapException ("close", e);
+      throw wrapException ("close", e);
     }
   }
   
@@ -188,7 +194,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
     try {
       getWriter ().flush ();
     } catch (XMLStreamException e) {
-      wrapException ("flush", e);
+      throw wrapException ("flush", e);
     }
   }
   
