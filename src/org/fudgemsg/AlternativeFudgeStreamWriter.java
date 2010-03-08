@@ -16,8 +16,6 @@
 
 package org.fudgemsg;
 
-import java.io.IOException;
-
 import org.fudgemsg.taxon.FudgeTaxonomy;
 
 /**
@@ -46,7 +44,7 @@ public abstract class AlternativeFudgeStreamWriter implements FudgeStreamWriter 
    * No action taken.
    */
   @Override
-  public void close() throws IOException {
+  public void close() {
     // no-op
   }
 
@@ -54,7 +52,7 @@ public abstract class AlternativeFudgeStreamWriter implements FudgeStreamWriter 
    * No action taken.
    */
   @Override
-  public void flush() throws IOException {
+  public void flush() {
     // no-op
   }
 
@@ -103,7 +101,7 @@ public abstract class AlternativeFudgeStreamWriter implements FudgeStreamWriter 
   public void writeEnvelopeHeader(
       int processingDirectives,
       int schemaVersion,
-      int messageSize) throws IOException {
+      int messageSize) {
     fudgeEnvelopeStart (processingDirectives, schemaVersion);
   }
   
@@ -111,7 +109,7 @@ public abstract class AlternativeFudgeStreamWriter implements FudgeStreamWriter 
    * {@inheritDoc}
    */
   @Override
-  public void envelopeComplete () throws IOException {
+  public void envelopeComplete () {
     fudgeEnvelopeEnd ();
   }
   
@@ -119,7 +117,7 @@ public abstract class AlternativeFudgeStreamWriter implements FudgeStreamWriter 
    * {@inheritDoc}
    */
   @Override
-  public void writeFields(FudgeFieldContainer msg) throws IOException {
+  public void writeFields(FudgeFieldContainer msg) {
     for(FudgeField field : msg.getAllFields()) {
       writeField(field);
     }
@@ -129,7 +127,7 @@ public abstract class AlternativeFudgeStreamWriter implements FudgeStreamWriter 
    * {@inheritDoc}
    */
   @Override
-  public void writeField (FudgeField field) throws IOException {
+  public void writeField (FudgeField field) {
     if (field == null) {
       throw new NullPointerException ("Cannot write a null field to a Fudge stream");
     }
@@ -145,7 +143,7 @@ public abstract class AlternativeFudgeStreamWriter implements FudgeStreamWriter 
       Short ordinal,
       String name,
       FudgeFieldType type,
-      Object fieldValue) throws IOException {
+      Object fieldValue) {
     if (fudgeFieldStart (ordinal, name, type)) {
       if (type.getTypeId () == FudgeTypeDictionary.FUDGE_MSG_TYPE_ID) {
         fudgeSubMessageStart ();
@@ -164,14 +162,14 @@ public abstract class AlternativeFudgeStreamWriter implements FudgeStreamWriter 
    * @param processingDirectives the envelope processing directives
    * @param schemaVersion the envelope schema version
    */
-  protected void fudgeEnvelopeStart (final int processingDirectives, final int schemaVersion) throws IOException {
+  protected void fudgeEnvelopeStart (final int processingDirectives, final int schemaVersion) {
     // no-op
   }
   
   /**
    * Called at the end of the envelope after all fields have been processed.
    */
-  protected void fudgeEnvelopeEnd () throws IOException {
+  protected void fudgeEnvelopeEnd () {
     // no-op
   }
   
@@ -183,14 +181,14 @@ public abstract class AlternativeFudgeStreamWriter implements FudgeStreamWriter 
    * @param type the field type
    * @return {@code true} to continue processing the field, {@code false} to ignore it ({@link #fudgeFieldValue}, {@link #fudgeSubMessageStart}, {@link #fudgeSubMessageEnd} and {@link #fudgeFieldEnd} will not be called for this field)
    */
-  protected boolean fudgeFieldStart (Short ordinal, String name, FudgeFieldType<?> type) throws IOException {
+  protected boolean fudgeFieldStart (Short ordinal, String name, FudgeFieldType<?> type) {
     return true;
   }
   
   /**
    * Called after a field has been processed.
    */
-  protected void fudgeFieldEnd () throws IOException {
+  protected void fudgeFieldEnd () {
     // no-op
   }
   
@@ -200,21 +198,21 @@ public abstract class AlternativeFudgeStreamWriter implements FudgeStreamWriter 
    * @param type the field type
    * @param fieldValue the value
    */
-  protected void fudgeFieldValue (FudgeFieldType<?> type, Object fieldValue) throws IOException {
+  protected void fudgeFieldValue (FudgeFieldType<?> type, Object fieldValue) {
     // no-op
   }
   
   /**
    * Called after {@link #fudgeFieldStart} when a sub-message is starting.
    */
-  protected void fudgeSubMessageStart () throws IOException {
+  protected void fudgeSubMessageStart () {
     // no-op
   }
   
   /**
    * Called when a sub-message has been processed, before {@link #fudgeFieldEnd} is called for the field.
    */
-  protected void fudgeSubMessageEnd () throws IOException {
+  protected void fudgeSubMessageEnd () {
     // no-op
   }
   

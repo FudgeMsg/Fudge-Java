@@ -23,6 +23,7 @@ import org.fudgemsg.AlternativeFudgeStreamWriter;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeRuntimeException;
+import org.fudgemsg.FudgeRuntimeIOException;
 import org.fudgemsg.FudgeStreamWriter;
 import org.fudgemsg.FudgeTypeDictionary;
 import org.json.JSONException;
@@ -66,23 +67,27 @@ public class FudgeJSONStreamWriter extends AlternativeFudgeStreamWriter {
     return _underlyingWriter;
   }
   
-  protected void wrapException (final String message, final JSONException e) throws IOException {
+  protected void wrapException (final String message, final JSONException e) {
     if (e.getCause () instanceof IOException) {
-      throw (IOException)e.getCause ();
+      throw new FudgeRuntimeIOException ((IOException)e.getCause ());
     } else {
       throw new FudgeRuntimeException ("Error writing " + message + " to JSON stream", e);
     }
   }
   
   @Override
-  public void flush () throws IOException {
+  public void flush () {
     if (getUnderlying () != null) {
-      getUnderlying ().flush ();
+      try {
+        getUnderlying ().flush ();
+      } catch (IOException e) {
+        throw new FudgeRuntimeIOException (e);
+      }
     }
   }
   
   @Override
-  protected void fudgeEnvelopeStart (final int processingDirectives, final int schemaVersion) throws IOException {
+  protected void fudgeEnvelopeStart (final int processingDirectives, final int schemaVersion) {
     try {
       getWriter ().object ();
       if (processingDirectives != 0) getWriter ().key ("processingDirectives").value (processingDirectives);
@@ -93,7 +98,7 @@ public class FudgeJSONStreamWriter extends AlternativeFudgeStreamWriter {
   }
   
   @Override
-  protected void fudgeEnvelopeEnd () throws IOException {
+  protected void fudgeEnvelopeEnd () {
     try {
       getWriter ().endObject ();
     } catch (JSONException e) {
@@ -102,7 +107,7 @@ public class FudgeJSONStreamWriter extends AlternativeFudgeStreamWriter {
   }
   
   @Override
-  protected boolean fudgeFieldStart (Short ordinal, String name, FudgeFieldType<?> type) throws IOException {
+  protected boolean fudgeFieldStart (Short ordinal, String name, FudgeFieldType<?> type) {
     try {
       if (name != null) {
         getWriter ().key (name);
@@ -166,7 +171,7 @@ public class FudgeJSONStreamWriter extends AlternativeFudgeStreamWriter {
   }
   
   @Override
-  protected void fudgeFieldValue (FudgeFieldType<?> type, Object fieldValue) throws IOException {
+  protected void fudgeFieldValue (FudgeFieldType<?> type, Object fieldValue) {
     try {
       switch (type.getTypeId ()) {
       case FudgeTypeDictionary.INDICATOR_TYPE_ID :
@@ -209,7 +214,7 @@ public class FudgeJSONStreamWriter extends AlternativeFudgeStreamWriter {
   }
   
   @Override
-  protected void fudgeSubMessageStart () throws IOException {
+  protected void fudgeSubMessageStart () {
     try {
       getWriter ().object ();
     } catch (JSONException e) {
@@ -218,7 +223,7 @@ public class FudgeJSONStreamWriter extends AlternativeFudgeStreamWriter {
   }
   
   @Override
-  protected void fudgeSubMessageEnd () throws IOException {
+  protected void fudgeSubMessageEnd () {
     try {
       getWriter ().endObject ();
     } catch (JSONException e) {

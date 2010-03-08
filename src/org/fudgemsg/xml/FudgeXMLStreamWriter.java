@@ -32,6 +32,7 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeRuntimeException;
+import org.fudgemsg.FudgeRuntimeIOException;
 import org.fudgemsg.FudgeStreamWriter;
 import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.taxon.FudgeTaxonomy;
@@ -58,7 +59,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
     }
     
     @Override
-    protected void fudgeEnvelopeStart (final int processingDirectives, final int schemaVersion) throws IOException {
+    protected void fudgeEnvelopeStart (final int processingDirectives, final int schemaVersion) {
       try {
         FudgeXMLStreamWriter.this.fudgeEnvelopeStart (processingDirectives, schemaVersion);
       } catch (XMLStreamException e) {
@@ -67,7 +68,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
     }
     
     @Override
-    protected void fudgeEnvelopeEnd () throws IOException {
+    protected void fudgeEnvelopeEnd () {
       try {
         FudgeXMLStreamWriter.this.fudgeEnvelopeEnd ();
       } catch (XMLStreamException e) {
@@ -76,7 +77,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
     }
     
     @Override
-    protected boolean fudgeFieldStart (final Short ordinal, final String name, final FudgeFieldType<?> type) throws IOException {
+    protected boolean fudgeFieldStart (final Short ordinal, final String name, final FudgeFieldType<?> type) {
       try {
         return FudgeXMLStreamWriter.this.fudgeFieldStart (ordinal, name, type);
       } catch (XMLStreamException e) {
@@ -86,7 +87,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
     }
     
     @Override
-    protected void fudgeFieldValue (final FudgeFieldType<?> type, final Object fieldValue) throws IOException {
+    protected void fudgeFieldValue (final FudgeFieldType<?> type, final Object fieldValue) {
       try {
         FudgeXMLStreamWriter.this.fudgeFieldValue (type, fieldValue);
       } catch (XMLStreamException e) {
@@ -95,7 +96,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
     }
     
     @Override
-    protected void fudgeFieldEnd () throws IOException {
+    protected void fudgeFieldEnd () {
       try {
         FudgeXMLStreamWriter.this.fudgeFieldEnd ();
       } catch (XMLStreamException e) {
@@ -153,9 +154,9 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
    * @param operation the operation being attempted when the exception was caught
    * @param e the exception caught
    */
-  protected void wrapException (final String operation, XMLStreamException e) throws IOException {
+  protected void wrapException (final String operation, XMLStreamException e) {
     if (e.getCause () instanceof IOException) {
-      throw (IOException)e.getCause ();
+      throw new FudgeRuntimeIOException ((IOException)e.getCause ());
     } else {
       throw new FudgeRuntimeException ("Couldn't " + operation + " XML stream", e);
     }
@@ -169,7 +170,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
    * {@inheritDoc}
    */
   @Override
-  public void close () throws IOException {
+  public void close () {
     getDelegate ().close ();
     try {
       getWriter ().close ();
@@ -182,7 +183,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
    * {@inheritDoc} 
    */
   @Override
-  public void flush () throws IOException {
+  public void flush () {
     getDelegate ().flush ();
     try {
       getWriter ().flush ();
@@ -230,7 +231,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
   public void writeEnvelopeHeader(
       int processingDirectives,
       int schemaVersion,
-      int messageSize) throws IOException {
+      int messageSize) {
     getDelegate ().writeEnvelopeHeader (processingDirectives, schemaVersion, messageSize);
   }
   
@@ -238,7 +239,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
    * {@inheritDoc}
    */
   @Override
-  public void envelopeComplete () throws IOException {
+  public void envelopeComplete () {
     getDelegate ().envelopeComplete ();
   }
   
@@ -246,7 +247,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
    * {@inheritDoc}
    */
   @Override
-  public void writeFields(FudgeFieldContainer msg) throws IOException {
+  public void writeFields(FudgeFieldContainer msg) {
     getDelegate ().writeFields (msg);
   }
   
@@ -254,13 +255,13 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
    * {@inheritDoc}
    */
   @Override
-  public void writeField (FudgeField field) throws IOException {
+  public void writeField (FudgeField field) {
     getDelegate ().writeField (field);
   }
 
   @Override
   public void writeField(Short ordinal, String name, FudgeFieldType<?> type,
-      Object fieldValue) throws IOException {
+      Object fieldValue) {
     getDelegate ().writeField (ordinal, name, type, fieldValue);
   }
       
@@ -371,7 +372,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
     }
   }
   
-  protected boolean fudgeFieldStart (final Short ordinal, final String name, final FudgeFieldType type) throws IOException, XMLStreamException {
+  protected boolean fudgeFieldStart (final Short ordinal, final String name, final FudgeFieldType type) throws XMLStreamException {
     String ename = null;
     if (getPreserveFieldNames ()) {
       ename = convertFieldName (name);
@@ -407,7 +408,7 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
   }
   
   @SuppressWarnings("unchecked")
-  protected void fudgeFieldValue (final FudgeFieldType type, final Object fieldValue) throws IOException, XMLStreamException {
+  protected void fudgeFieldValue (final FudgeFieldType type, final Object fieldValue) throws XMLStreamException {
     switch (type.getTypeId ()) {
     case FudgeTypeDictionary.INDICATOR_TYPE_ID :
       // no content
@@ -458,8 +459,12 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
       if (getBase64UnknownTypes ()) {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream ();
         final DataOutputStream dos = new DataOutputStream (new Base64OutputStream (baos));
-        type.writeValue (dos, fieldValue);
-        dos.close ();
+        try {
+          type.writeValue (dos, fieldValue);
+          dos.close ();
+        } catch (IOException e) {
+          throw new FudgeRuntimeIOException (e);
+        }
         if (getFieldAttributeEncoding () != null) {
           getWriter ().writeAttribute (getFieldAttributeEncoding (), getBase64EncodingName ());
         }

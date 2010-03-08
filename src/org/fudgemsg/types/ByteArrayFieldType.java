@@ -23,7 +23,6 @@ import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 
-
 /**
  * The type definition for a byte array.
  *

@@ -16,10 +16,8 @@
 
 package org.fudgemsg;
 
-import java.io.IOException;
 import java.io.Closeable;
 
-import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 
 /**
@@ -57,17 +55,15 @@ public interface FudgeStreamReader extends Closeable {
    * will return true indicating {@code next()} will return the envelope header of the next message.
    * 
    * @return {@code true} if there is at least one more element to read
-   * @throws IOException if there is a problem (other than EOF) with the underlying source
    */
-  public boolean hasNext () throws IOException;
+  public boolean hasNext ();
   
   /**
    * Reads the next stream element from the source and returns the element type.
    * 
    * @return the type of the next element in the stream
-   * @throws IOException if there is a problem (e.g. EOF) that prevents reading a message
    */
-  public FudgeStreamElement next () throws IOException;
+  public FudgeStreamElement next ();
   
   /**
    * Returns the value last returned by {@link #next()}.

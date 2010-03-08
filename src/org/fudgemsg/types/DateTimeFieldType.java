@@ -18,9 +18,8 @@ package org.fudgemsg.types;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-
-import java.util.Date;
 import java.util.Calendar;
+import java.util.Date;
 
 import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeTypeDictionary;
@@ -126,7 +125,7 @@ public class DateTimeFieldType extends FudgeFieldType<Calendar> {
     options |= accuracy.getEncodedValue ();
     n |= (long)options << 56;
     output.writeLong (n);
-    output.writeInt (nanos); 
+    output.writeInt (nanos);
   }
 
 }

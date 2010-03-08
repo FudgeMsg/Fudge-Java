@@ -59,7 +59,7 @@ public class DateFieldType extends FudgeFieldType<FudgeDate> {
   @Override
   public void writeValue(DataOutput output, FudgeDate value) throws IOException {
     int n = value.getDays ();
-    output.writeInt (n); 
+    output.writeInt (n);
   }
 
 }

@@ -102,7 +102,7 @@ public class FudgeMsgReader {
     try {
       _readAhead = readMessageEnvelope ();
       return (_readAhead != null);
-    } catch (IOException ioe) {
+    } catch (FudgeRuntimeIOException e) {
       _streamErrored = true;
       return false;
     }
@@ -112,9 +112,8 @@ public class FudgeMsgReader {
    * Reads the next message, discarding the envelope.
    * 
    * @return the message read without the envelope
-   * @throws IOException if the underlying source errors
    */
-  public FudgeFieldContainer nextMessage () throws IOException {
+  public FudgeFieldContainer nextMessage () {
     //System.out.println ("FudgeMessageStreamReader::nextMessage()");
     final FudgeMsgEnvelope msgEnv = nextMessageEnvelope ();
     if (msgEnv == null) return null;
@@ -125,9 +124,8 @@ public class FudgeMsgReader {
    * Reads the next message, returning the envelope.
    * 
    * @return the {@link FudgeMsgEnvelope}
-   * @throws IOException if the underlying source errors
    */
-  public FudgeMsgEnvelope nextMessageEnvelope () throws IOException {
+  public FudgeMsgEnvelope nextMessageEnvelope () {
     //System.out.println ("FudgeMessageStreamReader::nextMessageEnvelope()");
     if (_readAhead != null) {
       FudgeMsgEnvelope envelope = _readAhead;
@@ -142,9 +140,8 @@ public class FudgeMsgReader {
    * positioned for the next envelope (if there is one).
    * 
    * @return the {@link FudgeMsgEnvelope} read
-   * @throws IOException if the underlying source errors
    */
-  protected FudgeMsgEnvelope readMessageEnvelope () throws IOException {
+  protected FudgeMsgEnvelope readMessageEnvelope () {
     //System.out.println ("FudgeMessageStreamReader::readMessageEnvelope()");
     FudgeStreamElement element = getStreamReader ().next();
     if(element == null) {
@@ -164,9 +161,8 @@ public class FudgeMsgReader {
    * Processes all of the fields from the current message (or sub-message) in the stream, adding them to the supplied container.
    * 
    * @param msg container to add fields read to
-   * @throws IOException if the underlying source errors
    */
-  protected void processFields(MutableFudgeFieldContainer msg) throws IOException {
+  protected void processFields(MutableFudgeFieldContainer msg) {
     //System.out.println ("FudgeMessageStreamReader::processFields(" + reader + ", " + msg + ")");
     final FudgeStreamReader reader = getStreamReader ();
     while(reader.hasNext()) {

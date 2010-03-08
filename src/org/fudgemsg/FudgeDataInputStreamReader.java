@@ -253,21 +253,25 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
    * {@inheritDoc}
    */
   @Override
-  public FudgeStreamElement next() throws IOException {
+  public FudgeStreamElement next() {
     //System.out.println ("FudgeDataInputStreamReader::next()");
-    if(_processingStack.isEmpty()) {
-      // Must be an envelope.
-      consumeMessageEnvelope();
-    } else if(isEndOfSubMessage()) {
-      _currentElement = FudgeStreamElement.SUBMESSAGE_FIELD_END;
-      _fieldName = null;
-      _fieldOrdinal = null;
-      _fieldType = null; 
-    } else {
-      consumeFieldData();
+    try {
+      if(_processingStack.isEmpty()) {
+        // Must be an envelope.
+        consumeMessageEnvelope();
+      } else if(isEndOfSubMessage()) {
+        _currentElement = FudgeStreamElement.SUBMESSAGE_FIELD_END;
+        _fieldName = null;
+        _fieldOrdinal = null;
+        _fieldType = null; 
+      } else {
+        consumeFieldData();
+      }
+      assert _currentElement != null;
+      return _currentElement;
+    } catch (IOException e) {
+      throw new FudgeRuntimeIOException (e);
     }
-    assert _currentElement != null;
-    return _currentElement;
   }
 
   /**
@@ -385,35 +389,36 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
    * @param type the {@link FudgeFieldType} of the data to read
    * @param varSize number of bytes in a variable width field payload
    * @return the field value
-   * @throws IOException if the underlying stream raises an {@link IOException}
    */
   public static Object readFieldValue(
       DataInput is,
       FudgeFieldType<?> type,
-      int varSize) throws IOException {
+      int varSize) {
     //System.out.println ("FudgeDataInputStreamReader::readFieldValue(" + is + ", " + type + ", " + varSize + ")");
     assert type != null;
     assert is != null;
-    
-    // Special fast-pass for known field types
-    switch(type.getTypeId()) {
-    case FudgeTypeDictionary.BOOLEAN_TYPE_ID:
-      return is.readBoolean();
-    case FudgeTypeDictionary.BYTE_TYPE_ID:
-      return is.readByte();
-    case FudgeTypeDictionary.SHORT_TYPE_ID:
-      return is.readShort();
-    case FudgeTypeDictionary.INT_TYPE_ID:
-      return is.readInt();
-    case FudgeTypeDictionary.LONG_TYPE_ID:
-      return is.readLong();
-    case FudgeTypeDictionary.FLOAT_TYPE_ID:
-      return is.readFloat();
-    case FudgeTypeDictionary.DOUBLE_TYPE_ID:
-      return is.readDouble();
+    try {
+      // Special fast-pass for known field types
+      switch(type.getTypeId()) {
+      case FudgeTypeDictionary.BOOLEAN_TYPE_ID:
+        return is.readBoolean();
+      case FudgeTypeDictionary.BYTE_TYPE_ID:
+        return is.readByte();
+      case FudgeTypeDictionary.SHORT_TYPE_ID:
+        return is.readShort();
+      case FudgeTypeDictionary.INT_TYPE_ID:
+        return is.readInt();
+      case FudgeTypeDictionary.LONG_TYPE_ID:
+        return is.readLong();
+      case FudgeTypeDictionary.FLOAT_TYPE_ID:
+        return is.readFloat();
+      case FudgeTypeDictionary.DOUBLE_TYPE_ID:
+        return is.readDouble();
+      }
+      return type.readValue(is, varSize);
+    } catch (IOException e) {
+      throw new FudgeRuntimeIOException (e);
     }
-    
-    return type.readValue(is, varSize);
   }
 
   /**
