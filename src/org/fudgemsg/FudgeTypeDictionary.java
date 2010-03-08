@@ -71,18 +71,18 @@ public class FudgeTypeDictionary {
     addType(ByteArrayFieldType.LENGTH_128_INSTANCE);
     addType(ByteArrayFieldType.LENGTH_256_INSTANCE);
     addType(ByteArrayFieldType.LENGTH_512_INSTANCE);
-    addType(PrimitiveFieldTypes.BOOLEAN_TYPE, Boolean.class);
-    addType(PrimitiveFieldTypes.BYTE_TYPE, Byte.class);
-    addType(PrimitiveFieldTypes.SHORT_TYPE, Short.class);
-    addType(PrimitiveFieldTypes.INT_TYPE, Integer.class);
-    addType(PrimitiveFieldTypes.LONG_TYPE, Long.class);
-    addType(PrimitiveFieldTypes.FLOAT_TYPE, Float.class);
+    addType(PrimitiveFieldTypes.BOOLEAN_TYPE, Boolean.class, Boolean.TYPE);
+    addType(PrimitiveFieldTypes.BYTE_TYPE, Byte.class, Byte.TYPE);
+    addType(PrimitiveFieldTypes.SHORT_TYPE, Short.class, Short.TYPE);
+    addType(PrimitiveFieldTypes.INT_TYPE, Integer.class, Integer.TYPE);
+    addType(PrimitiveFieldTypes.LONG_TYPE, Long.class, Long.TYPE);
+    addType(PrimitiveFieldTypes.FLOAT_TYPE, Float.class, Float.TYPE);
     addType(ShortArrayFieldType.INSTANCE);
     addType(IntArrayFieldType.INSTANCE);
     addType(LongArrayFieldType.INSTANCE);
     addType(IndicatorFieldType.INSTANCE);
     addType(FloatArrayFieldType.INSTANCE);
-    addType(PrimitiveFieldTypes.DOUBLE_TYPE, Double.class);
+    addType(PrimitiveFieldTypes.DOUBLE_TYPE, Double.class, Double.TYPE);
     addType(DoubleArrayFieldType.INSTANCE);
     addType(ByteArrayFieldType.VARIABLE_SIZED_INSTANCE);
     addType(StringFieldType.INSTANCE);
@@ -91,15 +91,14 @@ public class FudgeTypeDictionary {
     addType(TimeFieldType.INSTANCE);
     addType(DateTimeFieldType.INSTANCE);
     // default type conversions
-    addTypeConverter(PrimitiveFieldTypesConverter.INT_CONVERTER, Integer.class);
-    addTypeConverter(PrimitiveFieldTypesConverter.BOOLEAN_CONVERTER, Boolean.class);
-    addTypeConverter(PrimitiveFieldTypesConverter.BYTE_CONVERTER, Byte.class);
-    addTypeConverter(PrimitiveFieldTypesConverter.SHORT_CONVERTER, Short.class);
-    addTypeConverter(PrimitiveFieldTypesConverter.LONG_CONVERTER, Long.class);
-    addTypeConverter(PrimitiveFieldTypesConverter.FLOAT_CONVERTER, Float.class);
-    addTypeConverter(PrimitiveFieldTypesConverter.DOUBLE_CONVERTER, Double.class);
+    addTypeConverter(PrimitiveFieldTypesConverter.INT_CONVERTER, Integer.class, Integer.TYPE);
+    addTypeConverter(PrimitiveFieldTypesConverter.BOOLEAN_CONVERTER, Boolean.class, Boolean.TYPE);
+    addTypeConverter(PrimitiveFieldTypesConverter.BYTE_CONVERTER, Byte.class, Byte.TYPE);
+    addTypeConverter(PrimitiveFieldTypesConverter.SHORT_CONVERTER, Short.class, Short.TYPE);
+    addTypeConverter(PrimitiveFieldTypesConverter.LONG_CONVERTER, Long.class, Long.TYPE);
+    addTypeConverter(PrimitiveFieldTypesConverter.FLOAT_CONVERTER, Float.class, Float.TYPE);
+    addTypeConverter(PrimitiveFieldTypesConverter.DOUBLE_CONVERTER, Double.class, Double.TYPE);
     addTypeConverter(IndicatorFieldTypeConverter.INSTANCE, IndicatorType.class);
-    // TODO 2010-02-05 Andrew -- should we do any conversion for arrays? 
     // secondary types
     addType(JavaUtilUUIDFieldType.INSTANCE);
     addType(JavaUtilDateFieldType.INSTANCE);
@@ -121,14 +120,16 @@ public class FudgeTypeDictionary {
    * automatically when {@link #addType} is called.
    * 
    * @param converter the converter
-   * @param type the type to register against
+   * @param types the type(s) to register against
    */
-  public void addTypeConverter (FudgeTypeConverter<?,?> converter, Class<?> type) {
-    _convertersByJavaType.put (type, converter);
-    type = type.getSuperclass ();
-    while (!Object.class.equals (type)) {
-      if (_convertersByJavaType.putIfAbsent (type, converter) != null) break;
+  public void addTypeConverter (FudgeTypeConverter<?,?> converter, Class<?> ... types) {
+    for (Class<?> type : types) {
+      _convertersByJavaType.put (type, converter);
       type = type.getSuperclass ();
+      while ((type != null) && !Object.class.equals (type)) {
+        if (_convertersByJavaType.putIfAbsent (type, converter) != null) break;
+        type = type.getSuperclass ();
+      }
     }
   }
   
@@ -252,7 +253,7 @@ public class FudgeTypeDictionary {
       } else {
         final FudgeTypeConverter<Object,T> converter = getTypeConverter(clazz);
         if (converter == null) {
-          // don't recognise the requested type
+          // don't recognize the requested type
           throw new IllegalArgumentException ("cannot convert " + sourceType + " to unregistered secondary type " + clazz.getName ());
         } else {
           if (converter.canConvertPrimary (sourceType.getPrimaryType ().getJavaType ())) {

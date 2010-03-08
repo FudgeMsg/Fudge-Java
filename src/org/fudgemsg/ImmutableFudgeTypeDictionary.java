@@ -39,7 +39,8 @@ import org.fudgemsg.types.FudgeTypeConverter;
    * @param converter the converter
    * @param type the type to register against
    */
-  public void addTypeConverter (FudgeTypeConverter<?,?> converter, Class<?> type) {
+  @Override
+  public void addTypeConverter (FudgeTypeConverter<?,?> converter, Class<?> ... types) {
     throw new UnsupportedOperationException ("addTypeConverter called on an immutable Fudge type dictionary");
   }
   
@@ -49,6 +50,7 @@ import org.fudgemsg.types.FudgeTypeConverter;
    * @param type the {@link FudgeFieldType} definition of the type
    * @param alternativeTypes any additional Java classes that are synonymous with this type.
    */
+  @Override
   public void addType(FudgeFieldType<?> type, Class<?>... alternativeTypes) {
     throw new UnsupportedOperationException ("addType called on an immutable Fudge type dictionary");
   }

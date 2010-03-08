@@ -78,7 +78,7 @@ public class FudgeDeserializationContext {
    * or if it is a sub-message will be expanded through {@link #fudgeMsgToObject(FudgeFieldContainer)}.
    * 
    * @param field field to convert
-   * @return the deserialised object
+   * @return the deserialized object
    */
   public Object fieldValueToObject (final FudgeField field) {
     final Object o = field.getValue ();
@@ -96,7 +96,7 @@ public class FudgeDeserializationContext {
    * @param <T> target Java type to decode to
    * @param clazz class of the target Java type to decode to
    * @param field value to decode
-   * @return the deserialised object
+   * @return the deserialized object
    */
   @SuppressWarnings("unchecked")
   public <T> T fieldValueToObject (final Class<T> clazz, final FudgeField field) {
@@ -104,16 +104,15 @@ public class FudgeDeserializationContext {
     if (o instanceof FudgeFieldContainer) {
       return fudgeMsgToObject (clazz, (FudgeFieldContainer)o);
     } else {
-      // TODO 2010-01-19 Andrew -- the cast below isn't good; should do more sensible conversion from the standard fudge types or raise an error
-      return (T)o;
+      return getFudgeContext ().getFieldValue (clazz, field);
     }
   }
   
   /**
-   * Converts a Fudge message to a best guess Java object. {@link List} and {@link Map} encodings are recognised and inflated. Any other encodings
+   * Converts a Fudge message to a best guess Java object. {@link List} and {@link Map} encodings are recognized and inflated. Any other encodings
    * require field ordinal 0 to include possible class names to use.
    * 
-   * @param message message to deserialise
+   * @param message message to deserialize
    * @return the Java object
    */
   public Object fudgeMsgToObject (final FudgeFieldContainer message) {
