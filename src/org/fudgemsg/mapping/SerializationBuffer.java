@@ -46,7 +46,7 @@ import org.fudgemsg.FudgeRuntimeException;
    * @throws FudgeRuntimeException if a cyclic reference is detected    
    */
   /* package */ void beginObject (final Object object) {
-    if (_buffer.contains (object)) throw new FudgeRuntimeException ("Serialization framework can't support cyclic references");
+    if (_buffer.contains (object)) throw new UnsupportedOperationException ("Serialization framework can't support cyclic references");
     _buffer.push (object);
   }
   

@@ -341,7 +341,7 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
     FudgeFieldType<?> type = getFudgeContext().getTypeDictionary().getByTypeId(typeId);
     if(type == null) {
       if(fixedWidth) {
-        throw new FudgeRuntimeException("Unknown fixed width type " + typeId + " for field " + ordinal + ":" + name + " cannot be handled.");
+        throw new IOException("Unknown fixed width type " + typeId + " for field " + ordinal + ":" + name + " cannot be handled.");
       }
       type = getFudgeContext().getTypeDictionary().getUnknownType(typeId);
     }
@@ -355,7 +355,7 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
       case 2: varSize = getDataInput().readShort(); nRead += 2; break;
       case 4: varSize = getDataInput().readInt();  nRead += 4; break;
       default:
-        throw new FudgeRuntimeException("Illegal number of bytes indicated for variable width encoding: " + varSizeBytes);
+        throw new IOException("Illegal number of bytes indicated for variable width encoding: " + varSizeBytes);
       }
     }
     

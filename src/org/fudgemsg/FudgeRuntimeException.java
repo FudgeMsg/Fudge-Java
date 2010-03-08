@@ -25,11 +25,13 @@ package org.fudgemsg;
 public class FudgeRuntimeException extends RuntimeException {
   
   /**
-   * Creates a new {@link FudgeRuntimeException}.
+   * Creates a new {@link FudgeRuntimeException}. This is provided for use by a subclass. Instances
+   * of a FudgeRuntimException should not be created other than to wrap checked exceptions. When an
+   * error condition is detected, one of the standard Java exceptions should be used.
    * 
    * @param message description of the error condition
    */
-  public FudgeRuntimeException(String message) {
+  protected FudgeRuntimeException(String message) {
     super(message);
   }
   

@@ -132,7 +132,7 @@ public class FudgeDeserializationContext {
       for (FudgeField type : types) {
         final Object o = type.getValue ();
         if (o instanceof Number) {
-          throw new FudgeRuntimeException ("Serialisation framework doesn't support back/forward references"); 
+          throw new UnsupportedOperationException ("Serialisation framework doesn't support back/forward references"); 
         } else if (o instanceof String) {
           try {
             final Class<?> clazz = Class.forName ((String)o);
@@ -158,24 +158,20 @@ public class FudgeDeserializationContext {
    */
   @SuppressWarnings("unchecked")
   public <T> T fudgeMsgToObject (final Class<T> clazz, final FudgeFieldContainer message) {
-    final FudgeObjectBuilder<T> builder = getFudgeContext ().getObjectDictionary ().getObjectBuilder (clazz);
+    FudgeObjectBuilder<T> builder = getFudgeContext ().getObjectDictionary ().getObjectBuilder (clazz);
     if (builder == null) {
       // no builder for the requested class, so look to see if there are any embedded class details for a sub-class we know
       List<FudgeField> types = message.getAllByOrdinal (0);
-      FudgeRuntimeException fre = null;
       for (FudgeField type : types) {
         final Object o = type.getValue ();
         if (o instanceof Number) {
-          throw new FudgeRuntimeException ("Serialisation framework doesn't support back/forward references"); 
+          throw new UnsupportedOperationException ("Serialisation framework doesn't support back/forward references"); 
         } else if (o instanceof String) {
           try {
             final Class<?> possibleClazz = Class.forName ((String)o);
             if (!clazz.equals (possibleClazz) && clazz.isAssignableFrom (possibleClazz)) {
-              try {
-                return (T)fudgeMsgToObject (possibleClazz, message);
-              } catch (FudgeRuntimeException e) {
-                fre = e;
-              }
+              builder = (FudgeObjectBuilder<T>)getFudgeContext ().getObjectDictionary ().getObjectBuilder (possibleClazz);
+              if (builder != null) return builder.buildObject (this, message);
             }
           } catch (ClassNotFoundException e) {
             // ignore
@@ -183,12 +179,7 @@ public class FudgeDeserializationContext {
         }
       }
       // nothing matched
-      if (fre != null) {
-        // propogate one of the inner exceptions
-        throw new FudgeRuntimeException ("Don't know how to create " + clazz + " from " + message, fre);
-      } else {
-        throw new FudgeRuntimeException ("Don't know how to create " + clazz + " from " + message);
-      }
+      throw new IllegalArgumentException ("Don't know how to create " + clazz + " from " + message);
     }
     final T object = builder.buildObject (this, message);
     return object;
