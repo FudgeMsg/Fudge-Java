@@ -156,9 +156,8 @@ public class FudgeContext implements FudgeMessageFactory {
    *          the {@code FudgeFieldContainer} to write
    * @param os
    *          the {@code OutputStream} to write to
-   * @throws IOException if the target {@code OutputStream} errors
    */
-  public void serialize(FudgeFieldContainer msg, OutputStream os) throws IOException {
+  public void serialize(FudgeFieldContainer msg, OutputStream os) {
     serialize(msg, null, os);
   }
 
@@ -174,9 +173,8 @@ public class FudgeContext implements FudgeMessageFactory {
    *          taxonomy.
    * @param os
    *          the {@code OutputStream} to write to
-   * @throws IOException if the target {@code OutputStream} errors
    */
-  public void serialize(FudgeFieldContainer msg, Short taxonomyId, OutputStream os) throws IOException {
+  public void serialize(FudgeFieldContainer msg, Short taxonomyId, OutputStream os) {
     int realTaxonomyId = (taxonomyId == null) ? 0 : taxonomyId.intValue();
     FudgeMsgWriter writer = createMessageWriter (os);
     FudgeMsgEnvelope envelope = new FudgeMsgEnvelope(msg);
@@ -192,13 +190,9 @@ public class FudgeContext implements FudgeMessageFactory {
    * @return an array containing the encoded message
    */
   public byte[] toByteArray(FudgeFieldContainer msg, Short taxonomyId) {
-    try {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      serialize(msg, taxonomyId, baos);
-      return baos.toByteArray();
-    } catch (IOException ioe) {
-      throw new FudgeRuntimeException ("Couldn't serialize message", ioe);
-    }
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    serialize(msg, taxonomyId, baos);
+    return baos.toByteArray();
   }
   
   /**
@@ -217,9 +211,8 @@ public class FudgeContext implements FudgeMessageFactory {
    * 
    *  @param is the {@code InputStream} to read encoded data from
    *  @return the next {@link FudgeMsgEnvelope} encoded on the stream
-   *  @throws IOException if the target {@code InputStream} errors
    */
-  public FudgeMsgEnvelope deserialize(InputStream is) throws IOException {
+  public FudgeMsgEnvelope deserialize(InputStream is) {
     FudgeMsgReader reader = createMessageReader (is);
     FudgeMsgEnvelope envelope = reader.nextMessageEnvelope ();
     return envelope;
@@ -235,11 +228,7 @@ public class FudgeContext implements FudgeMessageFactory {
    */
   public FudgeMsgEnvelope deserialize(byte[] bytes) {
     ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-    try {
-      return deserialize(bais);
-    } catch (IOException ioe) {
-      throw new FudgeRuntimeException ("Couldn't deserialize array", ioe);
-    }
+    return deserialize(bais);
   }
   
   /**

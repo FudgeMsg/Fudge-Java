@@ -95,18 +95,13 @@ public class FudgeObjectMessageFactoryTest {
   /**
    * 
    */
-  @Test
+  @Test(expected=UnsupportedOperationException.class)
   @Deprecated
   public void objectGraphOld () {
     SimpleBean recursiveBean = ObjectMappingTestUtil.constructSimpleBean ();
     recursiveBean.getFieldTwo ().setFieldTwo (recursiveBean);
-    try {
-      FudgeFieldContainer msg = FudgeObjectMessageFactory.serializeToMessage (recursiveBean, FudgeContext.GLOBAL_DEFAULT);
-      System.out.println (msg);
-      assert false;
-    } catch (FudgeRuntimeException fre) {
-      assertEquals ("Serialization framework can't support cyclic references", fre.getMessage ());
-    }
+    FudgeFieldContainer msg = FudgeObjectMessageFactory.serializeToMessage (recursiveBean, FudgeContext.GLOBAL_DEFAULT);
+    System.out.println (msg);
   }
   
   /**
@@ -165,17 +160,12 @@ public class FudgeObjectMessageFactoryTest {
   /**
    * 
    */
-  @Test
+  @Test(expected=UnsupportedOperationException.class)
   public void objectGraph () {
     SimpleBean recursiveBean = ObjectMappingTestUtil.constructSimpleBean ();
     recursiveBean.getFieldTwo ().setFieldTwo (recursiveBean);
-    try {
-      FudgeMsgEnvelope msg = FudgeContext.GLOBAL_DEFAULT.toFudgeMsg (recursiveBean);
-      System.out.println (msg);
-      assert false;
-    } catch (FudgeRuntimeException fre) {
-      assertEquals ("Serialization framework can't support cyclic references", fre.getMessage ());
-    }
+    FudgeMsgEnvelope msg = FudgeContext.GLOBAL_DEFAULT.toFudgeMsg (recursiveBean);
+    System.out.println (msg);
   }
   
 }

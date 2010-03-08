@@ -21,6 +21,8 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.FudgeRuntimeException;
 import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * 
@@ -86,23 +88,18 @@ public class CustomBuilderTest {
   /**
    * 
    */
-  @Test
+  @Test(expected=FudgeRuntimeException.class)
   public void withoutCustomBuilder () {
     final FudgeDeserializationContext deserialisationContext = new FudgeDeserializationContext (FudgeContext.GLOBAL_DEFAULT);
     final CustomClass object = new CustomClass (2, 3, 5);
     final FudgeFieldContainer msg = FudgeContext.GLOBAL_DEFAULT.toFudgeMsg (object).getMessage ();
-    assert msg.getInt ("AB") == object.getAB ();
-    assert msg.getInt ("AC") == object.getAC ();
-    assert msg.getInt ("BC") == object.getBC ();
-    assert msg.getInt ("a") == null;
-    assert msg.getInt ("b") == null;
-    assert msg.getInt ("c") == null;
-    try {
-      deserialisationContext.fudgeMsgToObject (CustomClass.class, msg);
-      assert false;
-    } catch (FudgeRuntimeException e) {
-      // correct behaviour - shouldn't be able to instantiate as there is no no-arg constructor
-    }
+    assertEquals ((int)msg.getInt ("AB"), object.getAB ());
+    assertEquals ((int)msg.getInt ("AC"), object.getAC ());
+    assertEquals ((int)msg.getInt ("BC"), object.getBC ());
+    assertEquals (msg.getInt ("a"), null);
+    assertEquals (msg.getInt ("b"), null);
+    assertEquals (msg.getInt ("c"), null);
+    deserialisationContext.fudgeMsgToObject (CustomClass.class, msg);
   }
   
   /**
@@ -115,12 +112,12 @@ public class CustomBuilderTest {
     fudgeContext.getObjectDictionary ().addBuilder (CustomClass.class, new CustomBuilder ());
     final CustomClass object = new CustomClass (2, 3, 5);
     final FudgeFieldContainer msg = fudgeContext.toFudgeMsg (object).getMessage ();
-    assert msg.getInt ("AB") == null;
-    assert msg.getInt ("AC") == null;
-    assert msg.getInt ("BC") == null;
-    assert msg.getInt ("a") == 2;
-    assert msg.getInt ("b") == 3;
-    assert msg.getInt ("c") == 5;
+    assertEquals (msg.getInt ("AB"), null);
+    assertEquals (msg.getInt ("AC"), null);
+    assertEquals (msg.getInt ("BC"), null);
+    assertEquals ((int)msg.getInt ("a"), 2);
+    assertEquals ((int)msg.getInt ("b"), 3);
+    assertEquals ((int)msg.getInt ("c"), 5);
     final CustomClass object2 = deserialisationContext.fudgeMsgToObject (CustomClass.class, msg);
     assert object.equals (object2);
   }
@@ -291,13 +288,11 @@ public class CustomBuilderTest {
     // the defaults should fail because of the interface
     try {
       subclassBuilder (fc);
-      assert false;
+      fail ("exception should have been raised");
     } catch (FudgeRuntimeException fre) {
+      fre.printStackTrace ();
       final String expectedMessage = "Don't know how to create interface " + FooInterface.class.getName ();
-      if (!fre.getCause ().getCause ().getMessage ().substring (0, expectedMessage.length ()).equals (expectedMessage)) {
-        fre.printStackTrace ();
-        assert false;
-      }
+      assertEquals (expectedMessage, fre.getCause ().getCause ().getMessage ().substring (0, expectedMessage.length ()));
     }
     // a custom builder for our implementation should fix it
     fc.getObjectDictionary ().addBuilder (FooHorse.class, new FooHorse.Builder ());

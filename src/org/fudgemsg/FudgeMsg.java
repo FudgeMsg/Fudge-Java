@@ -15,18 +15,9 @@
  */
 package org.fudgemsg;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.fudgemsg.taxon.FudgeTaxonomy;
 import org.fudgemsg.types.ByteArrayFieldType;
 import org.fudgemsg.types.PrimitiveFieldTypes;
-
 
 /**
  * <p>A container for {@link FudgeMsgField}s.
@@ -46,7 +37,7 @@ import org.fudgemsg.types.PrimitiveFieldTypes;
 public class FudgeMsg extends FudgeMsgBase implements MutableFudgeFieldContainer {
 
   /**
-   * {@inheritDoc} 
+   * {@inheritDoc}
    */
   protected FudgeMsg(FudgeContext fudgeContext) {
     super (fudgeContext);
@@ -54,7 +45,7 @@ public class FudgeMsg extends FudgeMsgBase implements MutableFudgeFieldContainer
   
   /**
    * {@inheritDoc}
-   */ 
+   */
   protected FudgeMsg (final FudgeFieldContainer fields, final FudgeContext fudgeContext) {
     super (fields, fudgeContext);
   }

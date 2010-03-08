@@ -16,8 +16,6 @@
 
 package org.fudgemsg;
 
-import java.io.IOException;
-
 import org.fudgemsg.FudgeStreamReader.FudgeStreamElement;
 import org.fudgemsg.types.FudgeMsgFieldType;
 

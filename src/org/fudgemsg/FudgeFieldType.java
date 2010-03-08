@@ -157,8 +157,9 @@ public class FudgeFieldType<TValue> implements Serializable {
    * 
    * @param output the target {@code DataOutput} to write to
    * @param value the value of the field to write
-   * @throws IOException if the target raises one
+   * @throws IOException if the target raises one. This is declared so that each type implementation does not need to detect and wrap the IOExceptions from {@code DataOutput}'s methods. The main stream writer will do that. 
    */
+  @SuppressWarnings("unused")
   public void writeValue(DataOutput output, TValue value) throws IOException {
     if(isVariableSize()) {
       throw new UnsupportedOperationException("This method must be overridden for variable size types.");
@@ -173,8 +174,9 @@ public class FudgeFieldType<TValue> implements Serializable {
    * @param input the source {@code DataInput} to read the value from
    * @param dataSize the number of bytes of data to read
    * @return the value read
-   * @throws IOException if data cannot be read because of a source error, such as bad formatting or EOF
+   * @throws IOException if data cannot be read because of a source error, such as bad formatting or EOF. This is declared so that each type implementation does not need to detect and wrap the IOExceptions from {@code DataInput}'s methods. The main stream reader will do that.
    */
+  @SuppressWarnings("unused")
   public TValue readValue(DataInput input, int dataSize) throws IOException {
     if(isVariableSize()) {
       throw new UnsupportedOperationException("This method must be overridden for variable size types.");

@@ -37,7 +37,7 @@ import org.fudgemsg.types.FudgeTypeConverter;
    * Always throws an exception - this is an immutable dictionary.
    * 
    * @param converter the converter
-   * @param type the type to register against
+   * @param types the type(s) to register against
    */
   @Override
   public void addTypeConverter (FudgeTypeConverter<?,?> converter, Class<?> ... types) {

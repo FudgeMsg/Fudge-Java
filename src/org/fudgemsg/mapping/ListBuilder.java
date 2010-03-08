@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeRuntimeException;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.types.IndicatorFieldType;
 import org.fudgemsg.types.IndicatorType;

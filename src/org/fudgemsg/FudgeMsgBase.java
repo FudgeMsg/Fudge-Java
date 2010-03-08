@@ -24,9 +24,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.fudgemsg.taxon.FudgeTaxonomy;
-import org.fudgemsg.types.ByteArrayFieldType;
-import org.fudgemsg.types.PrimitiveFieldTypes;
-
 
 /**
  * <p>Base class for common functionality of {@link FudgeMsg} and {@link ImmutableFudgeMsg}.</p>

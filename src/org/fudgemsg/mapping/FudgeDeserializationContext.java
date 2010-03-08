@@ -22,18 +22,18 @@ import java.util.Map;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.FudgeRuntimeException;
+import org.fudgemsg.FudgeTypeDictionary;
 
 /**
- * The central point for Fudge message to Java Object deserialisation on a given stream.
- * Note that the deserialiser cannot process cyclic object graphs at the moment because
+ * <p>The central point for Fudge message to Java Object deserialization on a given stream.
+ * Note that the deserializer cannot process cyclic object graphs at the moment because
  * of the way the builder interfaces are structured (i.e. we don't have access to an
- * outer object until it's builder returned).
+ * outer object until it's builder returned).</p>
  * 
- * The object builder framework methods all take a deserialisation context so that a
- * deserialiser can refer any sub-messages to this for construction if it does not have
- * sufficient information to process them directly. 
+ * <p>The object builder framework methods all take a deserialization context so that a
+ * deserializer can refer any sub-messages to this for construction if it does not have
+ * sufficient information to process them directly.</p> 
  * 
  * @author Andrew Griffin
  */
@@ -98,7 +98,6 @@ public class FudgeDeserializationContext {
    * @param field value to decode
    * @return the deserialized object
    */
-  @SuppressWarnings("unchecked")
   public <T> T fieldValueToObject (final Class<T> clazz, final FudgeField field) {
     final Object o = field.getValue ();
     if (o instanceof FudgeFieldContainer) {
@@ -162,6 +161,7 @@ public class FudgeDeserializationContext {
     if (builder == null) {
       // no builder for the requested class, so look to see if there are any embedded class details for a sub-class we know
       List<FudgeField> types = message.getAllByOrdinal (0);
+      Exception lastError = null;
       for (FudgeField type : types) {
         final Object o = type.getValue ();
         if (o instanceof Number) {
@@ -175,11 +175,17 @@ public class FudgeDeserializationContext {
             }
           } catch (ClassNotFoundException e) {
             // ignore
+          } catch (Exception e) {
+            lastError = e;
           }
         }
       }
       // nothing matched
-      throw new IllegalArgumentException ("Don't know how to create " + clazz + " from " + message);
+      if (lastError != null) {
+        throw new FudgeRuntimeException ("Don't know how to create " + clazz + " from " + message, lastError);
+      } else {
+        throw new IllegalArgumentException ("Don't know how to create " + clazz + " from " + message);
+      }
     }
     final T object = builder.buildObject (this, message);
     return object;
