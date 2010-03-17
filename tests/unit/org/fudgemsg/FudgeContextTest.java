@@ -158,7 +158,7 @@ public class FudgeContextTest {
    */
   @Test(expected=java.lang.UnsupportedOperationException.class)
   public void immutableContextTest_addTypeConverter () {
-    FudgeContext.GLOBAL_DEFAULT.getTypeDictionary ().addTypeConverter (null, null);
+    FudgeContext.GLOBAL_DEFAULT.getTypeDictionary ().addTypeConverter (null, (Class<?>)null);
   }
 
   /**
@@ -168,7 +168,7 @@ public class FudgeContextTest {
   public void immutableContextTest_typeDictionary () {
     FudgeContext.GLOBAL_DEFAULT.setTypeDictionary (null);
     FudgeContext.GLOBAL_DEFAULT.getTypeDictionary ().addType (null);
-    FudgeContext.GLOBAL_DEFAULT.getTypeDictionary ().addTypeConverter (null, null);
+    FudgeContext.GLOBAL_DEFAULT.getTypeDictionary ().addTypeConverter (null, (Class<?>)null);
   }
 
   /**
