@@ -23,6 +23,7 @@ import java.util.Date;
 
 import org.fudgemsg.types.DateTimeAccuracy;
 import org.fudgemsg.types.FudgeDate;
+import org.fudgemsg.types.FudgeDateTime;
 import org.fudgemsg.types.FudgeTime;
 import org.junit.Test;
 
@@ -33,7 +34,7 @@ import org.junit.Test;
  */
 public class DateTimeTest {
   
-  private final Calendar _reference; // 5 Feb 2010, 11:12:13.987, +1 hour
+  private final Calendar _reference; // 5 Mar 2010, 11:12:13.987, +1 hour
   private final FudgeContext _fudgeContext = new FudgeContext ();
   
   /**
@@ -135,7 +136,7 @@ public class DateTimeTest {
    */
   @Test
   public void fudgeDateCycle () {
-    final FudgeDate date = new FudgeDate (getReferenceCopy ().getTime ());
+    final FudgeDate date = new FudgeDate (getReferenceCopy ());
     final MutableFudgeFieldContainer msg = _fudgeContext.newMessage ();
     msg.add ("date", date);
     final FudgeFieldContainer msgOut = cycle (msg);
@@ -150,24 +151,12 @@ public class DateTimeTest {
   @Test
   public void fudgeTimeCycle () {
     final MutableFudgeFieldContainer msg = _fudgeContext.newMessage ();
-    final long nanos = 1;
-    final long micros = nanos * 1000l;
-    final long millis = micros * 1000l;
-    final long seconds = millis * 1000l;
-    final long minutes = seconds * 60l;
-    final long hours = minutes * 60l;
-    long time = 11l * hours;
-    msg.add (1, new FudgeTime (DateTimeAccuracy.HOUR, time)); // 11am
-    time += 12l * minutes;
-    msg.add (2, new FudgeTime (DateTimeAccuracy.MINUTE, time)); // 11:12am
-    time += 13l * seconds;
-    msg.add (3, new FudgeTime (DateTimeAccuracy.SECOND, time)); // 11:12:13am
-    time += 456l * millis;
-    msg.add (4, new FudgeTime (DateTimeAccuracy.MILLISECOND, time)); // 11:12:13.456
-    time += 789l * micros;
-    msg.add (5, new FudgeTime (DateTimeAccuracy.MICROSECOND, time)); // 11:12:13.456789
-    time += 1l * nanos;
-    msg.add (6, new FudgeTime (DateTimeAccuracy.NANOSECOND, time)); // 11:12:13.456789001
+    msg.add (1, new FudgeTime (DateTimeAccuracy.HOUR, -2, 11 * 3600, 0)); // 11am
+    msg.add (2, new FudgeTime (DateTimeAccuracy.MINUTE, 1, 11 * 3600 + 12 * 60, 0)); // 11:12am
+    msg.add (3, new FudgeTime (DateTimeAccuracy.SECOND, 0, 11 * 3600 + 12 * 60 + 13, 0)); // 11:12:13am
+    msg.add (4, new FudgeTime (DateTimeAccuracy.MILLISECOND, 1, 11 * 3600 + 12 * 60 + 13, 456000000)); // 11:12:13.456
+    msg.add (5, new FudgeTime (DateTimeAccuracy.MICROSECOND, 2, 11 * 3600 + 12 * 60 + 13, 456789000)); // 11:12:13.456789
+    msg.add (6, new FudgeTime (DateTimeAccuracy.NANOSECOND, -128, 11 * 3600 + 12 * 60 + 13, 456789001)); // 11:12:13.456789001
     final FudgeFieldContainer msgOut = cycle (msg);
     assertEquals (_fudgeContext.getFieldValue (FudgeTime.class, msg.getByOrdinal (1)), _fudgeContext.getFieldValue (FudgeTime.class, msgOut.getByOrdinal (1)));
     assertEquals (_fudgeContext.getFieldValue (FudgeTime.class, msg.getByOrdinal (2)), _fudgeContext.getFieldValue (FudgeTime.class, msgOut.getByOrdinal (2)));
@@ -175,6 +164,15 @@ public class DateTimeTest {
     assertEquals (_fudgeContext.getFieldValue (FudgeTime.class, msg.getByOrdinal (4)), _fudgeContext.getFieldValue (FudgeTime.class, msgOut.getByOrdinal (4)));
     assertEquals (_fudgeContext.getFieldValue (FudgeTime.class, msg.getByOrdinal (5)), _fudgeContext.getFieldValue (FudgeTime.class, msgOut.getByOrdinal (5)));
     assertEquals (_fudgeContext.getFieldValue (FudgeTime.class, msg.getByOrdinal (6)), _fudgeContext.getFieldValue (FudgeTime.class, msgOut.getByOrdinal (6)));
+  }
+  
+  @Test
+  public void fudgeDateTimeCycle () {
+    final MutableFudgeFieldContainer msg = _fudgeContext.newMessage ();
+    FudgeDateTime date = new FudgeDateTime (getReferenceCopy ());
+    msg.add ("date", date);
+    final FudgeFieldContainer msgOut = cycle (msg);
+    assertEquals (date, _fudgeContext.getFieldValue (FudgeDateTime.class, msgOut.getByName ("date")));
   }
   
   private Calendar millisTest () {

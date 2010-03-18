@@ -15,37 +15,38 @@
  */
 package org.fudgemsg.types.secondary;
 
-import java.util.Date;
+import java.util.Calendar;
 
 import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.types.DateTimeFieldType;
 import org.fudgemsg.types.FudgeDate;
 import org.fudgemsg.types.FudgeDateTime;
+import org.fudgemsg.types.FudgeTime;
 import org.fudgemsg.types.SecondaryFieldType;
 
 /**
- * Secondary type for {@link Date} conversion to/from a {@link FudgeDate} or {@link FudgeDateTime}
+ * Secondary type for {@link Calendar} conversion to/from a {@link FudgeTime}, {@link FudgeDate} or {@link FudgeDateTime}
  * transport object.
  *
  * @author Andrew Griffin
  */
-public class JavaUtilDateFieldType extends SecondaryFieldType<Date,Object> {
+public class JavaUtilCalendarFieldType extends SecondaryFieldType<Calendar,Object> {
   
   /**
    * Singleton instance of the type.
    */
-  public static final JavaUtilDateFieldType INSTANCE = new JavaUtilDateFieldType ();
+  public static final JavaUtilCalendarFieldType INSTANCE = new JavaUtilCalendarFieldType ();
   
   @SuppressWarnings("unchecked")
-  private JavaUtilDateFieldType () {
-    super ((FudgeFieldType<Object>)(FudgeFieldType<? extends Object>)DateTimeFieldType.INSTANCE, Date.class);
+  private JavaUtilCalendarFieldType () {
+    super ((FudgeFieldType<Object>)(FudgeFieldType<? extends Object>)DateTimeFieldType.INSTANCE, Calendar.class);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public Object secondaryToPrimary (Date object) {
+  public Object secondaryToPrimary (Calendar object) {
     return new FudgeDateTime (object);
   }
   
@@ -53,11 +54,13 @@ public class JavaUtilDateFieldType extends SecondaryFieldType<Date,Object> {
    * {@inheritDoc}
    */
   @Override
-  public Date primaryToSecondary (Object object) {
+  public Calendar primaryToSecondary (Object object) {
     if (object instanceof FudgeDateTime) {
       return primaryToSecondary ((FudgeDateTime)object);
     } else if (object instanceof FudgeDate) {
       return primaryToSecondary ((FudgeDate)object);
+    } else if (object instanceof FudgeTime) {
+      return primaryToSecondary ((FudgeTime)object);
     } else {
       throw new IllegalArgumentException ("cannot convert from type " + object.getClass ().getName ());
     }
@@ -67,20 +70,24 @@ public class JavaUtilDateFieldType extends SecondaryFieldType<Date,Object> {
    * Primary to secondary conversion, where the primary type is a {@link FudgeDateTime}.
    * 
    * @param object primary object
-   * @return the converted {@link Date} object
+   * @return the converted {@link Calendar} object
    */
-  protected Date primaryToSecondary (FudgeDateTime object) {
-    return object.getJavaDate ();
+  protected Calendar primaryToSecondary (FudgeDateTime object) {
+    return object.getCalendar ();
   }
   
   /**
    * Primary secondary conversion, where the primary type is a {@link FudgeDate}.
    * 
    * @param object primary object
-   * @return the converted {@link Date} object
+   * @return the converted {@link Calendar} object
    */
-  protected Date primaryToSecondary (FudgeDate object) {
-    return object.getDate ();
+  protected Calendar primaryToSecondary (FudgeDate object) {
+    return object.getCalendar ();
+  }
+  
+  protected Calendar primaryToSecondary (FudgeTime object) {
+    return object.getCalendar ();
   }
   
   /**

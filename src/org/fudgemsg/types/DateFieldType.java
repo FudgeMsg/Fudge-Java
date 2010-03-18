@@ -23,13 +23,11 @@ import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeTypeDictionary;
 
 /**
- * <p>The type definition for a date. Java doesn't have a standard class for representing a date
- * without a time, so we are currently using {@link FudgeDate}. When Java can support a date
- * on its own, that will become the primary mapping and the {@code FudgeDate} type will be
- * supported through the secondary type mechanism.</p>
+ * <p>The type definition for a date. This is currently backed by a {@link FudgeDate}. The secondary
+ * type mechanism is used to support additional Java representations, such as {@link Date}, {@link Calendar}
+ * and {@code javax.time} classes.</p>
  * 
- * <p>This part of the specification is not finalized and should not be used. The {@code DateTime}
- * Fudge type should be used instead. For more details, please refer to <a href="http://wiki.fudgemsg.org/display/FDG/DateTime+encoding">DateTime Encoding</a>.</p>
+ * <p>For more details, please refer to <a href="http://wiki.fudgemsg.org/display/FDG/DateTime+encoding">DateTime Encoding</a>.</p>
  *
  * @author Andrew Griffin
  */
@@ -49,8 +47,7 @@ public class DateFieldType extends FudgeFieldType<FudgeDate> {
    */
   @Override
   public FudgeDate readValue(DataInput input, int dataSize) throws IOException {
-    final int n = input.readInt ();
-    return new FudgeDate (n);
+    return DateTimeFieldType.readFudgeDate (input);
   }
 
   /**
@@ -58,8 +55,7 @@ public class DateFieldType extends FudgeFieldType<FudgeDate> {
    */
   @Override
   public void writeValue(DataOutput output, FudgeDate value) throws IOException {
-    int n = value.getDays ();
-    output.writeInt (n);
+    DateTimeFieldType.writeFudgeDate (output, value);
   }
 
 }

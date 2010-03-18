@@ -23,21 +23,25 @@ package org.fudgemsg.types;
 public enum DateTimeAccuracy {
   
   /**
+   * Millenia precision.
+   */
+  MILLENIUM (0),
+  /**
    * Century precision.
    */
-  CENTURY (9),
+  CENTURY (1),
   /**
    * Year precision.
    */
-  YEAR (8),
+  YEAR (2),
   /**
    * Month precision. 
    */
-  MONTH (7),
+  MONTH (3),
   /**
    * Day precision. 
    */
-  DAY (6),
+  DAY (4),
   /**
    * Hour precision. 
    */
@@ -45,23 +49,23 @@ public enum DateTimeAccuracy {
   /**
    * Minute precision.
    */
-  MINUTE (4),
+  MINUTE (6),
   /**
    * Second precision.
    */
-  SECOND (3),
+  SECOND (7),
   /**
    * Millisecond precision.
    */
-  MILLISECOND (2),
+  MILLISECOND (8),
   /**
    * Microsecond precision.
    */
-  MICROSECOND (1),
+  MICROSECOND (9),
   /**
    * Nanosecond precision.
    */
-  NANOSECOND (0);
+  NANOSECOND (10);
   
   private final int _encodedValue;
   
@@ -86,18 +90,39 @@ public enum DateTimeAccuracy {
    */
   /* package */ static DateTimeAccuracy fromEncodedValue (int n) {
     switch (n) {
-    case 0 : return NANOSECOND;
-    case 1 : return MICROSECOND;
-    case 2 : return MILLISECOND;
-    case 3 : return SECOND;
-    case 4 : return MINUTE;
+    case 10 : return NANOSECOND;
+    case 9 : return MICROSECOND;
+    case 8 : return MILLISECOND;
+    case 7 : return SECOND;
+    case 6 : return MINUTE;
     case 5 : return HOUR;
-    case 6 : return DAY;
-    case 7 : return MONTH;
-    case 8 : return YEAR;
-    case 9 : return CENTURY;
+    case 4 : return DAY;
+    case 3 : return MONTH;
+    case 2 : return YEAR;
+    case 1 : return CENTURY;
+    case 0 : return MILLENIUM;
     default : return null;
     }
+  }
+  
+  /**
+   * Tests if this accuracy is a greater precision than another. E.g. SECOND precision is greater than MINUTE precision.
+   * 
+   * @param accuracy other accuracy
+   * @return {@code true} if greater, {@code false} otherwise
+   */
+  public boolean greaterThan (final DateTimeAccuracy accuracy) {
+    return getEncodedValue () > accuracy.getEncodedValue ();
+  }
+  
+  /**
+   * Tests is this accuracy is a lower precision than another. E.g. MINUTE precision is less than SECOND precision.
+   * 
+   * @param accuracy other accuracy
+   * @return {@code true} if lower, {@code false} otherwise.
+   */
+  public boolean lessThan (final DateTimeAccuracy accuracy) {
+    return getEncodedValue () < accuracy.getEncodedValue ();
   }
   
 }

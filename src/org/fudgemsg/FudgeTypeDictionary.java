@@ -38,8 +38,7 @@ import org.fudgemsg.types.ShortArrayFieldType;
 import org.fudgemsg.types.StringFieldType;
 import org.fudgemsg.types.TimeFieldType;
 import org.fudgemsg.types.UnknownFudgeFieldType;
-import org.fudgemsg.types.secondary.JavaUtilDateFieldType;
-import org.fudgemsg.types.secondary.JavaUtilUUIDFieldType;
+import org.fudgemsg.types.secondary.SecondaryTypeLoader;
 
 /**
  * Contains all the {@link FudgeFieldType} definitions for a particular
@@ -100,10 +99,9 @@ public class FudgeTypeDictionary {
     addTypeConverter(PrimitiveFieldTypesConverter.DOUBLE_CONVERTER, Double.class, Double.TYPE);
     addTypeConverter(IndicatorFieldTypeConverter.INSTANCE, IndicatorType.class);
     // secondary types
-    addType(JavaUtilUUIDFieldType.INSTANCE);
-    addType(JavaUtilDateFieldType.INSTANCE);
+    SecondaryTypeLoader.addTypes (this);
   }
-  
+
   /**
    * Creates a new {@link FudgeTypeDictionary} as a clone of another.
    * 
@@ -265,6 +263,9 @@ public class FudgeTypeDictionary {
           }
         }
       }
+    } else if (type instanceof IndicatorFieldType) {
+      // indicators always get converted to NULL when cast to another type
+      return null;
     } else {
       final FudgeTypeConverter<Object,T> converter = getTypeConverter (clazz);
       if (converter == null) {

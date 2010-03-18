@@ -23,10 +23,9 @@ import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeTypeDictionary;
 
 /**
- * The type definition for a time. Java doesn't have a standard class for just a time of
- * day, so we are currently using {@link FudgeTime}. When Java can support a time
- * on its own, that will become the primary mapping and the {@code FudgeTime} type will be
- * supported through the secondary type mechanism.
+ * <p>The type definition for a date. This is currently backed by a {@link FudgeTime}. The secondary
+ * type mechanism is used to support additional Java representations, such as {@link Date}, {@link Calendar}
+ * and {@code javax.time} classes.</p>
  *
  * @author Andrew Griffin
  */
@@ -37,9 +36,6 @@ public class TimeFieldType extends FudgeFieldType<FudgeTime> {
    */
   public static final TimeFieldType INSTANCE = new TimeFieldType();
   
-  private static final int MASK_ACCURACY = 0x0F;
-  private static final int FLAG_TIMEZONE = 0x10;
-  
   private TimeFieldType() {
     super(FudgeTypeDictionary.TIME_TYPE_ID, FudgeTime.class, false, 8);
   }
@@ -49,15 +45,7 @@ public class TimeFieldType extends FudgeFieldType<FudgeTime> {
    */
   @Override
   public FudgeTime readValue(DataInput input, int dataSize) throws IOException {
-    long nanos = input.readLong ();
-    final int options = (int)(nanos >> 56) & 0xFF;
-    final int timezoneOffset = (int)(nanos >> 48) & 0xFF;
-    nanos &= 0x0000FFFFFFFFFFFFl;
-    if ((options & FLAG_TIMEZONE) != 0) {
-      return new FudgeTime (DateTimeAccuracy.fromEncodedValue (options & MASK_ACCURACY), timezoneOffset, nanos);
-    } else {
-      return new FudgeTime (DateTimeAccuracy.fromEncodedValue (options & MASK_ACCURACY), nanos);
-    }
+    return DateTimeFieldType.readFudgeTime (input);
   }
 
   /**
@@ -65,18 +53,7 @@ public class TimeFieldType extends FudgeFieldType<FudgeTime> {
    */
   @Override
   public void writeValue(DataOutput output, FudgeTime value) throws IOException {
-    int options = 0;
-    int timezoneOffset = 0;
-    if (value.hasTimezoneOffset ()) {
-      options |= FLAG_TIMEZONE;
-      timezoneOffset = value.getTimezoneOffset () & 0xFF;
-    }
-    options |= value.getAccuracy ().getEncodedValue ();
-    long l = value.getNanos ();
-    l &= 0xFFFFFFFFFFFFl;
-    l |= (long)options << 56;
-    l |= (long)timezoneOffset << 48;
-    output.writeLong (l); 
+    DateTimeFieldType.writeFudgeTime (output, value);
   }
 
 }

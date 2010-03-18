@@ -19,26 +19,61 @@ import java.util.Date;
 import java.util.Calendar;
 
 /**
- * Dummy class for holding a date value on its own, as Java does not have a
- * standard type for doing so.
+ * <p>Dummy class for holding a date value on its own, at varying precision. Dates can be
+ * more easily used through the secondary type mechanism.</p>
  * 
- * <p>This part of the specification is not finalized and should not be used. The {@code DateTime}
- * Fudge type should be used instead. For more details, please refer to <a href="http://wiki.fudgemsg.org/display/FDG/DateTime+encoding">DateTime encoding</a>.</p>
-
+ * <p>For more details, please refer to <a href="http://wiki.fudgemsg.org/display/FDG/DateTime+encoding">DateTime encoding</a>.</p>
  * 
  * @author Andrew Griffin
  */
 public class FudgeDate {
   
-  private final int _days;
+  private final int _year;
+  private final int _month;
+  private final int _day;
   
   /**
-   * Constructs a new {@link FudgeDate} object for a decimal date representation.
+   * Constructs a new {@link FudgeDate} object representing just a year.
    * 
-   * @param days the initial value, a decimal representation of the date
+   * @param year the year
    */
-  public FudgeDate (final int days) {
-    _days = days;
+  public FudgeDate (final int year) {
+    this (year, 0, 0);
+  }
+  
+  /**
+   * Constructs a new {@link FudgeDate} object representing a year and a month.
+   * 
+   * @param year the year
+   * @param month the month
+   */
+  public FudgeDate (final int year, final int month) {
+    this (year, month, 0);
+  }
+  
+  /**
+   * Constructs a new {@link FudgeDate} object.
+   * 
+   * @param year the year
+   * @param month the month
+   * @param day the day
+   */
+  public FudgeDate (final int year, final int month, final int day) {
+    _year = year;
+    if (month < 0) throw new IllegalArgumentException ("month cannot be negative");
+    _month = month;
+    if (day < 0) throw new IllegalArgumentException ("day cannot be negative");
+    if ((month == 0) && (day > 0)) throw new IllegalArgumentException ("cannot specify day without month");
+    _day = day;
+  }
+  
+  /**
+   * Constructs a new {@link FudgeDate} object from a {@link Calendar}.
+   * 
+   * @param date the {@link Calendar} to copy the date from
+   */
+  public FudgeDate (final Calendar date) {
+    this (date.get (Calendar.YEAR), date.isSet (Calendar.MONTH) ? (date.get (Calendar.MONTH) + 1) : 0, date.isSet (Calendar.DAY_OF_MONTH) ? date.get (Calendar.DAY_OF_MONTH) : 0);
   }
   
   /**
@@ -46,28 +81,8 @@ public class FudgeDate {
    * 
    * @param d the {@code Date} to copy the date from
    */
-  /*public FudgeDate (final Date d) {
-  // The code below is wrong
-  this ((int)(d.getTime () / (86400l * 1000l)));
-}*/
   public FudgeDate (final Date d) {
-    final Calendar cal = Calendar.getInstance ();
-    cal.clear ();
-    cal.setTime (d);
-    cal.get (Calendar.MONTH);
-    cal.get (Calendar.DAY_OF_MONTH);
-    _days = cal.get (Calendar.YEAR) * 1000
-          + cal.get (Calendar.MONTH) * 100
-          + cal.get (Calendar.DAY_OF_MONTH);
-  }
-  
-  /**
-   * Avoid calling this. At the moment it is returning the decimal representation of the date, but this may change.
-   * 
-   * @return the decimal representation of the date
-   */
-  public int getDays () {
-    return _days;
+    this (FudgeDateTime.dateToCalendar (d));
   }
   
   /**
@@ -75,19 +90,22 @@ public class FudgeDate {
    * 
    * @return a {@code Date}
    */
-  /*public Date getDate () {
-    final Calendar cal = Calendar.getInstance ();
-    cal.clear ();
-    cal.add (Calendar.DAY_OF_MONTH, getDays ());
-    return cal.getTime ();
-  }*/
   public Date getDate () {
+    return getCalendar ().getTime ();
+  }
+  
+  /**
+   * Returns a {@link Calendar} representation of this date.
+   * 
+   * @return a {@code Calendar}
+   */
+  public Calendar getCalendar () {
     final Calendar cal = Calendar.getInstance ();
     cal.clear ();
-    cal.set (Calendar.YEAR, getDays () / 1000);
-    cal.set (Calendar.MONTH, (getDays () / 100) % 100);
-    cal.set (Calendar.DAY_OF_MONTH, getDays () % 100);
-    return cal.getTime ();
+    cal.set (Calendar.YEAR, getYear ());
+    if (getMonthOfYear () > 0) cal.set (Calendar.MONTH, getMonthOfYear () - 1);
+    if (getDayOfMonth () > 0) cal.set (Calendar.DAY_OF_MONTH, getDayOfMonth ());
+    return cal;
   }
   
   /**
@@ -95,7 +113,14 @@ public class FudgeDate {
    */
   @Override
   public String toString () {
-    return getDate ().toString (); 
+    final StringBuilder sb = new StringBuilder ('(').append (getYear ());
+    if (getMonthOfYear () > 0) {
+      sb.append (", ").append (getMonthOfYear ());
+    }
+    if (getDayOfMonth () > 0) {
+      sb.append (", ").append (getDayOfMonth ());
+    }
+    return sb.append (')').toString ();
   }
   
   /**
@@ -103,10 +128,13 @@ public class FudgeDate {
    */
   @Override
   public boolean equals (final Object o) {
+    if (o == this) return true;
     if (o == null) return false;
     if (!(o instanceof FudgeDate)) return false;
     final FudgeDate other = (FudgeDate)o;
-    return other.getDays () == getDays ();
+    return other.getYear () == getYear ()
+        && other.getMonthOfYear () == getMonthOfYear ()
+        && other.getDayOfMonth () == getDayOfMonth ();
   }
   
   /**
@@ -114,7 +142,51 @@ public class FudgeDate {
    */
   @Override
   public int hashCode () {
-    return getDays ();
+    return (getYear () * 17 + getMonthOfYear () + 1) * 17 + getDayOfMonth ();
+  }
+  
+  /**
+   * Returns the year.
+   * 
+   * @return the year
+   */
+  public int getYear () {
+    return _year;
+  }
+  
+  /**
+   * Returns the month of the year, or 0 if the date just represents a year
+   * 
+   * @return the month of the year
+   */
+  public int getMonthOfYear () {
+    return _month;
+  }
+  
+  /**
+   * Returns the day of the month, or 0 if the date just represents a year or year/month.
+   * 
+   * @return the day of the month
+   */
+  public int getDayOfMonth () {
+    return _day;
+  }
+  
+  /**
+   * Returns the accuracy of the Date.
+   * 
+   * @return the accuracy
+   */
+  public DateTimeAccuracy getAccuracy () {
+    if (getDayOfMonth () == 0) {
+      if (getMonthOfYear () == 0) {
+        return DateTimeAccuracy.YEAR;
+      } else {
+        return DateTimeAccuracy.MONTH;
+      }
+    } else {
+      return DateTimeAccuracy.DAY;
+    }
   }
   
 }
