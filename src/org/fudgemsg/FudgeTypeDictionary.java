@@ -112,6 +112,8 @@ public class FudgeTypeDictionary {
    * @param other {@code FudgeTypeDictionary} to copy data from
    */
   protected FudgeTypeDictionary (final FudgeTypeDictionary other) {
+    _typesById = other._typesById;
+    _unknownTypesById = other._unknownTypesById;
     _typesByJavaType = new ConcurrentHashMap<Class<?>, FudgeFieldType<?>> (other._typesByJavaType);
     _convertersByJavaType = new ConcurrentHashMap<Class<?>, FudgeTypeConverter<?,?>> (other._convertersByJavaType);
   }
