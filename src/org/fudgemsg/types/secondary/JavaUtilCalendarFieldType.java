@@ -17,12 +17,12 @@ package org.fudgemsg.types.secondary;
 
 import java.util.Calendar;
 
-import org.fudgemsg.FudgeFieldType;
+import org.fudgemsg.types.DateTimeAccuracy;
 import org.fudgemsg.types.DateTimeFieldType;
 import org.fudgemsg.types.FudgeDate;
 import org.fudgemsg.types.FudgeDateTime;
 import org.fudgemsg.types.FudgeTime;
-import org.fudgemsg.types.SecondaryFieldType;
+import org.fudgemsg.types.SecondaryFieldTypeBase;
 
 /**
  * Secondary type for {@link Calendar} conversion to/from a {@link FudgeTime}, {@link FudgeDate} or {@link FudgeDateTime}
@@ -30,23 +30,22 @@ import org.fudgemsg.types.SecondaryFieldType;
  *
  * @author Andrew Griffin
  */
-public class JavaUtilCalendarFieldType extends SecondaryFieldType<Calendar,Object> {
+public class JavaUtilCalendarFieldType extends SecondaryFieldTypeBase<Calendar,Object,FudgeDateTime> {
   
   /**
    * Singleton instance of the type.
    */
   public static final JavaUtilCalendarFieldType INSTANCE = new JavaUtilCalendarFieldType ();
   
-  @SuppressWarnings("unchecked")
   private JavaUtilCalendarFieldType () {
-    super ((FudgeFieldType<Object>)(FudgeFieldType<? extends Object>)DateTimeFieldType.INSTANCE, Calendar.class);
+    super (DateTimeFieldType.INSTANCE, Calendar.class);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public Object secondaryToPrimary (Calendar object) {
+  public FudgeDateTime secondaryToPrimary (Calendar object) {
     return new FudgeDateTime (object);
   }
   
@@ -66,6 +65,45 @@ public class JavaUtilCalendarFieldType extends SecondaryFieldType<Calendar,Objec
     }
   }
   
+  private static void fudgeDateToCalendar (final Calendar cal, final FudgeDate date) {
+    cal.set (Calendar.YEAR, date.getYear ());
+    if (date.getAccuracy ().greaterThan (DateTimeAccuracy.YEAR)) {
+      cal.set (Calendar.MONTH, date.getMonthOfYear () - 1);
+      if (date.getAccuracy ().greaterThan (DateTimeAccuracy.MONTH)) {
+        cal.set (Calendar.DAY_OF_MONTH, date.getDayOfMonth ());
+      }
+    }
+  }
+  
+  private static void fudgeTimeToCalendar (final Calendar cal, final FudgeTime time) {
+    if (time.getAccuracy ().greaterThan (DateTimeAccuracy.DAY)) {
+      cal.set (Calendar.HOUR_OF_DAY, time.getHour ());
+      if (time.getAccuracy ().greaterThan (DateTimeAccuracy.HOUR)) {
+        cal.set (Calendar.MINUTE, time.getMinute ());
+        if (time.getAccuracy ().greaterThan (DateTimeAccuracy.MINUTE)) {
+          cal.set (Calendar.SECOND, time.getSeconds ());
+          if (time.getAccuracy ().greaterThan (DateTimeAccuracy.SECOND)) {
+            cal.set (Calendar.MILLISECOND, time.getMillis ());
+          }
+        }
+      }
+    }
+    int i = time.getTimezoneOffset ();
+    if (i != 0) {
+      cal.set (Calendar.ZONE_OFFSET, i * 900000);
+    }
+  }
+  
+  /* package */ static Calendar fudgeDateTimeToCalendar (final FudgeDate fudgeDate, final FudgeTime fudgeTime) {
+    final Calendar cal = Calendar.getInstance ();
+    cal.clear ();
+    fudgeDateToCalendar (cal, fudgeDate);
+    if (fudgeTime != null) {
+      fudgeTimeToCalendar (cal, fudgeTime);
+    }
+    return cal;
+  }
+  
   /**
    * Primary to secondary conversion, where the primary type is a {@link FudgeDateTime}.
    * 
@@ -73,7 +111,7 @@ public class JavaUtilCalendarFieldType extends SecondaryFieldType<Calendar,Objec
    * @return the converted {@link Calendar} object
    */
   protected Calendar primaryToSecondary (FudgeDateTime object) {
-    return object.getCalendar ();
+    return fudgeDateTimeToCalendar (object.getDate (), object.getTime ());
   }
   
   /**
@@ -83,11 +121,17 @@ public class JavaUtilCalendarFieldType extends SecondaryFieldType<Calendar,Objec
    * @return the converted {@link Calendar} object
    */
   protected Calendar primaryToSecondary (FudgeDate object) {
-    return object.getCalendar ();
+    final Calendar cal = Calendar.getInstance ();
+    cal.clear ();
+    fudgeDateToCalendar (cal, object);
+    return cal;
   }
   
   protected Calendar primaryToSecondary (FudgeTime object) {
-    return object.getCalendar ();
+    final Calendar cal = Calendar.getInstance ();
+    cal.clear ();
+    fudgeTimeToCalendar (cal, object);
+    return cal;
   }
   
   /**
@@ -95,7 +139,9 @@ public class JavaUtilCalendarFieldType extends SecondaryFieldType<Calendar,Objec
    */
   @Override
   public boolean canConvertPrimary (Class<?> javaType) {
-    return FudgeDateTime.class.isAssignableFrom (javaType) || FudgeDate.class.isAssignableFrom (javaType);
+    return FudgeDateTime.class.isAssignableFrom (javaType)
+        || FudgeDate.class.isAssignableFrom (javaType)
+        || FudgeTime.class.isAssignableFrom (javaType);
   }
   
 }

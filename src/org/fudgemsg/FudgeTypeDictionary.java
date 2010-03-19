@@ -34,6 +34,7 @@ import org.fudgemsg.types.LongArrayFieldType;
 import org.fudgemsg.types.PrimitiveFieldTypes;
 import org.fudgemsg.types.PrimitiveFieldTypesConverter;
 import org.fudgemsg.types.SecondaryFieldType;
+import org.fudgemsg.types.SecondaryFieldTypeBase;
 import org.fudgemsg.types.ShortArrayFieldType;
 import org.fudgemsg.types.StringFieldType;
 import org.fudgemsg.types.TimeFieldType;
@@ -108,6 +109,8 @@ public class FudgeTypeDictionary {
    * @param other {@code FudgeTypeDictionary} to copy data from
    */
   protected FudgeTypeDictionary (final FudgeTypeDictionary other) {
+    _typesById = other._typesById;
+    _unknownTypesById = other._unknownTypesById;
     _typesByJavaType = new ConcurrentHashMap<Class<?>, FudgeFieldType<?>> (other._typesByJavaType);
     _convertersByJavaType = new ConcurrentHashMap<Class<?>, FudgeTypeConverter<?,?>> (other._convertersByJavaType);
   }
@@ -142,14 +145,18 @@ public class FudgeTypeDictionary {
     if(type == null) {
       throw new NullPointerException("Must not provide a null FudgeFieldType to add.");
     }
-    synchronized (this) {
-      if (type instanceof SecondaryFieldType<?,?>) {
-        addTypeConverter ((SecondaryFieldType<?,?>)type, type.getJavaType ());
-      } else {
+    if (type instanceof SecondaryFieldTypeBase<?,?,?>) {
+      addTypeConverter ((SecondaryFieldTypeBase<?,?,?>)type, type.getJavaType ());
+    } else {
+      synchronized (this) {
         int newLength = Math.max(type.getTypeId() + 1, _typesById.length);
         FudgeFieldType<?>[] newArray = Arrays.copyOf(_typesById, newLength);
         newArray[type.getTypeId()] = type;
         _typesById = newArray;
+        /*for (int i = 0; i < newArray.length; i++) {
+          System.out.println (i + "=" + newArray[i]);
+        }
+        System.out.println ("\n\n");*/
       }
     }
     _typesByJavaType.put(type.getJavaType(), type);

@@ -16,7 +16,18 @@
 package org.fudgemsg.types;
 
 import java.util.Calendar;
-import java.util.Date;
+
+import javax.time.Instant;
+import javax.time.InstantProvider;
+import javax.time.calendar.DateTimeProvider;
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.LocalDateTime;
+import javax.time.calendar.LocalTime;
+import javax.time.calendar.OffsetDate;
+import javax.time.calendar.OffsetDateTime;
+import javax.time.calendar.OffsetTime;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
 
 /**
  * Dummy class for holding a combined Date and Time with the other data available in the
@@ -24,17 +35,10 @@ import java.util.Date;
  *
  * @author Andrew Griffin
  */
-public class FudgeDateTime {
+public class FudgeDateTime implements DateTimeProvider, InstantProvider {
   
   private final FudgeDate _date;
   private final FudgeTime _time;
-  
-  /* package */ static Calendar dateToCalendar (final Date date) {
-    final Calendar cal = Calendar.getInstance ();
-    cal.clear ();
-    cal.setTime (date);
-    return cal;
-  }
   
   public FudgeDateTime (final DateTimeAccuracy precision, final int year, final int month, final int day, final int timezoneOffset, final int seconds, final int nanos) {
     this (new FudgeDate (year, month, day), new FudgeTime (precision, timezoneOffset, seconds, nanos));
@@ -43,27 +47,65 @@ public class FudgeDateTime {
   public FudgeDateTime (final FudgeDate date, final FudgeTime time) {
     if (date == null) throw new NullPointerException ("date cannot be null");
     if (time == null) throw new NullPointerException ("time cannot be null");
-    if (date.getAccuracy ().lessThan (DateTimeAccuracy.DAY)) throw new IllegalArgumentException ("date cannot have less than DAY precision");
+    if (date.getAccuracy ().lessThan (DateTimeAccuracy.DAY)) {
+      if (date.getAccuracy ().lessThan (DateTimeAccuracy.MONTH)) {
+        if (time.getAccuracy ().greaterThan (DateTimeAccuracy.YEAR)) {
+          throw new IllegalArgumentException (date.getAccuracy () + " date too low precision for " + time.getAccuracy () + " datetime");
+        }
+      } else {
+        if (time.getAccuracy ().greaterThan (DateTimeAccuracy.MONTH)) {
+          throw new IllegalArgumentException (date.getAccuracy () + " date too low precision for " + time.getAccuracy () + " datetime");
+        } else if (time.getAccuracy ().lessThan (DateTimeAccuracy.MONTH)) {
+          throw new IllegalArgumentException (date.getAccuracy () + " date too high precision for " + time.getAccuracy () + " datetime");
+        }
+      }
+    }
     _date = date;
     _time = time;
   }
   
-  public FudgeDateTime (final Calendar cal) {
-    this (new FudgeDate (cal), new FudgeTime (cal));
+  protected FudgeDateTime (final DateTimeAccuracy accuracy, final Instant instant) {
+    this (accuracy, ZonedDateTime.fromInstant (instant, TimeZone.UTC).toOffsetDateTime ());
   }
   
-  public FudgeDateTime (final Date date) {
-    this (dateToCalendar (date));
+  public FudgeDateTime (final OffsetDateTime offsetDateTime) {
+    this (DateTimeAccuracy.NANOSECOND, offsetDateTime);
   }
   
-  public Calendar getCalendar () {
-    final Calendar cal = getDate ().getCalendar ();
-    getTime ().updateCalendar (cal);
-    return cal;
+  public FudgeDateTime (final DateTimeAccuracy accuracy, final OffsetDateTime offsetDateTime) {
+    this (new FudgeDate (offsetDateTime.toOffsetDate ()), new FudgeTime (accuracy, offsetDateTime.toOffsetTime ()));
   }
   
-  public Date getJavaDate () {
-    return getCalendar ().getTime ();
+  public FudgeDateTime (final OffsetDate offsetDate) {
+    this (new FudgeDate (offsetDate), new FudgeTime (DateTimeAccuracy.DAY, offsetDate.atMidnight ().toOffsetTime ()));
+  }
+  
+  protected FudgeDateTime (final LocalDateTime localDateTime) {
+    this (DateTimeAccuracy.NANOSECOND, localDateTime);
+  }
+  
+  protected FudgeDateTime (final DateTimeAccuracy accuracy, final LocalDateTime localDateTime) {
+    this (new FudgeDate (localDateTime), new FudgeTime (accuracy, localDateTime));
+  }
+  
+  public FudgeDateTime (final InstantProvider instantProvider) {
+    this (DateTimeAccuracy.NANOSECOND, instantProvider);
+  }
+  
+  public FudgeDateTime (final DateTimeAccuracy accuracy, final InstantProvider instantProvider) {
+    this (accuracy, instantProvider.toInstant ());
+  }
+  
+  public FudgeDateTime (final DateTimeProvider dateTimeProvider) {
+    this (DateTimeAccuracy.NANOSECOND, dateTimeProvider);
+  }
+  
+  public FudgeDateTime (final DateTimeAccuracy accuracy, final DateTimeProvider dateTimeProvider) {
+    this (accuracy, dateTimeProvider.toLocalDateTime ());
+  }
+  
+  public FudgeDateTime (final Calendar calendar) {
+    this (new FudgeDate (calendar), new FudgeTime (calendar));
   }
   
   public FudgeDate getDate () {
@@ -72,6 +114,10 @@ public class FudgeDateTime {
   
   public FudgeTime getTime () {
     return _time;
+  }
+  
+  public DateTimeAccuracy getAccuracy () {
+    return getTime ().getAccuracy ();
   }
   
   /**
@@ -101,6 +147,38 @@ public class FudgeDateTime {
   @Override
   public String toString () {
     return getDate () + " " + getTime ();
+  }
+
+  @Override
+  public LocalDate toLocalDate() {
+    return getDate ().toLocalDate ();
+  }
+
+  @Override
+  public LocalDateTime toLocalDateTime() {
+    return LocalDateTime.from (getDate (), getTime ());
+  }
+
+  @Override
+  public LocalTime toLocalTime() {
+    return getTime ().toLocalTime ();
+  }
+  
+  public OffsetDate toOffsetDate () {
+    return OffsetDate.from (getDate (), getTime ().getOffset ());
+  }
+  
+  public OffsetDateTime toOffsetDateTime () {
+    return OffsetDateTime.from (getDate (), getTime (), getTime ().getOffset ());
+  }
+  
+  public OffsetTime toOffsetTime () {
+    return getTime ().toOffsetTime ();
+  }
+  
+  @Override
+  public Instant toInstant () {
+    return toOffsetDateTime ().toInstant ();
   }
   
 }

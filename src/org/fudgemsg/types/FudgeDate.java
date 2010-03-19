@@ -15,8 +15,14 @@
  */
 package org.fudgemsg.types;
 
-import java.util.Date;
 import java.util.Calendar;
+
+import javax.time.Instant;
+import javax.time.InstantProvider;
+import javax.time.calendar.DateProvider;
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
 
 /**
  * <p>Dummy class for holding a date value on its own, at varying precision. Dates can be
@@ -26,7 +32,7 @@ import java.util.Calendar;
  * 
  * @author Andrew Griffin
  */
-public class FudgeDate {
+public class FudgeDate implements DateProvider {
   
   private final int _year;
   private final int _month;
@@ -67,45 +73,24 @@ public class FudgeDate {
     _day = day;
   }
   
-  /**
-   * Constructs a new {@link FudgeDate} object from a {@link Calendar}.
-   * 
-   * @param date the {@link Calendar} to copy the date from
-   */
   public FudgeDate (final Calendar date) {
     this (date.get (Calendar.YEAR), date.isSet (Calendar.MONTH) ? (date.get (Calendar.MONTH) + 1) : 0, date.isSet (Calendar.DAY_OF_MONTH) ? date.get (Calendar.DAY_OF_MONTH) : 0);
   }
   
-  /**
-   * Constructs a new {@link FudgeDate} object from a {@link Date}.
-   * 
-   * @param d the {@code Date} to copy the date from
-   */
-  public FudgeDate (final Date d) {
-    this (FudgeDateTime.dateToCalendar (d));
+  protected FudgeDate (final Instant instant) {
+    this ((DateProvider)ZonedDateTime.fromInstant (instant, TimeZone.UTC));
   }
   
-  /**
-   * Returns a {@link Date} representation of this date. The time on the {@code Date} object will be set to Midnight on that day.
-   * 
-   * @return a {@code Date}
-   */
-  public Date getDate () {
-    return getCalendar ().getTime ();
+  protected FudgeDate (final LocalDate localDate) {
+    this (localDate.getYear (), localDate.getMonthOfYear ().getValue (), localDate.getDayOfMonth ());
   }
   
-  /**
-   * Returns a {@link Calendar} representation of this date.
-   * 
-   * @return a {@code Calendar}
-   */
-  public Calendar getCalendar () {
-    final Calendar cal = Calendar.getInstance ();
-    cal.clear ();
-    cal.set (Calendar.YEAR, getYear ());
-    if (getMonthOfYear () > 0) cal.set (Calendar.MONTH, getMonthOfYear () - 1);
-    if (getDayOfMonth () > 0) cal.set (Calendar.DAY_OF_MONTH, getDayOfMonth ());
-    return cal;
+  public FudgeDate (final InstantProvider instantProvider) {
+    this (instantProvider.toInstant ());
+  }
+  
+  public FudgeDate (final DateProvider dateProvider) {
+    this (dateProvider.toLocalDate ());
   }
   
   /**
@@ -113,14 +98,14 @@ public class FudgeDate {
    */
   @Override
   public String toString () {
-    final StringBuilder sb = new StringBuilder ('(').append (getYear ());
+    final StringBuilder sb = new StringBuilder ("FudgeDate{").append (getYear ());
     if (getMonthOfYear () > 0) {
       sb.append (", ").append (getMonthOfYear ());
     }
     if (getDayOfMonth () > 0) {
       sb.append (", ").append (getDayOfMonth ());
     }
-    return sb.append (')').toString ();
+    return sb.append ('}').toString ();
   }
   
   /**
@@ -187,6 +172,11 @@ public class FudgeDate {
     } else {
       return DateTimeAccuracy.DAY;
     }
+  }
+
+  @Override
+  public LocalDate toLocalDate() {
+    return LocalDate.of (getYear (), getMonthOfYear () == 0 ? 1 : getMonthOfYear (), getDayOfMonth () == 0 ? 1 : getDayOfMonth ());
   }
   
 }

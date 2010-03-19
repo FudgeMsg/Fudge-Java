@@ -19,7 +19,7 @@ import java.util.ResourceBundle;
 
 import org.fudgemsg.FudgeRuntimeException;
 import org.fudgemsg.FudgeTypeDictionary;
-import org.fudgemsg.types.SecondaryFieldType;
+import org.fudgemsg.types.SecondaryFieldTypeBase;
 
 /**
  * Loads the secondary types from a resources file. 
@@ -36,7 +36,7 @@ public class SecondaryTypeLoader {
     for (final String key : genericBuilders.keySet ()) {
       final String secondaryFieldType = genericBuilders.getString (key);
       try {
-        dictionary.addType ((SecondaryFieldType<?,?>)Class.forName (secondaryFieldType).getDeclaredField ("INSTANCE").get (null));
+        dictionary.addType ((SecondaryFieldTypeBase<?,?,?>)Class.forName (secondaryFieldType).getDeclaredField ("INSTANCE").get (null));
       } catch (ClassNotFoundException e) {
         throw new FudgeRuntimeException ("secondary type" + secondaryFieldType + " not found", e);
       } catch (NoClassDefFoundError e) {

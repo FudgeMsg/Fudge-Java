@@ -81,6 +81,14 @@ public class StandardMessageLoadingTest {
   }
   
   /**
+   * 
+   */
+  @Test
+  public void dateTimes () {
+    testFile (FudgeInteropTest.createDateTimes (s_fudgeContext), "dateTimes.dat");
+  }
+  
+  /**
    * @param expected [documentation not available]
    * @param fileName [documentation not available]
    */

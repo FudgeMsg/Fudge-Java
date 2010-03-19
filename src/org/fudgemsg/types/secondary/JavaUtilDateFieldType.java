@@ -17,36 +17,38 @@ package org.fudgemsg.types.secondary;
 
 import java.util.Date;
 
-import org.fudgemsg.FudgeFieldType;
+import javax.time.Instant;
+
+import org.fudgemsg.types.DateTimeAccuracy;
 import org.fudgemsg.types.DateTimeFieldType;
 import org.fudgemsg.types.FudgeDate;
 import org.fudgemsg.types.FudgeDateTime;
-import org.fudgemsg.types.SecondaryFieldType;
+import org.fudgemsg.types.SecondaryFieldTypeBase;
 
 /**
  * Secondary type for {@link Date} conversion to/from a {@link FudgeDate} or {@link FudgeDateTime}
- * transport object.
+ * transport object. Note that once the Java Time Framework is part of the main JDK the {@code Date}
+ * class will implement {@code InstantProvider} and this type can be deprecated.
  *
  * @author Andrew Griffin
  */
-public class JavaUtilDateFieldType extends SecondaryFieldType<Date,Object> {
+public class JavaUtilDateFieldType extends SecondaryFieldTypeBase<Date,Object,FudgeDateTime> {
   
   /**
    * Singleton instance of the type.
    */
   public static final JavaUtilDateFieldType INSTANCE = new JavaUtilDateFieldType ();
   
-  @SuppressWarnings("unchecked")
   private JavaUtilDateFieldType () {
-    super ((FudgeFieldType<Object>)(FudgeFieldType<? extends Object>)DateTimeFieldType.INSTANCE, Date.class);
+    super (DateTimeFieldType.INSTANCE, Date.class);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public Object secondaryToPrimary (Date object) {
-    return new FudgeDateTime (object);
+  public FudgeDateTime secondaryToPrimary (Date object) {
+    return new FudgeDateTime (DateTimeAccuracy.MILLISECOND, Instant.millis (object.getTime ())); // Interim measure
   }
   
   /**
@@ -70,7 +72,7 @@ public class JavaUtilDateFieldType extends SecondaryFieldType<Date,Object> {
    * @return the converted {@link Date} object
    */
   protected Date primaryToSecondary (FudgeDateTime object) {
-    return object.getJavaDate ();
+    return JavaUtilCalendarFieldType.fudgeDateTimeToCalendar (object.getDate (), object.getTime ()).getTime ();
   }
   
   /**
@@ -80,7 +82,7 @@ public class JavaUtilDateFieldType extends SecondaryFieldType<Date,Object> {
    * @return the converted {@link Date} object
    */
   protected Date primaryToSecondary (FudgeDate object) {
-    return object.getDate ();
+    return JavaUtilCalendarFieldType.fudgeDateTimeToCalendar (object, null).getTime ();
   }
   
   /**
