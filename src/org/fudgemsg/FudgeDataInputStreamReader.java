@@ -137,14 +137,6 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
    * {@inheritDoc}
    */
   @Override
-  public int getEnvelopeSize() {
-    return _envelopeSize;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public String getFieldName() {
     return _fieldName;
   }

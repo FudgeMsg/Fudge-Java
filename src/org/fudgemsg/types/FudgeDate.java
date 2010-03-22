@@ -98,14 +98,7 @@ public class FudgeDate implements DateProvider {
    */
   @Override
   public String toString () {
-    final StringBuilder sb = new StringBuilder ("FudgeDate{").append (getYear ());
-    if (getMonthOfYear () > 0) {
-      sb.append (", ").append (getMonthOfYear ());
-    }
-    if (getDayOfMonth () > 0) {
-      sb.append (", ").append (getDayOfMonth ());
-    }
-    return sb.append ('}').toString ();
+    return toLocalDate ().toString ();
   }
   
   /**

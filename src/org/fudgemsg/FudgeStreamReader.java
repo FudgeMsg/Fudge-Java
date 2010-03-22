@@ -101,13 +101,6 @@ public interface FudgeStreamReader extends Closeable {
   public short getTaxonomyId();
 
   /**
-   * Returns the size of the current message envelope.
-   * 
-   * @return current envelope size
-   */
-  public int getEnvelopeSize();
-  
-  /**
    * If the current stream element is a field, returns the {@link FudgeFieldType}.
    * 
    * @return current field type

@@ -15,16 +15,21 @@
  */
 package org.fudgemsg;
 
-import java.io.IOException;
+import java.io.CharArrayReader;
+import java.io.CharArrayWriter;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.fudgemsg.json.FudgeJSONStreamReader;
 import org.fudgemsg.json.FudgeJSONStreamWriter;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 import org.fudgemsg.taxon.ImmutableMapTaxonomyResolver;
 import org.fudgemsg.taxon.MapFudgeTaxonomy;
 import org.junit.Test;
+
+import static org.fudgemsg.FudgeUtils.assertAllFieldsMatch;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * 
@@ -52,53 +57,54 @@ public class FudgeJSONTest {
     _fudgeContext.setTaxonomyResolver (new ImmutableMapTaxonomyResolver (tr));
   }
   
-  private void xmlTest (final FudgeFieldContainer message, final int taxonomy) {
+  private FudgeFieldContainer[] createMessages () {
+    return new FudgeFieldContainer[] {
+        StandardFudgeMessages.createMessageAllNames (_fudgeContext),
+        StandardFudgeMessages.createMessageAllOrdinals (_fudgeContext),
+        StandardFudgeMessages.createMessageWithSubMsgs (_fudgeContext),
+        StandardFudgeMessages.createMessageAllByteArrayLengths (_fudgeContext) };
+  }
+  
+  @Test
+  public void writeJSONMessages () {
+    System.out.println ("writeJSONMessages:");
     final FudgeMsgWriter fmw = new FudgeMsgWriter (new FudgeJSONStreamWriter (_fudgeContext, new PrintWriter (System.out)));
-    fmw.writeMessage (StandardFudgeMessages.createMessageAllNames (_fudgeContext), 0);
+    final FudgeFieldContainer[] messages = createMessages ();
+    for (int i = 0; i < messages.length; i++) {
+      fmw.writeMessage (messages[i], 0); // no taxonomy
+      fmw.flush ();
+      System.out.println ();
+      fmw.writeMessage (messages[i], 1); // taxonomy #1
+      fmw.flush ();
+      System.out.println ();
+    }
+  }
+  
+  @Test
+  public void cycleJSONMessages () {
+    System.out.println ("cycleJSONMessages:");
+    final CharArrayWriter caw = new CharArrayWriter ();
+    final FudgeMsgWriter fmw = new FudgeMsgWriter (new FudgeJSONStreamWriter (_fudgeContext, caw));
+    final FudgeFieldContainer[] messages = createMessages ();
+    for (int i = 0; i < messages.length; i++) {
+      fmw.writeMessage (messages[i], 0);
+      fmw.writeMessage (messages[i], 1);
+    }
     fmw.flush ();
-    System.out.println ();
-  }
-  
-  /**
-   */
-  @Test
-  public void xmlStreamWriterAllNamesNoTaxonomy () {
-    xmlTest (StandardFudgeMessages.createMessageAllNames (_fudgeContext), 0);
-  }
-  
-  /**
-   */
-  @Test
-  public void xmlStreamWriterAllNamesTaxonomy () {
-    xmlTest (StandardFudgeMessages.createMessageAllNames (_fudgeContext), 1);
-  }
-  
-  /**
-   */
-  @Test
-  public void xmlStreamWriterAllOrdinalsNoTaxonomy () {
-    xmlTest (StandardFudgeMessages.createMessageAllOrdinals (_fudgeContext), 0);
-  }
-  
-  /**
-   */
-  @Test
-  public void xmlStreamWriterAllOrdinalsTaxonomy () {
-    xmlTest (StandardFudgeMessages.createMessageAllOrdinals (_fudgeContext), 1);
-  }
-  
-  /**
-   */
-  @Test
-  public void xmlStreamWriterWithSubMsgsNoTaxonomy () {
-    xmlTest (StandardFudgeMessages.createMessageWithSubMsgs (_fudgeContext), 0);
-  }
-  
-  /**
-   */
-  @Test
-  public void xmlStreamWriterWithSubMsgsTaxonomy () {
-    xmlTest (StandardFudgeMessages.createMessageWithSubMsgs (_fudgeContext), 1);
+    final CharArrayReader car = new CharArrayReader (caw.toCharArray ());
+    final FudgeMsgReader fmr = new FudgeMsgReader (new FudgeJSONStreamReader (_fudgeContext, car));
+    for (int i = 0; i < messages.length; i++) {
+      // first is the no-taxonomy version
+      FudgeFieldContainer message = fmr.nextMessage ();
+      assertNotNull (message);
+      System.out.println (message);
+      assertAllFieldsMatch (messages[i], message, false);
+      // second is the taxonomy version
+      message = fmr.nextMessage ();
+      assertNotNull (message);
+      System.out.println (message);
+      assertAllFieldsMatch (messages[i], message, false);
+    }
   }
   
 }

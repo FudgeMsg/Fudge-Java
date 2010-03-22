@@ -56,7 +56,7 @@ public class FudgeXMLTest {
   
   private void xmlTest (final FudgeFieldContainer message, final int taxonomy) {
     final FudgeMsgWriter fmw = new FudgeMsgWriter (new FudgeXMLStreamWriter (_fudgeContext, new PrintWriter (System.out)));
-    fmw.writeMessage (StandardFudgeMessages.createMessageAllNames (_fudgeContext), 0);
+    fmw.writeMessage (message, taxonomy);
     fmw.flush ();
     System.out.println ();
   }

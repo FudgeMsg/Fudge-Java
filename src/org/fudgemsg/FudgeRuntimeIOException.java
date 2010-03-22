@@ -32,7 +32,18 @@ public class FudgeRuntimeIOException extends FudgeRuntimeException {
    * @param cause the checked exception raised by a library
    */
   public FudgeRuntimeIOException(final IOException cause) {
-    super(cause.getMessage (), cause);
+    this (cause.getMessage (), cause);
+  }
+  
+  /**
+   * Creates a new {@link FudgeRuntimeIOException} to wrap an {@link IOException} with a more descriptive
+   * error message about the context in which the error occurred.
+   * 
+   * @param message the message to report
+   * @param cause the underlying exception
+   */
+  public FudgeRuntimeIOException (final String message, final IOException cause) {
+    super (message, cause);
   }
   
 }

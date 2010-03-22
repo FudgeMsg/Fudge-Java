@@ -34,6 +34,8 @@ import org.fudgemsg.FudgeTypeDictionary;
  */
 public class FudgeXMLSettings {
   
+  // TODO change the way this works to the approach used in the JSON package. I think I prefer that.
+  
   /**
    * Attributes available for the envelope element.
    */

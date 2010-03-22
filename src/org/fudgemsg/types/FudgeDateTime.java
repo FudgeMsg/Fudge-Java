@@ -146,7 +146,7 @@ public class FudgeDateTime implements DateTimeProvider, InstantProvider {
    */
   @Override
   public String toString () {
-    return getDate () + " " + getTime ();
+    return toOffsetDateTime ().toString ();
   }
 
   @Override

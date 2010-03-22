@@ -31,50 +31,94 @@ import org.json.JSONWriter;
 
 /**
  * A {@link FudgeStreamWriter} implementation for generating JSON representations of
- * Fudge messages. This is experimental code; a page needs to be created on the Wiki
- * describing the Fudge/JSON conversion rules that this must adhere to.
+ * Fudge messages. Please refer to <a href="http://wiki.fudgemsg.org/display/FDG/JSON+Fudge+Messages">JSON Fudge Messages</a> for details on
+ * the representation.
  * 
  * @author Andrew Griffin
  */
 public class FudgeJSONStreamWriter extends AlternativeFudgeStreamWriter {
   
+  private final JSONSettings _settings;
   private final Writer _underlyingWriter;
-  private final JSONWriter _writer;
+  private JSONWriter _writer;
 
   /**
    * Creates a new stream writer for writing Fudge messages in JSON format to a given
    * {@link Writer}.
    * 
    * @param fudgeContext the associated {@link FudgeContext}
+   * @param writer the target to write to
    */
   public FudgeJSONStreamWriter(final FudgeContext fudgeContext, final Writer writer) {
+    this (fudgeContext, writer, new JSONSettings ());
+  }
+  
+  /**
+   * Creates a new stream writer for writing Fudge messages in JSON format to a given
+   * {@link Writer}.
+   * 
+   * @param fudgeContext the associated {@link FudgeContext}
+   * @param writer the target to write to
+   */
+  public FudgeJSONStreamWriter(final FudgeContext fudgeContext, final Writer writer, final JSONSettings settings) {
     super (fudgeContext);
-    _writer = new JSONWriter (writer);
+    _settings = settings;
     _underlyingWriter = writer;
   }
   
-  public FudgeJSONStreamWriter (final FudgeContext fudgeContext, final JSONWriter writer) {
-    super (fudgeContext);
-    _writer = writer;
-    _underlyingWriter = null;
+  /**
+   * Returns the settings object 
+   */
+  public JSONSettings getSettings () {
+    return _settings;
   }
   
+  /**
+   * Returns the JSON writer being used, allocating one if necessary.
+   * 
+   * @return the writer
+   */
   protected JSONWriter getWriter () {
+    if (_writer == null) _writer = new JSONWriter (getUnderlying ());
     return _writer;
   }
   
+  /**
+   * Discards the JSON writer. The implementation only allows a single use so we must drop
+   * the instance after each message envelope completes.
+   */
+  protected void clearWriter () {
+    _writer = null;
+  }
+  
+  /**
+   * Returns the underlying {@link Writer} that is wrapped by {@link JSONWriter} instances for
+   * messages.
+   * 
+   * @return the writer
+   */
   protected Writer getUnderlying () {
     return _underlyingWriter;
   }
   
-  protected void wrapException (final String message, final JSONException e) {
+  /**
+   * Wraps a JSON exception (which may in turn wrap {@link IOExceptions} into either a {@link FudgeRuntimeException} or {@link FudgeRuntimeIOException}.
+   * 
+   * @param message message describing the current operation
+   * @param e the originating exception
+   */
+  protected void wrapException (String message, final JSONException e) {
+    message = "Error writing " + message + " to JSON stream";
     if (e.getCause () instanceof IOException) {
-      throw new FudgeRuntimeIOException ((IOException)e.getCause ());
+      throw new FudgeRuntimeIOException (message, (IOException)e.getCause ());
     } else {
-      throw new FudgeRuntimeException ("Error writing " + message + " to JSON stream", e);
+      throw new FudgeRuntimeException (message, e);
     }
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void flush () {
     if (getUnderlying () != null) {
@@ -86,35 +130,56 @@ public class FudgeJSONStreamWriter extends AlternativeFudgeStreamWriter {
     }
   }
   
+  /**
+   * Begins a JSON object with the processing directives, schema and taxonomy.
+   */
   @Override
   protected void fudgeEnvelopeStart (final int processingDirectives, final int schemaVersion) {
     try {
       getWriter ().object ();
-      if (processingDirectives != 0) getWriter ().key ("processingDirectives").value (processingDirectives);
-      if (schemaVersion != 0) getWriter ().key ("schemaVersion").value (schemaVersion);
+      if ((processingDirectives != 0) && (getSettings ().getProcessingDirectivesField () != null)) getWriter ().key (getSettings ().getProcessingDirectivesField ()).value (processingDirectives);
+      if ((schemaVersion != 0) && (getSettings ().getSchemaVersionField () != null)) getWriter ().key (getSettings ().getSchemaVersionField ()).value (schemaVersion);
+      if ((getCurrentTaxonomyId () != 0) && (getSettings ().getTaxonomyField () != null)) getWriter ().key (getSettings ().getTaxonomyField ()).value (getCurrentTaxonomyId ());
     } catch (JSONException e) {
       wrapException ("start of message", e);
     }
   }
   
+  /**
+   * Ends the JSON object.
+   */
   @Override
   protected void fudgeEnvelopeEnd () {
     try {
       getWriter ().endObject ();
+      clearWriter ();
     } catch (JSONException e) {
       wrapException ("end of message", e);
     }
   }
   
+  /**
+   * Writes out the field name to the JSON object.
+   */
   @Override
   protected boolean fudgeFieldStart (Short ordinal, String name, FudgeFieldType<?> type) {
     try {
-      if (name != null) {
-        getWriter ().key (name);
-      } else if (ordinal != null) {
-        getWriter ().key (Integer.toString (ordinal));
+      if (getSettings ().getPreferFieldNames ()) {
+        if (name != null) {
+          getWriter ().key (name);
+        } else if (ordinal != null) {
+          getWriter ().key (Integer.toString (ordinal));
+        } else {
+          getWriter ().key ("");
+        }
       } else {
-        getWriter ().key ("");
+        if (ordinal != null) {
+          getWriter ().key (Integer.toString (ordinal));
+        } else if (name != null) {
+          getWriter ().key (name);
+        } else {
+          getWriter ().key ("");
+        }
       }
     } catch (JSONException e) {
       wrapException ("start of field", e);
@@ -170,6 +235,9 @@ public class FudgeJSONStreamWriter extends AlternativeFudgeStreamWriter {
     getWriter ().endArray ();
   }
   
+  /**
+   * Writes the field value to the JSON object.
+   */
   @Override
   protected void fudgeFieldValue (FudgeFieldType<?> type, Object fieldValue) {
     try {
@@ -213,6 +281,9 @@ public class FudgeJSONStreamWriter extends AlternativeFudgeStreamWriter {
     }
   }
   
+  /**
+   * Starts a sub-object within the JSON object.  
+   */
   @Override
   protected void fudgeSubMessageStart () {
     try {
@@ -222,6 +293,9 @@ public class FudgeJSONStreamWriter extends AlternativeFudgeStreamWriter {
     }
   }
   
+  /**
+   * Ends the JSON sub-object.
+   */
   @Override
   protected void fudgeSubMessageEnd () {
     try {
