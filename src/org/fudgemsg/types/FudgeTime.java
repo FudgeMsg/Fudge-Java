@@ -57,30 +57,32 @@ public class FudgeTime implements TimeProvider {
     _timezoneOffset = timezoneOffset;
     if (seconds < 0) throw new IllegalArgumentException ("seconds cannot be negative");
     if (nanos < 0) throw new IllegalArgumentException ("nanos cannot be negative");
-    if (accuracy.greaterThan (DateTimeAccuracy.DAY)) {
-      if (accuracy.greaterThan (DateTimeAccuracy.HOUR)) {
-        if (accuracy.greaterThan (DateTimeAccuracy.MINUTE)) {
-          if (accuracy.greaterThan (DateTimeAccuracy.SECOND)) {
-            if (accuracy.greaterThan (DateTimeAccuracy.MILLISECOND)) {
-              if (accuracy.greaterThan (DateTimeAccuracy.MICROSECOND)) {
-                // no-op; at greatest resolution
-              } else {
-                nanos -= (nanos % 1000);
-              }
-            } else {
-              nanos -= (nanos % 1000000);
-            }
-          } else {
-            nanos = 0;
-          }
+    
+    if (accuracy.greaterThan(DateTimeAccuracy.SECOND)) {
+      if (accuracy.greaterThan(DateTimeAccuracy.MILLISECOND)) {
+        if (accuracy.greaterThan(DateTimeAccuracy.MICROSECOND)) {
+          // As accurate as can be - no rounding needed
         } else {
-          seconds -= (seconds % 60);
+          nanos -= nanos % 1000;
         }
       } else {
-        seconds -= (seconds % 3600);
+          nanos -= nanos % 1000000;
       }
     } else {
-      seconds = nanos = 0;
+      nanos = 0;
+      if (accuracy.greaterThan (DateTimeAccuracy.DAY)) {
+        if (accuracy.greaterThan (DateTimeAccuracy.HOUR)) {
+          if (accuracy.greaterThan (DateTimeAccuracy.MINUTE)) {
+            // Accurate to the second - already rounded for this
+          } else {
+            seconds -= seconds % 60;
+          }
+        } else {
+          seconds -= seconds % 3600;
+        }
+      } else {
+        seconds = 0;
+      }
     }
     _localTime = LocalTime.of (seconds / 3600, (seconds / 60) % 60, seconds % 60, nanos);
   }
