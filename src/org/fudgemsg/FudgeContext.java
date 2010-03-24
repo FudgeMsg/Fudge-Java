@@ -15,13 +15,12 @@
  */
 package org.fudgemsg;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataOutput;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
 
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeObjectDictionary;
@@ -359,9 +358,8 @@ public class FudgeContext implements FudgeMessageFactory {
    * 
    * @param object the {@link Object} to write
    * @param outputStream the {@code OutputStream} to write the Fudge encoded form of the object to
-   * @throws IOException if the target {@code OutputStream} errors
    */
-  public void writeObject(Object object, OutputStream outputStream) throws IOException {
+  public void writeObject(Object object, OutputStream outputStream) {
     if(object == null) {
       return;
     }
@@ -379,10 +377,9 @@ public class FudgeContext implements FudgeMessageFactory {
    * @param <T> the target type to decode the message to
    * @param objectClass the target {@link Class} to decode a message of. If an object of this or a sub-class is not available, an exception will be thrown.
    * @param inputStream the {@code InputStream} to read the next Fudge message from
-   * @throws IOException if the source {@code InputStream} errors
    * @return the object read
    */
-  public <T> T readObject(Class<T> objectClass, InputStream inputStream) throws IOException {
+  public <T> T readObject(Class<T> objectClass, InputStream inputStream) {
     FudgeObjectReader osr = createObjectReader (inputStream);
     T result = osr.read (objectClass);
     return result;
