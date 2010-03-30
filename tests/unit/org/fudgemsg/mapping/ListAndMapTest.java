@@ -24,11 +24,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.fudgemsg.FudgeContext;
 import org.junit.Test;
 
 public class ListAndMapTest {
+  
+  private Object cycleObject (final Object o) {
+    return FudgeContext.GLOBAL_DEFAULT.fromFudgeMsg (FudgeContext.GLOBAL_DEFAULT.toFudgeMsg (o).getMessage ());
+  }
   
   @SuppressWarnings("unchecked")
   @Test
@@ -38,7 +44,7 @@ public class ListAndMapTest {
     l.add ("world");
     l.add (null);
     l.add ("42");
-    final Object o = FudgeContext.GLOBAL_DEFAULT.fromFudgeMsg (FudgeContext.GLOBAL_DEFAULT.toFudgeMsg (l).getMessage ());
+    final Object o = cycleObject (l);
     assertNotNull (o);
     assertTrue (o instanceof List);
     final List<String> l2 = (List<String>)o;
@@ -50,12 +56,32 @@ public class ListAndMapTest {
   
   @SuppressWarnings("unchecked")
   @Test
+  public void testSet () {
+    final Set<String> s = new TreeSet<String> ();
+    s.add ("hello");
+    s.add ("world");
+    s.add ("foo");
+    final Object o = cycleObject (s);
+    assertNotNull (o);
+    assertTrue (o instanceof Set);
+    final Set<String> s2 = (Set<String>)o;
+    assertEquals (s.size (), s2.size ());
+    for (String e : s2) {
+      assertTrue (s.contains (e));
+    }
+    for (String e : s) {
+      assertTrue (s2.contains (e));
+    }
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Test
   public void testMap () {
     final Map<String,String> m = new HashMap<String,String> ();
     m.put ("hello", "world");
     m.put (null, "42");
     m.put ("42", null);
-    final Object o = FudgeContext.GLOBAL_DEFAULT.fromFudgeMsg (FudgeContext.GLOBAL_DEFAULT.toFudgeMsg (m).getMessage ());
+    final Object o = cycleObject (m);
     assertNotNull (o);
     assertTrue (o instanceof Map);
     final Map<String,String> m2 = (Map<String,String>)o;

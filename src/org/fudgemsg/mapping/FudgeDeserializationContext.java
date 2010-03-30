@@ -18,6 +18,7 @@ package org.fudgemsg.mapping;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
@@ -122,8 +123,10 @@ public class FudgeDeserializationContext {
         if (field.getOrdinal () == null) continue;
         if (field.getOrdinal () > maxOrdinal) maxOrdinal = field.getOrdinal ();
       }
-      if (maxOrdinal <= 1) {
+      if (maxOrdinal < 1) {
         return fudgeMsgToObject (List.class, message);
+      } else if (maxOrdinal == 1) {
+        return fudgeMsgToObject (Set.class, message);
       } else if (maxOrdinal == 2) {
         return fudgeMsgToObject (Map.class, message);
       }

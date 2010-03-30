@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldType;
+import org.fudgemsg.taxon.FudgeTaxonomy;
 
 /**
  * The base type definition for a secondary field type that converts Java objects
@@ -67,6 +68,18 @@ public abstract class SecondaryFieldTypeBase<SecondaryType,ConversionType,Primit
    * @return the underlying Fudge data to write out
    */
   public abstract PrimitiveType secondaryToPrimary (SecondaryType object);
+
+  /**
+   * Calculates the resultant size by converting to the primary object and invoking the delegate. If conversion
+   * overhead is noticeable, a subclass should consider overriding this and calculating the value directly.
+   * 
+   * @param value the value to convert (if it will not be a fixed width type)
+   * @param taxonomy the taxonomy used to encode
+   */
+  @Override
+  public int getVariableSize(SecondaryType value, FudgeTaxonomy taxonomy) {
+    return getPrimaryType ().getVariableSize (secondaryToPrimary (value), taxonomy);
+  }
   
   /**
    * {@inheritDoc}

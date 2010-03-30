@@ -15,10 +15,13 @@
  */
 package org.fudgemsg;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.fudgemsg.taxon.FudgeTaxonomy;
 
 /**
- * Collects all of the size calculations for fudge stream elements together
+ * Collects all of the size calculations for Fudge stream elements together
  * to simplify size calculations without constructing a full FudgeMsg object.
  * 
  * @author Andrew Griffin

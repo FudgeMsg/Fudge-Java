@@ -62,6 +62,16 @@ public class FudgeContext implements FudgeMessageFactory {
    */
   public static final FudgeContext GLOBAL_DEFAULT = new ImmutableFudgeContext (new FudgeContext ());
   
+  /**
+   * A global empty {@link FudgeFieldContainer}.
+   */
+  public static final FudgeFieldContainer EMPTY_MESSAGE = new ImmutableFudgeMsg (GLOBAL_DEFAULT); 
+  
+  /**
+   * A global empty {@link FudgeMsgEnvelope}.
+   */
+  public static final FudgeMsgEnvelope EMPTY_MESSAGE_ENVELOPE = new FudgeMsgEnvelope (EMPTY_MESSAGE);
+  
   private FudgeTypeDictionary _typeDictionary = new FudgeTypeDictionary();
   private FudgeObjectDictionary _objectDictionary = new FudgeObjectDictionary ();
   private TaxonomyResolver _taxonomyResolver = null;
@@ -438,6 +448,16 @@ public class FudgeContext implements FudgeMessageFactory {
    */
   public <T> T getFieldValue (final Class<T> clazz, final FudgeField field) {
     return getTypeDictionary ().getFieldValue (clazz, field);
+  }
+  
+  /**
+   * Passes this context to the configuration object supplied to update the type and object dictionaries.
+   * This can be used with Bean based frameworks to configure a context for custom types through injection.
+   * 
+   * @param configuration the configuration object to use
+   */
+  public void setConfiguration (final FudgeContextConfiguration configuration) {
+    configuration.configureFudgeContext (this);
   }
   
 }

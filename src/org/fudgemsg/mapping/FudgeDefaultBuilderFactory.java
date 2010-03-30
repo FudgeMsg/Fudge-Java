@@ -19,6 +19,7 @@ package org.fudgemsg.mapping;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -44,7 +45,7 @@ import com.mongodb.DBObject;
  *   <li>Otherwise the {@link JavaBeanBuilder} will be used</li>
  * </ul>
  *  
- * <p>Generic builders are provided for {@link Map}, {@link List}, {@link FudgeFieldContainer}, {@link DBObject} and array types.</p>
+ * <p>Generic builders are provided for {@link Map}, {@link List} (and {@link Set}), {@link FudgeFieldContainer}, {@link DBObject} and array types.</p>
  * 
  * @author Andrew Griffin
  */ 

@@ -47,4 +47,13 @@ public class ImmutableFudgeMsg extends FudgeMsgBase implements ImmutableFudgeFie
     super (fields, fudgeContext);
   }
   
+  /**
+   * Creates an immutable empty message.
+   * 
+   *  @param fudgeContext host context
+   */
+  protected ImmutableFudgeMsg (final FudgeContext fudgeContext) {
+    super (fudgeContext);
+  }
+  
 }

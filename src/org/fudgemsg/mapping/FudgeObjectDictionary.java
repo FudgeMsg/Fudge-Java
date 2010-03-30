@@ -146,10 +146,7 @@ public class FudgeObjectDictionary {
       if (freshBuilder == null) freshBuilder = (FudgeObjectBuilder<T>)NULL_OBJECTBUILDER;
       builder = (FudgeObjectBuilder<T>)_objectBuilders.putIfAbsent (clazz, freshBuilder);
       if (builder == null) {
-        // if the default object builder is also a message builder then store a reference now
-        if (freshBuilder instanceof FudgeMessageBuilder<?>) {
-          _messageBuilders.putIfAbsent (clazz, (FudgeMessageBuilder<?>)freshBuilder);
-        }
+        // we used to store a reference at this point if it also implemented FudgeMessageBuilder , but there might be better message builders available than this one
         builder = freshBuilder;
       }
     }
@@ -172,10 +169,7 @@ public class FudgeObjectDictionary {
       if (freshBuilder == null) freshBuilder = (FudgeMessageBuilder<T>)NULL_MESSAGEBUILDER;
       builder = (FudgeMessageBuilder<T>)_messageBuilders.putIfAbsent (clazz, freshBuilder);
       if (builder == null) {
-        // if the default message builder is also an object builder then store a reference now
-        if (freshBuilder instanceof FudgeObjectBuilder<?>) {
-          _objectBuilders.putIfAbsent (clazz, (FudgeObjectBuilder<?>)freshBuilder);
-        }
+        // we used to store a reference at this point if it also implemented FudgeObjectBuilder, but there might be better object builders available than this one
         builder = freshBuilder;
       }
     }
