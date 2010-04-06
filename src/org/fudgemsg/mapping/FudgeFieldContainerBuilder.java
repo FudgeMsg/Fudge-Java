@@ -16,11 +16,15 @@
 
 package org.fudgemsg.mapping;
 
+import java.util.Iterator;
+
+import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 /**
- * Dummy builder wrapper for objects that are already fudge messages.
+ * Builder wrapper for objects that are already Fudge messages. The FudgeFieldContainer class name is added
+ * so that the serialization framework will decode the messages as messages and not as serialized objects.
  * 
  * @author Andrew Griffin
  */
@@ -39,7 +43,10 @@ import org.fudgemsg.MutableFudgeFieldContainer;
    */
   @Override
   public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, FudgeFieldContainer fields) {
-    return context.newMessage (fields);
+    final MutableFudgeFieldContainer msg = context.newMessage (fields);
+    // add the class name
+    msg.add (null, 0, FudgeFieldContainer.class.getName ());
+    return msg;
   }
   
   /**
@@ -47,7 +54,21 @@ import org.fudgemsg.MutableFudgeFieldContainer;
    */
   @Override
   public FudgeFieldContainer buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
-    return context.getFudgeContext ().newMessage (message);
+    final MutableFudgeFieldContainer msg = context.getFudgeContext ().newMessage (message);
+    // remove the class name if one was added
+    final String value = FudgeFieldContainer.class.getName ();
+    final Short ordinal = 0;
+    final Iterator<FudgeField> fields = msg.iterator ();
+    while (fields.hasNext ()) {
+      final FudgeField field = fields.next ();
+      if (ordinal.equals (field.getOrdinal ())
+          && (field.getName () == null)
+          && value.equals (field.getValue ())) {
+        fields.remove ();
+        break;
+      }
+    }
+    return msg;
   }
 
 }
