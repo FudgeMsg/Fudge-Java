@@ -33,7 +33,7 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
 public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable<FudgeField> {
   
   private final FudgeContext _fudgeContext;
-  private final List<FudgeMsgField> _fields = new ArrayList<FudgeMsgField>();
+  private final List<FudgeField> _fields = new ArrayList<FudgeField>();
 
   /**
    * Constructs a new {@link FudgeMsgBase} instance bound to the given {@link FudgeContext}.
@@ -76,7 +76,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    * 
    * @return the list of fields
    */
-  protected List<FudgeMsgField> getFields () {
+  protected List<FudgeField> getFields () {
     return _fields;
   }
 
@@ -137,7 +137,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
   @Override
   public List<FudgeField> getAllByOrdinal(int ordinal) {
     List<FudgeField> fields = new ArrayList<FudgeField>();
-    for(FudgeMsgField field : _fields) {
+    for(FudgeField field : _fields) {
       if((field.getOrdinal() != null) && (ordinal == field.getOrdinal())) {
         fields.add(field);
       }
@@ -150,7 +150,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public FudgeField getByOrdinal(int ordinal) {
-    for(FudgeMsgField field : _fields) {
+    for(FudgeField field : _fields) {
       if((field.getOrdinal() != null) && (ordinal == field.getOrdinal())) {
         return field;
       }
@@ -158,7 +158,14 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
     return null;
   }
   
-  private boolean fieldNameEquals (final String name, final FudgeField field) {
+  /**
+   * Tests the field name for equality against a string - {@code null} matches with {@code null}.
+   * 
+   * @param name name to match against
+   * @param field field to test
+   * @return {@code true} if the field name matches, {@code false} otherwise 
+   */
+  protected boolean fieldNameEquals (final String name, final FudgeField field) {
     if (name == null) {
       return field.getName () == null;
     } else {
@@ -166,7 +173,14 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
     }
   }
   
-  private boolean fieldOrdinalEquals (final Short ordinal, final FudgeField field) {
+  /**
+   * Tests the field ordinal for equality against a string - {@code null} matches with {@code null}.
+   * 
+   * @param ordinal ordinal index to match against
+   * @param field field to test
+   * @return {@code true} if the field ordinal matches, {@code false} otherwise
+   */
+  protected boolean fieldOrdinalEquals (final Short ordinal, final FudgeField field) {
     if (ordinal == null) {
       return field.getOrdinal () == null;
     } else {
@@ -180,7 +194,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
   @Override
   public List<FudgeField> getAllByName(String name) {
     List<FudgeField> fields = new ArrayList<FudgeField>();
-    for(FudgeMsgField field : _fields) {
+    for(FudgeField field : _fields) {
       if(fieldNameEquals(name, field)) {
         fields.add(field);
       }
@@ -193,7 +207,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public FudgeField getByName(String name) {
-    for(FudgeMsgField field : _fields) {
+    for(FudgeField field : _fields) {
       if(fieldNameEquals(name, field)) {
         return field;
       }
@@ -206,7 +220,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public Object getValue(String name) {
-    for(FudgeMsgField field : _fields) {
+    for(FudgeField field : _fields) {
       if((name != null) && name.equals (field.getName ())) {
         return field.getValue();
       }
@@ -220,7 +234,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
   @Override
   public Object getValue(int ordinal) {
     Short ordinalAsShort = (short) ordinal;
-    for(FudgeMsgField field : _fields) {
+    for(FudgeField field : _fields) {
       if(fieldOrdinalEquals(ordinalAsShort, field)) {
         return field.getValue();
       }
@@ -233,7 +247,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public Object getValue(String name, Integer ordinal) {
-    for(FudgeMsgField field : _fields) {
+    for(FudgeField field : _fields) {
       if((ordinal != null) && (field.getOrdinal() != null) && (ordinal == field.getOrdinal().intValue())) {
         return field.getValue();
       }
@@ -495,7 +509,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    * @return the field value or {@code null} if no matching field was found
    */
   protected final Object getFirstTypedValue(String fieldName, int typeId) {
-    for(FudgeMsgField field : _fields) {
+    for(FudgeField field : _fields) {
       if(fieldNameEquals(fieldName, field)
           && (field.getType().getTypeId() == typeId)) {
         return field.getValue();
@@ -512,7 +526,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    * @return the field value or {@code null} if no matching field was found
    */
   protected final Object getFirstTypedValue(int ordinal, int typeId) {
-    for(FudgeMsgField field : _fields) {
+    for(FudgeField field : _fields) {
       if(field.getOrdinal() == null) {
         continue;
       }
@@ -535,7 +549,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
       return;
     }
     for(int i = 0; i < _fields.size(); i++) {
-      FudgeMsgField field = _fields.get(i);
+      FudgeField field = _fields.get(i);
       if((field.getOrdinal() != null) && (field.getName() == null)) {
         String nameFromTaxonomy = taxonomy.getFieldName(field.getOrdinal());
         if(nameFromTaxonomy != null) {
@@ -560,7 +574,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public Iterator<FudgeField> iterator() {
-    return new ArrayList<FudgeField>(_fields).iterator();
+    return Collections.unmodifiableList (_fields).iterator ();
   }
   
   /**

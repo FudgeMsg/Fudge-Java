@@ -30,7 +30,7 @@ public interface MutableFudgeFieldContainer extends FudgeFieldContainer {
    * 
    * @param field field to add
    */
-  public abstract void add(FudgeField field);
+  public void add(FudgeField field);
 
   /**
    * Adds a field to this container with a name, no ordinal, and type determined by the context's type dictionary.
@@ -38,7 +38,7 @@ public interface MutableFudgeFieldContainer extends FudgeFieldContainer {
    * @param name name of the field, or {@code null} for none
    * @param value field value
    */
-  public abstract void add(String name, Object value);
+  public void add(String name, Object value);
 
   /**
    * Adds a field to this container with an ordinal, no name, and type determined by the context's type dictionary.
@@ -46,7 +46,7 @@ public interface MutableFudgeFieldContainer extends FudgeFieldContainer {
    * @param ordinal ordinal index for the field, or {@code null} for none
    * @param value field value
    */
-  public abstract void add(Integer ordinal, Object value);
+  public void add(Integer ordinal, Object value);
 
   /**
    * Adds a field to this container with the given name, ordinal and type determined by the context's type dictionary.
@@ -55,7 +55,7 @@ public interface MutableFudgeFieldContainer extends FudgeFieldContainer {
    * @param ordinal ordinal index for the field, or {@code null} for none
    * @param value field value
    */
-  public abstract void add(String name, Integer ordinal, Object value);
+  public void add(String name, Integer ordinal, Object value);
 
   /**
    * Adds a field to this container with the given name, ordinal, and type.
@@ -65,6 +65,33 @@ public interface MutableFudgeFieldContainer extends FudgeFieldContainer {
    * @param type the {@link FudgeFieldType} for the field
    * @param value field value
    */
-  public abstract void add(String name, Integer ordinal, FudgeFieldType<?> type, Object value);
+  public void add(String name, Integer ordinal, FudgeFieldType<?> type, Object value);
+  
+  /**
+   * Removes all fields with the given ordinal. Passing {@code null} will remove all fields with no ordinal index.
+   * 
+   * @param ordinal ordinal index of fields
+   */
+  public void remove (Short ordinal);
+  
+  /**
+   * Removes all fields with the given name. Passing {@code null} will remove all fields with no name.
+   * 
+   * @param name name of the fields
+   */
+  public void remove (String name);
+  
+  /**
+   * Removes all fields matching both the name and ordinal supplied.
+   * 
+   * @param name name of the fields
+   * @param ordinal ordinal index of the fields
+   */
+  public void remove (String name, Short ordinal);
+  
+  /**
+   * Removes all fields from the message.
+   */
+  public void clear ();
 
 }
