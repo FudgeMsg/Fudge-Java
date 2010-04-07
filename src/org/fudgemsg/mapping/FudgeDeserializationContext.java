@@ -121,6 +121,10 @@ public class FudgeDeserializationContext {
       int maxOrdinal = 0;
       for (FudgeField field : message) {
         if (field.getOrdinal () == null) continue;
+        if (field.getOrdinal () < 0) {
+          // not a list/set/map
+          return message;
+        }
         if (field.getOrdinal () > maxOrdinal) maxOrdinal = field.getOrdinal ();
       }
       if (maxOrdinal < 1) {
@@ -145,7 +149,7 @@ public class FudgeDeserializationContext {
         }
       }
     }
-    // can't process - something else will raise an error if we just return the original message
+    // couldn't process - return the raw message
     return message;
   }
   
@@ -161,6 +165,7 @@ public class FudgeDeserializationContext {
   @SuppressWarnings("unchecked")
   public <T> T fudgeMsgToObject (final Class<T> clazz, final FudgeFieldContainer message) {
     FudgeObjectBuilder<T> builder = getFudgeContext ().getObjectDictionary ().getObjectBuilder (clazz);
+    // TODO 2010-03-07 Andrew -- always check for ordinal 0 to see if there is a subclass of clazz we should be using instead
     if (builder == null) {
       // no builder for the requested class, so look to see if there are any embedded class details for a sub-class we know
       List<FudgeField> types = message.getAllByOrdinal (0);
