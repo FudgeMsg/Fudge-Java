@@ -15,6 +15,8 @@
  */
 package org.fudgemsg;
 
+import java.util.Iterator;
+
 import org.fudgemsg.taxon.FudgeTaxonomy;
 import org.fudgemsg.types.ByteArrayFieldType;
 import org.fudgemsg.types.PrimitiveFieldTypes;
@@ -29,7 +31,7 @@ import org.fudgemsg.types.PrimitiveFieldTypes;
  * 
  * <p>Instead of constructing an instance of this directly, a preferred approach is
  * to request a MutableFudgeFieldContainer from the main context, or a
- * serialisation context as that may return an implementation more appropriate
+ * serialization context as that may return an implementation more appropriate
  * to the underlying or target stream.</p>
  *
  * @author Kirk Wylie
@@ -162,7 +164,7 @@ public class FudgeMsg extends FudgeMsgBase implements MutableFudgeFieldContainer
       return;
     }
     for(int i = 0; i < getFields ().size(); i++) {
-      FudgeMsgField field = getFields ().get(i);
+      FudgeField field = getFields ().get(i);
       if((field.getOrdinal() != null) && (field.getName() == null)) {
         String nameFromTaxonomy = taxonomy.getFieldName(field.getOrdinal());
         if(nameFromTaxonomy != null) {
@@ -180,6 +182,59 @@ public class FudgeMsg extends FudgeMsgBase implements MutableFudgeFieldContainer
         getFields ().set (i, field);
       }
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Iterator<FudgeField> iterator() {
+    // return the real iterator since this is a mutable message
+    return getFields ().iterator ();
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void remove(Short ordinal) {
+    final Iterator<FudgeField> i = iterator ();
+    while (i.hasNext ()) {
+      final FudgeField field = i.next ();
+      if (fieldOrdinalEquals (ordinal, field)) i.remove ();
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void remove(String name) {
+    final Iterator<FudgeField> i = iterator ();
+    while (i.hasNext ()) {
+      final FudgeField field = i.next ();
+      if (fieldNameEquals (name, field)) i.remove ();
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void remove(String name, Short ordinal) {
+    final Iterator<FudgeField> i = iterator ();
+    while (i.hasNext ()) {
+      final FudgeField field = i.next ();
+      if (fieldOrdinalEquals (ordinal, field) && fieldNameEquals (name, field)) i.remove ();
+    }
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void clear () {
+    getFields ().clear ();
   }
 
 }

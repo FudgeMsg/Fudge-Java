@@ -87,7 +87,7 @@ public class FudgeSerializationContext implements FudgeMessageFactory {
   
   /**
    * Add a Java object to a Fudge message ({@link MutableFudgeFieldContainer} instance) either natively if the associated {@link FudgeTypeDictionary}
-   * recognises it, or as a sub-message using the serialisation framework.
+   * recognises it, or as a sub-message using the serialization framework.
    * 
    * @param message the message to add this object to
    * @param name field name to add with, or {@code null} for none
@@ -97,7 +97,7 @@ public class FudgeSerializationContext implements FudgeMessageFactory {
   public void objectToFudgeMsg (final MutableFudgeFieldContainer message, final String name, final Integer ordinal, final Object object) {
     if (object == null) return;
     final FudgeFieldType<?> fieldType = getFudgeContext ().getTypeDictionary ().getByJavaType (object.getClass ());
-    if (fieldType != null) {
+    if ((fieldType != null) && !FudgeMsgFieldType.INSTANCE.equals (fieldType)) {
       // goes natively into a message
       message.add (name, ordinal, fieldType, object);
     } else {
@@ -111,7 +111,7 @@ public class FudgeSerializationContext implements FudgeMessageFactory {
    * in the current {@link FudgeObjectDictionary}. Note that a mutable container is returned (from the definition of {@code FudgeMessageBuilder} so that the caller is
    * able to append additional data to the message if required, e.g. {@link #addClassHeader(MutableFudgeFieldContainer,Class)}.
    * 
-   * @param object the Java object to serialise
+   * @param object the Java object to serialize
    * @return the Fudge message created
    */
   @SuppressWarnings("unchecked")

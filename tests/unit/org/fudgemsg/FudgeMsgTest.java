@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.fudgemsg.types.ByteArrayFieldType;
@@ -261,6 +262,34 @@ public class FudgeMsgTest {
     mutableMsg.add ("field not there", "is now");
     assertEquals ("is now", mutableMsg.getString ("field not there"));
     assertEquals (null, msg.getString ("field not there"));
+  }
+  
+  /**
+   * 
+   */
+  @Test
+  public void mutableFudgeMsgTest () {
+    MutableFudgeFieldContainer msg = StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext);
+    assertEquals (null, msg.getString ("foo"));
+    assertEquals (null, msg.getString (999));
+    msg.add ("foo", "bar1");
+    msg.add (999, "bar2");
+    assertEquals ("bar1", msg.getString ("foo"));
+    assertEquals ("bar2", msg.getString (999));
+    msg.remove ("foo");
+    msg.remove ((short)999);
+    assertEquals (null, msg.getString ("foo"));
+    assertEquals (null, msg.getString (999));
+    int sizeBefore = msg.getNumFields ();
+    Iterator<FudgeField> iterator = msg.iterator ();
+    int i = 0;
+    while (iterator.hasNext ()) {
+      iterator.next ();
+      if ((i++ & 1) == 0) iterator.remove ();
+    }
+    assertEquals (sizeBefore / 2, msg.getNumFields ());
+    msg.clear ();
+    assertEquals (0, msg.getNumFields ());
   }
 
   /**
