@@ -141,8 +141,8 @@ public class FudgeDeserializationContext {
           throw new UnsupportedOperationException ("Serialisation framework doesn't support back/forward references"); 
         } else if (o instanceof String) {
           try {
-            final Class<?> clazz = Class.forName ((String)o);
-            return fudgeMsgToObject (clazz, message);
+            FudgeObjectBuilder<?> builder = getFudgeContext ().getObjectDictionary ().getObjectBuilder (Class.forName ((String)o));
+            if (builder != null) return builder.buildObject (this, message);
           } catch (ClassNotFoundException e) {
             // ignore
           }
@@ -155,7 +155,8 @@ public class FudgeDeserializationContext {
   
   /**
    * Converts a Fudge message to a specific Java type. The {@link FudgeObjectDictionary} is used to identify a builder to delegate to. If
-   * a builder is not available and the message includes class names in ordinal 0, these will be tested for a valid builder.
+   * the message includes class names in ordinal 0, these will be tested for a valid builder and used if they will provide a subclass of
+   * the requested class.
    * 
    * @param <T> target Java type to decode to
    * @param clazz class of the target Java type to decode to
@@ -164,12 +165,11 @@ public class FudgeDeserializationContext {
    */
   @SuppressWarnings("unchecked")
   public <T> T fudgeMsgToObject (final Class<T> clazz, final FudgeFieldContainer message) {
-    FudgeObjectBuilder<T> builder = getFudgeContext ().getObjectDictionary ().getObjectBuilder (clazz);
-    // TODO 2010-03-07 Andrew -- always check for ordinal 0 to see if there is a subclass of clazz we should be using instead
-    if (builder == null) {
-      // no builder for the requested class, so look to see if there are any embedded class details for a sub-class we know
-      List<FudgeField> types = message.getAllByOrdinal (0);
-      Exception lastError = null;
+    FudgeObjectBuilder<T> builder;
+    Exception lastError = null;
+    List<FudgeField> types = message.getAllByOrdinal (0);
+    if (types.size () != 0) {
+      // message contains type information - use it if we can
       for (FudgeField type : types) {
         final Object o = type.getValue ();
         if (o instanceof Number) {
@@ -177,8 +177,10 @@ public class FudgeDeserializationContext {
         } else if (o instanceof String) {
           try {
             final Class<?> possibleClazz = Class.forName ((String)o);
-            if (!clazz.equals (possibleClazz) && clazz.isAssignableFrom (possibleClazz)) {
+            //System.out.println ("Trying " + possibleClazz);
+            if (clazz.isAssignableFrom (possibleClazz)) {
               builder = (FudgeObjectBuilder<T>)getFudgeContext ().getObjectDictionary ().getObjectBuilder (possibleClazz);
+              //System.out.println ("Builder " + builder);
               if (builder != null) return builder.buildObject (this, message);
             }
           } catch (ClassNotFoundException e) {
@@ -188,15 +190,23 @@ public class FudgeDeserializationContext {
           }
         }
       }
-      // nothing matched
-      if (lastError != null) {
-        throw new FudgeRuntimeException ("Don't know how to create " + clazz + " from " + message, lastError);
-      } else {
-        throw new IllegalArgumentException ("Don't know how to create " + clazz + " from " + message);
+    }
+    // try the requested type
+    //System.out.println ("fallback to " + clazz);
+    builder = getFudgeContext ().getObjectDictionary ().getObjectBuilder (clazz);
+    if (builder != null) {
+      try {
+        return builder.buildObject (this, message);
+      } catch (Exception e) {
+        lastError = e;
       }
     }
-    final T object = builder.buildObject (this, message);
-    return object;
+    // nothing matched
+    if (lastError != null) {
+      throw new FudgeRuntimeException ("Don't know how to create " + clazz + " from " + message, lastError);
+    } else {
+      throw new IllegalArgumentException ("Don't know how to create " + clazz + " from " + message);
+    }
   }
   
 }
