@@ -292,7 +292,7 @@ public class CustomBuilderTest {
     } catch (FudgeRuntimeException fre) {
       fre.printStackTrace ();
       final String expectedMessage = "Don't know how to create interface " + FooInterface.class.getName ();
-      assertEquals (expectedMessage, fre.getCause ().getCause ().getMessage ().substring (0, expectedMessage.length ()));
+      assertEquals (expectedMessage, fre.getCause ().getCause ().getCause ().getMessage ().substring (0, expectedMessage.length ()));
     }
     // a custom builder for our implementation should fix it
     fc.getObjectDictionary ().addBuilder (FooHorse.class, new FooHorse.Builder ());
