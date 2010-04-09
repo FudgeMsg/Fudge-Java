@@ -186,6 +186,7 @@ public class FudgeDeserializationContext {
           } catch (ClassNotFoundException e) {
             // ignore
           } catch (Exception e) {
+            //e.printStackTrace ();
             lastError = e;
           }
         }
