@@ -110,6 +110,28 @@ public interface FudgeFieldContainer extends Iterable<FudgeField> {
    * @return the converted field value
    */
   <T> T getFieldValue (Class<T> clazz, FudgeField field) throws IllegalArgumentException;
+  
+  /**
+   * Returns the value of the first field in the message that can be converted to the requested type, or {@code null} if
+   * none exists.
+   * 
+   * @param <T> class to convert to
+   * @param clazz Java class to convert to
+   * @param name field name
+   * @return the converted field value or {@code null}
+   */
+  <T> T getValue (Class<T> clazz, String name);
+  
+  /**
+   * Returns the value of the first field in the message that can be converted to the requested type, or {@code null} if
+   * none exists.
+   * 
+   * @param <T> class to convert to
+   * @param clazz Java class to convert to
+   * @param ordinal field ordinal
+   * @return the converted field value or {@code null}
+   */
+  <T> T getValue (Class<T> clazz, int ordinal);
 
   /**
    * Returns the value of the first field in the message with the given name, or {@code null} if the name does not exist.
@@ -126,15 +148,6 @@ public interface FudgeFieldContainer extends Iterable<FudgeField> {
    * @return field value 
    */
   Object getValue(int ordinal);
-
-  /**
-   * Returns the value of the first field in the message with the matching name and ordinal, or {@code null} if no field matches both name and ordinal.
-   * 
-   * @param name field name
-   * @param ordinal ordinal index
-   * @return field value
-   */
-  Object getValue(String name, Integer ordinal);
 
   /**
    * Returns the value of the first field in the message with the given name that holds a {@code double} type, or {@code null} if no such field exists.

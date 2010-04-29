@@ -148,10 +148,8 @@ public class FudgeMsgTest {
   @Test
   public void primitiveExactQueriesNamesNoMatch() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
-    // now we've decided that get*() == getAs*() these work...
-    assertNotNull(msg.getByte("int"));
-    assertNotNull(msg.getShort("int"));
-    assertNotNull(msg.getInt("byte"));
+    assertNotNull(msg.getShort("byte"));
+    assertNotNull(msg.getInt("short"));
     assertNotNull(msg.getLong("int"));
     assertNotNull(msg.getFloat("double"));
     assertNotNull(msg.getDouble("float"));
@@ -298,14 +296,10 @@ public class FudgeMsgTest {
   @Test
   public void primitiveExactQueriesOrdinalsNoMatch() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext);
-    // these have changed since the decision to make get* == getAs*.
-    // truncation may occur at the moment and we need to consider 
-    // whether exceptions should be thrown instead
-    assertNotNull(msg.getByte((short)7));
-    assertNotNull(msg.getShort((short)7));
-    assertNotNull(msg.getInt((short)9));
+    assertNotNull(msg.getShort((short)3));
+    assertNotNull(msg.getInt((short)5));
     assertNotNull(msg.getLong((short)7));
-    assertNotNull(msg.getFloat((short)13));
+    assertNotNull(msg.getFloat((short)14));
     assertNotNull(msg.getDouble((short)11));
   }
   

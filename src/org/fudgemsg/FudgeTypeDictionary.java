@@ -290,6 +290,51 @@ public class FudgeTypeDictionary {
     }
   }
   
+  /**
+   * Type conversion test for secondary types. Returns {@code true} if {@link #getFieldValue} would return an
+   * object instance.
+   *  
+   * @param <T> type to convert to
+   * @param clazz target class for the converted value
+   * @param field field containing the value to convert
+   * @return {@code true} if a conversion is possible, {@code false} otherwise ({@link #getFieldValue} might return {@code null} or throw an exception)
+   */
+  @SuppressWarnings("unchecked")
+  public <T> boolean canConvertField (final Class<T> clazz, final FudgeField field) {
+    final Object value = field.getValue ();
+    if (value == null) return false;
+    if (clazz.isAssignableFrom (value.getClass ())) return true;
+    final FudgeFieldType<?> type = field.getType ();
+    if (type instanceof SecondaryFieldType) {
+      final SecondaryFieldType sourceType = (SecondaryFieldType)type;
+      if (clazz.isAssignableFrom (sourceType.getPrimaryType ().getJavaType ())) {
+        // been asked for the primary type
+        return true;
+      } else {
+        final FudgeTypeConverter<Object,T> converter = getTypeConverter(clazz);
+        if (converter == null) {
+          // don't recognize the requested type
+          return false;
+        } else {
+          // check common base
+          return converter.canConvertPrimary (sourceType.getPrimaryType ().getJavaType ());
+        }
+      }
+    } else if (type instanceof IndicatorFieldType) {
+      // indicators can't be converted to instances
+      return false;
+    } else {
+      final FudgeTypeConverter<Object,T> converter = getTypeConverter (clazz);
+      if (converter == null) {
+        // don't recognize the requested type
+        return false;
+      } else {
+        // does secondary type extend current type
+        return converter.canConvertPrimary (value.getClass ());
+      }
+    }
+  }
+  
   // --------------------------
   // STANDARD FUDGE FIELD TYPES
   // --------------------------

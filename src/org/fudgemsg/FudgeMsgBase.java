@@ -137,8 +137,9 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
   @Override
   public List<FudgeField> getAllByOrdinal(int ordinal) {
     List<FudgeField> fields = new ArrayList<FudgeField>();
+    Short ordinalAsShort = (short)ordinal;
     for(FudgeField field : _fields) {
-      if((field.getOrdinal() != null) && (ordinal == field.getOrdinal())) {
+      if (fieldOrdinalEquals (ordinalAsShort, field)) {
         fields.add(field);
       }
     }
@@ -150,8 +151,9 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public FudgeField getByOrdinal(int ordinal) {
+    Short ordinalAsShort = (short)ordinal;
     for(FudgeField field : _fields) {
-      if((field.getOrdinal() != null) && (ordinal == field.getOrdinal())) {
+      if (fieldOrdinalEquals (ordinalAsShort, field)) {
         return field;
       }
     }
@@ -220,12 +222,8 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public Object getValue(String name) {
-    for(FudgeField field : _fields) {
-      if((name != null) && name.equals (field.getName ())) {
-        return field.getValue();
-      }
-    }
-    return null;
+    FudgeField field = getByName (name);
+    return (field != null) ? field.getValue () : null;
   }
 
   /**
@@ -233,31 +231,10 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public Object getValue(int ordinal) {
-    Short ordinalAsShort = (short) ordinal;
-    for(FudgeField field : _fields) {
-      if(fieldOrdinalEquals(ordinalAsShort, field)) {
-        return field.getValue();
-      }
-    }
-    return null;
+    FudgeField field = getByOrdinal (ordinal);
+    return (field != null) ? field.getValue () : null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Object getValue(String name, Integer ordinal) {
-    for(FudgeField field : _fields) {
-      if((ordinal != null) && (field.getOrdinal() != null) && (ordinal == field.getOrdinal().intValue())) {
-        return field.getValue();
-      }
-      if((name != null) && name.equals (field.getName ())) {
-        return field.getValue();
-      }
-    }
-    return null;
-  }
-  
   // Primitive Queries:
   
   /**
@@ -265,7 +242,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public Double getDouble(String fieldName) {
-    return getAsDoubleInternal(fieldName, null);
+    return getFirstTypedValue (Double.class, fieldName, FudgeTypeDictionary.DOUBLE_TYPE_ID);
   }
   
   /**
@@ -273,23 +250,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public Double getDouble(int ordinal) {
-    return getAsDoubleInternal(null, ordinal);
-  }
-  
-  /**
-   * Returns the value from {@link #getValue} as a {@link Double}.
-   * 
-   * @param fieldName the field name
-   * @param ordinal the field ordinal
-   * @return the {@code Double} or {@code null} if no matching or compatible field was found
-   */
-  protected Double getAsDoubleInternal(String fieldName, Integer ordinal) {
-    Object value = getValue(fieldName, ordinal);
-    if(value instanceof Number) {
-      Number numberValue = (Number) value;
-      return numberValue.doubleValue();
-    }
-    return null;
+    return getFirstTypedValue (Double.class, ordinal, FudgeTypeDictionary.DOUBLE_TYPE_ID);
   }
   
   /**
@@ -297,7 +258,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public Float getFloat(String fieldName) {
-    return getAsFloatInternal(fieldName, null);
+    return getFirstTypedValue (Float.class, fieldName, FudgeTypeDictionary.FLOAT_TYPE_ID);
   }
   
   /**
@@ -305,23 +266,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public Float getFloat(int ordinal) {
-    return getAsFloatInternal(null, ordinal);
-  }
-  
-  /**
-   * Returns the value from {@link #getValue} as a {@link Float}.
-   * 
-   * @param fieldName the field name
-   * @param ordinal the field ordinal
-   * @return the {@code Float} or {@code null} if no matching or compatible field was found
-   */
-  protected Float getAsFloatInternal(String fieldName, Integer ordinal) {
-    Object value = getValue(fieldName, ordinal);
-    if(value instanceof Number) {
-      Number numberValue = (Number) value;
-      return numberValue.floatValue();
-    }
-    return null;
+    return getFirstTypedValue (Float.class, ordinal, FudgeTypeDictionary.FLOAT_TYPE_ID);
   }
   
   /**
@@ -329,7 +274,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public Long getLong(String fieldName) {
-    return getAsLongInternal(fieldName, null);
+    return getFirstTypedValue (Long.class, fieldName, FudgeTypeDictionary.LONG_TYPE_ID);
   }
 
   /**
@@ -337,31 +282,15 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public Long getLong(int ordinal) {
-    return getAsLongInternal(null, ordinal);
+    return getFirstTypedValue (Long.class, ordinal, FudgeTypeDictionary.LONG_TYPE_ID);
   }
-  
-  /**
-   * Returns the value from {@link #getValue} as a {@link Long}.
-   * 
-   * @param fieldName the field name
-   * @param ordinal the field ordinal
-   * @return the {@code Long} or {@code null} if no matching or compatible field was found
-   */
-  protected Long getAsLongInternal(String fieldName, Integer ordinal) {
-    Object value = getValue(fieldName, ordinal);
-    if(value instanceof Number) {
-      Number numberValue = (Number) value;
-      return numberValue.longValue();
-    }
-    return null;
-  }  
   
   /**
    * {@inheritDoc}
    */
   @Override
   public Integer getInt(String fieldName) {
-    return getAsIntInternal(fieldName, null);
+    return getFirstTypedValue (Integer.class, fieldName, FudgeTypeDictionary.INT_TYPE_ID);
   }
   
   /**
@@ -369,23 +298,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public Integer getInt(int ordinal) {
-    return getAsIntInternal(null, ordinal);
-  }
-  
-  /**
-   * Returns the value from {@link #getValue} as a {@link Integer}.
-   * 
-   * @param fieldName the field name
-   * @param ordinal the field ordinal
-   * @return the {@code Integer} or {@code null} if no matching or compatible field was found
-   */
-  protected Integer getAsIntInternal(String fieldName, Integer ordinal) {
-    Object value = getValue(fieldName, ordinal);
-    if(value instanceof Number) {
-      Number numberValue = (Number) value;
-      return numberValue.intValue();
-    }
-    return null;
+    return getFirstTypedValue (Integer.class, ordinal, FudgeTypeDictionary.INT_TYPE_ID);
   }
   
   /**
@@ -393,7 +306,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public Short getShort(String fieldName) {
-    return getAsShortInternal(fieldName, null);
+    return getFirstTypedValue (Short.class, fieldName, FudgeTypeDictionary.SHORT_TYPE_ID);
   }
   
   /**
@@ -401,32 +314,15 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public Short getShort(int ordinal) {
-    return getAsShortInternal(null, ordinal);
+    return getFirstTypedValue (Short.class, ordinal, FudgeTypeDictionary.SHORT_TYPE_ID);
   }
-  
-  /**
-   * Returns the value from {@link #getValue} as a {@link Short}.
-   * 
-   * @param fieldName the field name
-   * @param ordinal the field ordinal
-   * @return the {@code Short} or {@code null} if no matching or compatible field was found
-   */
-  protected Short getAsShortInternal(String fieldName, Integer ordinal) {
-    Object value = getValue(fieldName, ordinal);
-    if(value instanceof Number) {
-      Number numberValue = (Number) value;
-      return numberValue.shortValue();
-    }
-    return null;
-  }
-
   
   /**
    * {@inheritDoc}
    */
   @Override
   public Byte getByte(String fieldName) {
-    return getAsByteInternal(fieldName, null);
+    return getFirstTypedValue (Byte.class, fieldName, FudgeTypeDictionary.BYTE_TYPE_ID);
   }
   
   /**
@@ -434,23 +330,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public Byte getByte(int ordinal) {
-    return getAsByteInternal(null, ordinal);
-  }
-  
-  /**
-   * Returns the value from {@link #getValue} as a {@link Byte}.
-   * 
-   * @param fieldName the field name
-   * @param ordinal the field ordinal
-   * @return the {@code Byte} or {@code null} if no matching or compatible field was found
-   */
-  protected Byte getAsByteInternal(String fieldName, Integer ordinal) {
-    Object value = getValue(fieldName, ordinal);
-    if(value instanceof Number) {
-      Number numberValue = (Number) value;
-      return numberValue.byteValue();
-    }
-    return null;
+    return getFirstTypedValue (Byte.class, ordinal, FudgeTypeDictionary.BYTE_TYPE_ID);
   }
   
   /**
@@ -458,7 +338,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public String getString(String fieldName) {
-    return (String) getFirstTypedValue(fieldName, FudgeTypeDictionary.STRING_TYPE_ID);
+    return getFirstTypedValue(String.class, fieldName, FudgeTypeDictionary.STRING_TYPE_ID);
   }
 
   /**
@@ -466,7 +346,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public String getString(int ordinal) {
-    return (String) getFirstTypedValue(ordinal, FudgeTypeDictionary.STRING_TYPE_ID);
+    return getFirstTypedValue(String.class, ordinal, FudgeTypeDictionary.STRING_TYPE_ID);
   }
   
   /**
@@ -474,7 +354,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public Boolean getBoolean(String fieldName) {
-    return (Boolean) getFirstTypedValue(fieldName, FudgeTypeDictionary.BOOLEAN_TYPE_ID);
+    return getFirstTypedValue(Boolean.class, fieldName, FudgeTypeDictionary.BOOLEAN_TYPE_ID);
   }
 
   /**
@@ -482,7 +362,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public Boolean getBoolean(int ordinal) {
-    return (Boolean) getFirstTypedValue(ordinal, FudgeTypeDictionary.BOOLEAN_TYPE_ID);
+    return getFirstTypedValue(Boolean.class, ordinal, FudgeTypeDictionary.BOOLEAN_TYPE_ID);
   }
   
   /**
@@ -490,7 +370,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public FudgeFieldContainer getMessage(int ordinal) {
-    return (FudgeFieldContainer) getFirstTypedValue(ordinal, FudgeTypeDictionary.FUDGE_MSG_TYPE_ID);
+    return getFirstTypedValue(FudgeFieldContainer.class, ordinal, FudgeTypeDictionary.FUDGE_MSG_TYPE_ID);
   }
 
   /**
@@ -498,47 +378,97 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    */
   @Override
   public FudgeFieldContainer getMessage(String name) {
-    return (FudgeFieldContainer) getFirstTypedValue(name, FudgeTypeDictionary.FUDGE_MSG_TYPE_ID);
+    return getFirstTypedValue(FudgeFieldContainer.class, name, FudgeTypeDictionary.FUDGE_MSG_TYPE_ID);
   }
 
   /**
-   * Returns the first field value with the given field name and requested type identifier.
+   * Returns the first field value with the given field name and requested type identifier if one exists, otherwise
+   * invokes the secondary type converter in the dictionary on the first viable field found.
    * 
+   * @param <T> class to convert to
+   * @param clazz Java class to convert to
    * @param fieldName the field name
    * @param typeId the type identifier
    * @return the field value or {@code null} if no matching field was found
    */
-  protected final Object getFirstTypedValue(String fieldName, int typeId) {
+  @SuppressWarnings("unchecked")
+  protected <T> T getFirstTypedValue(Class<T> clazz, String fieldName, int typeId) {
+    FudgeField secondBest = null;
     for(FudgeField field : _fields) {
-      if(fieldNameEquals(fieldName, field)
-          && (field.getType().getTypeId() == typeId)) {
-        return field.getValue();
+      if (fieldNameEquals (fieldName, field)) {
+        if (field.getType().getTypeId() == typeId) {
+          return (T)field.getValue();
+        } else {
+          if (secondBest == null) {
+            if (getFudgeContext ().getTypeDictionary ().canConvertField (clazz, field)) {
+              secondBest = field;
+            }
+          }
+        }
+      }
+    }
+    return (secondBest != null) ? getFudgeContext ().getTypeDictionary ().getFieldValue (clazz, secondBest) : null;
+  }
+  
+  /**
+   * Returns the first field value with the given field name and requested type identifier if one exists, otherwise
+   * invokes the secondary type converter in the dictionary on the first viable field found.
+   * 
+   * @param <T> class to convert to
+   * @param clazz Java class to convert to
+   * @param ordinal the ordinal index
+   * @param typeId the type identifier
+   * @return the field value or {@code null} if no matching field was found
+   */
+  @SuppressWarnings("unchecked")
+  protected <T> T getFirstTypedValue(Class<T> clazz, int ordinal, int typeId) {
+    FudgeField secondBest = null;
+    Short ordinalAsShort = (short)ordinal;
+    for(FudgeField field : _fields) {
+      if (fieldOrdinalEquals (ordinalAsShort, field)) {
+        if (field.getType().getTypeId() == typeId) {
+          return (T)field.getValue();
+        } else {
+          if (secondBest == null) {
+            if (getFudgeContext ().getTypeDictionary ().canConvertField (clazz, field)) {
+              secondBest = field;
+            }
+          }
+        }
+      }
+    }
+    return (secondBest != null) ? getFudgeContext ().getTypeDictionary ().getFieldValue (clazz, secondBest) : null;
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public <T> T getValue (final Class<T> clazz, final String name) {
+    final FudgeTypeDictionary dictionary = getFudgeContext ().getTypeDictionary ();
+    for (FudgeField field : _fields) {
+      if (fieldNameEquals (name, field) && dictionary.canConvertField (clazz, field)) {
+        return dictionary.getFieldValue (clazz, field);
       }
     }
     return null;
   }
   
   /**
-   * Returns the first field value with the given ordinal index and requested type identifier.
-   * 
-   * @param ordinal the ordinal index
-   * @param typeId the type identifier
-   * @return the field value or {@code null} if no matching field was found
+   * {@inheritDoc}
    */
-  protected final Object getFirstTypedValue(int ordinal, int typeId) {
-    for(FudgeField field : _fields) {
-      if(field.getOrdinal() == null) {
-        continue;
+  @Override
+  public <T> T getValue (final Class<T> clazz, final int ordinal) {
+    final FudgeTypeDictionary dictionary = getFudgeContext ().getTypeDictionary ();
+    final Short ordinalAsShort = (short)ordinal;
+    for (FudgeField field : _fields) {
+      if (fieldOrdinalEquals (ordinalAsShort, field) && dictionary.canConvertField (clazz, field)) {
+        return dictionary.getFieldValue (clazz, field);
       }
-      
-      if((field.getOrdinal() == ordinal)
-          && (field.getType().getTypeId() == typeId)) {
-        return field.getValue();
-      } 
     }
     return null;
   }
-
+  
   /**
    * Resolves any field ordinals to field names from the given taxonomy.
    * 
