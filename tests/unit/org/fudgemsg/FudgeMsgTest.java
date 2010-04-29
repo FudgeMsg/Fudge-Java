@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import java.util.Iterator;
 import java.util.List;
@@ -28,7 +29,6 @@ import org.fudgemsg.types.ByteArrayFieldType;
 import org.fudgemsg.types.IndicatorType;
 import org.fudgemsg.types.PrimitiveFieldTypes;
 import org.junit.Test;
-
 
 /**
  * 
@@ -412,6 +412,17 @@ public class FudgeMsgTest {
     assertNull(msg.getMessage(42));
     assertNull(msg.getMessage("No Such Field"));
     assertTrue(msg.getMessage("sub1") instanceof FudgeFieldContainer);
+  }
+  
+  /**
+   * 
+   */
+  @Test
+  public void testIsEmpty () {
+    MutableFudgeFieldContainer msg = s_fudgeContext.newMessage ();
+    assertTrue (msg.isEmpty ());
+    msg.add (null, null, "foo");
+    assertFalse (msg.isEmpty ());
   }
 
 }

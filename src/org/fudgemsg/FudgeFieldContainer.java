@@ -36,6 +36,13 @@ public interface FudgeFieldContainer extends Iterable<FudgeField> {
    * @return number of fields
    */
   short getNumFields();
+  
+  /**
+   * Tests if the container is empty. I.e. {@link #getNumFields} would return {@code 0}.
+   * 
+   * @return {@code true} if the container is empty, {@code false} otherwise
+   */
+  boolean isEmpty ();
 
   /**
    * Return an <em>unmodifiable</em> list of all the fields in this message, in the index

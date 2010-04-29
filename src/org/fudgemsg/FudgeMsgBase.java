@@ -94,6 +94,14 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
    * {@inheritDoc}
    */
   @Override
+  public boolean isEmpty () {
+    return getNumFields () == 0;
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   @SuppressWarnings("unchecked")
   public List<FudgeField> getAllFields() {
     return (List) Collections.unmodifiableList(_fields);
