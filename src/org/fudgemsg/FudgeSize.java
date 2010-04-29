@@ -15,9 +15,6 @@
  */
 package org.fudgemsg;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.fudgemsg.taxon.FudgeTaxonomy;
 
 /**

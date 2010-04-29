@@ -39,15 +39,20 @@ import org.fudgemsg.types.PrimitiveFieldTypes;
 public class FudgeMsg extends FudgeMsgBase implements MutableFudgeFieldContainer {
 
   /**
-   * {@inheritDoc}
+   * Constructs a new {@link FudgeMsg} instance bound to the given {@link FudgeContext}.
+   * 
+   * @param fudgeContext the {@code FudgeContext} to use for type resolution and other services 
    */
   protected FudgeMsg(FudgeContext fudgeContext) {
     super (fudgeContext);
   }
   
   /**
-   * {@inheritDoc}
-   */
+   * Creates a new {@link FudgeMsg} from a set of fields bound to the given {@link FudgeContext}.
+   * 
+   * @param fields the initial set of fields
+   * @param fudgeContext the {@link FudgeContext} to use
+   */ 
   protected FudgeMsg (final FudgeFieldContainer fields, final FudgeContext fudgeContext) {
     super (fields, fudgeContext);
   }

@@ -15,7 +15,6 @@
  */
 package org.fudgemsg;
 
-
 /**
  * <p>An implementation of a {@link ImmutableFudgeFieldContainer} that can be created as a copy of an
  * existing {@link FudgeFieldContainer}. For efficiency, the reference to a {@link FudgeContext} is
@@ -32,16 +31,21 @@ package org.fudgemsg;
 public class ImmutableFudgeMsg extends FudgeMsgBase implements ImmutableFudgeFieldContainer {
 
   /**
-   * Creates a new {@link ImmutableFudgeMsg} by copying a {@link FudgeMsg} object.
+   * Creates a new {@link ImmutableFudgeMsg} by copying a {@link FudgeMsg} or {@link ImmutableFudgeMsg} object.
+   * The new message will use the same {@link FudgeContext} context as the original message.
    * 
    * @param fudgeMsg the message to copy
    */
-  public ImmutableFudgeMsg (final FudgeMsg fudgeMsg) {
+  public ImmutableFudgeMsg (final FudgeMsgBase fudgeMsg) {
     this (fudgeMsg, fudgeMsg.getFudgeContext ()); 
   }
   
   /**
-   * {@docInherit}
+   * Creates a new {@link ImmutableFudgeMsg} by copying fields from another {@link FudgeFieldContainer} using
+   * the specified {@link FudgeContext} for type resolution. 
+   * 
+   * @param fields the message to copy
+   * @param fudgeContext the context to use for the new message
    */
   public ImmutableFudgeMsg (final FudgeFieldContainer fields, final FudgeContext fudgeContext) {
     super (fields, fudgeContext);
