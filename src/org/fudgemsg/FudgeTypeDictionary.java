@@ -277,7 +277,12 @@ public class FudgeTypeDictionary {
       final FudgeTypeConverter<Object,T> converter = getTypeConverter (clazz);
       if (converter == null) {
         // don't recognize the requested type
-        throw new IllegalArgumentException ("cannot convert " + type + " to unregistered secondary type " + clazz.getName ());
+        if (clazz.isEnum ()) {
+          // get the field as a string and then try to inflate the enum
+          return (T)Enum.valueOf ((Class<? extends Enum>)clazz, getFieldValue (String.class, field));
+        } else {
+          throw new IllegalArgumentException ("cannot convert " + type + " to unregistered secondary type " + clazz.getName ());
+        }
       } else {
         if (converter.canConvertPrimary (value.getClass ())) {
           // secondary type extends our current type
