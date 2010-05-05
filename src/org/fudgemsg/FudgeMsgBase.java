@@ -560,7 +560,6 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
     if (o == this) return true;
     if (!(o instanceof FudgeMsgBase)) return false;
     final FudgeMsgBase fm = (FudgeMsgBase)o;
-    if (!getFudgeContext ().equals (fm.getFudgeContext ())) return false;
     Iterator<FudgeField> me = iterator ();
     Iterator<FudgeField> other = fm.iterator ();
     while (me.hasNext () && other.hasNext ()) {
