@@ -60,4 +60,14 @@ public class ImmutableFudgeMsg extends FudgeMsgBase implements ImmutableFudgeFie
     super (fudgeContext);
   }
   
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean equals (final Object o) {
+    if (o == this) return true;
+    if (!super.equals (o)) return false;
+    return (o instanceof ImmutableFudgeMsg);
+  }
+
 }

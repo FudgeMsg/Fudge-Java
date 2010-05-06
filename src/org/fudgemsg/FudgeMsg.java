@@ -241,5 +241,15 @@ public class FudgeMsg extends FudgeMsgBase implements MutableFudgeFieldContainer
   public void clear () {
     getFields ().clear ();
   }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean equals (final Object o) {
+    if (o == this) return true;
+    if (!super.equals (o)) return false;
+    return (o instanceof FudgeMsg);
+  }
 
 }

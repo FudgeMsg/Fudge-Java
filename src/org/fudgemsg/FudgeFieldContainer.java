@@ -299,4 +299,5 @@ public interface FudgeFieldContainer extends Iterable<FudgeField> {
    * @return field value
    */
   FudgeFieldContainer getMessage(int ordinal);
+  
 }

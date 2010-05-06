@@ -16,11 +16,11 @@
 package org.fudgemsg;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 import java.util.Iterator;
 import java.util.List;
@@ -423,6 +423,33 @@ public class FudgeMsgTest {
     assertTrue (msg.isEmpty ());
     msg.add (null, null, "foo");
     assertFalse (msg.isEmpty ());
+  }
+  
+  /**
+   * 
+   */
+  @Test
+  public void testEquals () {
+    MutableFudgeFieldContainer msg1 = s_fudgeContext.newMessage ();
+    msg1.add ("foo", 1, "hello world");
+    msg1.add ("bar", 2, 42);
+    MutableFudgeFieldContainer msg2 = s_fudgeContext.newMessage ();
+    assertFalse (msg1.equals (msg2));
+    assertFalse (msg2.equals (msg1));
+    msg2.add ("foo", 1, "hello world");
+    assertFalse (msg1.equals (msg2));
+    assertFalse (msg2.equals (msg1));
+    msg2.add ("bar", 2, 42);
+    assertTrue (msg1.equals (msg2));
+    assertTrue (msg2.equals (msg1));
+    FudgeFieldContainer msg3 = new ImmutableFudgeMsg (msg2, s_fudgeContext);
+    FudgeFieldContainer msg4 = new ImmutableFudgeMsg (msg1, s_fudgeContext);
+    assertTrue (msg3.equals (msg4));
+    assertTrue (msg4.equals (msg3));
+    assertFalse (msg1.equals (msg3));
+    assertFalse (msg3.equals (msg1));
+    assertFalse (msg2.equals (msg4));
+    assertFalse (msg4.equals (msg2));
   }
 
 }

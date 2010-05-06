@@ -552,15 +552,14 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
   }
   
   /**
-   * {@inheritDoc}
+   * Tests equality of the fields contained within this message. The other message must have the same number of 
+   * fields and all fields must be equal according to their {@code .equals} methods.  
    */
   @Override
   public boolean equals (final Object o) {
-    if (o == null) return false;
     if (o == this) return true;
     if (!(o instanceof FudgeMsgBase)) return false;
     final FudgeMsgBase fm = (FudgeMsgBase)o;
-    if (!getFudgeContext ().equals (fm.getFudgeContext ())) return false;
     Iterator<FudgeField> me = iterator ();
     Iterator<FudgeField> other = fm.iterator ();
     while (me.hasNext () && other.hasNext ()) {
