@@ -62,7 +62,7 @@ public interface FudgeStreamWriter extends Flushable, Closeable {
    * 
    * @param processingDirectives the processing directive flags
    * @param schemaVersion the schema version value
-   * @param messageSize the size of the underlying message, including the message envelope
+   * @param messageSize the Fudge encoded size of the underlying message, including the message envelope
    */
   public void writeEnvelopeHeader (int processingDirectives, int schemaVersion, int messageSize);
   

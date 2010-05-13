@@ -16,9 +16,13 @@
 
 package org.fudgemsg;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 import org.junit.Test;
 
@@ -29,10 +33,8 @@ import org.junit.Test;
  */
 public class FudgeStreamTest {
   
-  private final FudgeContext _fudgeContext = new FudgeContext ();
-  
   private FudgeFieldContainer simpleMessage (int n) {
-    final MutableFudgeFieldContainer msg = _fudgeContext.newMessage ();
+    final MutableFudgeFieldContainer msg = FudgeContext.GLOBAL_DEFAULT.newMessage ();
     msg.add ("n", (Integer)n);
     msg.add ("foo", (Integer)42);
     msg.add ("bar", "forty-two");
@@ -40,24 +42,56 @@ public class FudgeStreamTest {
   }
   
   /**
-   * @throws IOException [documentation not available]
+   * [documentation not available]
    */
   @Test
   public void readMultipleMessages () {
     final ByteArrayOutputStream baos = new ByteArrayOutputStream ();
-    final FudgeMsgWriter writer = _fudgeContext.createMessageWriter (baos);
+    final FudgeMsgWriter writer = FudgeContext.GLOBAL_DEFAULT.createMessageWriter (baos);
     //writer.setDefaultTaxonomyId (0);
     writer.writeMessage (simpleMessage (1));
     writer.writeMessage (simpleMessage (2));
     writer.writeMessage (simpleMessage (3));
     final ByteArrayInputStream bais = new ByteArrayInputStream (baos.toByteArray ());
-    final FudgeMsgReader reader = _fudgeContext.createMessageReader (bais);
+    final FudgeMsgReader reader = FudgeContext.GLOBAL_DEFAULT.createMessageReader (bais);
     for (int i = 1; i <= 3; i++) {
-      assert reader.hasNext ();
+      assertTrue (reader.hasNext ());
       final FudgeFieldContainer msg = reader.nextMessage ();
-      assert msg.getInt ("n") == i;
+      assertEquals (i, (int)msg.getInt ("n"));
     }
-    assert !reader.hasNext ();
+    assertFalse (reader.hasNext ());
+  }
+  
+  /**
+   * FRJ-67
+   */
+  @Test
+  public void flushingBufferTest () {
+    final ByteArrayOutputStream baos = new ByteArrayOutputStream ();
+    final BufferedOutputStream bout = new BufferedOutputStream (baos, 4096); // big enough to not flush automatically 
+    final FudgeMsgWriter writer = FudgeContext.GLOBAL_DEFAULT.createMessageWriter (bout);
+    writer.writeMessage (simpleMessage (1));
+    // stream should have flushed automatically
+    int messageSize = baos.size ();
+    assertTrue (messageSize > 0);
+    writer.writeMessage (simpleMessage (2));
+    // and again
+    assertTrue (baos.size () > messageSize);
+    messageSize = baos.size ();
+    // reset the stream and turn off the default automatic flushing
+    baos.reset ();
+    assertTrue (baos.size () == 0);
+    final FudgeStreamWriter underlyingWriter = writer.getStreamWriter ();
+    assertTrue (underlyingWriter instanceof FudgeDataOutputStreamWriter);
+    ((FudgeDataOutputStreamWriter)underlyingWriter).setFlushOnEnvelopeComplete (false);
+    writer.writeMessage (simpleMessage (1));
+    // stream should not have flushed automatically
+    assertTrue (baos.size () == 0);
+    writer.writeMessage (simpleMessage (2));
+    assertTrue (baos.size () == 0);
+    writer.flush ();
+    // now it should have done
+    assertEquals (messageSize, baos.size ());
   }
   
 }

@@ -32,8 +32,9 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
   
   private final FudgeContext _fudgeContext;
   private final DataOutput _dataOutput;
-  private FudgeTaxonomy _taxonomy;
-  private int _taxonomyId;
+  private FudgeTaxonomy _taxonomy = null;
+  private int _taxonomyId = 0;
+  private boolean _automaticFlush = true;
   
   private static DataOutput convertOutputStream (final OutputStream outputStream) {
     if (outputStream instanceof DataOutput) {
@@ -168,11 +169,33 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
   }
   
   /**
-   * Takes no action - the end of the envelope is implied by the size from the header.
+   * No data is written - the end of the envelope is implied by the size from the header. If the writer is set
+   * to automatically flush on message completion (the default) then {@link #flush()} will be called to flush
+   * the underlying stream if possible.
    */
   @Override
   public void envelopeComplete () {
-    // no-op
+    if (isFlushOnEnvelopeComplete ()) {
+      flush ();
+    }
+  }
+  
+  /**
+   * Indicates if {@link #flush} is to be called on envelope completion.
+   * 
+   * @return {@code true} if {@code flush} is to be called, {@code false} otherwise
+   */
+  public boolean isFlushOnEnvelopeComplete () {
+    return _automaticFlush;
+  }
+  
+  /**
+   * Set whether to call {@link #flush} on envelope completion. The default behavior is to do so.
+   * 
+   * @param automaticFlush {@code true} to call {@code flush} on envelope completion, {@code false} otherwise
+   */
+  public void setFlushOnEnvelopeComplete (final boolean automaticFlush) {
+    _automaticFlush = automaticFlush;
   }
   
   /**
