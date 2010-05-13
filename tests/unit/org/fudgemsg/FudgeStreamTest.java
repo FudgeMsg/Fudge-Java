@@ -43,10 +43,10 @@ public class FudgeStreamTest {
    * @throws IOException [documentation not available]
    */
   @Test
-  public void readMultipleMessages () throws IOException {
+  public void readMultipleMessages () {
     final ByteArrayOutputStream baos = new ByteArrayOutputStream ();
     final FudgeMsgWriter writer = _fudgeContext.createMessageWriter (baos);
-    writer.setDefaultTaxonomyId (0);
+    //writer.setDefaultTaxonomyId (0);
     writer.writeMessage (simpleMessage (1));
     writer.writeMessage (simpleMessage (2));
     writer.writeMessage (simpleMessage (3));

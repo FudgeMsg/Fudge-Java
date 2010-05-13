@@ -33,9 +33,9 @@ public class FudgeMsgWriter implements Flushable {
   private final FudgeStreamWriter _streamWriter;
   
   /**
-   * The taxonomy identifier to use for any messages that are passed without envelopes. If the default taxonomy is not set, the {@code writeMessage} methods will raise exceptions. 
+   * The taxonomy identifier to use for any messages that are passed without envelopes. 
    */
-  private Short _defaultTaxonomyId = null;
+  private short _defaultTaxonomyId = 0;
   
   /**
    * The schema version to add to the envelope header for any messages that are passed without envelopes.
@@ -72,7 +72,6 @@ public class FudgeMsgWriter implements Flushable {
   public void close () {
     flush ();
     getStreamWriter ().close ();
-    _defaultTaxonomyId = null;
   }
   
   /**
@@ -106,13 +105,9 @@ public class FudgeMsgWriter implements Flushable {
   /**
    * Returns the current default taxonomy identifier.
    * 
-   * @throws NullPointerException if the default taxonomy has not been set
    * @return the taxonomy identifier
    */
   public int getDefaultTaxonomyId () {
-    if (_defaultTaxonomyId == null) {
-      throw new NullPointerException ("default taxonomy has not been specified");
-    }
     return _defaultTaxonomyId;
   }
   
