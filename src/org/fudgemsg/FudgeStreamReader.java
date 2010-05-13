@@ -51,7 +51,9 @@ public interface FudgeStreamReader extends Closeable {
   
   /**
    * <p>Returns true if there is at least one more element to be returned by a call to {@link #next()}. A return of {@code false}
-   * indicates the end of a message has been reached. After this end of a message, the next immediate call may:</p>
+   * indicates the end of a message (or submessage) has been reached. After the end of a sub-message, the next immediate call will
+   * indicate whether there are further elements or the end of the outer message. After the end of the main message referenced by
+   * the envelope header, the next immediate call may:</p>
    * <ol>
    * <li>Return {@code false} if the source does not contain any subsequent Fudge messages; or</li>
    * <li>Return {@code true} if the source may contain further Fudge messages. Calling {@code next()} will return the envelope header

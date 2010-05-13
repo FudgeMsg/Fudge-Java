@@ -72,10 +72,8 @@ public class FudgeJSONTest {
     final FudgeFieldContainer[] messages = createMessages ();
     for (int i = 0; i < messages.length; i++) {
       fmw.writeMessage (messages[i], 0); // no taxonomy
-      fmw.flush ();
       System.out.println ();
       fmw.writeMessage (messages[i], 1); // taxonomy #1
-      fmw.flush ();
       System.out.println ();
     }
   }
@@ -90,7 +88,6 @@ public class FudgeJSONTest {
       fmw.writeMessage (messages[i], 0);
       fmw.writeMessage (messages[i], 1);
     }
-    fmw.flush ();
     final CharArrayReader car = new CharArrayReader (caw.toCharArray ());
     final FudgeMsgReader fmr = new FudgeMsgReader (new FudgeJSONStreamReader (_fudgeContext, car));
     for (int i = 0; i < messages.length; i++) {

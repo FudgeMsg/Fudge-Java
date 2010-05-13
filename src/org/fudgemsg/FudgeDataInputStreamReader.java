@@ -211,7 +211,6 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
    */
   @Override
   public boolean hasNext() {
-    //System.out.println ("FudgeDataInputStreamReader::hasNext()");
     if(_processingStack.size() > 1) {
       // Always have at least one more.
       return true;

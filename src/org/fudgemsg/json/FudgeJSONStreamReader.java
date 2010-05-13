@@ -191,10 +191,21 @@ public class FudgeJSONStreamReader implements FudgeStreamReader {
   @Override
   public boolean hasNext() {
     if (getCurrentElement () == null) {
-      // haven't read anything yet
-      return true;
+      // haven't read anything yet (or have read a full message already)
+      try {
+        return getTokener ().more ();
+      } catch (JSONException e) {
+        throw wrapException ("testing for end of JSON stream", e);
+      }
     }
-    return !_objectStack.isEmpty ();
+    if (!_objectStack.isEmpty ()) {
+      // More to read
+      return true;
+    } else {
+      // Nothing more on our stack; return false to indicate end of a message field fragment
+      setCurrentElement (null);
+      return false;
+    }
   }
   
   private int integerValue (final Object o) {
@@ -272,7 +283,6 @@ public class FudgeJSONStreamReader implements FudgeStreamReader {
       }
       Iterator<String> i;
       if (_iteratorStack.isEmpty ()) {
-        // This is the point to gracefully test/detect EOF on the JSON data. We don't at the moment.  
         _iteratorStack.push (i = (Iterator<String>)o.keys ());
         int processingDirectives = 0;
         int schemaVersion = 0;

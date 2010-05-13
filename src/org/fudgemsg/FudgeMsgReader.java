@@ -34,23 +34,18 @@ public class FudgeMsgReader {
   private final FudgeStreamReader _streamReader;
   
   /**
-   * A read-ahead buffer used to implement the {@link #hasNext()} method. Used in conjunction with {@link #_streamErrored} to identify EOF on
-   * the underlying source.
+   * An envelope buffer for reading in the current message. {@link #hasNext} will read the envelope header, and create this object
+   * with a {@link MutableFudgeFieldContainer} attached to it. The full call to {@link nextMessage} or {@link #nextMessageEnvelope} will
+   * process the message fields.
    */
-  private FudgeMsgEnvelope _readAhead = null;
+  private FudgeMsgEnvelope _currentEnvelope = null;
   
-  /**
-   * Set to true after the stream has errored during a read-ahead to identify the EOF condition on the underlying source.
-   */
-  private boolean _streamErrored = false;
-
   /**
    * Creates a new {@link FudgeMsgReader} around an existing {@link FudgeStreamReader}.
    * 
    * @param streamReader the source of Fudge stream elements to read
    */
   public FudgeMsgReader (final FudgeStreamReader streamReader) {
-    //System.out.println ("FudgeMessageStreamReader::FudgeMessageStreamReader(" + streamReader + ")");
     if (streamReader == null) {
       throw new NullPointerException ("streamReader cannot be null");
     }
@@ -61,11 +56,8 @@ public class FudgeMsgReader {
    * Closes this {@link FudgeMsgReader} and the underlying {@link FudgeStreamReader}.
    */
   public void close () {
-    //System.out.println ("FudgeMessageStreamReader::close()");
     if (_streamReader == null) return;
     _streamReader.close ();
-    _readAhead = null;
-    _streamErrored = false;
   }
   
   /**
@@ -94,16 +86,9 @@ public class FudgeMsgReader {
    * @return {@code true} if {@link #nextMessage()} or {@link #nextMessageEnvelope()} will return data
    */
   public boolean hasNext () {
-    //System.out.println ("FudgeMessageStreamReader::hasNext()");
-    if (_streamErrored) return false;
-    if (_readAhead != null) return true;
-    try {
-      _readAhead = readMessageEnvelope ();
-      return (_readAhead != null);
-    } catch (FudgeRuntimeIOException e) {
-      _streamErrored = true;
-      return false;
-    }
+    if (_currentEnvelope != null) return true;
+    _currentEnvelope = readMessageEnvelope ();
+    return (_currentEnvelope != null);
   }
   
   /**
@@ -112,7 +97,6 @@ public class FudgeMsgReader {
    * @return the message read without the envelope
    */
   public FudgeFieldContainer nextMessage () {
-    //System.out.println ("FudgeMessageStreamReader::nextMessage()");
     final FudgeMsgEnvelope msgEnv = nextMessageEnvelope ();
     if (msgEnv == null) return null;
     return msgEnv.getMessage ();
@@ -124,23 +108,27 @@ public class FudgeMsgReader {
    * @return the {@link FudgeMsgEnvelope}
    */
   public FudgeMsgEnvelope nextMessageEnvelope () {
-    //System.out.println ("FudgeMessageStreamReader::nextMessageEnvelope()");
-    if (_readAhead != null) {
-      FudgeMsgEnvelope envelope = _readAhead;
-      _readAhead = null;
-      return envelope;
+    FudgeMsgEnvelope msgEnv;
+    if (_currentEnvelope == null) {
+      msgEnv = readMessageEnvelope ();
+      if (msgEnv == null) return null;
+    } else {
+      msgEnv = _currentEnvelope;
+      _currentEnvelope = null;
     }
-    return readMessageEnvelope ();
+    processFields ((MutableFudgeFieldContainer)msgEnv.getMessage ());
+    return msgEnv;
   }
   
   /**
-   * Reads the next message envelope from the underlying stream. All fields are read and the stream is left
-   * positioned for the next envelope (if there is one).
+   * Reads the next message envelope from the underlying stream. No fields are read.
    * 
    * @return the {@link FudgeMsgEnvelope} read
    */
   protected FudgeMsgEnvelope readMessageEnvelope () {
-    //System.out.println ("FudgeMessageStreamReader::readMessageEnvelope()");
+    if (getStreamReader ().hasNext () == false) {
+      return null;
+    }
     FudgeStreamElement element = getStreamReader ().next();
     if(element == null) {
       return null;
@@ -148,10 +136,8 @@ public class FudgeMsgReader {
     if(element != FudgeStreamElement.MESSAGE_ENVELOPE) {
       throw new IllegalArgumentException("First element in encoding stream wasn't a message element.");
     }
-    int version = getStreamReader ().getSchemaVersion();
     MutableFudgeFieldContainer msg = getFudgeContext().newMessage();
-    FudgeMsgEnvelope envelope = new FudgeMsgEnvelope (msg, version);
-    processFields(msg);
+    FudgeMsgEnvelope envelope = new FudgeMsgEnvelope (msg, getStreamReader ().getSchemaVersion(), getStreamReader ().getProcessingDirectives ());
     return envelope;
   }
   
@@ -161,7 +147,6 @@ public class FudgeMsgReader {
    * @param msg container to add fields read to
    */
   protected void processFields(MutableFudgeFieldContainer msg) {
-    //System.out.println ("FudgeMessageStreamReader::processFields(" + reader + ", " + msg + ")");
     final FudgeStreamReader reader = getStreamReader ();
     while(reader.hasNext()) {
       FudgeStreamElement element = reader.next();
