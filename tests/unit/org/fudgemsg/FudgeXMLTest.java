@@ -15,12 +15,9 @@
  */
 package org.fudgemsg;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.xml.stream.XMLStreamException;
 
 import org.fudgemsg.taxon.FudgeTaxonomy;
 import org.fudgemsg.taxon.ImmutableMapTaxonomyResolver;

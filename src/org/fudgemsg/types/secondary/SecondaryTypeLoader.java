@@ -22,7 +22,8 @@ import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.types.SecondaryFieldTypeBase;
 
 /**
- * Loads the secondary types from a resources file. 
+ * Loads the secondary types from a resources file. The resources file must list entries
+ * as <code><em>Java class</em> = <em>secondary type implementation</em></code>.
  * 
  * @author Andrew Griffin
  */
@@ -31,6 +32,12 @@ public class SecondaryTypeLoader {
   private SecondaryTypeLoader () {
   }
   
+  /**
+   * Loads the contents of {@code SecondaryTypeLoader.properties} and updates the supplied
+   * type dictionary with the secondary type definitions found.
+   * 
+   * @param dictionary dictionary to update
+   */
   public static void addTypes (final FudgeTypeDictionary dictionary) {
     final ResourceBundle genericBuilders = ResourceBundle.getBundle (SecondaryTypeLoader.class.getName ());
     for (final String key : genericBuilders.keySet ()) {

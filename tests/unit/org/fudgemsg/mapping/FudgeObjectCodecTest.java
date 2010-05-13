@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
@@ -54,10 +53,10 @@ public class FudgeObjectCodecTest {
   }
   
   /**
-   * @throws IOException [documentation not available]
+   *
    */
   @Test
-  public void simpleBean() throws IOException {
+  public void simpleBean() {
     FudgeContext fudgeContext = new FudgeContext();
     SimpleBean inputBean = ObjectMappingTestUtil.constructSimpleBean();
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -82,10 +81,10 @@ public class FudgeObjectCodecTest {
   }
 
   /**
-   * @throws IOException [documentation not available]
+   *
    */
   @Test
-  public void setBean() throws IOException {
+  public void setBean() {
     FudgeContext fudgeContext = new FudgeContext();
     SetBean inputBean = ObjectMappingTestUtil.constructSetBean();
     ByteArrayOutputStream baos = new ByteArrayOutputStream();

@@ -17,10 +17,10 @@
 package org.fudgemsg.mongodb;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeUtils;
-import org.fudgemsg.StandardFudgeMessages;
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeUtils;
 import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.StandardFudgeMessages;
 import org.fudgemsg.mapping.FudgeObjectMessageFactory;
 import org.junit.Test;
 

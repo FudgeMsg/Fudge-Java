@@ -34,21 +34,29 @@ public class JSR310LocalDateFieldType extends SecondaryFieldTypeBase<LocalDate,D
    */
   public static final JSR310LocalDateFieldType INSTANCE = new JSR310LocalDateFieldType ();
   
-  @SuppressWarnings("unchecked")
   private JSR310LocalDateFieldType () {
     super (DateFieldType.INSTANCE, LocalDate.class);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FudgeDate secondaryToPrimary(final LocalDate object) {
     return new FudgeDate (object);
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public LocalDate primaryToSecondary (final DateProvider object) {
     return object.toLocalDate ();
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean canConvertPrimary (final Class<? extends DateProvider> clazz) {
     return DateProvider.class.isAssignableFrom (clazz);

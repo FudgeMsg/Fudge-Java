@@ -15,7 +15,6 @@
  */
 package org.fudgemsg.types.secondary;
 
-import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.OffsetTime;
 import javax.time.calendar.TimeProvider;
 
@@ -40,11 +39,17 @@ public class JSR310OffsetTimeFieldType extends SecondaryFieldTypeBase<OffsetTime
     super (TimeFieldType.INSTANCE, OffsetTime.class);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FudgeTime secondaryToPrimary(final OffsetTime object) {
     return new FudgeTime (object);
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public OffsetTime primaryToSecondary (final TimeProvider object) {
     if (object instanceof FudgeDateTime) {
@@ -56,14 +61,29 @@ public class JSR310OffsetTimeFieldType extends SecondaryFieldTypeBase<OffsetTime
     }
   }
   
+  /**
+   * Primary to secondary conversion where the primary object is a {@link FudgeDateTime} object.
+   * 
+   * @param object primary object
+   * @return secondary object
+   */
   protected OffsetTime primaryToSecondary (final FudgeDateTime object) {
     return object.toOffsetTime ();
   }
   
+  /**
+   * Primary to secondary conversion where the primary object is a {@link FudgeTime} object.
+   * 
+   * @param object primary object
+   * @return secondary object
+   */
   protected OffsetTime primaryToSecondary (final FudgeTime object) {
     return object.toOffsetTime ();
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean canConvertPrimary (final Class<? extends TimeProvider> clazz) {
     return FudgeDateTime.class.isAssignableFrom (clazz) || FudgeTime.class.isAssignableFrom (clazz);

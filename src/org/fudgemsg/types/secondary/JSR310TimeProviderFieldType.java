@@ -37,6 +37,9 @@ public class JSR310TimeProviderFieldType extends SecondaryFieldType<TimeProvider
     super (TimeFieldType.INSTANCE, TimeProvider.class);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FudgeTime secondaryToPrimary(final TimeProvider object) {
     return new FudgeTime (object);

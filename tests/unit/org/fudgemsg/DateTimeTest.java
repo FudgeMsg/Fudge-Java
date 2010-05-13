@@ -55,7 +55,6 @@ public class DateTimeTest {
   public DateTimeTest () {
   }
   
-  @SuppressWarnings("unused")
   private void printMessage (final byte[] data) {
     int i = 0;
     System.out.println ();
@@ -148,10 +147,12 @@ public class DateTimeTest {
     }
   }
   
+  /**
+   * 
+   */
   @Test
   public void fudgeDateTimeCycle () {
     final MutableFudgeFieldContainer msg = _fudgeContext.newMessage ();
-    FudgeDate date = new FudgeDate (2010, 3, 4);
     // different resolutions
     msg.add (0, new FudgeDateTime (DateTimeAccuracy.YEAR, 2010, 0, 0, 0, 0, 0)); // 2010
     msg.add (1, new FudgeDateTime (DateTimeAccuracy.MONTH, 2010, 3, 0, 0, 0, 0)); // April-2010
@@ -334,6 +335,9 @@ public class DateTimeTest {
     assertEquals (getReferenceDate (), msgOut.getFieldValue (Date.class, msgOut.getByOrdinal (0)));
   }
   
+  /**
+   * 
+   */
   @Test
   public void dateProviderCycle () {
     final MutableFudgeFieldContainer msg = _fudgeContext.newMessage ();
@@ -343,6 +347,9 @@ public class DateTimeTest {
     assertEquals (getReferenceDateProvider ().toLocalDate (), msgOut.getFieldValue (DateProvider.class, msgOut.getByOrdinal (0)).toLocalDate ());
   }
   
+  /**
+   * 
+   */
   @Test
   public void dateTimeProviderCycle () {
     final MutableFudgeFieldContainer msg = _fudgeContext.newMessage ();
@@ -352,6 +359,9 @@ public class DateTimeTest {
     assertEquals (getReferenceDateTimeProvider ().toLocalDateTime (), msgOut.getFieldValue (DateTimeProvider.class, msgOut.getByOrdinal (0)).toLocalDateTime ());
   }
   
+  /**
+   * 
+   */
   @Test
   public void instantCycle () {
     final MutableFudgeFieldContainer msg = _fudgeContext.newMessage ();
@@ -361,6 +371,9 @@ public class DateTimeTest {
     assertEquals (getReferenceInstant (), msgOut.getFieldValue (Instant.class, msgOut.getByOrdinal (0)));
   }
   
+  /**
+   * 
+   */
   @Test
   public void instantProviderCycle () {
     final MutableFudgeFieldContainer msg = _fudgeContext.newMessage ();
@@ -370,6 +383,9 @@ public class DateTimeTest {
     assertEquals (getReferenceInstantProvider ().toInstant (), msgOut.getFieldValue (InstantProvider.class, msgOut.getByOrdinal (0)).toInstant ());
   }
   
+  /**
+   * 
+   */
   @Test
   public void localDateCycle () {
     final MutableFudgeFieldContainer msg = _fudgeContext.newMessage ();
@@ -379,6 +395,9 @@ public class DateTimeTest {
     assertEquals (getReferenceLocalDate (), msgOut.getFieldValue (LocalDate.class, msgOut.getByOrdinal (0)));
   }
   
+  /**
+   * 
+   */
   @Test
   public void localDateTimeCycle () {
     final MutableFudgeFieldContainer msg = _fudgeContext.newMessage ();
@@ -388,6 +407,9 @@ public class DateTimeTest {
     assertEquals (getReferenceLocalDateTime (), msgOut.getFieldValue (LocalDateTime.class, msgOut.getByOrdinal (0)));
   }
   
+  /**
+   * 
+   */
   @Test
   public void localTimeCycle () {
     final MutableFudgeFieldContainer msg = _fudgeContext.newMessage ();
@@ -397,6 +419,9 @@ public class DateTimeTest {
     assertEquals (getReferenceLocalTime (), msgOut.getFieldValue (LocalTime.class, msgOut.getByOrdinal (0)));
   }
   
+  /**
+   * 
+   */
   @Test
   public void offsetDateCycle () {
     final MutableFudgeFieldContainer msg = _fudgeContext.newMessage ();
@@ -406,6 +431,9 @@ public class DateTimeTest {
     assertEquals (getReferenceOffsetDate (), msgOut.getFieldValue (OffsetDate.class, msgOut.getByOrdinal (0)));
   }
   
+  /**
+   * 
+   */
   @Test
   public void offsetDateTimeCycle () {
     final MutableFudgeFieldContainer msg = _fudgeContext.newMessage ();
@@ -415,6 +443,9 @@ public class DateTimeTest {
     assertEquals (getReferenceOffsetDateTime (), msgOut.getFieldValue (OffsetDateTime.class, msgOut.getByOrdinal (0)));
   }
   
+  /**
+   * 
+   */
   @Test
   public void offsetTimeCycle () {
     final MutableFudgeFieldContainer msg = _fudgeContext.newMessage ();
@@ -424,6 +455,9 @@ public class DateTimeTest {
     assertEquals (getReferenceOffsetTime (), msgOut.getFieldValue (OffsetTime.class, msgOut.getByOrdinal (0)));
   }
   
+  /**
+   * 
+   */
   @Test
   public void timeProviderCycle () {
     final MutableFudgeFieldContainer msg = _fudgeContext.newMessage ();

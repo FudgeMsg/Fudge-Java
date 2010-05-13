@@ -65,6 +65,9 @@ public class FudgeJSONTest {
         StandardFudgeMessages.createMessageAllByteArrayLengths (_fudgeContext) };
   }
   
+  /**
+   * 
+   */
   @Test
   public void writeJSONMessages () {
     System.out.println ("writeJSONMessages:");
@@ -78,6 +81,9 @@ public class FudgeJSONTest {
     }
   }
   
+  /**
+   * 
+   */
   @Test
   public void cycleJSONMessages () {
     System.out.println ("cycleJSONMessages:");

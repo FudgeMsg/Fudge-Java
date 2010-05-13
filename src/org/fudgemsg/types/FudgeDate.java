@@ -73,22 +73,47 @@ public class FudgeDate implements DateProvider {
     _day = day;
   }
   
+  /**
+   * Creates a new {@link FudgeDate} object.
+   * 
+   * @param date {@link Calendar} object supplying the year, month and day
+   */
   public FudgeDate (final Calendar date) {
     this (date.get (Calendar.YEAR), date.isSet (Calendar.MONTH) ? (date.get (Calendar.MONTH) + 1) : 0, date.isSet (Calendar.DAY_OF_MONTH) ? date.get (Calendar.DAY_OF_MONTH) : 0);
   }
   
+  /**
+   * Creates a new {@link FudgeDate} object.
+   * 
+   * @param instant the date corresponding to this instant at UTC will initialize the object
+   */
   protected FudgeDate (final Instant instant) {
     this ((DateProvider)ZonedDateTime.fromInstant (instant, TimeZone.UTC));
   }
   
+  /**
+   * Creates a new {@link FudgeDate} object.
+   * 
+   * @param localDate the {@link LocalDate} representation of the date
+   */
   protected FudgeDate (final LocalDate localDate) {
     this (localDate.getYear (), localDate.getMonthOfYear ().getValue (), localDate.getDayOfMonth ());
   }
   
+  /**
+   * Creates a new {@link FudgeDate} object.
+   * 
+   * @param instantProvider the date corresponding to the {@link Instant} provided at UTC will initialize the object
+   */
   public FudgeDate (final InstantProvider instantProvider) {
     this (instantProvider.toInstant ());
   }
   
+  /**
+   * Creates a new {@link FudgeDate} object.
+   * 
+   * @param dateProvider provides the {@link LocalDate} representation of the date
+   */
   public FudgeDate (final DateProvider dateProvider) {
     this (dateProvider.toLocalDate ());
   }
@@ -167,6 +192,9 @@ public class FudgeDate implements DateProvider {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public LocalDate toLocalDate() {
     return LocalDate.of (getYear (), getMonthOfYear () == 0 ? 1 : getMonthOfYear (), getDayOfMonth () == 0 ? 1 : getDayOfMonth ());

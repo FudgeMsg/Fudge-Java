@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNotNull;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.FudgeRuntimeException;
 import org.fudgemsg.FudgeUtils;
 import org.fudgemsg.mapping.ObjectMappingTestUtil.MappedNameBean;
 import org.fudgemsg.mapping.ObjectMappingTestUtil.SimpleBean;

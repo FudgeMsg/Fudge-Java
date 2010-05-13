@@ -18,6 +18,8 @@ package org.fudgemsg.types;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeTypeDictionary;

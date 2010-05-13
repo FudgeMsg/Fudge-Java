@@ -42,6 +42,13 @@ public class DateTimeFieldType extends FudgeFieldType<FudgeDateTime> {
     super(FudgeTypeDictionary.DATETIME_TYPE_ID, FudgeDateTime.class, false, 12);
   }
 
+  /**
+   * Reads a Fudge date representation from an input source.
+   * 
+   * @param input input source
+   * @return the date
+   * @throws IOException if there is an error from the input source
+   */
   /* package */ static FudgeDate readFudgeDate (final DataInput input) throws IOException {
     final int n = input.readInt ();
     final int dayOfMonth = (n & 31);
@@ -51,6 +58,13 @@ public class DateTimeFieldType extends FudgeFieldType<FudgeDateTime> {
     return new FudgeDate (year, monthOfYear, dayOfMonth);
   }
   
+  /**
+   * Reads a Fudge time representation from an input source.
+   * 
+   * @param input input source
+   * @return the time
+   * @throws IOException if there is an error from the input source
+   */
   /* package */ static FudgeTime readFudgeTime (final DataInput input) throws IOException {
     final int hi = input.readInt ();
     final int lo = input.readInt ();
@@ -62,6 +76,13 @@ public class DateTimeFieldType extends FudgeFieldType<FudgeDateTime> {
     return new FudgeTime (DateTimeAccuracy.fromEncodedValue (accuracy), timezoneOffset, seconds, nanos);
   }
   
+  /**
+   * Writes a Fudge date representation to an output target.
+   * 
+   * @param output output target
+   * @param value Fudge date
+   * @throws IOException if there is an error from the output target
+   */
   /* package */ static void writeFudgeDate (final DataOutput output, final FudgeDate value) throws IOException {
     final int dayOfMonth = value.getDayOfMonth ();
     final int monthOfYear = value.getMonthOfYear ();
@@ -71,6 +92,13 @@ public class DateTimeFieldType extends FudgeFieldType<FudgeDateTime> {
     output.writeInt (n);
   }
   
+  /**
+   * Writes a Fudge time representation to an output target.
+   * 
+   * @param output the output target
+   * @param value the Fudge time
+   * @throws IOException if there is an error from the output target
+   */
   /* package */ static void writeFudgeTime (final DataOutput output, final FudgeTime value) throws IOException {
     final int hi = (value.getSecondsSinceMidnight () & 0x1FFFF) | (value.getAccuracy ().getEncodedValue () << 20) | (value.getRawTimezoneOffset () << 24);
     final int lo = value.getNanos () & 0x3FFFFFFF;

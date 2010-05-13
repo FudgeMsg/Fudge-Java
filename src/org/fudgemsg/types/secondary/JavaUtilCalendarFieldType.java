@@ -94,6 +94,13 @@ public class JavaUtilCalendarFieldType extends SecondaryFieldTypeBase<Calendar,O
     }
   }
   
+  /**
+   * Converts a Fudge date and time representation to a {@link Calendar} object.
+   * 
+   * @param fudgeDate date component
+   * @param fudgeTime time component
+   * @return the {@code Calendar}
+   */
   /* package */ static Calendar fudgeDateTimeToCalendar (final FudgeDate fudgeDate, final FudgeTime fudgeTime) {
     final Calendar cal = Calendar.getInstance ();
     cal.clear ();
@@ -115,7 +122,7 @@ public class JavaUtilCalendarFieldType extends SecondaryFieldTypeBase<Calendar,O
   }
   
   /**
-   * Primary secondary conversion, where the primary type is a {@link FudgeDate}.
+   * Primary to secondary conversion, where the primary type is a {@link FudgeDate}.
    * 
    * @param object primary object
    * @return the converted {@link Calendar} object
@@ -127,6 +134,12 @@ public class JavaUtilCalendarFieldType extends SecondaryFieldTypeBase<Calendar,O
     return cal;
   }
   
+  /**
+   * Primary to secondary conversion, where the primary type is a {@link FudgeTime}.
+   * 
+   * @param object primary object
+   * @return the converted {@link Calendar} object
+   */
   protected Calendar primaryToSecondary (FudgeTime object) {
     final Calendar cal = Calendar.getInstance ();
     cal.clear ();

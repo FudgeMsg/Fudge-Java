@@ -46,12 +46,32 @@ public class EnumTest {
   private static boolean s_fromFudgeMessage;
   private static boolean s_toFudgeMessage;
   
+  /**
+   * 
+   */
   public static enum EnumWithMethods {
-    PUT, CALL;
+    /**
+     * 
+     */
+    PUT,
+    /**
+     * 
+     */
+    CALL;
+    /**
+     * 
+     * @param msg [documentation not available] 
+     * @return [documentation not available]
+     */
     public static EnumWithMethods fromFudgeMsg (final FudgeFieldContainer msg) {
       s_fromFudgeMessage = true;
       return valueOf (EnumWithMethods.class, msg.getString (1));
     }
+    /**
+     * 
+     * @param messageFactory [documentation not available]
+     * @return [documentation not available]
+     */
     public MutableFudgeFieldContainer toFudgeMsg (final FudgeMessageFactory messageFactory) {
       s_toFudgeMessage = true;
       final MutableFudgeFieldContainer msg = messageFactory.newMessage ();
@@ -61,16 +81,29 @@ public class EnumTest {
     }
   }
   
+  /**
+   * 
+   */
   public static enum EnumWithoutMethods {
-    PUT, CALL
+    /**
+     * 
+     */
+    PUT,
+    /**
+     * 
+     */
+    CALL
   }
   
-  private <T extends Enum> void testEnumCycle (T value) {
+  private <T extends Enum<?>> void testEnumCycle (T value) {
     Object o = cycleObject (value);
     assertNotNull (o);
     assertEquals (value, o);
   }
   
+  /**
+   * 
+   */
   @Test
   public void testEnumWithMethods () {
     s_fromFudgeMessage = s_toFudgeMessage = false;
@@ -79,11 +112,17 @@ public class EnumTest {
     assertTrue (s_toFudgeMessage);
   }
   
+  /**
+   * 
+   */
   @Test
   public void testEnumWithoutMethods () {
     testEnumCycle (EnumWithoutMethods.CALL);
   }
   
+  /**
+   * 
+   */
   @Test
   public void testEnumViaDictionary () {
     final MutableFudgeFieldContainer msg = FudgeContext.GLOBAL_DEFAULT.newMessage ();

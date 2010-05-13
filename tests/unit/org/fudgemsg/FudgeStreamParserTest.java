@@ -19,7 +19,6 @@ package org.fudgemsg;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 
 import org.junit.Test;
 

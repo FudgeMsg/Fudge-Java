@@ -38,16 +38,25 @@ public class JSR310LocalTimeFieldType extends SecondaryFieldTypeBase<LocalTime,T
     super (TimeFieldType.INSTANCE, LocalTime.class);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FudgeTime secondaryToPrimary(final LocalTime object) {
     return new FudgeTime (object);
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public LocalTime primaryToSecondary (final TimeProvider object) {
     return object.toLocalTime ();
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean canConvertPrimary (final Class<? extends TimeProvider> clazz) {
     return TimeProvider.class.isAssignableFrom (clazz);

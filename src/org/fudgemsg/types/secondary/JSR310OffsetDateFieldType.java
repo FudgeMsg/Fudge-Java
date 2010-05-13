@@ -37,11 +37,17 @@ public class JSR310OffsetDateFieldType extends SecondaryFieldType<OffsetDate,Fud
     super (DateTimeFieldType.INSTANCE, OffsetDate.class);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FudgeDateTime secondaryToPrimary(final OffsetDate object) {
     return new FudgeDateTime (object);
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public OffsetDate primaryToSecondary (final FudgeDateTime object) {
     return object.toOffsetDate ();

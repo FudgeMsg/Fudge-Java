@@ -37,6 +37,9 @@ public class JSR310InstantProviderFieldType extends SecondaryFieldType<InstantPr
     super (DateTimeFieldType.INSTANCE, InstantProvider.class);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FudgeDateTime secondaryToPrimary(final InstantProvider object) {
     return new FudgeDateTime (object);

@@ -40,10 +40,27 @@ public class FudgeDateTime implements DateTimeProvider, InstantProvider {
   private final FudgeDate _date;
   private final FudgeTime _time;
   
+  /**
+   * Creates a new Fudge date/time representation.
+   * 
+   * @param precision resolution of the representation
+   * @param year year
+   * @param month month
+   * @param day day
+   * @param timezoneOffset timezone offset in 15 minute intervals 
+   * @param seconds seconds since midnight
+   * @param nanos nanoseconds within the second
+   */
   public FudgeDateTime (final DateTimeAccuracy precision, final int year, final int month, final int day, final int timezoneOffset, final int seconds, final int nanos) {
     this (new FudgeDate (year, month, day), new FudgeTime (precision, timezoneOffset, seconds, nanos));
   }
   
+  /**
+   * Creates a new Fudge date/time representation.
+   * 
+   * @param date the date
+   * @param time the time
+   */
   public FudgeDateTime (final FudgeDate date, final FudgeTime time) {
     if (date == null) throw new NullPointerException ("date cannot be null");
     if (time == null) throw new NullPointerException ("time cannot be null");
@@ -64,58 +81,133 @@ public class FudgeDateTime implements DateTimeProvider, InstantProvider {
     _time = time;
   }
   
+  /**
+   * Creates a new Fudge date/time representation.
+   * 
+   * @param accuracy resolution of the representation
+   * @param instant time instant - the date and time at UTC will be used
+   */
   protected FudgeDateTime (final DateTimeAccuracy accuracy, final Instant instant) {
     this (accuracy, ZonedDateTime.fromInstant (instant, TimeZone.UTC).toOffsetDateTime ());
   }
   
+  /**
+   * Creates a new Fudge date/time representation.
+   * 
+   * @param offsetDateTime date and time
+   */
   public FudgeDateTime (final OffsetDateTime offsetDateTime) {
     this (DateTimeAccuracy.NANOSECOND, offsetDateTime);
   }
   
+  /**
+   * Creates a new Fudge date/time representation.
+   * 
+   * @param accuracy resolution of the representation
+   * @param offsetDateTime date and time
+   */
   public FudgeDateTime (final DateTimeAccuracy accuracy, final OffsetDateTime offsetDateTime) {
     this (new FudgeDate (offsetDateTime.toOffsetDate ()), new FudgeTime (accuracy, offsetDateTime.toOffsetTime ()));
   }
   
+  /**
+   * Creates a new Fudge date/time representation.
+   * 
+   * @param offsetDate date - Midnight on this day will be used for the time
+   */
   public FudgeDateTime (final OffsetDate offsetDate) {
     this (new FudgeDate (offsetDate), new FudgeTime (DateTimeAccuracy.DAY, offsetDate.atMidnight ().toOffsetTime ()));
   }
   
+  /**
+   * Creates a new Fudge date/time representation.
+   * 
+   * @param localDateTime date - Midnight on this day will be used for the time
+   */
   protected FudgeDateTime (final LocalDateTime localDateTime) {
     this (DateTimeAccuracy.NANOSECOND, localDateTime);
   }
   
+  /**
+   * Creates a new Fudge date/time representation.
+   * 
+   * @param accuracy resolution of the representation 
+   * @param localDateTime date and time
+   */
   protected FudgeDateTime (final DateTimeAccuracy accuracy, final LocalDateTime localDateTime) {
     this (new FudgeDate (localDateTime), new FudgeTime (accuracy, localDateTime));
   }
   
+  /**
+   * Creates a new Fudge date/time representation.
+   * 
+   * @param instantProvider provides an instant - the date and time at UTC will be used  
+   */
   public FudgeDateTime (final InstantProvider instantProvider) {
     this (DateTimeAccuracy.NANOSECOND, instantProvider);
   }
   
+  /**
+   * Creates a new Fudge date/time representation.
+   * 
+   * @param accuracy resolution of the representation
+   * @param instantProvider provides an instant - the date and time at UTC will be used 
+   */
   public FudgeDateTime (final DateTimeAccuracy accuracy, final InstantProvider instantProvider) {
     this (accuracy, instantProvider.toInstant ());
   }
   
+  /**
+   * Creates a new Fudge date/time representation.
+   * 
+   * @param dateTimeProvider provides the date and time 
+   */
   public FudgeDateTime (final DateTimeProvider dateTimeProvider) {
     this (DateTimeAccuracy.NANOSECOND, dateTimeProvider);
   }
   
+  /**
+   * Creates a new Fudge date/time representation.
+   * 
+   * @param accuracy resolution of the representation 
+   * @param dateTimeProvider provides the date and time
+   */
   public FudgeDateTime (final DateTimeAccuracy accuracy, final DateTimeProvider dateTimeProvider) {
     this (accuracy, dateTimeProvider.toLocalDateTime ());
   }
   
+  /**
+   * Creates a new Fudge date/time representation.
+   * 
+   * @param calendar representation of the date and time
+   */
   public FudgeDateTime (final Calendar calendar) {
     this (new FudgeDate (calendar), new FudgeTime (calendar));
   }
   
+  /**
+   * Returns the date component.
+   * 
+   * @return the date
+   */
   public FudgeDate getDate () {
     return _date;
   }
   
+  /**
+   * Returns the time component.
+   * 
+   * @return the time
+   */
   public FudgeTime getTime () {
     return _time;
   }
   
+  /**
+   * Returns the resolution of the representation
+   * 
+   * @return the resolution
+   */
   public DateTimeAccuracy getAccuracy () {
     return getTime ().getAccuracy ();
   }
@@ -149,33 +241,60 @@ public class FudgeDateTime implements DateTimeProvider, InstantProvider {
     return toOffsetDateTime ().toString ();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public LocalDate toLocalDate() {
     return getDate ().toLocalDate ();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public LocalDateTime toLocalDateTime() {
     return LocalDateTime.from (getDate (), getTime ());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public LocalTime toLocalTime() {
     return getTime ().toLocalTime ();
   }
   
+  /**
+   * Returns the date representation as an {@link OffsetDate} object.
+   * 
+   * @return the date
+   */ 
   public OffsetDate toOffsetDate () {
     return OffsetDate.from (getDate (), getTime ().getOffset ());
   }
   
+  /**
+   * Returns the representation as an {@link OffsetDateTime} object.
+   * 
+   * @return the date and time
+   */
   public OffsetDateTime toOffsetDateTime () {
     return OffsetDateTime.from (getDate (), getTime (), getTime ().getOffset ());
   }
   
+  /**
+   * Returns the time representation as a {@link OffsetTime} object.
+   * 
+   * @return the time
+   */
   public OffsetTime toOffsetTime () {
     return getTime ().toOffsetTime ();
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Instant toInstant () {
     return toOffsetDateTime ().toInstant ();

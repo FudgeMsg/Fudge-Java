@@ -30,12 +30,18 @@ import java.util.TreeSet;
 import org.fudgemsg.FudgeContext;
 import org.junit.Test;
 
+/**
+ * 
+ */
 public class ListAndMapTest {
   
   private Object cycleObject (final Object o) {
     return FudgeContext.GLOBAL_DEFAULT.fromFudgeMsg (FudgeContext.GLOBAL_DEFAULT.toFudgeMsg (o).getMessage ());
   }
   
+  /**
+   * 
+   */
   @SuppressWarnings("unchecked")
   @Test
   public void testList () {
@@ -54,6 +60,9 @@ public class ListAndMapTest {
     }
   }
   
+  /**
+   * 
+   */
   @SuppressWarnings("unchecked")
   @Test
   public void testSet () {
@@ -74,6 +83,9 @@ public class ListAndMapTest {
     }
   }
   
+  /**
+   * 
+   */
   @SuppressWarnings("unchecked")
   @Test
   public void testMap () {

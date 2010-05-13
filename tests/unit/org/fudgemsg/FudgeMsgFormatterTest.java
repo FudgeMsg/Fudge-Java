@@ -15,10 +15,7 @@
  */
 package org.fudgemsg;
 
-import java.io.IOException;
 import java.io.PrintWriter;
-
-import javax.xml.stream.XMLStreamException;
 
 import org.fudgemsg.xml.FudgeXMLStreamWriter;
 import org.junit.Test;
@@ -65,11 +62,10 @@ public class FudgeMsgFormatterTest {
   }
 
   /**
-   * @throws IOException [documentation not available]
-   * @throws XMLStreamException [documentation not available]
+   * 
    */
   @Test
-  public void xmlStreamWriterAllNames () throws IOException, XMLStreamException {
+  public void xmlStreamWriterAllNames () {
     System.out.println("FudgeMsgFormatterTest.xmlStreamWriterAllNames()");
     final FudgeMsgWriter fmw = new FudgeMsgWriter (new FudgeXMLStreamWriter (s_fudgeContext, new PrintWriter (System.out)));
     fmw.writeMessage (allNames (), 0);
@@ -79,11 +75,10 @@ public class FudgeMsgFormatterTest {
   }
   
   /**
-   * @throws IOException [documentation not available]
-   * @throws XMLStreamException [documentation not available]
+   * 
    */
   @Test
-  public void xmlStreamWriterAllOrdinals () throws IOException, XMLStreamException {
+  public void xmlStreamWriterAllOrdinals () {
     System.out.println("FudgeMsgFormatterTest.xmlStreamWriterAllOrdinals()");
     final FudgeMsgWriter fmw = new FudgeMsgWriter (new FudgeXMLStreamWriter (s_fudgeContext, new PrintWriter (System.out)));
     fmw.writeMessage (allOrdinals (), 0);
