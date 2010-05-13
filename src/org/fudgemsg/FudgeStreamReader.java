@@ -50,9 +50,13 @@ public interface FudgeStreamReader extends Closeable {
   }
   
   /**
-   * Returns true if there is at least one more element to be returned by a call to {@link #next()}. A return of false
-   * indicates the end of a message has been reached. If the source contains a subsequent Fudge message, the next call
-   * will return true indicating {@code next()} will return the envelope header of the next message.
+   * <p>Returns true if there is at least one more element to be returned by a call to {@link #next()}. A return of {@code false}
+   * indicates the end of a message has been reached. After this end of a message, the next immediate call may:</p>
+   * <ol>
+   * <li>Return {@code false} if the source does not contain any subsequent Fudge messages; or</li>
+   * <li>Return {@code true} if the source may contain further Fudge messages. Calling {@code next()} will return the envelope header
+   * of the next message if one is present, or {@code null} if the source does not contain any further messages.</li>
+   * </ol>
    * 
    * @return {@code true} if there is at least one more element to read
    */
@@ -61,7 +65,8 @@ public interface FudgeStreamReader extends Closeable {
   /**
    * Reads the next stream element from the source and returns the element type.
    * 
-   * @return the type of the next element in the stream
+   * @return the type of the next element in the stream, or {@code null} if the end of stream has been reached at a message
+   *         boundary (i.e. attempting to read the first byte of an envelope)
    */
   public FudgeStreamElement next ();
   

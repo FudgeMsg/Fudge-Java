@@ -16,10 +16,11 @@
 
 package org.fudgemsg;
 
+import java.io.Closeable;
 import java.io.DataInput;
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
-import java.io.Closeable;
 import java.io.InputStream;
 import java.util.Stack;
 
@@ -226,18 +227,7 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
       }
     } else {
       // Might have another envelope to read
-      if (getDataInput () instanceof InputStream) {
-        try {
-          // Ask the stream if there is more data
-          return ((InputStream)getDataInput ()).available () > 0;
-        } catch (IOException ioe) {
-          // Stream has errored, so return no more data
-          return false;
-        }
-      } else {
-        // Assume the best - might have another envelope to read
-        return true;
-      }
+      return true;
     }
   }
 
@@ -249,8 +239,10 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
     //System.out.println ("FudgeDataInputStreamReader::next()");
     try {
       if(_processingStack.isEmpty()) {
-        // Must be an envelope.
-        consumeMessageEnvelope();
+        // Must be an envelope (or an EOF)
+        if (!consumeMessageEnvelope()) {
+          return null;
+        }
       } else if(isEndOfSubMessage()) {
         _currentElement = FudgeStreamElement.SUBMESSAGE_FIELD_END;
         _fieldName = null;
@@ -416,12 +408,18 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
   /**
    * Reads the next message envelope from the input stream, setting internal state go be returned by getCurrentElement, getProcessingDirectives, getSchemaVersion, getTaxonomyId and getEnvelopeSize.
    * 
-   * @throws IOException if the underlying data source raises an {@link IOException}, e.g. the end of the stream has been reached
+   * @throws IOException if the underlying data source raises an {@link IOException} other than an {@link EOFException} on the first byte of the envelope
+   * @return {@code true} if there was an envelope to consume, {@code false} if an EOF was found on reading the first byte
    */
-  protected void consumeMessageEnvelope() throws IOException {
+  protected boolean consumeMessageEnvelope() throws IOException {
     //System.out.println ("FudgeDataInputStreamReader::consumeMessageEnvelope()");
+    try {
+      _processingDirectives = getDataInput().readUnsignedByte();
+    } catch (EOFException e) {
+      _currentElement = null;
+      return false;
+    }
     _currentElement = FudgeStreamElement.MESSAGE_ENVELOPE;
-    _processingDirectives = getDataInput().readUnsignedByte();
     _schemaVersion = getDataInput().readUnsignedByte();
     _taxonomyId = getDataInput().readShort();
     _envelopeSize = getDataInput().readInt();
@@ -433,6 +431,7 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
     processingState.consumed = 8;
     processingState.messageSize = _envelopeSize;
     _processingStack.add(processingState);
+    return true;
   }
   
 }

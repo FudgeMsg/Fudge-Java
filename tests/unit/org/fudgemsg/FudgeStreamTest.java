@@ -18,12 +18,17 @@ package org.fudgemsg;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
 
+import org.fudgemsg.FudgeStreamReader.FudgeStreamElement;
 import org.junit.Test;
 
 /**
@@ -41,25 +46,72 @@ public class FudgeStreamTest {
     return msg;
   }
   
-  /**
-   * [documentation not available]
-   */
-  @Test
-  public void readMultipleMessages () {
+  private InputStream prepareThreeMessageStream () {
     final ByteArrayOutputStream baos = new ByteArrayOutputStream ();
     final FudgeMsgWriter writer = FudgeContext.GLOBAL_DEFAULT.createMessageWriter (baos);
     //writer.setDefaultTaxonomyId (0);
     writer.writeMessage (simpleMessage (1));
     writer.writeMessage (simpleMessage (2));
     writer.writeMessage (simpleMessage (3));
-    final ByteArrayInputStream bais = new ByteArrayInputStream (baos.toByteArray ());
-    final FudgeMsgReader reader = FudgeContext.GLOBAL_DEFAULT.createMessageReader (bais);
+    return new ByteArrayInputStream (baos.toByteArray ());
+  }
+  
+  /**
+   * [documentation not available]
+   */
+  @Test
+  public void readMultipleMessages () {
+    final FudgeMsgReader reader = FudgeContext.GLOBAL_DEFAULT.createMessageReader (prepareThreeMessageStream ());
     for (int i = 1; i <= 3; i++) {
       assertTrue (reader.hasNext ());
       final FudgeFieldContainer msg = reader.nextMessage ();
       assertEquals (i, (int)msg.getInt ("n"));
     }
     assertFalse (reader.hasNext ());
+  }
+  
+  private void readMultipleMessagesUnderlying (final InputStream in) {
+    final FudgeStreamReader reader = FudgeContext.GLOBAL_DEFAULT.createReader (in);
+    FudgeStreamElement element;
+    for (int i = 1; i <= 3; i++) {
+      assertTrue (reader.hasNext ());
+      element = reader.next ();
+      assertEquals (FudgeStreamElement.MESSAGE_ENVELOPE, element);
+      for (int j = 1; j <= 3; j++) {
+        assertTrue (reader.hasNext ());
+        reader.next ();
+      }
+      assertFalse (reader.hasNext ());
+    }
+    assertTrue (reader.hasNext ());
+    element = reader.next ();
+    assertNull (element);
+  }
+  
+  /**
+   * [FRJ-66] EOF at a message boundary
+   */
+  @Test
+  public void readMultipleMessagesUnderlyingCorrectly () {
+    readMultipleMessagesUnderlying (prepareThreeMessageStream ());
+  }
+  
+  /**
+   * [FRJ-66] throw an EOF midway through an envelope
+   */
+  @Test(expected=FudgeRuntimeIOException.class)
+  public void readMultipleMessagesUnderlyingErroring () {
+    final InputStream in = prepareThreeMessageStream ();
+    readMultipleMessagesUnderlying (new InputStream () {
+      private int count = 0;
+      public int read () throws IOException {
+        if (count++ < 40) {
+          return in.read ();
+        } else {
+          throw new EOFException ();
+        }
+      }
+    });
   }
   
   /**

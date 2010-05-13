@@ -272,6 +272,7 @@ public class FudgeJSONStreamReader implements FudgeStreamReader {
       }
       Iterator<String> i;
       if (_iteratorStack.isEmpty ()) {
+        // This is the point to gracefully test/detect EOF on the JSON data. We don't at the moment.  
         _iteratorStack.push (i = (Iterator<String>)o.keys ());
         int processingDirectives = 0;
         int schemaVersion = 0;
