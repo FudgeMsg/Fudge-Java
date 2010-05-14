@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc. and other contributors.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc. and other contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public class JavaUtilDateFieldType extends SecondaryFieldTypeBase<Date,Object,Fu
    */
   @Override
   public FudgeDateTime secondaryToPrimary (Date object) {
-    return new FudgeDateTime (DateTimeAccuracy.MILLISECOND, Instant.millis (object.getTime ())); // Interim measure
+    return new FudgeDateTime (DateTimeAccuracy.MILLISECOND, Instant.ofMillis (object.getTime ())); // Interim measure
   }
   
   /**

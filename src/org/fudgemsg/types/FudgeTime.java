@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc. and other contributors.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc. and other contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,7 @@ import javax.time.InstantProvider;
 import javax.time.calendar.LocalTime;
 import javax.time.calendar.OffsetTime;
 import javax.time.calendar.TimeProvider;
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZoneOffset;
-import javax.time.calendar.ZonedDateTime;
 
 /**
  * Dummy class for holding a time value on its own at varying precisions.
@@ -118,7 +116,7 @@ public class FudgeTime implements TimeProvider {
    * @param instant time instant - the corresponding time at UTC will be used
    */
   protected FudgeTime (final DateTimeAccuracy accuracy, final Instant instant) {
-    this (accuracy, ZonedDateTime.fromInstant (instant, TimeZone.UTC).toOffsetTime ());
+    this (accuracy, OffsetTime.ofInstant (instant, ZoneOffset.UTC));
   }
   
   /**
@@ -246,7 +244,7 @@ public class FudgeTime implements TimeProvider {
    * @return the timezone offset
    */
   protected ZoneOffset getOffset () {
-    return ZoneOffset.fromTotalSeconds (getTimezoneOffset () * 900);
+    return ZoneOffset.ofTotalSeconds (getTimezoneOffset () * 900);
   }
   
   /**
@@ -255,7 +253,7 @@ public class FudgeTime implements TimeProvider {
    * @return the time
    */
   public OffsetTime toOffsetTime () {
-    return OffsetTime.from (toLocalTime (), getOffset ());
+    return OffsetTime.of (toLocalTime (), getOffset ());
   }
   
   /**

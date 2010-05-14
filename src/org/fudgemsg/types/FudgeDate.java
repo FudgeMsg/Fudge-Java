@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc. and other contributors.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc. and other contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ public class FudgeDate implements DateProvider {
    * @param instant the date corresponding to this instant at UTC will initialize the object
    */
   protected FudgeDate (final Instant instant) {
-    this ((DateProvider)ZonedDateTime.fromInstant (instant, TimeZone.UTC));
+    this ((DateProvider) ZonedDateTime.ofInstant (instant, TimeZone.UTC));
   }
   
   /**

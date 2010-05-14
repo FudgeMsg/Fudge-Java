@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc. and other contributors.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc. and other contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -226,7 +226,7 @@ public class DateTimeTest {
    * Reference OffsetDateTime for 5 March 2010, 11:12:13.987 +01:00
    */
   private OffsetDateTime getReferenceOffsetDateTime () {
-    return OffsetDateTime.of (2010, 3, 5, 11, 12, 13, 987000000, ZoneOffset.hours (1));
+    return OffsetDateTime.of (2010, 3, 5, 11, 12, 13, 987000000, ZoneOffset.ofHours (1));
   }
   
   private OffsetDate getReferenceOffsetDate () {

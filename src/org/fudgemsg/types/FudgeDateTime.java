@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc. and other contributors.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc. and other contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,7 @@ import javax.time.calendar.LocalTime;
 import javax.time.calendar.OffsetDate;
 import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.OffsetTime;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import javax.time.calendar.ZoneOffset;
 
 /**
  * Dummy class for holding a combined Date and Time with the other data available in the
@@ -88,7 +87,7 @@ public class FudgeDateTime implements DateTimeProvider, InstantProvider {
    * @param instant time instant - the date and time at UTC will be used
    */
   protected FudgeDateTime (final DateTimeAccuracy accuracy, final Instant instant) {
-    this (accuracy, ZonedDateTime.fromInstant (instant, TimeZone.UTC).toOffsetDateTime ());
+    this (accuracy, OffsetDateTime.ofInstant (instant, ZoneOffset.UTC));
   }
   
   /**
@@ -254,7 +253,7 @@ public class FudgeDateTime implements DateTimeProvider, InstantProvider {
    */
   @Override
   public LocalDateTime toLocalDateTime() {
-    return LocalDateTime.from (getDate (), getTime ());
+    return LocalDateTime.of (getDate (), getTime ());
   }
 
   /**
@@ -271,7 +270,7 @@ public class FudgeDateTime implements DateTimeProvider, InstantProvider {
    * @return the date
    */ 
   public OffsetDate toOffsetDate () {
-    return OffsetDate.from (getDate (), getTime ().getOffset ());
+    return OffsetDate.of (getDate (), getTime ().getOffset ());
   }
   
   /**
@@ -280,7 +279,7 @@ public class FudgeDateTime implements DateTimeProvider, InstantProvider {
    * @return the date and time
    */
   public OffsetDateTime toOffsetDateTime () {
-    return OffsetDateTime.from (getDate (), getTime (), getTime ().getOffset ());
+    return OffsetDateTime.of (getDate (), getTime (), getTime ().getOffset ());
   }
   
   /**
