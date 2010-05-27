@@ -20,6 +20,7 @@ import static org.junit.Assert.assertFalse;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
@@ -207,6 +208,10 @@ public class DateTimeTest {
     return getReferenceCalendar ().getTime ();
   }
   
+  private java.util.TimeZone getReferenceTimeZone() {
+    return TimeZone.getDefault();
+  }
+  
   /**
    * Reference FudgeDateTime for 5 March 2010, 11:12:13.987 +01:00
    */
@@ -297,6 +302,10 @@ public class DateTimeTest {
     };
   }
   
+  private javax.time.calendar.TimeZone getReferenceTimeZone310() {
+    return javax.time.calendar.TimeZone.UTC;
+  }
+  
   /**
    * Verify the derived objects:
    *   Calendar (via Date) against Instant
@@ -333,6 +342,17 @@ public class DateTimeTest {
     final FudgeFieldContainer msgOut = cycle (msg);
     assertEquals (getReferenceFudgeDateTimeUTC (DateTimeAccuracy.MILLISECOND), (FudgeDateTime)msgOut.getByOrdinal (0).getValue ());
     assertEquals (getReferenceDate (), msgOut.getFieldValue (Date.class, msgOut.getByOrdinal (0)));
+  }
+  
+  /**
+   * Test java.util.TimeZone as secondary type.
+   */
+  @Test
+  public void timeZoneCycle() {
+    final MutableFudgeFieldContainer msg = _fudgeContext.newMessage();
+    msg.add(0, getReferenceTimeZone());
+    final FudgeFieldContainer msgOut = cycle(msg);
+    assertEquals(getReferenceTimeZone(), (java.util.TimeZone) msgOut.getFieldValue(java.util.TimeZone.class, msgOut.getByOrdinal(0)));
   }
   
   /**
@@ -465,6 +485,17 @@ public class DateTimeTest {
     final FudgeFieldContainer msgOut = cycle (msg);
     assertEquals (getReferenceFudgeDateTimeNoTimezone (DateTimeAccuracy.NANOSECOND).getTime (), (FudgeTime)msgOut.getByOrdinal (0).getValue ());
     assertEquals (getReferenceTimeProvider ().toLocalTime (), msgOut.getFieldValue (TimeProvider.class, msgOut.getByOrdinal (0)).toLocalTime ());
+  }
+  
+  /**
+   * Test javax.time.TimeZone as secondary type.
+   */
+  @Test
+  public void timeZone310Cycle() {
+    final MutableFudgeFieldContainer msg = _fudgeContext.newMessage();
+    msg.add(0, getReferenceTimeZone310());
+    final FudgeFieldContainer msgOut = cycle(msg);
+    assertEquals(getReferenceTimeZone310(), (javax.time.calendar.TimeZone) msgOut.getFieldValue(javax.time.calendar.TimeZone.class, msgOut.getByOrdinal(0)));
   }
   
 }
