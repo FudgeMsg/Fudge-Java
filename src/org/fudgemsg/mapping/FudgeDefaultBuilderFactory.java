@@ -127,7 +127,7 @@ public class FudgeDefaultBuilderFactory implements FudgeBuilderFactory {
     if ((builder = FromFudgeMsgObjectBuilder.create (clazz)) != null) return builder;
     if ((builder = FudgeMsgConstructorObjectBuilder.create (clazz)) != null) return builder;
     if (clazz.isArray ()) return new ArrayBuilder (clazz.getComponentType ());
-    if (clazz.isEnum ()) return new EnumBuilder (clazz);
+    if (Enum.class.isAssignableFrom(clazz)) return new EnumBuilder (clazz);
     if ((builder = (FudgeObjectBuilder<T>)getGenericObjectBuilders ().get (clazz)) != null) return builder;
     if (clazz.isInterface ()) return null;
     //return ReflectionObjectBuilder.create (clazz);
@@ -148,7 +148,7 @@ public class FudgeDefaultBuilderFactory implements FudgeBuilderFactory {
     FudgeMessageBuilder<T> builder;
     if ((builder = ToFudgeMsgMessageBuilder.create (clazz)) != null) return builder;
     if (clazz.isArray ()) return new ArrayBuilder (clazz.getComponentType ());
-    if (clazz.isEnum ()) return new EnumBuilder (clazz);
+    if (Enum.class.isAssignableFrom(clazz)) return new EnumBuilder (clazz);
     for (MessageBuilderMapEntry defaultBuilder : getGenericMessageBuilders ()) {
       if (defaultBuilder.getClazz ().isAssignableFrom (clazz)) return (FudgeMessageBuilder<T>)defaultBuilder.getMessageBuilder ();
     }

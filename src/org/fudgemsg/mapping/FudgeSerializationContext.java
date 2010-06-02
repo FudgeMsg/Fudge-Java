@@ -111,7 +111,7 @@ public class FudgeSerializationContext implements FudgeMessageFactory {
    * in the current {@link FudgeObjectDictionary}. Note that a mutable container is returned (from the definition of {@code FudgeMessageBuilder} so that the caller is
    * able to append additional data to the message if required, e.g. {@link #addClassHeader(MutableFudgeFieldContainer,Class)}.
    * 
-   * @param object the Java object to serialize
+   * @param object the Java object to Tserialize
    * @return the Fudge message created
    */
   @SuppressWarnings("unchecked")
