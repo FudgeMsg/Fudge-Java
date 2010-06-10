@@ -47,7 +47,8 @@ import org.fudgemsg.MutableFudgeFieldContainer;
   @Override
   public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, Enum<E> enumeration) {
     final MutableFudgeFieldContainer msg = context.newMessage ();
-    msg.add (null, 0, _clazz.getName ());
+    // REVIEW: jim 2-Jun-2010 -- changed to getDeclaringClass() to fix problem with enums with methods that appear as anon inner classes.
+    msg.add (null, 0, enumeration.getDeclaringClass().getName ());
     msg.add (null, 1, enumeration.name ());
     return msg;
   }
