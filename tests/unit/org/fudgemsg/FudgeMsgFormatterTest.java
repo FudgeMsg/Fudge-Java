@@ -22,8 +22,6 @@ import java.util.HashMap;
 
 import javax.xml.stream.XMLStreamException;
 
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgFormatter;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 import org.fudgemsg.taxon.MapFudgeTaxonomy;
 import org.fudgemsg.taxon.ImmutableMapTaxonomyResolver;

@@ -19,7 +19,6 @@ package org.fudgemsg;
 import java.io.IOException;
 import java.io.Closeable;
 
-import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 
 /**
