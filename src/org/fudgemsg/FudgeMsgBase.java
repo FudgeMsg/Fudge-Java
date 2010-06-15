@@ -72,6 +72,32 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
   }
   
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean hasField(String fieldName) {
+    for (FudgeField field : _fields) {
+      if ((field.getName() != null) && field.getName().equals(fieldName)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean hasField(int ordinal) {
+    for (FudgeField field : _fields) {
+      if ((field.getOrdinal() != null) && (ordinal == field.getOrdinal().intValue())) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  /**
    * Returns this message's list of fields.
    * 
    * @return the list of fields

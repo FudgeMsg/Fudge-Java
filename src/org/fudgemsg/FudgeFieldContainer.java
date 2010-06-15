@@ -300,4 +300,20 @@ public interface FudgeFieldContainer extends Iterable<FudgeField> {
    */
   FudgeFieldContainer getMessage(int ordinal);
   
+  /**
+   * Determine whether this container has any field which matches the name specified.
+   * 
+   * @param fieldName the name to check
+   * @return true iff this container has at least one field with the specified name
+   */
+  boolean hasField(String fieldName);
+  
+  /**
+   * Determine whether this container has any field which matches the ordinal specified.
+   * 
+   * @param ordinal the ordinal to check
+   * @return true iff this container has at least one field with the specified ordinal
+   */
+  boolean hasField(int ordinal);
+  
 }
