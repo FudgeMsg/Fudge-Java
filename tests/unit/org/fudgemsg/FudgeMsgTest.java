@@ -451,5 +451,38 @@ public class FudgeMsgTest {
     assertFalse (msg2.equals (msg4));
     assertFalse (msg4.equals (msg2));
   }
+  
+  /**
+   * 
+   */
+  @Test
+  public void hasFieldByName() {
+    MutableFudgeFieldContainer msg1 = s_fudgeContext.newMessage ();
+    msg1.add("foo", 1, "hello world 1");
+    msg1.add("bar", 2, 42);
+    msg1.add("foo", 1, "hello world 2");
+    msg1.add(null, 3, "no name");
+    
+    assertTrue(msg1.hasField("foo"));
+    assertTrue(msg1.hasField("bar"));
+    assertFalse(msg1.hasField("foobar"));
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void hasFieldByOrdinal() {
+    MutableFudgeFieldContainer msg1 = s_fudgeContext.newMessage ();
+    msg1.add("foo", 1, "hello world 1");
+    msg1.add("bar", 2, 42);
+    msg1.add("foo", 1, "hello world 2");
+    msg1.add(null, 3, "no name");
+    
+    assertTrue(msg1.hasField(1));
+    assertTrue(msg1.hasField(2));
+    assertTrue(msg1.hasField(3));
+    assertFalse(msg1.hasField(4));
+  }
 
 }
