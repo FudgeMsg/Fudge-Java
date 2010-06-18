@@ -24,7 +24,8 @@ import java.util.Queue;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.FudgeRuntimeException;
+import org.fudgemsg.types.IndicatorFieldType;
+import org.fudgemsg.types.IndicatorType;
 
 /**
  * Builder for Map objects.
@@ -34,7 +35,7 @@ import org.fudgemsg.FudgeRuntimeException;
 /* package */ class MapBuilder implements FudgeBuilder<Map<?,?>> {
   
   /**
-   * 
+   * Singleton instance of the {@link MapBuilder}.
    */
   /* package */ static final FudgeBuilder<Map<?,?>> INSTANCE = new MapBuilder (); 
   
@@ -42,20 +43,36 @@ import org.fudgemsg.FudgeRuntimeException;
   }
 
   /**
-   *
+   * Creates a Fudge message representation of a {@link Map}.
+   * 
+   * @param context the serialization context
+   * @param map the map to serialize
+   * @return the Fudge message
    */
   @Override
   public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, Map<?,?> map) {
     final MutableFudgeFieldContainer msg = context.newMessage ();
     for (Map.Entry<?,?> entry : map.entrySet ()) {
-      context.objectToFudgeMsg (msg, null, 1, entry.getKey ());
-      context.objectToFudgeMsg (msg, null, 2, entry.getValue ());
+      if (entry.getKey () == null) {
+        msg.add (null, 1, IndicatorFieldType.INSTANCE, IndicatorType.INSTANCE);
+      } else {
+        context.objectToFudgeMsg (msg, null, 1, entry.getKey ());
+      }
+      if (entry.getValue () == null) {
+        msg.add (null, 2, IndicatorFieldType.INSTANCE, IndicatorType.INSTANCE);
+      } else {
+        context.objectToFudgeMsg (msg, null, 2, entry.getValue ());
+      }
     }
     return msg;
   }
   
   /**
-   *
+   * Creates a {@link Map} from a Fudge message.
+   * 
+   * @param context the deserialization context
+   * @param message the Fudge message
+   * @return the {@code Map} 
    */
   @Override
   public Map<?,?> buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
@@ -63,8 +80,9 @@ import org.fudgemsg.FudgeRuntimeException;
     final Queue<Object> keys = new LinkedList<Object> ();
     final Queue<Object> values = new LinkedList<Object> ();
     for (FudgeField field : message) {
+      Object fieldValue = context.fieldValueToObject (field);
+      if (fieldValue instanceof IndicatorType) fieldValue = null;
       if (field.getOrdinal () == 1) {
-        final Object fieldValue = context.fieldValueToObject (field);
         if (values.isEmpty ()) {
           // no values ready, so store the key till next time
           keys.add (fieldValue);
@@ -73,7 +91,6 @@ import org.fudgemsg.FudgeRuntimeException;
           map.put (fieldValue, values.remove ());
         }
       } else if (field.getOrdinal () == 2) {
-        final Object fieldValue = context.fieldValueToObject (field);
         if (keys.isEmpty ()) {
           // no keys ready, so store the value till next time
           values.add (fieldValue);
@@ -82,7 +99,7 @@ import org.fudgemsg.FudgeRuntimeException;
           map.put (keys.remove (), fieldValue);
         }
       } else {
-        throw new FudgeRuntimeException ("Sub-message doesn't contain a map (bad field " + field + ")");
+        throw new IllegalArgumentException ("Sub-message doesn't contain a map (bad field " + field + ")");
       }
     }
     return map;

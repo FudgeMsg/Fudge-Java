@@ -16,8 +16,6 @@
 
 package org.fudgemsg.mapping;
 
-import java.io.IOException;
-
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgReader;
@@ -86,33 +84,31 @@ public class FudgeObjectReader {
    * Returns {@code true} if the underlying message source has another message and {@link #read()} or {@link #read(Class)} can be
    * called.
    * 
-   * @return {@code true} if there are more messages to be deserialised, {@code false} otherwise
+   * @return {@code true} if there are more messages to be deserialized, {@code false} otherwise
    */
   public boolean hasNext () {
     return getMessageReader ().hasNext ();
   }
   
   /**
-   * Reads the next message from the underlying source and deserialises it to a Java object.
+   * Reads the next message from the underlying source and deserializes it to a Java object.
    * 
    * @return the Java object
-   * @throws IOException if a message cannot be read
    */
-  public Object read () throws IOException {
+  public Object read () {
     FudgeFieldContainer message = getMessageReader ().nextMessage ();
     getDeserialisationContext ().reset ();
     return getDeserialisationContext ().fudgeMsgToObject (message);
   }
   
   /**
-   * Reads the next message from the underlying source and deserialises it to the requested Java type.
+   * Reads the next message from the underlying source and deserializes it to the requested Java type.
    * 
    * @param <T> Java type of the requested object
    * @param clazz Java class of the requested object
    * @return the Java object
-   * @throws IOException if a message cannot be read
    */
-  public <T> T read (final Class<T> clazz) throws IOException {
+  public <T> T read (final Class<T> clazz) {
     FudgeFieldContainer message = getMessageReader ().nextMessage ();
     getDeserialisationContext ().reset ();
     return getDeserialisationContext ().fudgeMsgToObject (clazz, message);

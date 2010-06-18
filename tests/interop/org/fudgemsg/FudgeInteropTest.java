@@ -26,6 +26,10 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.fudgemsg.types.DateTimeAccuracy;
+import org.fudgemsg.types.FudgeDate;
+import org.fudgemsg.types.FudgeDateTime;
+import org.fudgemsg.types.FudgeTime;
 import org.junit.AfterClass;
 import org.junit.Test;
 
@@ -182,6 +186,34 @@ public class FudgeInteropTest {
     
     FudgeFieldContainer outputMsg = cycleMessage(inputMsg, "fixedWidthByteArrays.dat");
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
+  }
+  
+  public static FudgeFieldContainer createDateTimes (final FudgeContext fudgeContext) {
+    MutableFudgeFieldContainer inputMsg = fudgeContext.newMessage ();
+    inputMsg.add ("date-Year", new FudgeDate (2010));
+    inputMsg.add ("date-Month", new FudgeDate (2010, 3));
+    inputMsg.add ("date-Day", new FudgeDate (2010, 3, 4));
+    inputMsg.add ("time-Hour-UTC", new FudgeTime (DateTimeAccuracy.HOUR, 0, 11 * 3600 + 12 * 60 + 13, 987654321));
+    inputMsg.add ("time-Minute-UTC", new FudgeTime (DateTimeAccuracy.MINUTE, 0, 11 * 3600 + 12 * 60 + 13, 987654321));
+    inputMsg.add ("time-Second-UTC", new FudgeTime (DateTimeAccuracy.SECOND, 0, 11 * 3600 + 12 * 60 + 13, 987654321));
+    inputMsg.add ("time-Milli-UTC", new FudgeTime (DateTimeAccuracy.MILLISECOND, 0, 11 * 3600 + 12 * 60 + 13, 987654321));
+    inputMsg.add ("time-Micro-UTC", new FudgeTime (DateTimeAccuracy.MICROSECOND, 0, 11 * 3600 + 12 * 60 + 13, 987654321));
+    inputMsg.add ("time-Nano-UTC", new FudgeTime (DateTimeAccuracy.NANOSECOND, 0, 11 * 3600 + 12 * 60 + 13, 987654321));
+    inputMsg.add ("time-Nano", new FudgeTime (DateTimeAccuracy.NANOSECOND, -128, 11 * 3600 + 12 * 60 + 13, 987654321));
+    inputMsg.add ("time-Nano-+1h", new FudgeTime (DateTimeAccuracy.NANOSECOND, 4, 11 * 3600 + 12 * 60 + 13, 987654321));
+    inputMsg.add ("datetime-Millenia", new FudgeDateTime (new FudgeDate (1000), new FudgeTime (DateTimeAccuracy.MILLENIUM, -128, 0, 0)));
+    inputMsg.add ("datetime-Century", new FudgeDateTime (new FudgeDate (1900), new FudgeTime (DateTimeAccuracy.CENTURY, -128, 0, 0)));
+    inputMsg.add ("datetime-Nano-UTC", new FudgeDateTime (new FudgeDate (2010, 3, 4), new FudgeTime (DateTimeAccuracy.NANOSECOND, 0, 11 * 3600 + 12 * 60 + 13, 987654321)));
+    inputMsg.add ("datetime-Nano", new FudgeDateTime (new FudgeDate (2010, 3, 4), new FudgeTime (DateTimeAccuracy.NANOSECOND, -128, 11 * 3600 + 12 * 60 + 13, 987654321)));
+    inputMsg.add ("datetime-Nano-+1h", new FudgeDateTime (new FudgeDate (2010, 3, 4), new FudgeTime (DateTimeAccuracy.NANOSECOND, 4, 11 * 3600 + 12 * 60 + 13, 987654321)));
+    return inputMsg;
+  }
+  
+  @Test
+  public void dateTypeMessage () throws IOException {
+    FudgeFieldContainer inputMsg = createDateTimes (s_fudgeContext);
+    FudgeFieldContainer outputMsg = cycleMessage (inputMsg, "dateTimes.dat");
+    FudgeUtils.assertAllFieldsMatch (inputMsg, outputMsg);
   }
   
   /**

@@ -81,6 +81,14 @@ public class StandardMessageLoadingTest {
   }
   
   /**
+   * 
+   */
+  @Test
+  public void dateTimes () {
+    testFile (FudgeInteropTest.createDateTimes (s_fudgeContext), "dateTimes.dat");
+  }
+  
+  /**
    * @param expected [documentation not available]
    * @param fileName [documentation not available]
    */
@@ -98,15 +106,11 @@ public class StandardMessageLoadingTest {
    * @return [documentation not available]
    */
   protected static FudgeMsgEnvelope loadMessage(FudgeContext context, String fileName) {
-    try {
-      InputStream is = StandardMessageLoadingTest.class.getResourceAsStream(fileName);
-      FudgeMsgReader reader = context.createMessageReader (is);
-      FudgeMsgEnvelope envelope = reader.nextMessageEnvelope ();
-      reader.close ();
-      return envelope;
-    } catch (IOException e) {
-      throw new FudgeRuntimeException("Couldn't close stream for " + fileName, e);
-    }
+    InputStream is = StandardMessageLoadingTest.class.getResourceAsStream(fileName);
+    FudgeMsgReader reader = context.createMessageReader (is);
+    FudgeMsgEnvelope envelope = reader.nextMessageEnvelope ();
+    reader.close ();
+    return envelope;
   }
 
 }

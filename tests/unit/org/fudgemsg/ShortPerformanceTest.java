@@ -317,5 +317,5 @@ public class ShortPerformanceTest {
     assertTrue ("Java encoding faster by " + (deltaFudgeObjectMappingToMsg - deltaSerialisationToMsg) + "ms", deltaFudgeObjectMappingToMsg < deltaSerialisationToMsg);
     assertTrue ("Java decoding faster by " + (deltaFudgeObjectMappingFromMsg - deltaSerialisationFromMsg) + "ms", deltaFudgeObjectMappingFromMsg < deltaSerialisationFromMsg);
   }
-  
+
 }

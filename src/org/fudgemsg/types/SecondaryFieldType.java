@@ -32,10 +32,8 @@ import org.fudgemsg.FudgeFieldType;
  * @param <SecondaryType> secondary type
  * @param <PrimitiveType> type there is a primary {@link FudgeFieldType} for
  */
-public abstract class SecondaryFieldType<SecondaryType,PrimitiveType> extends FudgeFieldType<SecondaryType> implements FudgeTypeConverter<PrimitiveType,SecondaryType> {
+public abstract class SecondaryFieldType<SecondaryType,PrimitiveType> extends SecondaryFieldTypeBase<SecondaryType,PrimitiveType,PrimitiveType> {
   
-  private final FudgeFieldType<PrimitiveType> _delegate;
-
   /**
    * Creates a new secondary type on top of an existing Fudge type.
    * 
@@ -43,27 +41,8 @@ public abstract class SecondaryFieldType<SecondaryType,PrimitiveType> extends Fu
    * @param javaType Java type for conversion
    */
   protected SecondaryFieldType (FudgeFieldType<PrimitiveType> type, Class<SecondaryType> javaType) {
-    super (type.getTypeId (), javaType, type.isVariableSize (), type.getFixedSize ());
-    _delegate = type;
+    super (type, javaType);
   }
-  
-  /**
-   * Returns the underlying (primary) Fudge type.
-   * 
-   * @return the primary type
-   */
-  public FudgeFieldType<PrimitiveType> getPrimaryType () {
-    return _delegate;
-  }
-  
-  /**
-   * Converts an object from the secondary type to a primitive Fudge type for writing. An implementation
-   * may assume that the {@code object} parameter is not {@code null}.
-   * 
-   * @param object the secondary instance
-   * @return the underlying Fudge data to write out
-   */
-  public abstract PrimitiveType secondaryToPrimary (SecondaryType object);
   
   /**
    * Converts Fudge primitive data to the secondary type. This is an optional operation - it will only be
@@ -73,6 +52,7 @@ public abstract class SecondaryFieldType<SecondaryType,PrimitiveType> extends Fu
    * @param object the Fudge data
    * @return a secondary type instance
    */
+  @Override
   public SecondaryType primaryToSecondary (PrimitiveType object) {
     throw new UnsupportedOperationException ("cannot convert from " + getTypeId () + " to " + getJavaType ()); 
   }

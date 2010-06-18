@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc. and other contributors.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc. and other contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,79 +15,107 @@
  */
 package org.fudgemsg.types;
 
-import java.util.Date;
 import java.util.Calendar;
 
-/**
- * Dummy class for holding a date value on its own, as Java does not have a
- * standard type for doing so.
- * 
- * <p>This part of the specification is not finalized and should not be used. The {@code DateTime}
- * Fudge type should be used instead. For more details, please refer to <a href="http://wiki.fudgemsg.org/display/FDG/DateTime+encoding">DateTime encoding</a>.</p>
+import javax.time.Instant;
+import javax.time.InstantProvider;
+import javax.time.calendar.DateProvider;
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
 
+/**
+ * <p>Dummy class for holding a date value on its own, at varying precision. Dates can be
+ * more easily used through the secondary type mechanism.</p>
+ * 
+ * <p>For more details, please refer to <a href="http://wiki.fudgemsg.org/display/FDG/DateTime+encoding">DateTime encoding</a>.</p>
  * 
  * @author Andrew Griffin
  */
-public class FudgeDate {
+public class FudgeDate implements DateProvider {
   
-  private final int _days;
+  private final int _year;
+  private final int _month;
+  private final int _day;
   
   /**
-   * Constructs a new {@link FudgeDate} object for a decimal date representation.
+   * Constructs a new {@link FudgeDate} object representing just a year.
    * 
-   * @param days the initial value, a decimal representation of the date
+   * @param year the year
    */
-  public FudgeDate (final int days) {
-    _days = days;
+  public FudgeDate (final int year) {
+    this (year, 0, 0);
   }
   
   /**
-   * Constructs a new {@link FudgeDate} object from a {@link Date}.
+   * Constructs a new {@link FudgeDate} object representing a year and a month.
    * 
-   * @param d the {@code Date} to copy the date from
+   * @param year the year
+   * @param month the month
    */
-  /*public FudgeDate (final Date d) {
-  // The code below is wrong
-  this ((int)(d.getTime () / (86400l * 1000l)));
-}*/
-  public FudgeDate (final Date d) {
-    final Calendar cal = Calendar.getInstance ();
-    cal.clear ();
-    cal.setTime (d);
-    cal.get (Calendar.MONTH);
-    cal.get (Calendar.DAY_OF_MONTH);
-    _days = cal.get (Calendar.YEAR) * 1000
-          + cal.get (Calendar.MONTH) * 100
-          + cal.get (Calendar.DAY_OF_MONTH);
+  public FudgeDate (final int year, final int month) {
+    this (year, month, 0);
   }
   
   /**
-   * Avoid calling this. At the moment it is returning the decimal representation of the date, but this may change.
+   * Constructs a new {@link FudgeDate} object.
    * 
-   * @return the decimal representation of the date
+   * @param year the year
+   * @param month the month
+   * @param day the day
    */
-  public int getDays () {
-    return _days;
+  public FudgeDate (final int year, final int month, final int day) {
+    _year = year;
+    if (month < 0) throw new IllegalArgumentException ("month cannot be negative");
+    _month = month;
+    if (day < 0) throw new IllegalArgumentException ("day cannot be negative");
+    if ((month == 0) && (day > 0)) throw new IllegalArgumentException ("cannot specify day without month");
+    _day = day;
   }
   
   /**
-   * Returns a {@link Date} representation of this date. The time on the {@code Date} object will be set to Midnight on that day.
+   * Creates a new {@link FudgeDate} object.
    * 
-   * @return a {@code Date}
+   * @param date {@link Calendar} object supplying the year, month and day
    */
-  /*public Date getDate () {
-    final Calendar cal = Calendar.getInstance ();
-    cal.clear ();
-    cal.add (Calendar.DAY_OF_MONTH, getDays ());
-    return cal.getTime ();
-  }*/
-  public Date getDate () {
-    final Calendar cal = Calendar.getInstance ();
-    cal.clear ();
-    cal.set (Calendar.YEAR, getDays () / 1000);
-    cal.set (Calendar.MONTH, (getDays () / 100) % 100);
-    cal.set (Calendar.DAY_OF_MONTH, getDays () % 100);
-    return cal.getTime ();
+  public FudgeDate (final Calendar date) {
+    this (date.get (Calendar.YEAR), date.isSet (Calendar.MONTH) ? (date.get (Calendar.MONTH) + 1) : 0, date.isSet (Calendar.DAY_OF_MONTH) ? date.get (Calendar.DAY_OF_MONTH) : 0);
+  }
+  
+  /**
+   * Creates a new {@link FudgeDate} object.
+   * 
+   * @param instant the date corresponding to this instant at UTC will initialize the object
+   */
+  protected FudgeDate (final Instant instant) {
+    this ((DateProvider) ZonedDateTime.ofInstant (instant, TimeZone.UTC));
+  }
+  
+  /**
+   * Creates a new {@link FudgeDate} object.
+   * 
+   * @param localDate the {@link LocalDate} representation of the date
+   */
+  protected FudgeDate (final LocalDate localDate) {
+    this (localDate.getYear (), localDate.getMonthOfYear ().getValue (), localDate.getDayOfMonth ());
+  }
+  
+  /**
+   * Creates a new {@link FudgeDate} object.
+   * 
+   * @param instantProvider the date corresponding to the {@link Instant} provided at UTC will initialize the object
+   */
+  public FudgeDate (final InstantProvider instantProvider) {
+    this (instantProvider.toInstant ());
+  }
+  
+  /**
+   * Creates a new {@link FudgeDate} object.
+   * 
+   * @param dateProvider provides the {@link LocalDate} representation of the date
+   */
+  public FudgeDate (final DateProvider dateProvider) {
+    this (dateProvider.toLocalDate ());
   }
   
   /**
@@ -95,7 +123,7 @@ public class FudgeDate {
    */
   @Override
   public String toString () {
-    return getDate ().toString (); 
+    return toLocalDate ().toString ();
   }
   
   /**
@@ -103,10 +131,13 @@ public class FudgeDate {
    */
   @Override
   public boolean equals (final Object o) {
+    if (o == this) return true;
     if (o == null) return false;
     if (!(o instanceof FudgeDate)) return false;
     final FudgeDate other = (FudgeDate)o;
-    return other.getDays () == getDays ();
+    return other.getYear () == getYear ()
+        && other.getMonthOfYear () == getMonthOfYear ()
+        && other.getDayOfMonth () == getDayOfMonth ();
   }
   
   /**
@@ -114,7 +145,59 @@ public class FudgeDate {
    */
   @Override
   public int hashCode () {
-    return getDays ();
+    return (getYear () * 17 + getMonthOfYear () + 1) * 17 + getDayOfMonth ();
+  }
+  
+  /**
+   * Returns the year.
+   * 
+   * @return the year
+   */
+  public int getYear () {
+    return _year;
+  }
+  
+  /**
+   * Returns the month of the year, or 0 if the date just represents a year
+   * 
+   * @return the month of the year
+   */
+  public int getMonthOfYear () {
+    return _month;
+  }
+  
+  /**
+   * Returns the day of the month, or 0 if the date just represents a year or year/month.
+   * 
+   * @return the day of the month
+   */
+  public int getDayOfMonth () {
+    return _day;
+  }
+  
+  /**
+   * Returns the accuracy of the Date.
+   * 
+   * @return the accuracy
+   */
+  public DateTimeAccuracy getAccuracy () {
+    if (getDayOfMonth () == 0) {
+      if (getMonthOfYear () == 0) {
+        return DateTimeAccuracy.YEAR;
+      } else {
+        return DateTimeAccuracy.MONTH;
+      }
+    } else {
+      return DateTimeAccuracy.DAY;
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public LocalDate toLocalDate() {
+    return LocalDate.of (getYear (), getMonthOfYear () == 0 ? 1 : getMonthOfYear (), getDayOfMonth () == 0 ? 1 : getDayOfMonth ());
   }
   
 }

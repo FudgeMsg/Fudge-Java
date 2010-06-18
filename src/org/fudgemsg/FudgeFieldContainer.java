@@ -36,6 +36,13 @@ public interface FudgeFieldContainer extends Iterable<FudgeField> {
    * @return number of fields
    */
   short getNumFields();
+  
+  /**
+   * Tests if the container is empty. I.e. {@link #getNumFields} would return {@code 0}.
+   * 
+   * @return {@code true} if the container is empty, {@code false} otherwise
+   */
+  boolean isEmpty ();
 
   /**
    * Return an <em>unmodifiable</em> list of all the fields in this message, in the index
@@ -110,6 +117,28 @@ public interface FudgeFieldContainer extends Iterable<FudgeField> {
    * @return the converted field value
    */
   <T> T getFieldValue (Class<T> clazz, FudgeField field) throws IllegalArgumentException;
+  
+  /**
+   * Returns the value of the first field in the message that can be converted to the requested type, or {@code null} if
+   * none exists.
+   * 
+   * @param <T> class to convert to
+   * @param clazz Java class to convert to
+   * @param name field name
+   * @return the converted field value or {@code null}
+   */
+  <T> T getValue (Class<T> clazz, String name);
+  
+  /**
+   * Returns the value of the first field in the message that can be converted to the requested type, or {@code null} if
+   * none exists.
+   * 
+   * @param <T> class to convert to
+   * @param clazz Java class to convert to
+   * @param ordinal field ordinal
+   * @return the converted field value or {@code null}
+   */
+  <T> T getValue (Class<T> clazz, int ordinal);
 
   /**
    * Returns the value of the first field in the message with the given name, or {@code null} if the name does not exist.
@@ -126,15 +155,6 @@ public interface FudgeFieldContainer extends Iterable<FudgeField> {
    * @return field value 
    */
   Object getValue(int ordinal);
-
-  /**
-   * Returns the value of the first field in the message with the matching name and ordinal, or {@code null} if no field matches both name and ordinal.
-   * 
-   * @param name field name
-   * @param ordinal ordinal index
-   * @return field value
-   */
-  Object getValue(String name, Integer ordinal);
 
   /**
    * Returns the value of the first field in the message with the given name that holds a {@code double} type, or {@code null} if no such field exists.
@@ -279,4 +299,21 @@ public interface FudgeFieldContainer extends Iterable<FudgeField> {
    * @return field value
    */
   FudgeFieldContainer getMessage(int ordinal);
+  
+  /**
+   * Determine whether this container has any field which matches the name specified.
+   * 
+   * @param fieldName the name to check
+   * @return true iff this container has at least one field with the specified name
+   */
+  boolean hasField(String fieldName);
+  
+  /**
+   * Determine whether this container has any field which matches the ordinal specified.
+   * 
+   * @param ordinal the ordinal to check
+   * @return true iff this container has at least one field with the specified ordinal
+   */
+  boolean hasField(int ordinal);
+  
 }

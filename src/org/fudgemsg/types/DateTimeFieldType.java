@@ -18,115 +18,112 @@ package org.fudgemsg.types;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-
-import java.util.Date;
 import java.util.Calendar;
+import java.util.Date;
 
 import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeTypeDictionary;
 
 /**
- * The type definition for a composite date and time (a {@link Calendar} object). A {@link Date}
- * is defined as a secondary type.
+ * <p>The type definition for a date. This is currently backed by a {@link FudgeDateTime}. The secondary
+ * type mechanism is used to support additional Java representations, such as {@link Date}, {@link Calendar}
+ * and {@code javax.time} classes.</p>
  *
  * @author Andrew Griffin
  */
-public class DateTimeFieldType extends FudgeFieldType<Calendar> {
+public class DateTimeFieldType extends FudgeFieldType<FudgeDateTime> {
 
   /**
    * Standard Fudge field type: combined date and time. See {@link FudgeTypeDictionary#DATETIME_TYPE_ID}.
    */
   public static final DateTimeFieldType INSTANCE = new DateTimeFieldType();
   
-  /**
-   * 
-   */
-  protected static final int MASK_ACCURACY = 0x0F;
-  /**
-   * 
-   */
-  protected static final int FLAG_HASTIMEZONE = 0x10;
-  
   private DateTimeFieldType() {
-    super(FudgeTypeDictionary.DATETIME_TYPE_ID, Calendar.class, false, 12);
+    super(FudgeTypeDictionary.DATETIME_TYPE_ID, FudgeDateTime.class, false, 12);
+  }
+
+  /**
+   * Reads a Fudge date representation from an input source.
+   * 
+   * @param input input source
+   * @return the date
+   * @throws IOException if there is an error from the input source
+   */
+  /* package */ static FudgeDate readFudgeDate (final DataInput input) throws IOException {
+    final int n = input.readInt ();
+    final int dayOfMonth = (n & 31);
+    final int monthOfYear = (n >> 5) & 15;
+    final int year = n >> 9; // will sign-extend
+    //System.out.println ("readFudgeDate: " + n + ", " + year + ", " + monthOfYear + ", " + dayOfMonth);
+    return new FudgeDate (year, monthOfYear, dayOfMonth);
+  }
+  
+  /**
+   * Reads a Fudge time representation from an input source.
+   * 
+   * @param input input source
+   * @return the time
+   * @throws IOException if there is an error from the input source
+   */
+  /* package */ static FudgeTime readFudgeTime (final DataInput input) throws IOException {
+    final int hi = input.readInt ();
+    final int lo = input.readInt ();
+    final int timezoneOffset = (hi >> 24); // sign extend
+    final int accuracy = (hi >> 20) & 15;
+    final int seconds = hi & 0x1FFFF;
+    final int nanos = lo & 0x3FFFFFFF;
+    //System.out.println ("readFudgeTime: " + hi + ", " + lo + ", " + timezoneOffset + ", " + accuracy + ", " + seconds + ", " + nanos);
+    return new FudgeTime (DateTimeAccuracy.fromEncodedValue (accuracy), timezoneOffset, seconds, nanos);
+  }
+  
+  /**
+   * Writes a Fudge date representation to an output target.
+   * 
+   * @param output output target
+   * @param value Fudge date
+   * @throws IOException if there is an error from the output target
+   */
+  /* package */ static void writeFudgeDate (final DataOutput output, final FudgeDate value) throws IOException {
+    final int dayOfMonth = value.getDayOfMonth ();
+    final int monthOfYear = value.getMonthOfYear ();
+    final int year = value.getYear ();
+    final int n = (year << 9) | ((monthOfYear & 15) << 5) | (dayOfMonth & 31);
+    //System.out.println ("writeFudgeDate: " + n + ", " + year + ", " + monthOfYear + ", " + dayOfMonth);
+    output.writeInt (n);
+  }
+  
+  /**
+   * Writes a Fudge time representation to an output target.
+   * 
+   * @param output the output target
+   * @param value the Fudge time
+   * @throws IOException if there is an error from the output target
+   */
+  /* package */ static void writeFudgeTime (final DataOutput output, final FudgeTime value) throws IOException {
+    final int hi = (value.getSecondsSinceMidnight () & 0x1FFFF) | (value.getAccuracy ().getEncodedValue () << 20) | (value.getRawTimezoneOffset () << 24);
+    final int lo = value.getNanos () & 0x3FFFFFFF;
+    //System.out.println ("writeFudgeTime: " + hi + ", " + lo);
+    output.writeInt (hi);
+    output.writeInt (lo);
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public FudgeDateTime readValue(DataInput input, int dataSize) throws IOException {
+    final FudgeDate date = readFudgeDate (input);
+    final FudgeTime time = readFudgeTime (input);
+    return new FudgeDateTime (date, time);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public Calendar readValue(DataInput input, int dataSize) throws IOException {
-    final long n = input.readLong ();
-    // byte 0 is the options
-    final int options = (int)(n >> 56) & 0xFF;
-    // byte 1 is the TZ offset, signed 8-bit integer
-    final int timezoneOffset = (int)(byte)((int)(n >> 48) & 0xFF);
-    // bytes 2-7 are millis since epoch, signed 48-bit integer
-    long seconds = n & 0x0000FFFFFFFFFFFFl;
-    if ((seconds & 0x0000800000000000l) != 0) seconds |= 0xFFFF000000000000l;
-    // bytes 8-11 are nanos, unsigned 32-bit integer
-    final long nanos = (long)input.readInt () & 0xFFFFFFFF;
-    // convert to a Date (ignoring nanoseconds)
-    final Calendar calendar = Calendar.getInstance ();
-    calendar.clear ();
-    if ((options & FLAG_HASTIMEZONE) != 0) {
-      // TZ offset is in 15 minute chunks
-      calendar.set (Calendar.ZONE_OFFSET, timezoneOffset * 15 * 60 * 1000);
-    }
-    calendar.setTimeInMillis (seconds * 1000l + (nanos / 1000000l));
-    // Clear out the fields that aren't part of the requested precision
-    final int accuracy = options & MASK_ACCURACY;
-    if (accuracy > DateTimeAccuracy.MILLISECOND.getEncodedValue ()) calendar.clear (Calendar.MILLISECOND);
-    if (accuracy > DateTimeAccuracy.SECOND.getEncodedValue ()) calendar.clear (Calendar.SECOND);
-    if (accuracy > DateTimeAccuracy.MINUTE.getEncodedValue ()) calendar.clear (Calendar.MINUTE);
-    if (accuracy > DateTimeAccuracy.HOUR.getEncodedValue ()) calendar.clear (Calendar.HOUR_OF_DAY);
-    if (accuracy > DateTimeAccuracy.DAY.getEncodedValue ()) calendar.clear (Calendar.DAY_OF_MONTH);
-    if (accuracy > DateTimeAccuracy.MONTH.getEncodedValue ()) calendar.clear (Calendar.MONTH);
-    if (accuracy > DateTimeAccuracy.YEAR.getEncodedValue ()) {
-      // lose the year bit and just leave the century
-      int year = calendar.get (Calendar.YEAR);
-      year = year - (year % 100);
-      calendar.set (Calendar.YEAR, year);
-    }
-    return calendar;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void writeValue(DataOutput output, Calendar calendar) throws IOException {
-    long n = calendar.getTimeInMillis ();
-    int nanos = 0;
-    int options = 0;
-    nanos = (int)(n % 1000) * 1000000;
-    n = (n / 1000l) & 0x0000FFFFFFFFFFFFl;
-    if (calendar.isSet (Calendar.ZONE_OFFSET) || calendar.isSet (Calendar.DST_OFFSET)) {
-      options |= FLAG_HASTIMEZONE;
-      n |= (long)(((calendar.get (Calendar.ZONE_OFFSET) + calendar.get (Calendar.DST_OFFSET)) / (15 * 60 * 1000)) % 0xFF) << 48;
-    }
-    final DateTimeAccuracy accuracy;
-    if (calendar.isSet (Calendar.MILLISECOND)) {
-      accuracy = DateTimeAccuracy.MILLISECOND;
-    } else if (calendar.isSet (Calendar.SECOND)) {
-      accuracy = DateTimeAccuracy.SECOND;
-    } else if (calendar.isSet (Calendar.MINUTE)) {
-      accuracy = DateTimeAccuracy.MINUTE;
-    } else if (calendar.isSet (Calendar.HOUR_OF_DAY)) {
-      accuracy = DateTimeAccuracy.HOUR;
-    } else if (calendar.isSet (Calendar.DAY_OF_MONTH)) {
-      accuracy = DateTimeAccuracy.DAY;
-    } else if (calendar.isSet (Calendar.MONTH)) {
-      accuracy = DateTimeAccuracy.MONTH;
-    } else if (calendar.isSet (Calendar.YEAR)) {
-      accuracy = DateTimeAccuracy.YEAR;
-    } else {
-      accuracy = DateTimeAccuracy.CENTURY;
-    }
-    options |= accuracy.getEncodedValue ();
-    n |= (long)options << 56;
-    output.writeLong (n);
-    output.writeInt (nanos); 
+  public void writeValue(DataOutput output, FudgeDateTime datetime) throws IOException {
+    writeFudgeDate (output, datetime.getDate ());
+    writeFudgeTime (output, datetime.getTime ());
   }
 
 }

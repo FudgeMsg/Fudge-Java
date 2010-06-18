@@ -16,7 +16,6 @@
 
 package org.fudgemsg;
 
-import java.io.IOException;
 import java.io.Closeable;
 
 import org.fudgemsg.taxon.FudgeTaxonomy;
@@ -51,22 +50,27 @@ public interface FudgeStreamReader extends Closeable {
   }
   
   /**
-   * Returns true if there is at least one more element to be returned by a call to {@link #next()}. A return of false
-   * indicates the end of a message has been reached. If the source contains a subsequent Fudge message, the next call
-   * will return true indicating {@code next()} will return the envelope header of the next message.
+   * <p>Returns true if there is at least one more element to be returned by a call to {@link #next()}. A return of {@code false}
+   * indicates the end of a message (or submessage) has been reached. After the end of a sub-message, the next immediate call will
+   * indicate whether there are further elements or the end of the outer message. After the end of the main message referenced by
+   * the envelope header, the next immediate call may:</p>
+   * <ol>
+   * <li>Return {@code false} if the source does not contain any subsequent Fudge messages; or</li>
+   * <li>Return {@code true} if the source may contain further Fudge messages. Calling {@code next()} will return the envelope header
+   * of the next message if one is present, or {@code null} if the source does not contain any further messages.</li>
+   * </ol>
    * 
    * @return {@code true} if there is at least one more element to read
-   * @throws IOException if there is a problem (other than EOF) with the underlying source
    */
-  public boolean hasNext () throws IOException;
+  public boolean hasNext ();
   
   /**
    * Reads the next stream element from the source and returns the element type.
    * 
-   * @return the type of the next element in the stream
-   * @throws IOException if there is a problem (e.g. EOF) that prevents reading a message
+   * @return the type of the next element in the stream, or {@code null} if the end of stream has been reached at a message
+   *         boundary (i.e. attempting to read the first byte of an envelope)
    */
-  public FudgeStreamElement next () throws IOException;
+  public FudgeStreamElement next ();
   
   /**
    * Returns the value last returned by {@link #next()}.
@@ -103,13 +107,6 @@ public interface FudgeStreamReader extends Closeable {
    */
   public short getTaxonomyId();
 
-  /**
-   * Returns the size of the current message envelope.
-   * 
-   * @return current envelope size
-   */
-  public int getEnvelopeSize();
-  
   /**
    * If the current stream element is a field, returns the {@link FudgeFieldType}.
    * 

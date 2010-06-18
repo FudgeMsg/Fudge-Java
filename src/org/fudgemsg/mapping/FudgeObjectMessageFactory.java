@@ -20,42 +20,48 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 
 /**
- * Converts between Java objects and {@link FudgeFieldContainer} messages using the Fudge serialisation
+ * <p>Converts between Java objects and {@link FudgeFieldContainer} messages using the Fudge serialisation
  * framework. This class is provided for convenience, direct use of a {@link FudgeSerializationContext} or {@link FudgeDeserializationContext}
- * will be more efficient.
+ * will be more efficient.</p>
+ * 
+ * <p>This has been deprecated since 0.3, to be removed at the 1.0 release; a couple of utility methods have
+ * gone into the {@link FudgeContext} to support this.</p>
  *
  * @author Kirk Wylie
  */
+@Deprecated
 public class FudgeObjectMessageFactory {
   
   /**
-   * Serialises a Java object to a {@link FudgeFieldContainer} message.
+   * Serialises a Java object to a {@link FudgeFieldContainer} message. Use {@link FudgeContext#toFudgeMsg} instead.
    * 
    * @param <T> Java type
    * @param obj object to serialise
    * @param context the {@link FudgeContext} to use
    * @return the serialised message
    */
+  @Deprecated
   public static <T> FudgeFieldContainer serializeToMessage(T obj, FudgeContext context) {
     final FudgeSerializationContext fsc = new FudgeSerializationContext (context);
     return fsc.objectToFudgeMsg (obj);
   }
   
   /**
-   * Deserialises a {@link FudgeFieldContainer} message to a Java object, trying to determine the 
-   * type of the object automatically.
+   * Deserializes a {@link FudgeFieldContainer} message to a Java object, trying to determine the 
+   * type of the object automatically. Use {@link FudgeContext#fromFudgeMsg(FudgeFieldContainer)} instead.
    * 
-   * @param message the Fudge message to deserialise
+   * @param message the Fudge message to deserialize
    * @param context the {@link FudgeContext} to use
-   * @return the deserialised object
+   * @return the deserialized object
    */
+  @Deprecated
   public static Object deserializeToObject (FudgeFieldContainer message, FudgeContext context) {
     final FudgeDeserializationContext fdc = new FudgeDeserializationContext (context);
     return fdc.fudgeMsgToObject (message);
   }
   
   /**
-   * Deserialises a {@link FudgeFieldContainer} message to a Java object of type {@code clazz}.
+   * Deserializes a {@link FudgeFieldContainer} message to a Java object of type {@code clazz}. Use {@link FudgeContext#fromFudgeMsg(Class,FudgeFieldContainer)} instead.
    * 
    * @param <T> Java type
    * @param clazz the target type to deserialise
@@ -63,6 +69,7 @@ public class FudgeObjectMessageFactory {
    * @param context the underlying {@link FudgeContext} to use
    * @return the deserialised object
    */
+  @Deprecated
   public static <T> T deserializeToObject (Class<T> clazz, FudgeFieldContainer message, FudgeContext context) {
     final FudgeDeserializationContext fdc = new FudgeDeserializationContext (context);
     return fdc.fudgeMsgToObject (clazz, message);

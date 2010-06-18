@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -41,10 +40,10 @@ public class FudgeObjectStreamReaderTest {
   private static final FudgeContext s_fudgeContext = new FudgeContext();
   
   /**
-   * @throws IOException [documentation not available]
+   *
    */
   @Test
-  public void simpleBean() throws IOException {
+  public void simpleBean() {
     byte[] msgBytes = s_fudgeContext.toByteArray(ObjectMappingTestUtil.constructSimpleMessage(s_fudgeContext));
     ByteArrayInputStream bais = new ByteArrayInputStream(msgBytes);
     FudgeObjectReader reader = s_fudgeContext.createObjectReader(bais);
@@ -77,10 +76,10 @@ public class FudgeObjectStreamReaderTest {
   }
   
   /**
-   * @throws IOException [documentation not available]
+   *
    */
   @Test
-  public void staticAndTransient() throws IOException {
+  public void staticAndTransient() {
     MutableFudgeFieldContainer msg = s_fudgeContext.newMessage();
     msg.add("s_static", 9999);
     msg.add("static", 9988);

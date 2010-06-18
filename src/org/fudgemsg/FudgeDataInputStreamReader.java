@@ -16,10 +16,11 @@
 
 package org.fudgemsg;
 
+import java.io.Closeable;
 import java.io.DataInput;
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
-import java.io.Closeable;
 import java.io.InputStream;
 import java.util.Stack;
 
@@ -137,14 +138,6 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
    * {@inheritDoc}
    */
   @Override
-  public int getEnvelopeSize() {
-    return _envelopeSize;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public String getFieldName() {
     return _fieldName;
   }
@@ -218,7 +211,6 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
    */
   @Override
   public boolean hasNext() {
-    //System.out.println ("FudgeDataInputStreamReader::hasNext()");
     if(_processingStack.size() > 1) {
       // Always have at least one more.
       return true;
@@ -234,18 +226,7 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
       }
     } else {
       // Might have another envelope to read
-      if (getDataInput () instanceof InputStream) {
-        try {
-          // Ask the stream if there is more data
-          return ((InputStream)getDataInput ()).available () > 0;
-        } catch (IOException ioe) {
-          // Stream has errored, so return no more data
-          return false;
-        }
-      } else {
-        // Assume the best - might have another envelope to read
-        return true;
-      }
+      return true;
     }
   }
 
@@ -253,21 +234,27 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
    * {@inheritDoc}
    */
   @Override
-  public FudgeStreamElement next() throws IOException {
+  public FudgeStreamElement next() {
     //System.out.println ("FudgeDataInputStreamReader::next()");
-    if(_processingStack.isEmpty()) {
-      // Must be an envelope.
-      consumeMessageEnvelope();
-    } else if(isEndOfSubMessage()) {
-      _currentElement = FudgeStreamElement.SUBMESSAGE_FIELD_END;
-      _fieldName = null;
-      _fieldOrdinal = null;
-      _fieldType = null; 
-    } else {
-      consumeFieldData();
+    try {
+      if(_processingStack.isEmpty()) {
+        // Must be an envelope (or an EOF)
+        if (!consumeMessageEnvelope()) {
+          return null;
+        }
+      } else if(isEndOfSubMessage()) {
+        _currentElement = FudgeStreamElement.SUBMESSAGE_FIELD_END;
+        _fieldName = null;
+        _fieldOrdinal = null;
+        _fieldType = null; 
+      } else {
+        consumeFieldData();
+      }
+      assert _currentElement != null;
+      return _currentElement;
+    } catch (IOException e) {
+      throw new FudgeRuntimeIOException (e);
     }
-    assert _currentElement != null;
-    return _currentElement;
   }
 
   /**
@@ -337,7 +324,7 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
     FudgeFieldType<?> type = getFudgeContext().getTypeDictionary().getByTypeId(typeId);
     if(type == null) {
       if(fixedWidth) {
-        throw new FudgeRuntimeException("Unknown fixed width type " + typeId + " for field " + ordinal + ":" + name + " cannot be handled.");
+        throw new IOException("Unknown fixed width type " + typeId + " for field " + ordinal + ":" + name + " cannot be handled.");
       }
       type = getFudgeContext().getTypeDictionary().getUnknownType(typeId);
     }
@@ -351,7 +338,7 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
       case 2: varSize = getDataInput().readShort(); nRead += 2; break;
       case 4: varSize = getDataInput().readInt();  nRead += 4; break;
       default:
-        throw new FudgeRuntimeException("Illegal number of bytes indicated for variable width encoding: " + varSizeBytes);
+        throw new IOException("Illegal number of bytes indicated for variable width encoding: " + varSizeBytes);
       }
     }
     
@@ -385,46 +372,53 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
    * @param type the {@link FudgeFieldType} of the data to read
    * @param varSize number of bytes in a variable width field payload
    * @return the field value
-   * @throws IOException if the underlying stream raises an {@link IOException}
    */
   public static Object readFieldValue(
       DataInput is,
       FudgeFieldType<?> type,
-      int varSize) throws IOException {
+      int varSize) {
     //System.out.println ("FudgeDataInputStreamReader::readFieldValue(" + is + ", " + type + ", " + varSize + ")");
     assert type != null;
     assert is != null;
-    
-    // Special fast-pass for known field types
-    switch(type.getTypeId()) {
-    case FudgeTypeDictionary.BOOLEAN_TYPE_ID:
-      return is.readBoolean();
-    case FudgeTypeDictionary.BYTE_TYPE_ID:
-      return is.readByte();
-    case FudgeTypeDictionary.SHORT_TYPE_ID:
-      return is.readShort();
-    case FudgeTypeDictionary.INT_TYPE_ID:
-      return is.readInt();
-    case FudgeTypeDictionary.LONG_TYPE_ID:
-      return is.readLong();
-    case FudgeTypeDictionary.FLOAT_TYPE_ID:
-      return is.readFloat();
-    case FudgeTypeDictionary.DOUBLE_TYPE_ID:
-      return is.readDouble();
+    try {
+      // Special fast-pass for known field types
+      switch(type.getTypeId()) {
+      case FudgeTypeDictionary.BOOLEAN_TYPE_ID:
+        return is.readBoolean();
+      case FudgeTypeDictionary.BYTE_TYPE_ID:
+        return is.readByte();
+      case FudgeTypeDictionary.SHORT_TYPE_ID:
+        return is.readShort();
+      case FudgeTypeDictionary.INT_TYPE_ID:
+        return is.readInt();
+      case FudgeTypeDictionary.LONG_TYPE_ID:
+        return is.readLong();
+      case FudgeTypeDictionary.FLOAT_TYPE_ID:
+        return is.readFloat();
+      case FudgeTypeDictionary.DOUBLE_TYPE_ID:
+        return is.readDouble();
+      }
+      return type.readValue(is, varSize);
+    } catch (IOException e) {
+      throw new FudgeRuntimeIOException (e);
     }
-    
-    return type.readValue(is, varSize);
   }
 
   /**
    * Reads the next message envelope from the input stream, setting internal state go be returned by getCurrentElement, getProcessingDirectives, getSchemaVersion, getTaxonomyId and getEnvelopeSize.
    * 
-   * @throws IOException if the underlying data source raises an {@link IOException}, e.g. the end of the stream has been reached
+   * @throws IOException if the underlying data source raises an {@link IOException} other than an {@link EOFException} on the first byte of the envelope
+   * @return {@code true} if there was an envelope to consume, {@code false} if an EOF was found on reading the first byte
    */
-  protected void consumeMessageEnvelope() throws IOException {
+  protected boolean consumeMessageEnvelope() throws IOException {
     //System.out.println ("FudgeDataInputStreamReader::consumeMessageEnvelope()");
+    try {
+      _processingDirectives = getDataInput().readUnsignedByte();
+    } catch (EOFException e) {
+      _currentElement = null;
+      return false;
+    }
     _currentElement = FudgeStreamElement.MESSAGE_ENVELOPE;
-    _processingDirectives = getDataInput().readUnsignedByte();
     _schemaVersion = getDataInput().readUnsignedByte();
     _taxonomyId = getDataInput().readShort();
     _envelopeSize = getDataInput().readInt();
@@ -436,6 +430,7 @@ public class FudgeDataInputStreamReader implements FudgeStreamReader {
     processingState.consumed = 8;
     processingState.messageSize = _envelopeSize;
     _processingStack.add(processingState);
+    return true;
   }
   
 }

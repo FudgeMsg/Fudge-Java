@@ -15,16 +15,9 @@
  */
 package org.fudgemsg;
 
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Map;
-import java.util.HashMap;
 
-import javax.xml.stream.XMLStreamException;
-
-import org.fudgemsg.taxon.FudgeTaxonomy;
-import org.fudgemsg.taxon.MapFudgeTaxonomy;
-import org.fudgemsg.taxon.ImmutableMapTaxonomyResolver;
+import org.fudgemsg.xml.FudgeXMLStreamWriter;
 import org.junit.Test;
 
 /**
@@ -48,19 +41,6 @@ public class FudgeMsgFormatterTest {
     return msg;
   }
   
-  private static FudgeTaxonomy getTaxonomy () {
-    return new MapFudgeTaxonomy (
-        new int[] { 1, 2, 3, 4, 5, 6 },
-        new String[] { "boolean", "byte", "int", "string", "float", "double" }
-        );
-  }
-  
-  static {
-    final Map<Short,FudgeTaxonomy> tr = new HashMap<Short,FudgeTaxonomy> ();
-    tr.put ((short)1, getTaxonomy ());
-    s_fudgeContext.setTaxonomyResolver (new ImmutableMapTaxonomyResolver (tr));
-  }
-  
   /**
    * Will output a {@link FudgeMsg} to {@code System.out} so that you can visually
    * examine it.
@@ -82,11 +62,10 @@ public class FudgeMsgFormatterTest {
   }
 
   /**
-   * @throws IOException [documentation not available]
-   * @throws XMLStreamException [documentation not available]
+   * 
    */
   @Test
-  public void xmlStreamWriterAllNames () throws IOException, XMLStreamException {
+  public void xmlStreamWriterAllNames () {
     System.out.println("FudgeMsgFormatterTest.xmlStreamWriterAllNames()");
     final FudgeMsgWriter fmw = new FudgeMsgWriter (new FudgeXMLStreamWriter (s_fudgeContext, new PrintWriter (System.out)));
     fmw.writeMessage (allNames (), 0);
@@ -96,11 +75,10 @@ public class FudgeMsgFormatterTest {
   }
   
   /**
-   * @throws IOException [documentation not available]
-   * @throws XMLStreamException [documentation not available]
+   * 
    */
   @Test
-  public void xmlStreamWriterAllOrdinals () throws IOException, XMLStreamException {
+  public void xmlStreamWriterAllOrdinals () {
     System.out.println("FudgeMsgFormatterTest.xmlStreamWriterAllOrdinals()");
     final FudgeMsgWriter fmw = new FudgeMsgWriter (new FudgeXMLStreamWriter (s_fudgeContext, new PrintWriter (System.out)));
     fmw.writeMessage (allOrdinals (), 0);

@@ -22,7 +22,8 @@ import java.util.List;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.FudgeRuntimeException;
+import org.fudgemsg.types.IndicatorFieldType;
+import org.fudgemsg.types.IndicatorType;
 
 /**
  * Builder for List objects.
@@ -32,7 +33,7 @@ import org.fudgemsg.FudgeRuntimeException;
 /* package */ class ListBuilder implements FudgeBuilder<List<?>> {
   
   /**
-   * 
+   * Singleton instance of the {@link ListBuilder}.
    */
   /* package */ static final FudgeBuilder<List<?>> INSTANCE = new ListBuilder (); 
   
@@ -40,26 +41,39 @@ import org.fudgemsg.FudgeRuntimeException;
   }
 
   /**
-   *
+   * Creates a Fudge message representation of a {@link List}.
+   * 
+   * @param context the serialization context
+   * @param list the list to serialize
+   * @return the Fudge message
    */
   @Override
   public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, List<?> list) {
     final MutableFudgeFieldContainer msg = context.newMessage ();
     for (Object entry : list) {
-      context.objectToFudgeMsg (msg, null, null, entry);
+      if (entry == null) {
+        msg.add (null, null, IndicatorFieldType.INSTANCE, IndicatorType.INSTANCE);
+      } else {
+        context.objectToFudgeMsg (msg, null, null, entry);
+      }
     }
     return msg;
   }
   
   /**
-   *
+   * Creates a list from a Fudge message.
+   * 
+   * @param context the deserialization context
+   * @param message the Fudge message
+   * @return the {@link List}
    */
   @Override
   public List<?> buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
     final List<Object> list = new ArrayList<Object> ();
     for (FudgeField field : message) {
-      if ((field.getOrdinal () != null) && (field.getOrdinal () != 1)) throw new FudgeRuntimeException ("Sub-message doesn't contain a list (bad field " + field + ")");
-      list.add (context.fieldValueToObject (field));
+      if ((field.getOrdinal () != null) && (field.getOrdinal () != 1)) throw new IllegalArgumentException ("Sub-message doesn't contain a list (bad field " + field + ")");
+      Object o = context.fieldValueToObject (field);
+      list.add ((o instanceof IndicatorType) ? null : o);
     }
     return list;
   }

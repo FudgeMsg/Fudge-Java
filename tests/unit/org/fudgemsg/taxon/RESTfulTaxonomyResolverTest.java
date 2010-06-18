@@ -15,10 +15,13 @@
  */
 package org.fudgemsg.taxon;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
+import java.io.File;
+import java.io.IOException;
+
+import org.junit.Test;
 
 /**
  * Tests the RESTfulTaxonomyResolver implementation
@@ -26,13 +29,24 @@ import static org.junit.Assert.assertNull;
  * @author Andrew Griffin
  */
 public class RESTfulTaxonomyResolverTest {
+
+  private static final String XML_PATH = System.getProperty ("user.name") + "/rest/";
+  private static final String TAXONOMY_XML = "/var/www/html/" + XML_PATH;
+  private static final String TAXONOMY_URL = "http://localhost/" + XML_PATH;
   
   /**
    * 
+   * @throws IOException [documentation not available]
    */
   @Test
-  public void testResolver () {
-    final TaxonomyResolver tr = new RESTfulTaxonomyResolver ("http://localhost/" + System.getProperty ("user.name") + "/rest/", ".xml");
+  public void testResolver () throws IOException {
+    final File f = new File (TAXONOMY_XML + "42.xml");
+    if ((f.exists () && !f.canWrite ()) || !f.getParentFile ().canWrite ()) {
+      System.out.println ("Skipping RESTfulTaxonomyResolverTest::testResolver - no local webserver");
+      return;
+    }
+    PropertyFileTaxonomyTest.writeTaxonomyXML (f);
+    final TaxonomyResolver tr = new RESTfulTaxonomyResolver (TAXONOMY_URL, ".xml");
     assertNotNull (tr.resolveTaxonomy ((short)42));
     assertNull (tr.resolveTaxonomy ((short)43));
   }

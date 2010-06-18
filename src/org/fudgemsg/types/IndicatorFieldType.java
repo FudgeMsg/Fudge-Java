@@ -17,7 +17,6 @@ package org.fudgemsg.types;
 
 import java.io.DataInput;
 import java.io.DataOutput;
-import java.io.IOException;
 
 import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeTypeDictionary;
@@ -43,8 +42,7 @@ public class IndicatorFieldType extends FudgeFieldType<IndicatorType> {
    * {@inheritDoc}
    */
   @Override
-  public IndicatorType readValue(DataInput input, int dataSize)
-      throws IOException {
+  public IndicatorType readValue(DataInput input, int dataSize) {
     return IndicatorType.INSTANCE;
   }
 
@@ -52,7 +50,7 @@ public class IndicatorFieldType extends FudgeFieldType<IndicatorType> {
    * {@inheritDoc}
    */
   @Override
-  public void writeValue(DataOutput output, IndicatorType value) throws IOException {
+  public void writeValue(DataOutput output, IndicatorType value) {
     // Intentional no-op.
   }
 

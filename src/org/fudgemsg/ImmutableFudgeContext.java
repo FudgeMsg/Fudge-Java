@@ -21,11 +21,12 @@ import org.fudgemsg.taxon.TaxonomyResolver;
 
 /**
  * <p>Immutable wrapper for a {@link FudgeContext} that will be used for the global
- * "default". It cannot be configured.</p>
+ * "default", or for use with {@link ImmutableFudgeMsg}. It cannot be configured
+ * after construction.</p>
  * 
  * @author Andrew Griffin
  */
-/* package */ class ImmutableFudgeContext extends FudgeContext {
+public class ImmutableFudgeContext extends FudgeContext {
   
   /**
    * Creates an immutable version of an existing {@link FudgeContext}. Immutable copies of the type and object dictionaries
@@ -33,7 +34,7 @@ import org.fudgemsg.taxon.TaxonomyResolver;
    * 
    * @param context the {@code FudgeContext} to base this on
    */
-  /* package */ ImmutableFudgeContext (final FudgeContext context) {
+  public ImmutableFudgeContext (final FudgeContext context) {
     super.setTaxonomyResolver (context.getTaxonomyResolver ());
     super.setTypeDictionary (new ImmutableFudgeTypeDictionary (context.getTypeDictionary ()));
     super.setObjectDictionary (new ImmutableFudgeObjectDictionary (context.getObjectDictionary ()));

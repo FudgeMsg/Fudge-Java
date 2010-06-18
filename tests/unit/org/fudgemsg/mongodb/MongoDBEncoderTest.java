@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeObjectMessageFactory;
 import org.junit.Test;
 
 import com.mongodb.DBObject;
@@ -46,7 +45,7 @@ public class MongoDBEncoderTest {
     subMsg.add("val1", "MongoDB");
     msg.add("val3", subMsg);
     
-    DBObject dbObject = FudgeObjectMessageFactory.deserializeToObject(DBObject.class, msg, FudgeContext.GLOBAL_DEFAULT);
+    DBObject dbObject = FudgeContext.GLOBAL_DEFAULT.fromFudgeMsg(DBObject.class, msg);
     System.out.println("MongoDBEncoderTest.subMsgEncoding produced " + dbObject);
     assertNotNull(dbObject);
     assertEquals(293836, dbObject.get("val1"));
@@ -66,7 +65,7 @@ public class MongoDBEncoderTest {
     msg.add("val1", 293836);
     msg.add("val1", "Kirk Wylie");
     
-    DBObject dbObject = FudgeObjectMessageFactory.deserializeToObject(DBObject.class, msg, FudgeContext.GLOBAL_DEFAULT);
+    DBObject dbObject = FudgeContext.GLOBAL_DEFAULT.fromFudgeMsg(DBObject.class, msg);
     System.out.println("MongoDBEncoderTest.repeatedValueEncoding produced " + dbObject);
     assertNotNull(dbObject);
     assertTrue(dbObject.get("val1") instanceof List);

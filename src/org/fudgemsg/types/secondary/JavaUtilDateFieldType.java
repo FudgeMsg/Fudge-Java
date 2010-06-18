@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc. and other contributors.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc. and other contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,40 +15,40 @@
  */
 package org.fudgemsg.types.secondary;
 
-import java.util.Calendar;
 import java.util.Date;
 
-import org.fudgemsg.FudgeFieldType;
+import javax.time.Instant;
+
+import org.fudgemsg.types.DateTimeAccuracy;
 import org.fudgemsg.types.DateTimeFieldType;
 import org.fudgemsg.types.FudgeDate;
-import org.fudgemsg.types.SecondaryFieldType;
+import org.fudgemsg.types.FudgeDateTime;
+import org.fudgemsg.types.SecondaryFieldTypeBase;
 
 /**
- * Secondary type for {@link Date} conversion to/from a {@link Calendar}. Also supports conversions from
- * the {@link FudgeDate} temporary class.
+ * Secondary type for {@link Date} conversion to/from a {@link FudgeDate} or {@link FudgeDateTime}
+ * transport object. Note that once the Java Time Framework is part of the main JDK the {@code Date}
+ * class will implement {@code InstantProvider} and this type can be deprecated.
  *
  * @author Andrew Griffin
  */
-public class JavaUtilDateFieldType extends SecondaryFieldType<Date,Object> {
+public class JavaUtilDateFieldType extends SecondaryFieldTypeBase<Date,Object,FudgeDateTime> {
   
   /**
    * Singleton instance of the type.
    */
   public static final JavaUtilDateFieldType INSTANCE = new JavaUtilDateFieldType ();
   
-  @SuppressWarnings("unchecked")
   private JavaUtilDateFieldType () {
-    super ((FudgeFieldType<Object>)(FudgeFieldType<? extends Object>)DateTimeFieldType.INSTANCE, Date.class);
+    super (DateTimeFieldType.INSTANCE, Date.class);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public Object secondaryToPrimary (Date object) {
-    final Calendar calendar = Calendar.getInstance ();
-    calendar.setTime (object);
-    return calendar;
+  public FudgeDateTime secondaryToPrimary (Date object) {
+    return new FudgeDateTime (DateTimeAccuracy.MILLISECOND, Instant.ofMillis (object.getTime ())); // Interim measure
   }
   
   /**
@@ -56,8 +56,8 @@ public class JavaUtilDateFieldType extends SecondaryFieldType<Date,Object> {
    */
   @Override
   public Date primaryToSecondary (Object object) {
-    if (object instanceof Calendar) {
-      return primaryToSecondary ((Calendar)object);
+    if (object instanceof FudgeDateTime) {
+      return primaryToSecondary ((FudgeDateTime)object);
     } else if (object instanceof FudgeDate) {
       return primaryToSecondary ((FudgeDate)object);
     } else {
@@ -66,13 +66,13 @@ public class JavaUtilDateFieldType extends SecondaryFieldType<Date,Object> {
   }
   
   /**
-   * Primary to secondary conversion, where the primary type is a {@link Calendar}.
+   * Primary to secondary conversion, where the primary type is a {@link FudgeDateTime}.
    * 
    * @param object primary object
    * @return the converted {@link Date} object
    */
-  protected Date primaryToSecondary (Calendar object) {
-    return object.getTime ();
+  protected Date primaryToSecondary (FudgeDateTime object) {
+    return JavaUtilCalendarFieldType.fudgeDateTimeToCalendar (object.getDate (), object.getTime ()).getTime ();
   }
   
   /**
@@ -82,7 +82,7 @@ public class JavaUtilDateFieldType extends SecondaryFieldType<Date,Object> {
    * @return the converted {@link Date} object
    */
   protected Date primaryToSecondary (FudgeDate object) {
-    return object.getDate ();
+    return JavaUtilCalendarFieldType.fudgeDateTimeToCalendar (object, null).getTime ();
   }
   
   /**
@@ -90,7 +90,7 @@ public class JavaUtilDateFieldType extends SecondaryFieldType<Date,Object> {
    */
   @Override
   public boolean canConvertPrimary (Class<?> javaType) {
-    return Calendar.class.isAssignableFrom (javaType) || FudgeDate.class.isAssignableFrom (javaType);
+    return FudgeDateTime.class.isAssignableFrom (javaType) || FudgeDate.class.isAssignableFrom (javaType);
   }
   
 }

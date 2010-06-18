@@ -24,7 +24,6 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -35,11 +34,10 @@ import org.junit.Test;
 public class PropertyFileTaxonomyTest {
   
   private static final String XML_PATH = System.getProperty ("user.name") + "/PropertyFileTaxonomyTest.xml";
-  private static final String WRITE_TAXONOMY_XML = (XML_PATH != null) ? "/var/www/html/" + XML_PATH : null;
-  private static final String TAXONOMY_URL = (XML_PATH != null) ? "http://localhost/" + XML_PATH : null;
-  private static final boolean DELETE_XML_AFTERWARDS = true;
+  private static final String WRITE_TAXONOMY_XML = "/var/www/html/" + XML_PATH;
+  private static final String TAXONOMY_URL = "http://localhost/" + XML_PATH;
   
-  private void verifyTaxon (final FudgeTaxonomy taxon) {
+  private static void verifyTaxon (final FudgeTaxonomy taxon) {
     assertEquals (null, taxon.getFieldName ((short)0));
     assertEquals ("id", taxon.getFieldName ((short)1));
     assertEquals ("name", taxon.getFieldName ((short)2));
@@ -54,13 +52,25 @@ public class PropertyFileTaxonomyTest {
     assertEquals (null, taxon.getFieldOrdinal (null));
   }
   
-  private Properties makeProperties () {
+  private static Properties makeProperties () {
     final Properties props = new Properties ();
     props.setProperty ("1", "id");
     props.setProperty ("2", "name");
     props.setProperty ("3", "email");
     props.setProperty ("4", "telephone");
     return props;
+  }
+  
+  /**
+   * 
+   * @param f [documentation not available]
+   * @throws IOException [documentation not available]
+   */
+  /* package */ static void writeTaxonomyXML (final File f) throws IOException {
+    final Properties props = makeProperties ();
+    final FileOutputStream fos = new FileOutputStream (f);
+    props.storeToXML (fos, "PropertyFileTaxonomyTest");
+    fos.close ();
   }
   
   /**
@@ -85,22 +95,15 @@ public class PropertyFileTaxonomyTest {
    * @throws IOException if there's a problem with the webserver or filesystem
    */
   @Test
-  @Ignore // ignore this if there isn't a local webserver available
   public void testURL () throws IOException {
-    if (WRITE_TAXONOMY_XML != null) {
-      final Properties props = makeProperties ();
-      final FileOutputStream fos = new FileOutputStream (WRITE_TAXONOMY_XML);
-      props.storeToXML (fos, "PropertyFileTaxonomyTest");
-      fos.close ();
+    final File f = new File (WRITE_TAXONOMY_XML);
+    if ((f.exists () && !f.canWrite ()) || !f.getParentFile ().canWrite ()) {
+      System.out.println ("skipping PropertyFileTaxonomyTest::testURL test - no local webserver");
+      return;
     }
-    if (TAXONOMY_URL != null) {
-      final FudgeTaxonomy taxon = new PropertyFileTaxonomy (new URL (TAXONOMY_URL));
-      verifyTaxon (taxon);
-    }
-    if ((WRITE_TAXONOMY_XML != null) && DELETE_XML_AFTERWARDS) {
-      final File f = new File (WRITE_TAXONOMY_XML);
-      f.delete ();
-    }
+    writeTaxonomyXML (f);
+    final FudgeTaxonomy taxon = new PropertyFileTaxonomy (new URL (TAXONOMY_URL));
+    verifyTaxon (taxon);
   }
   
 }

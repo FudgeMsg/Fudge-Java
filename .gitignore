@@ -3,7 +3,9 @@ build/
 classes/
 dist/
 docs/
-ivy/
+bootstrap/
 tests/classes/
 tests/output/
 lib/
+/.fudge-proto-gitignore
+/MANIFEST.MF

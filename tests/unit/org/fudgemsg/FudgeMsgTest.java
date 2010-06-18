@@ -16,18 +16,19 @@
 package org.fudgemsg;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.fudgemsg.types.ByteArrayFieldType;
 import org.fudgemsg.types.IndicatorType;
 import org.fudgemsg.types.PrimitiveFieldTypes;
 import org.junit.Test;
-
 
 /**
  * 
@@ -147,10 +148,8 @@ public class FudgeMsgTest {
   @Test
   public void primitiveExactQueriesNamesNoMatch() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllNames(s_fudgeContext);
-    // now we've decided that get*() == getAs*() these work...
-    assertNotNull(msg.getByte("int"));
-    assertNotNull(msg.getShort("int"));
-    assertNotNull(msg.getInt("byte"));
+    assertNotNull(msg.getShort("byte"));
+    assertNotNull(msg.getInt("short"));
     assertNotNull(msg.getLong("int"));
     assertNotNull(msg.getFloat("double"));
     assertNotNull(msg.getDouble("float"));
@@ -251,16 +250,56 @@ public class FudgeMsgTest {
    * 
    */
   @Test
+  public void immutableFudgeMsgTest() {
+    MutableFudgeFieldContainer mutableMsg = StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext);
+    ImmutableFudgeFieldContainer msg = new ImmutableFudgeMsg (mutableMsg, s_fudgeContext);
+
+    assertEquals (null, mutableMsg.getString ("field not there"));
+    assertEquals (null, msg.getString ("field not there"));
+    
+    mutableMsg.add ("field not there", "is now");
+    assertEquals ("is now", mutableMsg.getString ("field not there"));
+    assertEquals (null, msg.getString ("field not there"));
+  }
+  
+  /**
+   * 
+   */
+  @Test
+  public void mutableFudgeMsgTest () {
+    MutableFudgeFieldContainer msg = StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext);
+    assertEquals (null, msg.getString ("foo"));
+    assertEquals (null, msg.getString (999));
+    msg.add ("foo", "bar1");
+    msg.add (999, "bar2");
+    assertEquals ("bar1", msg.getString ("foo"));
+    assertEquals ("bar2", msg.getString (999));
+    msg.remove ("foo");
+    msg.remove ((short)999);
+    assertEquals (null, msg.getString ("foo"));
+    assertEquals (null, msg.getString (999));
+    int sizeBefore = msg.getNumFields ();
+    Iterator<FudgeField> iterator = msg.iterator ();
+    int i = 0;
+    while (iterator.hasNext ()) {
+      iterator.next ();
+      if ((i++ & 1) == 0) iterator.remove ();
+    }
+    assertEquals (sizeBefore / 2, msg.getNumFields ());
+    msg.clear ();
+    assertEquals (0, msg.getNumFields ());
+  }
+
+  /**
+   * 
+   */
+  @Test
   public void primitiveExactQueriesOrdinalsNoMatch() {
     FudgeFieldContainer msg = StandardFudgeMessages.createMessageAllOrdinals(s_fudgeContext);
-    // these have changed since the decision to make get* == getAs*.
-    // truncation may occur at the moment and we need to consider 
-    // whether exceptions should be thrown instead
-    assertNotNull(msg.getByte((short)7));
-    assertNotNull(msg.getShort((short)7));
-    assertNotNull(msg.getInt((short)9));
+    assertNotNull(msg.getShort((short)3));
+    assertNotNull(msg.getInt((short)5));
     assertNotNull(msg.getLong((short)7));
-    assertNotNull(msg.getFloat((short)13));
+    assertNotNull(msg.getFloat((short)14));
     assertNotNull(msg.getDouble((short)11));
   }
   
@@ -373,6 +412,77 @@ public class FudgeMsgTest {
     assertNull(msg.getMessage(42));
     assertNull(msg.getMessage("No Such Field"));
     assertTrue(msg.getMessage("sub1") instanceof FudgeFieldContainer);
+  }
+  
+  /**
+   * 
+   */
+  @Test
+  public void testIsEmpty () {
+    MutableFudgeFieldContainer msg = s_fudgeContext.newMessage ();
+    assertTrue (msg.isEmpty ());
+    msg.add (null, null, "foo");
+    assertFalse (msg.isEmpty ());
+  }
+  
+  /**
+   * 
+   */
+  @Test
+  public void testEquals () {
+    MutableFudgeFieldContainer msg1 = s_fudgeContext.newMessage ();
+    msg1.add ("foo", 1, "hello world");
+    msg1.add ("bar", 2, 42);
+    MutableFudgeFieldContainer msg2 = s_fudgeContext.newMessage ();
+    assertFalse (msg1.equals (msg2));
+    assertFalse (msg2.equals (msg1));
+    msg2.add ("foo", 1, "hello world");
+    assertFalse (msg1.equals (msg2));
+    assertFalse (msg2.equals (msg1));
+    msg2.add ("bar", 2, 42);
+    assertTrue (msg1.equals (msg2));
+    assertTrue (msg2.equals (msg1));
+    FudgeFieldContainer msg3 = new ImmutableFudgeMsg (msg2, s_fudgeContext);
+    FudgeFieldContainer msg4 = new ImmutableFudgeMsg (msg1, s_fudgeContext);
+    assertTrue (msg3.equals (msg4));
+    assertTrue (msg4.equals (msg3));
+    assertFalse (msg1.equals (msg3));
+    assertFalse (msg3.equals (msg1));
+    assertFalse (msg2.equals (msg4));
+    assertFalse (msg4.equals (msg2));
+  }
+  
+  /**
+   * 
+   */
+  @Test
+  public void hasFieldByName() {
+    MutableFudgeFieldContainer msg1 = s_fudgeContext.newMessage ();
+    msg1.add("foo", 1, "hello world 1");
+    msg1.add("bar", 2, 42);
+    msg1.add("foo", 1, "hello world 2");
+    msg1.add(null, 3, "no name");
+    
+    assertTrue(msg1.hasField("foo"));
+    assertTrue(msg1.hasField("bar"));
+    assertFalse(msg1.hasField("foobar"));
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void hasFieldByOrdinal() {
+    MutableFudgeFieldContainer msg1 = s_fudgeContext.newMessage ();
+    msg1.add("foo", 1, "hello world 1");
+    msg1.add("bar", 2, 42);
+    msg1.add("foo", 1, "hello world 2");
+    msg1.add(null, 3, "no name");
+    
+    assertTrue(msg1.hasField(1));
+    assertTrue(msg1.hasField(2));
+    assertTrue(msg1.hasField(3));
+    assertFalse(msg1.hasField(4));
   }
 
 }

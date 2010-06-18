@@ -23,7 +23,6 @@ import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 
-
 /**
  * Type definition for arrays of 32-bit integers.
  *

@@ -34,17 +34,16 @@ import org.fudgemsg.types.LongArrayFieldType;
 import org.fudgemsg.types.PrimitiveFieldTypes;
 import org.fudgemsg.types.PrimitiveFieldTypesConverter;
 import org.fudgemsg.types.SecondaryFieldType;
+import org.fudgemsg.types.SecondaryFieldTypeBase;
 import org.fudgemsg.types.ShortArrayFieldType;
 import org.fudgemsg.types.StringFieldType;
 import org.fudgemsg.types.TimeFieldType;
 import org.fudgemsg.types.UnknownFudgeFieldType;
-import org.fudgemsg.types.secondary.JavaUtilDateFieldType;
-import org.fudgemsg.types.secondary.JavaUtilUUIDFieldType;
+import org.fudgemsg.types.secondary.SecondaryTypeLoader;
 
 /**
  * Contains all the {@link FudgeFieldType} definitions for a particular
- * Fudge installation.
- * You can control it through your {@link FudgeContext}.
+ * Fudge installation. You can control it through your {@link FudgeContext}.
  *
  * @author Kirk Wylie
  */
@@ -72,18 +71,18 @@ public class FudgeTypeDictionary {
     addType(ByteArrayFieldType.LENGTH_128_INSTANCE);
     addType(ByteArrayFieldType.LENGTH_256_INSTANCE);
     addType(ByteArrayFieldType.LENGTH_512_INSTANCE);
-    addType(PrimitiveFieldTypes.BOOLEAN_TYPE, Boolean.class);
-    addType(PrimitiveFieldTypes.BYTE_TYPE, Byte.class);
-    addType(PrimitiveFieldTypes.SHORT_TYPE, Short.class);
-    addType(PrimitiveFieldTypes.INT_TYPE, Integer.class);
-    addType(PrimitiveFieldTypes.LONG_TYPE, Long.class);
-    addType(PrimitiveFieldTypes.FLOAT_TYPE, Float.class);
+    addType(PrimitiveFieldTypes.BOOLEAN_TYPE, Boolean.class, Boolean.TYPE);
+    addType(PrimitiveFieldTypes.BYTE_TYPE, Byte.class, Byte.TYPE);
+    addType(PrimitiveFieldTypes.SHORT_TYPE, Short.class, Short.TYPE);
+    addType(PrimitiveFieldTypes.INT_TYPE, Integer.class, Integer.TYPE);
+    addType(PrimitiveFieldTypes.LONG_TYPE, Long.class, Long.TYPE);
+    addType(PrimitiveFieldTypes.FLOAT_TYPE, Float.class, Float.TYPE);
     addType(ShortArrayFieldType.INSTANCE);
     addType(IntArrayFieldType.INSTANCE);
     addType(LongArrayFieldType.INSTANCE);
     addType(IndicatorFieldType.INSTANCE);
     addType(FloatArrayFieldType.INSTANCE);
-    addType(PrimitiveFieldTypes.DOUBLE_TYPE, Double.class);
+    addType(PrimitiveFieldTypes.DOUBLE_TYPE, Double.class, Double.TYPE);
     addType(DoubleArrayFieldType.INSTANCE);
     addType(ByteArrayFieldType.VARIABLE_SIZED_INSTANCE);
     addType(StringFieldType.INSTANCE);
@@ -92,20 +91,18 @@ public class FudgeTypeDictionary {
     addType(TimeFieldType.INSTANCE);
     addType(DateTimeFieldType.INSTANCE);
     // default type conversions
-    addTypeConverter(PrimitiveFieldTypesConverter.INT_CONVERTER, Integer.class);
-    addTypeConverter(PrimitiveFieldTypesConverter.BOOLEAN_CONVERTER, Boolean.class);
-    addTypeConverter(PrimitiveFieldTypesConverter.BYTE_CONVERTER, Byte.class);
-    addTypeConverter(PrimitiveFieldTypesConverter.SHORT_CONVERTER, Short.class);
-    addTypeConverter(PrimitiveFieldTypesConverter.LONG_CONVERTER, Long.class);
-    addTypeConverter(PrimitiveFieldTypesConverter.FLOAT_CONVERTER, Float.class);
-    addTypeConverter(PrimitiveFieldTypesConverter.DOUBLE_CONVERTER, Double.class);
+    addTypeConverter(PrimitiveFieldTypesConverter.INT_CONVERTER, Integer.class, Integer.TYPE);
+    addTypeConverter(PrimitiveFieldTypesConverter.BOOLEAN_CONVERTER, Boolean.class, Boolean.TYPE);
+    addTypeConverter(PrimitiveFieldTypesConverter.BYTE_CONVERTER, Byte.class, Byte.TYPE);
+    addTypeConverter(PrimitiveFieldTypesConverter.SHORT_CONVERTER, Short.class, Short.TYPE);
+    addTypeConverter(PrimitiveFieldTypesConverter.LONG_CONVERTER, Long.class, Long.TYPE);
+    addTypeConverter(PrimitiveFieldTypesConverter.FLOAT_CONVERTER, Float.class, Float.TYPE);
+    addTypeConverter(PrimitiveFieldTypesConverter.DOUBLE_CONVERTER, Double.class, Double.TYPE);
     addTypeConverter(IndicatorFieldTypeConverter.INSTANCE, IndicatorType.class);
-    // TODO 2010-02-05 Andrew -- should we do any conversion for arrays? 
     // secondary types
-    addType(JavaUtilUUIDFieldType.INSTANCE);
-    addType(JavaUtilDateFieldType.INSTANCE);
+    SecondaryTypeLoader.addTypes (this);
   }
-  
+
   /**
    * Creates a new {@link FudgeTypeDictionary} as a clone of another.
    * 
@@ -124,14 +121,16 @@ public class FudgeTypeDictionary {
    * automatically when {@link #addType} is called.
    * 
    * @param converter the converter
-   * @param type the type to register against
+   * @param types the type(s) to register against
    */
-  public void addTypeConverter (FudgeTypeConverter<?,?> converter, Class<?> type) {
-    _convertersByJavaType.put (type, converter);
-    type = type.getSuperclass ();
-    while (!Object.class.equals (type)) {
-      if (_convertersByJavaType.putIfAbsent (type, converter) != null) break;
+  public void addTypeConverter (FudgeTypeConverter<?,?> converter, Class<?> ... types) {
+    for (Class<?> type : types) {
+      _convertersByJavaType.put (type, converter);
       type = type.getSuperclass ();
+      while ((type != null) && !Object.class.equals (type)) {
+        if (_convertersByJavaType.putIfAbsent (type, converter) != null) break;
+        type = type.getSuperclass ();
+      }
     }
   }
   
@@ -146,14 +145,18 @@ public class FudgeTypeDictionary {
     if(type == null) {
       throw new NullPointerException("Must not provide a null FudgeFieldType to add.");
     }
-    synchronized (this) {
-      if (type instanceof SecondaryFieldType<?,?>) {
-        addTypeConverter ((SecondaryFieldType<?,?>)type, type.getJavaType ());
-      } else {
+    if (type instanceof SecondaryFieldTypeBase<?,?,?>) {
+      addTypeConverter ((SecondaryFieldTypeBase<?,?,?>)type, type.getJavaType ());
+    } else {
+      synchronized (this) {
         int newLength = Math.max(type.getTypeId() + 1, _typesById.length);
         FudgeFieldType<?>[] newArray = Arrays.copyOf(_typesById, newLength);
         newArray[type.getTypeId()] = type;
         _typesById = newArray;
+        /*for (int i = 0; i < newArray.length; i++) {
+          System.out.println (i + "=" + newArray[i]);
+        }
+        System.out.println ("\n\n");*/
       }
     }
     _typesByJavaType.put(type.getJavaType(), type);
@@ -255,7 +258,7 @@ public class FudgeTypeDictionary {
       } else {
         final FudgeTypeConverter<Object,T> converter = getTypeConverter(clazz);
         if (converter == null) {
-          // don't recognise the requested type
+          // don't recognize the requested type
           throw new IllegalArgumentException ("cannot convert " + sourceType + " to unregistered secondary type " + clazz.getName ());
         } else {
           if (converter.canConvertPrimary (sourceType.getPrimaryType ().getJavaType ())) {
@@ -267,11 +270,19 @@ public class FudgeTypeDictionary {
           }
         }
       }
+    } else if (type instanceof IndicatorFieldType) {
+      // indicators always get converted to NULL when cast to another type
+      return null;
     } else {
       final FudgeTypeConverter<Object,T> converter = getTypeConverter (clazz);
       if (converter == null) {
         // don't recognize the requested type
-        throw new IllegalArgumentException ("cannot convert " + type + " to unregistered secondary type " + clazz.getName ());
+        if (clazz.isEnum ()) {
+          // get the field as a string and then try to inflate the enum
+          return (T)Enum.valueOf ((Class<? extends Enum>)clazz, getFieldValue (String.class, field));
+        } else {
+          throw new IllegalArgumentException ("cannot convert " + type + " to unregistered secondary type " + clazz.getName ());
+        }
       } else {
         if (converter.canConvertPrimary (value.getClass ())) {
           // secondary type extends our current type
@@ -280,6 +291,51 @@ public class FudgeTypeDictionary {
           // secondary type doesn't extend our current type
           throw new IllegalArgumentException ("secondary type " + clazz.getName () + " does not allow conversion from " + value.getClass ().getName ());
         }
+      }
+    }
+  }
+  
+  /**
+   * Type conversion test for secondary types. Returns {@code true} if {@link #getFieldValue} would return an
+   * object instance.
+   *  
+   * @param <T> type to convert to
+   * @param clazz target class for the converted value
+   * @param field field containing the value to convert
+   * @return {@code true} if a conversion is possible, {@code false} otherwise ({@link #getFieldValue} might return {@code null} or throw an exception)
+   */
+  @SuppressWarnings("unchecked")
+  public <T> boolean canConvertField (final Class<T> clazz, final FudgeField field) {
+    final Object value = field.getValue ();
+    if (value == null) return false;
+    if (clazz.isAssignableFrom (value.getClass ())) return true;
+    final FudgeFieldType<?> type = field.getType ();
+    if (type instanceof SecondaryFieldType) {
+      final SecondaryFieldType sourceType = (SecondaryFieldType)type;
+      if (clazz.isAssignableFrom (sourceType.getPrimaryType ().getJavaType ())) {
+        // been asked for the primary type
+        return true;
+      } else {
+        final FudgeTypeConverter<Object,T> converter = getTypeConverter(clazz);
+        if (converter == null) {
+          // don't recognize the requested type
+          return false;
+        } else {
+          // check common base
+          return converter.canConvertPrimary (sourceType.getPrimaryType ().getJavaType ());
+        }
+      }
+    } else if (type instanceof IndicatorFieldType) {
+      // indicators can't be converted to instances
+      return false;
+    } else {
+      final FudgeTypeConverter<Object,T> converter = getTypeConverter (clazz);
+      if (converter == null) {
+        // don't recognize the requested type
+        return false;
+      } else {
+        // does secondary type extend current type
+        return converter.canConvertPrimary (value.getClass ());
       }
     }
   }

@@ -32,8 +32,9 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
   
   private final FudgeContext _fudgeContext;
   private final DataOutput _dataOutput;
-  private FudgeTaxonomy _taxonomy;
-  private int _taxonomyId;
+  private FudgeTaxonomy _taxonomy = null;
+  private int _taxonomyId = 0;
+  private boolean _automaticFlush = true;
   
   private static DataOutput convertOutputStream (final OutputStream outputStream) {
     if (outputStream instanceof DataOutput) {
@@ -75,11 +76,15 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
    * Flushes and closes this writer and the underlying target.
    */
   @Override
-  public void close () throws IOException {
+  public void close () {
     if (_dataOutput == null) return;
     flush ();
     if (_dataOutput instanceof Closeable) {
-      ((Closeable)_dataOutput).close ();
+      try {
+        ((Closeable)_dataOutput).close ();
+      } catch (IOException e) {
+        throw new FudgeRuntimeIOException (e);
+      }
     }
     _taxonomy = null;
     _taxonomyId = 0;
@@ -89,10 +94,14 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
    * {@inheritDoc} 
    */
   @Override
-  public void flush () throws IOException {
+  public void flush () {
     final Object out = getDataOutput ();
     if (out instanceof Flushable) {
-      ((Flushable)out).flush ();
+      try {
+        ((Flushable)out).flush ();
+      } catch (IOException e) {
+        throw new FudgeRuntimeIOException (e);
+      }
     }
   }
   
@@ -145,38 +154,69 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
    * {@inheritDoc}
    */
   @Override
-  public int writeEnvelopeHeader(
+  public void writeEnvelopeHeader(
       int processingDirectives,
       int schemaVersion,
-      int messageSize) throws IOException {
-    getDataOutput().writeByte(processingDirectives);
-    getDataOutput().writeByte(schemaVersion);
-    getDataOutput().writeShort(getCurrentTaxonomyId ());
-    getDataOutput().writeInt(messageSize);
-    return 8;
+      int messageSize) {
+    try {
+      getDataOutput().writeByte(processingDirectives);
+      getDataOutput().writeByte(schemaVersion);
+      getDataOutput().writeShort(getCurrentTaxonomyId ());
+      getDataOutput().writeInt(messageSize);
+    } catch (IOException e) {
+      throw new FudgeRuntimeIOException (e);
+    }
+  }
+  
+  /**
+   * No data is written - the end of the envelope is implied by the size from the header. If the writer is set
+   * to automatically flush on message completion (the default) then {@link #flush()} will be called to flush
+   * the underlying stream if possible.
+   */
+  @Override
+  public void envelopeComplete () {
+    if (isFlushOnEnvelopeComplete ()) {
+      flush ();
+    }
+  }
+  
+  /**
+   * Indicates if {@link #flush} is to be called on envelope completion.
+   * 
+   * @return {@code true} if {@code flush} is to be called, {@code false} otherwise
+   */
+  public boolean isFlushOnEnvelopeComplete () {
+    return _automaticFlush;
+  }
+  
+  /**
+   * Set whether to call {@link #flush} on envelope completion. The default behavior is to do so.
+   * 
+   * @param automaticFlush {@code true} to call {@code flush} on envelope completion, {@code false} otherwise
+   */
+  public void setFlushOnEnvelopeComplete (final boolean automaticFlush) {
+    _automaticFlush = automaticFlush;
   }
   
   /**
    * {@inheritDoc}
    */
-@Override
-  public int writeFields(FudgeFieldContainer msg) throws IOException {
-    int nWritten = 0;
+  @Override
+  public void writeFields(FudgeFieldContainer msg) {
     for(FudgeField field : msg.getAllFields()) {
-      nWritten += writeField(field);
+      writeField(field);
     }
-    return nWritten;
   }
   
 /**
  * {@inheritDoc}
  */
   @Override
-  public int writeField (FudgeField field) throws IOException {
+  public void writeField (FudgeField field) {
     if (field == null) {
       throw new NullPointerException ("Cannot write a null field to a Fudge stream");
     }
-    return writeField (field.getOrdinal (), field.getName (), field.getType (), field.getValue ());
+    writeField (field.getOrdinal (), field.getName (), field.getType (), field.getValue ());
   }
 
   /**
@@ -184,11 +224,11 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
    */
   @SuppressWarnings("unchecked")
   @Override
-  public int writeField(
+  public void writeField(
       Short ordinal,
       String name,
       FudgeFieldType type,
-      Object fieldValue) throws IOException {
+      Object fieldValue) {
     if(fieldValue == null) {
       throw new NullPointerException("Cannot write a null field value to a Fudge stream.");
     }
@@ -214,29 +254,27 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
     int fieldPrefix = FudgeFieldPrefixCodec.composeFieldPrefix(!type.isVariableSize(), varDataSize, (ordinal != null), (name != null));
     
     // Start writing.
-    int nWritten = 0;
-    getDataOutput().writeByte(fieldPrefix);
-    getDataOutput().writeByte(type.getTypeId());
-    nWritten = 2;
-    if(ordinal != null) {
-      getDataOutput().writeShort(ordinal.intValue());
-      nWritten += 2;
-    }
-    if(name != null) {
-      int utf8size = ModifiedUTF8Util.modifiedUTF8Length(name);
-      //int utf8size = UTF8.getLengthBytes(name);
-      if(utf8size > 0xFF) {
-        throw new IllegalArgumentException("UTF-8 encoded field name cannot exceed 255 characters. Name \"" + name + "\" is " + utf8size + " bytes encoded.");
+    try {
+      getDataOutput().writeByte(fieldPrefix);
+      getDataOutput().writeByte(type.getTypeId());
+      if(ordinal != null) {
+        getDataOutput().writeShort(ordinal.intValue());
       }
-      getDataOutput().writeByte(utf8size);
-      nWritten++;
-      nWritten += ModifiedUTF8Util.writeModifiedUTF8(name, getDataOutput());
-      //nWritten += UTF8.writeString (getDataOutput (), name);
+      if(name != null) {
+        int utf8size = ModifiedUTF8Util.modifiedUTF8Length(name);
+        //int utf8size = UTF8.getLengthBytes(name);
+        if(utf8size > 0xFF) {
+          throw new IllegalArgumentException("UTF-8 encoded field name cannot exceed 255 characters. Name \"" + name + "\" is " + utf8size + " bytes encoded.");
+        }
+        getDataOutput().writeByte(utf8size);
+        ModifiedUTF8Util.writeModifiedUTF8(name, getDataOutput());
+        //UTF8.writeString (getDataOutput (), name);
+      }
+    } catch (IOException e) {
+      throw new FudgeRuntimeIOException (e);
     }
     
-    nWritten += writeFieldValue(type, fieldValue, valueSize);
-    
-    return nWritten;
+    writeFieldValue(type, fieldValue, valueSize);
   }
       
 
@@ -244,70 +282,57 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
    * @param type the {@link FudgeFieldType} defining how to write this
    * @param value the value to write
    * @param valueSize the size of the value
-   * @return number of bytes written
-   * @throws IOException if the target stream throws one
+   * @returns number of bytes written
    */
   @SuppressWarnings("unchecked")
-  protected int writeFieldValue(FudgeFieldType type, Object value, int valueSize) throws IOException {
+  protected void writeFieldValue(FudgeFieldType type, Object value, int valueSize) {
     // Note that we fast-path types for which at compile time we know how to handle
     // in an optimized way. This is because this particular method is known to
     // be a massive hot-spot for performance.
-    int nWritten = 0;
-    switch(type.getTypeId()) {
-    case FudgeTypeDictionary.BOOLEAN_TYPE_ID:
-      getDataOutput().writeBoolean((Boolean)value);
-      nWritten = 1;
-      break;
-    case FudgeTypeDictionary.BYTE_TYPE_ID:
-      getDataOutput().writeByte((Byte)value);
-      nWritten = 1;
-      break;
-    case FudgeTypeDictionary.SHORT_TYPE_ID:
-      getDataOutput().writeShort((Short)value);
-      nWritten = 2;
-      break;
-    case FudgeTypeDictionary.INT_TYPE_ID:
-      getDataOutput().writeInt((Integer)value);
-      nWritten = 4;
-      break;
-    case FudgeTypeDictionary.LONG_TYPE_ID:
-      getDataOutput().writeLong((Long)value);
-      nWritten = 8;
-      break;
-    case FudgeTypeDictionary.FLOAT_TYPE_ID:
-      getDataOutput().writeFloat((Float)value);
-      nWritten = 4;
-      break;
-    case FudgeTypeDictionary.DOUBLE_TYPE_ID:
-      getDataOutput().writeDouble((Double)value);
-      nWritten = 8;
-      break;
-    }
-    if(nWritten == 0) {
-      if(type.isVariableSize()) {
-        // This is correct. We read this using a .readUnsignedByte(), so we can go to
-        // 255 here.
-        if(valueSize <= 255) {
-          getDataOutput().writeByte(valueSize);
-          nWritten = valueSize + 1;
-        } else if(valueSize <= Short.MAX_VALUE) {
-          getDataOutput().writeShort(valueSize);
-          nWritten = valueSize + 2;
-        } else {
-          getDataOutput().writeInt(valueSize);
-          nWritten = valueSize + 4;
+    try {
+      switch(type.getTypeId()) {
+      case FudgeTypeDictionary.BOOLEAN_TYPE_ID:
+        getDataOutput().writeBoolean((Boolean)value);
+        break;
+      case FudgeTypeDictionary.BYTE_TYPE_ID:
+        getDataOutput().writeByte((Byte)value);
+        break;
+      case FudgeTypeDictionary.SHORT_TYPE_ID:
+        getDataOutput().writeShort((Short)value);
+        break;
+      case FudgeTypeDictionary.INT_TYPE_ID:
+        getDataOutput().writeInt((Integer)value);
+        break;
+      case FudgeTypeDictionary.LONG_TYPE_ID:
+        getDataOutput().writeLong((Long)value);
+        break;
+      case FudgeTypeDictionary.FLOAT_TYPE_ID:
+        getDataOutput().writeFloat((Float)value);
+        break;
+      case FudgeTypeDictionary.DOUBLE_TYPE_ID:
+        getDataOutput().writeDouble((Double)value);
+      default :
+        if(type.isVariableSize()) {
+          // This is correct. We read this using a .readUnsignedByte(), so we can go to
+          // 255 here.
+          if(valueSize <= 255) {
+            getDataOutput().writeByte(valueSize);
+          } else if(valueSize <= Short.MAX_VALUE) {
+            getDataOutput().writeShort(valueSize);
+          } else {
+            getDataOutput().writeInt(valueSize);
+          }
         }
-      } else {
-        nWritten = type.getFixedSize();
+        if(value instanceof FudgeFieldContainer) {
+          FudgeFieldContainer subMsg = (FudgeFieldContainer) value;
+          writeFields(subMsg);
+        } else {
+          type.writeValue(getDataOutput(), value);
+        }
       }
-      if(value instanceof FudgeFieldContainer) {
-        FudgeFieldContainer subMsg = (FudgeFieldContainer) value;
-        writeFields(subMsg);
-      } else {
-        type.writeValue(getDataOutput(), value);
-      }
+    } catch (IOException e) {
+      throw new FudgeRuntimeIOException (e);
     }
-    return nWritten;
   }
 
   /**

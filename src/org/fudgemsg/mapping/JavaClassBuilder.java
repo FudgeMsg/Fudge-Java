@@ -54,7 +54,7 @@ import org.fudgemsg.types.StringFieldType;
   @Override
   public Class<?> buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
     final String str = message.getString ("name");
-    if (str == null) throw new FudgeRuntimeException ("Sub-message doesn't contain a Java class name");
+    if (str == null) throw new IllegalArgumentException ("Sub-message doesn't contain a Java class name");
     try {
       return Class.forName (str);
     } catch (ClassNotFoundException e) {

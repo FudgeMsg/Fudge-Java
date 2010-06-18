@@ -17,10 +17,9 @@ package org.fudgemsg.types;
 
 import java.io.DataInput;
 import java.io.DataOutput;
-import java.io.IOException;
 
-import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeSize;
 import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.taxon.FudgeTaxonomy;
@@ -53,15 +52,15 @@ public class FudgeMsgFieldType extends FudgeFieldType<FudgeFieldContainer> {
    * {@inheritDoc}
    */
   @Override
-  public FudgeFieldContainer readValue(DataInput input, int dataSize) throws IOException {
-    throw new UnsupportedOperationException("Sub-messages can only be decoded from FudgeStreamParser.");
+  public FudgeFieldContainer readValue(DataInput input, int dataSize) {
+    throw new UnsupportedOperationException("Sub-messages can only be decoded from FudgeStreamReader.");
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void writeValue(DataOutput output, FudgeFieldContainer value) throws IOException {
+  public void writeValue(DataOutput output, FudgeFieldContainer value) {
     throw new UnsupportedOperationException("Sub-messages can only be written using FudgeStreamWriter.");
   }
 

@@ -19,6 +19,7 @@ package org.fudgemsg.mapping;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -44,7 +45,7 @@ import com.mongodb.DBObject;
  *   <li>Otherwise the {@link JavaBeanBuilder} will be used</li>
  * </ul>
  *  
- * <p>Generic builders are provided for {@link Map}, {@link List}, {@link FudgeFieldContainer}, {@link DBObject} and array types.</p>
+ * <p>Generic builders are provided for {@link Map}, {@link List} (and {@link Set}), {@link FudgeFieldContainer}, {@link DBObject} and array types.</p>
  * 
  * @author Andrew Griffin
  */ 
@@ -126,6 +127,7 @@ public class FudgeDefaultBuilderFactory implements FudgeBuilderFactory {
     if ((builder = FromFudgeMsgObjectBuilder.create (clazz)) != null) return builder;
     if ((builder = FudgeMsgConstructorObjectBuilder.create (clazz)) != null) return builder;
     if (clazz.isArray ()) return new ArrayBuilder (clazz.getComponentType ());
+    if (Enum.class.isAssignableFrom(clazz)) return new EnumBuilder (clazz);
     if ((builder = (FudgeObjectBuilder<T>)getGenericObjectBuilders ().get (clazz)) != null) return builder;
     if (clazz.isInterface ()) return null;
     //return ReflectionObjectBuilder.create (clazz);
@@ -146,6 +148,7 @@ public class FudgeDefaultBuilderFactory implements FudgeBuilderFactory {
     FudgeMessageBuilder<T> builder;
     if ((builder = ToFudgeMsgMessageBuilder.create (clazz)) != null) return builder;
     if (clazz.isArray ()) return new ArrayBuilder (clazz.getComponentType ());
+    if (Enum.class.isAssignableFrom(clazz)) return new EnumBuilder (clazz);
     for (MessageBuilderMapEntry defaultBuilder : getGenericMessageBuilders ()) {
       if (defaultBuilder.getClazz ().isAssignableFrom (clazz)) return (FudgeMessageBuilder<T>)defaultBuilder.getMessageBuilder ();
     }

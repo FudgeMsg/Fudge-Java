@@ -18,22 +18,23 @@ package org.fudgemsg.mapping;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.FudgeRuntimeException;
+import org.fudgemsg.FudgeTypeDictionary;
 
 /**
- * The central point for Fudge message to Java Object deserialisation on a given stream.
- * Note that the deserialiser cannot process cyclic object graphs at the moment because
+ * <p>The central point for Fudge message to Java Object deserialization on a given stream.
+ * Note that the deserializer cannot process cyclic object graphs at the moment because
  * of the way the builder interfaces are structured (i.e. we don't have access to an
- * outer object until it's builder returned).
+ * outer object until it's builder returned).</p>
  * 
- * The object builder framework methods all take a deserialisation context so that a
- * deserialiser can refer any sub-messages to this for construction if it does not have
- * sufficient information to process them directly. 
+ * <p>The object builder framework methods all take a deserialization context so that a
+ * deserializer can refer any sub-messages to this for construction if it does not have
+ * sufficient information to process them directly.</p> 
  * 
  * @author Andrew Griffin
  */
@@ -78,7 +79,7 @@ public class FudgeDeserializationContext {
    * or if it is a sub-message will be expanded through {@link #fudgeMsgToObject(FudgeFieldContainer)}.
    * 
    * @param field field to convert
-   * @return the deserialised object
+   * @return the deserialized object
    */
   public Object fieldValueToObject (final FudgeField field) {
     final Object o = field.getValue ();
@@ -96,24 +97,22 @@ public class FudgeDeserializationContext {
    * @param <T> target Java type to decode to
    * @param clazz class of the target Java type to decode to
    * @param field value to decode
-   * @return the deserialised object
+   * @return the deserialized object
    */
-  @SuppressWarnings("unchecked")
   public <T> T fieldValueToObject (final Class<T> clazz, final FudgeField field) {
     final Object o = field.getValue ();
     if (o instanceof FudgeFieldContainer) {
       return fudgeMsgToObject (clazz, (FudgeFieldContainer)o);
     } else {
-      // TODO 2010-01-19 Andrew -- the cast below isn't good; should do more sensible conversion from the standard fudge types or raise an error
-      return (T)o;
+      return getFudgeContext ().getFieldValue (clazz, field);
     }
   }
   
   /**
-   * Converts a Fudge message to a best guess Java object. {@link List} and {@link Map} encodings are recognised and inflated. Any other encodings
+   * Converts a Fudge message to a best guess Java object. {@link List} and {@link Map} encodings are recognized and inflated. Any other encodings
    * require field ordinal 0 to include possible class names to use.
    * 
-   * @param message message to deserialise
+   * @param message message to deserialize
    * @return the Java object
    */
   public Object fudgeMsgToObject (final FudgeFieldContainer message) {
@@ -122,10 +121,16 @@ public class FudgeDeserializationContext {
       int maxOrdinal = 0;
       for (FudgeField field : message) {
         if (field.getOrdinal () == null) continue;
+        if (field.getOrdinal () < 0) {
+          // not a list/set/map
+          return message;
+        }
         if (field.getOrdinal () > maxOrdinal) maxOrdinal = field.getOrdinal ();
       }
-      if (maxOrdinal <= 1) {
+      if (maxOrdinal < 1) {
         return fudgeMsgToObject (List.class, message);
+      } else if (maxOrdinal == 1) {
+        return fudgeMsgToObject (Set.class, message);
       } else if (maxOrdinal == 2) {
         return fudgeMsgToObject (Map.class, message);
       }
@@ -133,24 +138,25 @@ public class FudgeDeserializationContext {
       for (FudgeField type : types) {
         final Object o = type.getValue ();
         if (o instanceof Number) {
-          throw new FudgeRuntimeException ("Serialisation framework doesn't support back/forward references"); 
+          throw new UnsupportedOperationException ("Serialisation framework doesn't support back/forward references"); 
         } else if (o instanceof String) {
           try {
-            final Class<?> clazz = Class.forName ((String)o);
-            return fudgeMsgToObject (clazz, message);
+            FudgeObjectBuilder<?> builder = getFudgeContext ().getObjectDictionary ().getObjectBuilder (Class.forName ((String)o));
+            if (builder != null) return builder.buildObject (this, message);
           } catch (ClassNotFoundException e) {
             // ignore
           }
         }
       }
     }
-    // can't process - something else will raise an error if we just return the original message
+    // couldn't process - return the raw message
     return message;
   }
   
   /**
    * Converts a Fudge message to a specific Java type. The {@link FudgeObjectDictionary} is used to identify a builder to delegate to. If
-   * a builder is not available and the message includes class names in ordinal 0, these will be tested for a valid builder.
+   * the message includes class names in ordinal 0, these will be tested for a valid builder and used if they will provide a subclass of
+   * the requested class.
    * 
    * @param <T> target Java type to decode to
    * @param clazz class of the target Java type to decode to
@@ -159,40 +165,49 @@ public class FudgeDeserializationContext {
    */
   @SuppressWarnings("unchecked")
   public <T> T fudgeMsgToObject (final Class<T> clazz, final FudgeFieldContainer message) {
-    final FudgeObjectBuilder<T> builder = getFudgeContext ().getObjectDictionary ().getObjectBuilder (clazz);
-    if (builder == null) {
-      // no builder for the requested class, so look to see if there are any embedded class details for a sub-class we know
-      List<FudgeField> types = message.getAllByOrdinal (0);
-      FudgeRuntimeException fre = null;
+    FudgeObjectBuilder<T> builder;
+    Exception lastError = null;
+    List<FudgeField> types = message.getAllByOrdinal (0);
+    if (types.size () != 0) {
+      // message contains type information - use it if we can
       for (FudgeField type : types) {
         final Object o = type.getValue ();
         if (o instanceof Number) {
-          throw new FudgeRuntimeException ("Serialisation framework doesn't support back/forward references"); 
+          throw new UnsupportedOperationException ("Serialisation framework doesn't support back/forward references"); 
         } else if (o instanceof String) {
           try {
             final Class<?> possibleClazz = Class.forName ((String)o);
-            if (!clazz.equals (possibleClazz) && clazz.isAssignableFrom (possibleClazz)) {
-              try {
-                return (T)fudgeMsgToObject (possibleClazz, message);
-              } catch (FudgeRuntimeException e) {
-                fre = e;
-              }
+            //System.out.println ("Trying " + possibleClazz);
+            if (clazz.isAssignableFrom (possibleClazz)) {
+              builder = (FudgeObjectBuilder<T>)getFudgeContext ().getObjectDictionary ().getObjectBuilder (possibleClazz);
+              //System.out.println ("Builder " + builder);
+              if (builder != null) return builder.buildObject (this, message);
             }
           } catch (ClassNotFoundException e) {
             // ignore
+          } catch (Exception e) {
+            //e.printStackTrace ();
+            lastError = e;
           }
         }
       }
-      // nothing matched
-      if (fre != null) {
-        // propogate one of the inner exceptions
-        throw new FudgeRuntimeException ("Don't know how to create " + clazz + " from " + message, fre);
-      } else {
-        throw new FudgeRuntimeException ("Don't know how to create " + clazz + " from " + message);
+    }
+    // try the requested type
+    //System.out.println ("fallback to " + clazz);
+    builder = getFudgeContext ().getObjectDictionary ().getObjectBuilder (clazz);
+    if (builder != null) {
+      try {
+        return builder.buildObject (this, message);
+      } catch (Exception e) {
+        lastError = e;
       }
     }
-    final T object = builder.buildObject (this, message);
-    return object;
+    // nothing matched
+    if (lastError != null) {
+      throw new FudgeRuntimeException ("Don't know how to create " + clazz + " from " + message, lastError);
+    } else {
+      throw new IllegalArgumentException ("Don't know how to create " + clazz + " from " + message);
+    }
   }
   
 }

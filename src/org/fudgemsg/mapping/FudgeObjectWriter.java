@@ -16,11 +16,9 @@
 
 package org.fudgemsg.mapping;
 
-import java.io.IOException;
-
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsgWriter;
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsgWriter;
 
 /**
  * Serialises Java objects to a target Fudge message stream.
@@ -46,10 +44,8 @@ public class FudgeObjectWriter {
   
   /**
    * Closes the underlying target stream.
-   * 
-   * @throws IOException if the underlying stream errors
    */
-  public void close () throws IOException {
+  public void close () {
     if (_messageWriter == null) return;
     _messageWriter.close ();
   }
@@ -89,10 +85,8 @@ public class FudgeObjectWriter {
    * 
    * @param <T> type of the Java object
    * @param obj the object to write
-   * @return number of bytes written
-   * @throws IOException if the message cannot be written
    */
-  public <T> int write (final T obj) throws IOException {
+  public <T> void write (final T obj) {
     getSerialisationContext ().reset ();
     FudgeFieldContainer message;
     if (obj == null) {
@@ -102,7 +96,7 @@ public class FudgeObjectWriter {
       // delegate to a message builder
       message = getSerialisationContext ().objectToFudgeMsg (obj);
     }
-    return getMessageWriter ().writeMessage (message, 0);
+    getMessageWriter ().writeMessage (message, 0);
   }
   
 }

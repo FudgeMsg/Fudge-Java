@@ -82,6 +82,14 @@ public class StandardMessageRewritingTest {
   }
   
   /**
+   * 
+   */
+  @Test
+  public void dateTimes () {
+    testFile (FudgeInteropTest.createDateTimes (s_fudgeContext), "dateTimes.dat");
+  }
+  
+  /**
    * @param msgToWrite [documentation not available]
    * @param fileName [documentation not available]
    */
