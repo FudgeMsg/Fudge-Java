@@ -19,6 +19,7 @@ import java.util.Iterator;
 
 import org.fudgemsg.taxon.FudgeTaxonomy;
 import org.fudgemsg.types.ByteArrayFieldType;
+import org.fudgemsg.types.IndicatorFieldType;
 import org.fudgemsg.types.PrimitiveFieldTypes;
 
 /**
@@ -146,7 +147,7 @@ public class FudgeMsg extends FudgeMsgBase implements MutableFudgeFieldContainer
    */
   protected FudgeFieldType<?> determineTypeFromValue(Object value) {
     if(value == null) {
-      throw new NullPointerException("Cannot determine type for null value.");
+      return IndicatorFieldType.INSTANCE;
     }
     if(value instanceof byte[]) {
       return ByteArrayFieldType.getBestMatch((byte[])value);
