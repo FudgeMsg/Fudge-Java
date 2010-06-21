@@ -20,6 +20,7 @@ import java.util.Iterator;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 import org.fudgemsg.types.ByteArrayFieldType;
 import org.fudgemsg.types.IndicatorFieldType;
+import org.fudgemsg.types.IndicatorType;
 import org.fudgemsg.types.PrimitiveFieldTypes;
 
 /**
@@ -93,8 +94,11 @@ public class FudgeMsg extends FudgeMsgBase implements MutableFudgeFieldContainer
     FudgeFieldType<?> type = determineTypeFromValue(value);
     if(type == null) {
       throw new IllegalArgumentException("Cannot determine a Fudge type for value " + value + " of type " + value.getClass());
+    } else if (type == IndicatorFieldType.INSTANCE) {
+      add (name, ordinal, IndicatorFieldType.INSTANCE, IndicatorType.INSTANCE);
+    } else {
+      add(name, ordinal, type, value);
     }
-    add(name, ordinal, type, value);
   }
   
   /**
