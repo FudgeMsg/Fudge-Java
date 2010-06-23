@@ -22,6 +22,6 @@
         <dependency org="org.apache.commons" name="commons-codec" rev="1.4" conf="core->*" />
         <dependency org="org.mongodb" name="java-driver" rev="1.4" conf="mongodb->*" />
         <dependency org="org.json" name="json" rev="20090211" conf="json->*" />
-        <dependency org="javax.time" name="jsr-310-ri" rev="0.6.1" conf="core->*" />
+        <dependency org="javax.time" name="jsr-310-ri" rev="0.6.2" conf="core->*" />
     </dependencies>
 </ivy-module>

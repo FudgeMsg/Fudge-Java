@@ -48,7 +48,7 @@ public class JavaUtilDateFieldType extends SecondaryFieldTypeBase<Date,Object,Fu
    */
   @Override
   public FudgeDateTime secondaryToPrimary (Date object) {
-    return new FudgeDateTime (DateTimeAccuracy.MILLISECOND, Instant.ofMillis (object.getTime ())); // Interim measure
+    return new FudgeDateTime (DateTimeAccuracy.MILLISECOND, Instant.ofEpochMillis (object.getTime ())); // Interim measure
   }
   
   /**
