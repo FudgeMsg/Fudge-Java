@@ -55,8 +55,7 @@ public class FudgeSize {
       // One for the size prefix
       size++;
       // Then for the UTF Encoding
-      size += ModifiedUTF8Util.modifiedUTF8Length(name);
-      //size += UTF8.getLengthBytes (name);
+      size += UTF8.getLengthBytes(name);
     }
     if(type.isVariableSize()) {
       int valueSize = type.getVariableSize (value, taxonomy);

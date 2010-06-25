@@ -27,10 +27,12 @@ import java.io.UTFDataFormatException;
  * The code here was originally in {@link DataInputStream} and
  * {@link DataOutputStream}, but it's been improved and modified
  * to suit the use of Fudge in a superior way.
+ * 
+ * Deprecated in favour of using proper UTF8 instead.
  *
  * @author Kirk Wylie
  */
-//@Deprecated
+@Deprecated
 public class ModifiedUTF8Util {
 
   /**

@@ -16,12 +16,12 @@
 
 package org.fudgemsg;
 
+import java.io.Closeable;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.Closeable;
-import java.io.OutputStream;
 import java.io.Flushable;
+import java.io.IOException;
+import java.io.OutputStream;
 
 import org.fudgemsg.taxon.FudgeTaxonomy;
 
@@ -261,14 +261,12 @@ public class FudgeDataOutputStreamWriter implements FudgeStreamWriter {
         getDataOutput().writeShort(ordinal.intValue());
       }
       if(name != null) {
-        int utf8size = ModifiedUTF8Util.modifiedUTF8Length(name);
-        //int utf8size = UTF8.getLengthBytes(name);
+        int utf8size = UTF8.getLengthBytes(name);
         if(utf8size > 0xFF) {
           throw new IllegalArgumentException("UTF-8 encoded field name cannot exceed 255 characters. Name \"" + name + "\" is " + utf8size + " bytes encoded.");
         }
         getDataOutput().writeByte(utf8size);
-        ModifiedUTF8Util.writeModifiedUTF8(name, getDataOutput());
-        //UTF8.writeString (getDataOutput (), name);
+        UTF8.writeString(getDataOutput(), name);
       }
     } catch (IOException e) {
       throw new FudgeRuntimeIOException (e);
