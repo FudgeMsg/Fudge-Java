@@ -21,8 +21,7 @@ import java.io.IOException;
 
 import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeTypeDictionary;
-import org.fudgemsg.ModifiedUTF8Util;
-//import org.fudgemsg.UTF8;
+import org.fudgemsg.UTF8;
 import org.fudgemsg.taxon.FudgeTaxonomy;
 
 /**
@@ -46,8 +45,7 @@ public class StringFieldType extends FudgeFieldType<String> {
    */
   @Override
   public int getVariableSize(String value, FudgeTaxonomy taxonomy) {
-    return ModifiedUTF8Util.modifiedUTF8Length(value);
-    //return UTF8.getLengthBytes (value);
+    return UTF8.getLengthBytes(value);
   }
 
   /**
@@ -55,8 +53,7 @@ public class StringFieldType extends FudgeFieldType<String> {
    */
   @Override
   public String readValue(DataInput input, int dataSize) throws IOException {
-    return ModifiedUTF8Util.readString(input, dataSize);
-    //return UTF8.readString (input, dataSize);
+    return UTF8.readString(input, dataSize);
   }
 
   /**
@@ -64,8 +61,7 @@ public class StringFieldType extends FudgeFieldType<String> {
    */
   @Override
   public void writeValue(DataOutput output, String value) throws IOException {
-    ModifiedUTF8Util.writeModifiedUTF8(value, output);
-    //UTF8.writeString (output, value);
+    UTF8.writeString(output, value);
   }
 
 }
