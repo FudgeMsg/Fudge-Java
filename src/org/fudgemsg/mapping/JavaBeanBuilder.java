@@ -16,18 +16,19 @@
 
 package org.fudgemsg.mapping;
 
-import org.fudgemsg.FudgeFieldContainer;
+import java.beans.Beans;
+import java.beans.PropertyDescriptor;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+
+import org.apache.commons.beanutils.PropertyUtils;
 import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeRuntimeException;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import java.beans.PropertyDescriptor;
-import java.beans.Beans;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import org.apache.commons.beanutils.PropertyUtils;
 
 /**
  * A message and object builder implementation using the BeanUtils tools to work with
