@@ -177,16 +177,16 @@ public class FudgeDeserializationContext {
         } else if (o instanceof String) {
           try {
             final Class<?> possibleClazz = Class.forName ((String)o);
-            //System.out.println ("Trying " + possibleClazz);
+            // System.out.println("Trying " + possibleClazz);
             if (clazz.isAssignableFrom (possibleClazz)) {
               builder = (FudgeObjectBuilder<T>)getFudgeContext ().getObjectDictionary ().getObjectBuilder (possibleClazz);
-              //System.out.println ("Builder " + builder);
+              // System.out.println("Builder " + builder);
               if (builder != null) return builder.buildObject (this, message);
             }
           } catch (ClassNotFoundException e) {
             // ignore
           } catch (Exception e) {
-            //e.printStackTrace ();
+            e.printStackTrace();
             lastError = e;
           }
         }

@@ -37,6 +37,7 @@ import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.types.SecondaryFieldTypeBase;
 import org.fudgemsg.types.ShortArrayFieldType;
 import org.fudgemsg.types.StringFieldType;
+import org.fudgemsg.types.StringFieldTypeConverter;
 import org.fudgemsg.types.TimeFieldType;
 import org.fudgemsg.types.UnknownFudgeFieldType;
 import org.fudgemsg.types.secondary.SecondaryTypeLoader;
@@ -99,6 +100,7 @@ public class FudgeTypeDictionary {
     addTypeConverter(PrimitiveFieldTypesConverter.FLOAT_CONVERTER, Float.class, Float.TYPE);
     addTypeConverter(PrimitiveFieldTypesConverter.DOUBLE_CONVERTER, Double.class, Double.TYPE);
     addTypeConverter(IndicatorFieldTypeConverter.INSTANCE, IndicatorType.class);
+    addTypeConverter(StringFieldTypeConverter.INSTANCE, String.class);
     // secondary types
     SecondaryTypeLoader.addTypes (this);
   }
