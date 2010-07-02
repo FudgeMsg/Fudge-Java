@@ -449,15 +449,17 @@ public class FudgeContext implements FudgeMessageFactory {
   public <T> T getFieldValue (final Class<T> clazz, final FudgeField field) {
     return getTypeDictionary ().getFieldValue (clazz, field);
   }
-  
+
   /**
    * Passes this context to the configuration object supplied to update the type and object dictionaries.
    * This can be used with Bean based frameworks to configure a context for custom types through injection.
    * 
-   * @param configuration the configuration object to use
+   * @param configurations the configuration objects to use
    */
-  public void setConfiguration (final FudgeContextConfiguration configuration) {
-    configuration.configureFudgeContext (this);
+  public void setConfiguration(final FudgeContextConfiguration... configurations) {
+    for (FudgeContextConfiguration configuration : configurations) {
+      configuration.configureFudgeContext(this);
+    }
   }
   
 }
