@@ -22,6 +22,7 @@ import org.fudgemsg.types.ByteArrayFieldType;
 import org.fudgemsg.types.IndicatorFieldType;
 import org.fudgemsg.types.IndicatorType;
 import org.fudgemsg.types.PrimitiveFieldTypes;
+import org.fudgemsg.types.SecondaryFieldType;
 
 /**
  * <p>A container for {@link FudgeMsgField}s.
@@ -104,6 +105,7 @@ public class FudgeMsg extends FudgeMsgBase implements MutableFudgeFieldContainer
   /**
    * {@inheritDoc}
    */
+  @SuppressWarnings("unchecked")
   @Override
   public void add(String name, Integer ordinal, FudgeFieldType<?> type, Object value) {
     if(getFields ().size() >= Short.MAX_VALUE) {
@@ -121,6 +123,10 @@ public class FudgeMsg extends FudgeMsgBase implements MutableFudgeFieldContainer
     case FudgeTypeDictionary.SHORT_TYPE_ID:
     case FudgeTypeDictionary.INT_TYPE_ID:
     case FudgeTypeDictionary.LONG_TYPE_ID:
+      if (type instanceof SecondaryFieldType<?,?>) {
+          value = ((SecondaryFieldType<Object, ?>) type).secondaryToPrimary(value);
+          type = ((SecondaryFieldType<?, ?>) type).getPrimaryType();
+      }
       long valueAsLong = ((Number)value).longValue();
       if((valueAsLong >= Byte.MIN_VALUE) && (valueAsLong <= Byte.MAX_VALUE)) {
         value = new Byte((byte)valueAsLong);
