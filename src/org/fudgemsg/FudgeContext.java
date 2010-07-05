@@ -72,10 +72,29 @@ public class FudgeContext implements FudgeMessageFactory {
    */
   public static final FudgeMsgEnvelope EMPTY_MESSAGE_ENVELOPE = new FudgeMsgEnvelope (EMPTY_MESSAGE);
   
-  private FudgeTypeDictionary _typeDictionary = new FudgeTypeDictionary();
-  private FudgeObjectDictionary _objectDictionary = new FudgeObjectDictionary ();
+  private FudgeTypeDictionary _typeDictionary;
+  private FudgeObjectDictionary _objectDictionary;
   private TaxonomyResolver _taxonomyResolver = null;
-  
+
+  /**
+   * Constructs a new FudgeContext with a default type and object dictionary.
+   */
+  public FudgeContext() {
+    _typeDictionary = new FudgeTypeDictionary();
+    _objectDictionary = new FudgeObjectDictionary();
+  }
+
+  /**
+   * Constructs a new FudgeContext with copies of the supplied context's type and object dictionaries. It will share the
+   * taxonomy resolver with the supplied context.
+   * 
+   * @param other the context to copy the type and object dictionaries from
+   */
+  public FudgeContext(final FudgeContext other) {
+    _typeDictionary = new FudgeTypeDictionary(other.getTypeDictionary());
+    _objectDictionary = new FudgeObjectDictionary(other.getObjectDictionary());
+  }
+
   /**
    * Returns the current {@link TaxonomyResolver} used by this context. A new {@code FudgeContext} starts with its own, default,
    * taxonomy resolver. Any custom taxonomies must be registered with a resolver before they can be used.
@@ -451,7 +470,7 @@ public class FudgeContext implements FudgeMessageFactory {
   }
 
   /**
-   * Passes this context to the configuration object supplied to update the type and object dictionaries.
+   * Passes this context to the configuration objects supplied to update the type and object dictionaries.
    * This can be used with Bean based frameworks to configure a context for custom types through injection.
    * 
    * @param configurations the configuration objects to use

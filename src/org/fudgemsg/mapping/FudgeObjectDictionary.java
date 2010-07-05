@@ -50,7 +50,7 @@ public class FudgeObjectDictionary {
   private final ConcurrentMap<Class<?>, FudgeObjectBuilder<?>> _objectBuilders;
   private final ConcurrentMap<Class<?>, FudgeMessageBuilder<?>> _messageBuilders;
   
-  private FudgeBuilderFactory _defaultBuilderFactory = new FudgeDefaultBuilderFactory ();
+  private FudgeBuilderFactory _defaultBuilderFactory;
   
   /**
    * Constructs a new (initially empty) {@link FudgeObjectDictionary}.
@@ -58,6 +58,7 @@ public class FudgeObjectDictionary {
   public FudgeObjectDictionary () {
     _objectBuilders = new ConcurrentHashMap<Class<?>, FudgeObjectBuilder<?>> ();
     _messageBuilders = new ConcurrentHashMap<Class<?>, FudgeMessageBuilder<?>> ();
+    _defaultBuilderFactory = new FudgeDefaultBuilderFactory();
   }
   
   /**
@@ -65,7 +66,7 @@ public class FudgeObjectDictionary {
    * 
    * @param other the {@code FudgeObjectDictionary} to clone
    */
-  /* package */ FudgeObjectDictionary (final FudgeObjectDictionary other) {
+  public FudgeObjectDictionary(final FudgeObjectDictionary other) {
     _objectBuilders = new ConcurrentHashMap<Class<?>, FudgeObjectBuilder<?>> (other._objectBuilders);
     _messageBuilders = new ConcurrentHashMap<Class<?>, FudgeMessageBuilder<?>> (other._messageBuilders);
     _defaultBuilderFactory = new ImmutableFudgeBuilderFactory (other._defaultBuilderFactory);
