@@ -37,7 +37,7 @@ public class UTF8 {
    */
   public static int getLengthBytes (final String str) {
     int bytes = str.length ();
-    for (int i = 0; i < bytes; i++) {
+    for (int i = bytes; --i >= 0;) {
       final int c = str.charAt(i);
       if (c >= 0x10000) {
         bytes += 3;
@@ -58,7 +58,7 @@ public class UTF8 {
    */
   public static int getLengthBytes (final char[] str) {
     int bytes = str.length;
-    for (int i = 0; i < bytes; i++) {
+    for (int i = bytes; --i >= 0;) {
       final int c = (int)str[i];
       if (c >= 0x10000) {
         bytes += 3;
