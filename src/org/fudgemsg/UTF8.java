@@ -15,18 +15,15 @@
  */
 package org.fudgemsg;
 
-import java.io.UTFDataFormatException;
-import java.io.IOException;
 import java.io.DataInput;
 import java.io.DataOutput;
+import java.io.IOException;
+import java.io.UTFDataFormatException;
 
 /**
  * Support for normal UTF-8 instead of the modified UTF-8 encoding used in the earlier versions of the specification.
  * Implemented from information at <a href="http://en.wikipedia.org/wiki/UTF-8">en.wikipedia.org/wiki/UTF-8</a>, and other methods from ModifiedUTF8Util.
- * 
- * Note that this has deprecated on it in a deliberately misleading fashion - it's the ModifiedUTF8Util one that should be; not this.
  */
-@Deprecated
 public class UTF8 {
   
   private UTF8 () {
@@ -40,7 +37,7 @@ public class UTF8 {
    */
   public static int getLengthBytes (final String str) {
     int bytes = str.length ();
-    for (int i = 0; i < bytes; i++) {
+    for (int i = bytes; --i >= 0;) {
       final int c = str.charAt(i);
       if (c >= 0x10000) {
         bytes += 3;
@@ -61,7 +58,7 @@ public class UTF8 {
    */
   public static int getLengthBytes (final char[] str) {
     int bytes = str.length;
-    for (int i = 0; i < bytes; i++) {
+    for (int i = bytes; --i >= 0;) {
       final int c = (int)str[i];
       if (c >= 0x10000) {
         bytes += 3;
