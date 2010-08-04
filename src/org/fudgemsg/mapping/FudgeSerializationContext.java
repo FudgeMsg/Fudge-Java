@@ -17,11 +17,11 @@
 package org.fudgemsg.mapping;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeTypeDictionary;
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.FudgeFieldType;
-import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeFieldType;
+import org.fudgemsg.FudgeMessageFactory;
+import org.fudgemsg.FudgeTypeDictionary;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.types.FudgeMsgFieldType;
 import org.fudgemsg.types.StringFieldType;
 
@@ -125,21 +125,40 @@ public class FudgeSerializationContext implements FudgeMessageFactory {
       getSerialisationBuffer ().endObject (object);
     }
   }
-  
+
   /**
    * Adds class names to a message with ordinal 0 for use by a deserializer. The preferred class name is written first, followed by subsequent super-classes that may
    * be acceptable if the deserializer doesn't recognize them.
    * 
    * @param message the message to add the fields to
    * @param clazz the Java class to add type data for
+   * @return message the modified message (allows this to be used inline)
    */
-  public static void addClassHeader (final MutableFudgeFieldContainer message, Class<?> clazz) {
+  public static MutableFudgeFieldContainer addClassHeader(final MutableFudgeFieldContainer message, Class<?> clazz) {
     while ((clazz != null) && (clazz != Object.class)) {
       message.add (null, 0, StringFieldType.INSTANCE, clazz.getName ());
       clazz = clazz.getSuperclass ();
     }
+    return message;
   }
-  
-  // TODO 2010-02-01 Andrew -- should we write out interface names as well as the main hierarchy in addClassHeader?
+
+  /**
+   * Adds partial class names to a message with ordinal 0 for use by a deserializer. The preferred class name is written first, followed by subsequent super-classes
+   * that may be acceptable. It is assumed that the deserializer will already know the target class by other means, so the message payload ends up being smaller
+   * than with {@link #addClassHeader(MutableFudgeFieldContainer,Class)}.
+   * 
+   * @param message the message to add the fields to
+   * @param clazz the Java class to add type data for
+   * @param receiverTarget the Java class the receiver will expect
+   * @return message the modified message (allows this to be used inline)
+   */
+  public static MutableFudgeFieldContainer addClassHeader(final MutableFudgeFieldContainer message, Class<?> clazz,
+      Class<?> receiverTarget) {
+    while ((clazz != null) && receiverTarget.isAssignableFrom(clazz) && (receiverTarget != clazz)) {
+      message.add(null, 0, StringFieldType.INSTANCE, clazz.getName());
+      clazz = clazz.getSuperclass();
+    }
+    return message;
+  }
   
 }
