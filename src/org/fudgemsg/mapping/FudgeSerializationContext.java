@@ -16,6 +16,10 @@
 
 package org.fudgemsg.mapping;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeFieldType;
@@ -105,13 +109,59 @@ public class FudgeSerializationContext implements FudgeMessageFactory {
       message.add (name, ordinal, FudgeMsgFieldType.INSTANCE, objectToFudgeMsg (object));
     }
   }
-  
+
+  /**
+   * Add a Java object to a Fudge message ({@link MutableFudgeFieldContainer} instance) either natively if the associated {@link FudgeTypeDictionary}
+   * recognises it, or as a sub-message using the serialization framework. If encoded as a sub-message, class header fields are added. This can make
+   * deserialization easier but increases the message length.
+   * 
+   * @param message the message to add this object to
+   * @param name field name to add with, or {@code null} for none
+   * @param ordinal ordinal index to add with, or {@code null} for none
+   * @param object value to add
+   */
+  public void objectToFudgeMsgWithClassHeaders(final MutableFudgeFieldContainer message, final String name,
+      final Integer ordinal, final Object object) {
+    objectToFudgeMsgWithClassHeaders(message, name, ordinal, object, Object.class);
+  }
+
+  /**
+   * Add a Java object to a Fudge message ({@link MutableFudgeFieldContainer} instance) either natively if the associated {@link FudgeTypeDictionary}
+   * recognises it, or as a sub-message using the serialization framework. If encoded as a sub-message, class header fields are added. This can make
+   * deserialization easier but increases the message length. It is assumed that the deserializer will already know the target class by other means, so
+   * the message payload may end up being smaller than with {@link #objectToFudgeMsgWithClassHeaders(MutableFudgeFieldContainer,String,Integer,Object)}.
+   * 
+   * @param message the message to add this object to
+   * @param name field name to add with, or {@code null} for none
+   * @param ordinal ordinal index to add with, or {@code null} for none
+   * @param object value to add
+   * @param receiverTarget the Java class the receiver will expect
+   */
+  public void objectToFudgeMsgWithClassHeaders(final MutableFudgeFieldContainer message, final String name,
+      final Integer ordinal, final Object object, final Class<?> receiverTarget) {
+    if (object == null) {
+      return;
+    }
+    final FudgeFieldType<?> fieldType = getFudgeContext().getTypeDictionary().getByJavaType(object.getClass());
+    if ((fieldType != null) && !FudgeMsgFieldType.INSTANCE.equals(fieldType)) {
+      // goes natively into a message
+      message.add(name, ordinal, fieldType, object);
+    } else {
+      // look up a custom or default builder and embed as sub-message
+      final MutableFudgeFieldContainer submsg = objectToFudgeMsg(object);
+      if (!(object instanceof List<?>) && !(object instanceof Set<?>) && !(object instanceof Map<?, ?>)) {
+        addClassHeader(submsg, object.getClass(), receiverTarget);
+      }
+      message.add(name, ordinal, FudgeMsgFieldType.INSTANCE, submsg);
+    }
+  }
+
   /**
    * Converts a Java object to a Fudge message {@link MutableFudgeFieldContainer} instance using a {@link FudgeMessageBuilder} registered against the object's class
    * in the current {@link FudgeObjectDictionary}. Note that a mutable container is returned (from the definition of {@code FudgeMessageBuilder} so that the caller is
    * able to append additional data to the message if required, e.g. {@link #addClassHeader(MutableFudgeFieldContainer,Class)}.
    * 
-   * @param object the Java object to Tserialize
+   * @param object the Java object to serialize
    * @return the Fudge message created
    */
   @SuppressWarnings("unchecked")

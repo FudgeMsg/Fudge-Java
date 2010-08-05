@@ -167,7 +167,8 @@ import org.fudgemsg.MutableFudgeFieldContainer;
     try {
       for (JBProperty prop : getProperties ()) {
         if (prop.getRead () == null) continue;
-        context.objectToFudgeMsg (message, prop.getName (), prop.getOrdinal (), prop.getRead ().invoke (object));
+        context.objectToFudgeMsgWithClassHeaders(message, prop.getName(), prop.getOrdinal(), prop.getRead().invoke(
+            object), prop.getType());
       }
     } catch (IllegalArgumentException e) {
       throw new FudgeRuntimeException ("Couldn't serialise " + object, e);
