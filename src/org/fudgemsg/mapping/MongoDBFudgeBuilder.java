@@ -69,7 +69,6 @@ import com.mongodb.DBObject;
         msg.add(key, decodeObjectValue(context, value));
       }
     }
-    //context.addClassHeader (msg, dbObject.getClass ());
     return msg;
   }
 

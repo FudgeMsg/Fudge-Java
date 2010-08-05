@@ -20,8 +20,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.FudgeRuntimeException;
+import org.fudgemsg.MutableFudgeFieldContainer;
 
 /**
  * <p>Attempt to create an Fudge message containing values from Java-bean style getX
@@ -79,7 +79,6 @@ import org.fudgemsg.FudgeRuntimeException;
         //System.out.println ("\t" + accessor.getValue ());
         context.objectToFudgeMsg (message, accessor.getKey (), null, accessor.getValue ().invoke (object));
       }
-      FudgeSerializationContext.addClassHeader (message, object.getClass ());
     } catch (IllegalArgumentException e) {
       throw new FudgeRuntimeException ("Couldn't serialise " + object, e);
     } catch (IllegalAccessException e) {

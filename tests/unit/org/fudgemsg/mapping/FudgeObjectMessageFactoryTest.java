@@ -71,7 +71,7 @@ public class FudgeObjectMessageFactoryTest {
     bean.setFieldTwo ("field 2");
     bean.setFieldThree ("field 3");
     bean.setFieldFour ("field 4");
-    FudgeFieldContainer msg = FudgeObjectMessageFactory.serializeToMessage (bean, FudgeContext.GLOBAL_DEFAULT);
+    FudgeFieldContainer msg = FudgeObjectMessageFactory.serializeToMessage(bean, FudgeContext.GLOBAL_DEFAULT);
     bean = null;
     assertNotNull (msg);
     assertEquals (5, msg.getNumFields ()); // our 4 + the class identifier

@@ -16,8 +16,13 @@
 
 package org.fudgemsg.mapping;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
 
 /**
  * <p>Converts between Java objects and {@link FudgeFieldContainer} messages using the Fudge serialisation
@@ -41,9 +46,13 @@ public class FudgeObjectMessageFactory {
    * @return the serialised message
    */
   @Deprecated
-  public static <T> FudgeFieldContainer serializeToMessage(T obj, FudgeContext context) {
+  public static <T> MutableFudgeFieldContainer serializeToMessage(T obj, FudgeContext context) {
     final FudgeSerializationContext fsc = new FudgeSerializationContext (context);
-    return fsc.objectToFudgeMsg (obj);
+    final MutableFudgeFieldContainer message = fsc.objectToFudgeMsg(obj);
+    if (!(obj instanceof List<?>) && !(obj instanceof Set<?>) && !(obj instanceof Map<?, ?>)) {
+      FudgeSerializationContext.addClassHeader(message, obj.getClass());
+    }
+    return message;
   }
   
   /**
