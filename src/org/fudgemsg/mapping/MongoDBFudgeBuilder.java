@@ -102,6 +102,9 @@ import com.mongodb.DBObject;
     
     for(FudgeField field : fields.getAllFields()) {
       if(field.getName() == null) {
+        if (field.getOrdinal() == 0) {
+          continue;
+        }
         // REVIEW kirk 2009-10-22 -- Should this be configurable so that it just
         // silently drops unnamed fields?
         throw new IllegalArgumentException("Field encountered without a name (" + field + ")");
