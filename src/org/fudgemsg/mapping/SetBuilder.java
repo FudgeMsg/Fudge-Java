@@ -54,7 +54,7 @@ import org.fudgemsg.types.IndicatorType;
       if (entry == null) {
         msg.add (null, 1, IndicatorFieldType.INSTANCE, IndicatorType.INSTANCE);
       } else {
-        context.objectToFudgeMsg (msg, null, 1, entry);
+        context.objectToFudgeMsgWithClassHeaders(msg, null, 1, entry);
       }
     }
     return msg;

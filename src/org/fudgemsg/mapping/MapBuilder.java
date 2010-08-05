@@ -56,12 +56,12 @@ import org.fudgemsg.types.IndicatorType;
       if (entry.getKey () == null) {
         msg.add (null, 1, IndicatorFieldType.INSTANCE, IndicatorType.INSTANCE);
       } else {
-        context.objectToFudgeMsg (msg, null, 1, entry.getKey ());
+        context.objectToFudgeMsgWithClassHeaders(msg, null, 1, entry.getKey());
       }
       if (entry.getValue () == null) {
         msg.add (null, 2, IndicatorFieldType.INSTANCE, IndicatorType.INSTANCE);
       } else {
-        context.objectToFudgeMsg (msg, null, 2, entry.getValue ());
+        context.objectToFudgeMsgWithClassHeaders(msg, null, 2, entry.getValue());
       }
     }
     return msg;
