@@ -150,7 +150,9 @@ public class FudgeSerializationContext implements FudgeMessageFactory {
       // look up a custom or default builder and embed as sub-message
       final MutableFudgeFieldContainer submsg = objectToFudgeMsg(object);
       if (!(object instanceof List<?>) && !(object instanceof Set<?>) && !(object instanceof Map<?, ?>)) {
-        addClassHeader(submsg, object.getClass(), receiverTarget);
+        if (submsg.getByOrdinal(0) == null) {
+          addClassHeader(submsg, object.getClass(), receiverTarget);
+        }
       }
       message.add(name, ordinal, FudgeMsgFieldType.INSTANCE, submsg);
     }

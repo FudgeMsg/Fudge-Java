@@ -44,7 +44,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
   @Override
   public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, FudgeFieldContainer fields) {
     final MutableFudgeFieldContainer msg = context.newMessage (fields);
-    // add the class name
+    // add the interface name
     msg.add (null, 0, FudgeFieldContainer.class.getName ());
     return msg;
   }
@@ -55,15 +55,12 @@ import org.fudgemsg.MutableFudgeFieldContainer;
   @Override
   public FudgeFieldContainer buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
     final MutableFudgeFieldContainer msg = context.getFudgeContext ().newMessage (message);
-    // remove the class name if one was added
-    final String value = FudgeFieldContainer.class.getName ();
+    // remove the class name(s) if added
     final Short ordinal = 0;
     final Iterator<FudgeField> fields = msg.iterator ();
     while (fields.hasNext ()) {
       final FudgeField field = fields.next ();
-      if (ordinal.equals (field.getOrdinal ())
-          && (field.getName () == null)
-          && value.equals (field.getValue ())) {
+      if (ordinal.equals(field.getOrdinal()) && (field.getName() == null)) {
         fields.remove ();
         break;
       }
