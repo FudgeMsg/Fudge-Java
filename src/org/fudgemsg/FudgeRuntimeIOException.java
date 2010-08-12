@@ -46,4 +46,12 @@ public class FudgeRuntimeIOException extends FudgeRuntimeException {
     super (message, cause);
   }
   
+  /**
+   * Returns the underlying I/O exception wrapped by this runtime exception.
+   */
+  @Override
+  public IOException getCause() {
+    return (IOException) super.getCause();
+  }
+
 }
