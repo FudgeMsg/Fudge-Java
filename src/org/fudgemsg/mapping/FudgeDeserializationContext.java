@@ -167,9 +167,9 @@ public class FudgeDeserializationContext {
   public <T> T fudgeMsgToObject (final Class<T> clazz, final FudgeFieldContainer message) {
     FudgeObjectBuilder<T> builder;
     Exception lastError = null;
-    if (clazz == Object.class) {
+    /*if (clazz == Object.class) {
       System.out.println(message);
-    }
+    }*/
     List<FudgeField> types = message.getAllByOrdinal (0);
     if (types.size () != 0) {
       // message contains type information - use it if we can
