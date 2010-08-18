@@ -28,7 +28,7 @@ import org.fudgemsg.taxon.ImmutableMapTaxonomyResolver;
 import org.fudgemsg.taxon.MapFudgeTaxonomy;
 import org.junit.Test;
 
-import static org.fudgemsg.FudgeUtils.assertAllFieldsMatch;
+import static org.fudgemsg.test.FudgeUtils.assertAllFieldsMatch;
 import static org.junit.Assert.assertNotNull;
 
 /**

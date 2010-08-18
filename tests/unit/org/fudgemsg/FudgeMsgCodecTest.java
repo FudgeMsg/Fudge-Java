@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.util.Random;
 
+import org.fudgemsg.test.FudgeUtils;
 import org.junit.Test;
 
 /**

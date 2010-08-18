@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.fudgemsg.test.FudgeUtils;
 import org.fudgemsg.types.DateTimeAccuracy;
 import org.fudgemsg.types.FudgeDate;
 import org.fudgemsg.types.FudgeDateTime;

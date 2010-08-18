@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fudgemsg;
+package org.fudgemsg.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -24,6 +24,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.UnknownFudgeFieldValue;
 
 /**
  * 

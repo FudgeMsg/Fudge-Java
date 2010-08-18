@@ -18,9 +18,9 @@ package org.fudgemsg.mongodb;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeUtils;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.StandardFudgeMessages;
+import org.fudgemsg.test.FudgeUtils;
 import org.junit.Test;
 
 import com.mongodb.DBObject;

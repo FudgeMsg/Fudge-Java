@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.ByteArrayInputStream;
 
+import org.fudgemsg.test.FudgeUtils;
 import org.junit.Test;
 
 /**

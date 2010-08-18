@@ -26,6 +26,7 @@ import org.fudgemsg.taxon.FudgeTaxonomy;
 import org.fudgemsg.taxon.ImmutableMapTaxonomyResolver;
 import org.fudgemsg.taxon.MapFudgeTaxonomy;
 import org.fudgemsg.taxon.TaxonomyResolver;
+import org.fudgemsg.test.FudgeUtils;
 import org.junit.Test;
 
 /**

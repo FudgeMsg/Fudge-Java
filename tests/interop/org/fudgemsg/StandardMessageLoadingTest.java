@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.fudgemsg.test.FudgeUtils;
 import org.junit.Test;
 
 /**
