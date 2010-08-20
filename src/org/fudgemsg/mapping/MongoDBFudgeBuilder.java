@@ -21,7 +21,10 @@ import java.util.List;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeFieldType;
+import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.types.SecondaryFieldTypeBase;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -72,21 +75,66 @@ import com.mongodb.DBObject;
     return msg;
   }
 
+  @SuppressWarnings("unchecked")
   private Object encodeFieldValue(final FudgeDeserializationContext context, final Object currentValue, Object fieldValue) {
     if(fieldValue instanceof FudgeFieldContainer) {
-      fieldValue = buildObject(context, (FudgeFieldContainer) fieldValue);
+      return buildObject(context, (FudgeFieldContainer) fieldValue);
     }
     if(currentValue instanceof List<?>) {
       List<Object> l = new ArrayList<Object>((List<?>)currentValue);
       l.add(fieldValue);
-      fieldValue = l;
+      return l;
     } else if (currentValue != null) {
       List<Object> l = new ArrayList<Object>();
       l.add(currentValue);
       l.add(fieldValue);
-      fieldValue = l;
+      return l;
     }
-    return fieldValue;
+    
+    FudgeFieldType<?> valueType = context.getFudgeContext().getTypeDictionary().getByJavaType(fieldValue.getClass());
+    if (valueType == null) {
+      throw new IllegalArgumentException("Cannot handle serialization of object " + fieldValue + " of type " + fieldValue.getClass() + " as no Fudge type available in context");
+    }
+    
+    switch (valueType.getTypeId()) {
+    case FudgeTypeDictionary.INDICATOR_TYPE_ID:
+      return fieldValue;
+    case FudgeTypeDictionary.BOOLEAN_TYPE_ID :
+    case FudgeTypeDictionary.BYTE_ARR_128_TYPE_ID:
+    case FudgeTypeDictionary.BYTE_ARR_16_TYPE_ID:
+    case FudgeTypeDictionary.BYTE_ARR_20_TYPE_ID:
+    case FudgeTypeDictionary.BYTE_ARR_256_TYPE_ID:
+    case FudgeTypeDictionary.BYTE_ARR_32_TYPE_ID:
+    case FudgeTypeDictionary.BYTE_ARR_4_TYPE_ID:
+    case FudgeTypeDictionary.BYTE_ARR_512_TYPE_ID:
+    case FudgeTypeDictionary.BYTE_ARR_64_TYPE_ID:
+    case FudgeTypeDictionary.BYTE_ARR_8_TYPE_ID:
+    case FudgeTypeDictionary.BYTE_ARRAY_TYPE_ID:
+    case FudgeTypeDictionary.BYTE_TYPE_ID:
+    case FudgeTypeDictionary.DATE_TYPE_ID:
+    case FudgeTypeDictionary.DATETIME_TYPE_ID:
+    case FudgeTypeDictionary.DOUBLE_ARRAY_TYPE_ID:
+    case FudgeTypeDictionary.DOUBLE_TYPE_ID:
+    case FudgeTypeDictionary.FLOAT_ARRAY_TYPE_ID:
+    case FudgeTypeDictionary.FLOAT_TYPE_ID:
+    case FudgeTypeDictionary.INT_ARRAY_TYPE_ID:
+    case FudgeTypeDictionary.INT_TYPE_ID:
+    case FudgeTypeDictionary.LONG_ARRAY_TYPE_ID:
+    case FudgeTypeDictionary.LONG_TYPE_ID:
+    case FudgeTypeDictionary.SHORT_ARRAY_TYPE_ID:
+    case FudgeTypeDictionary.SHORT_TYPE_ID:
+    case FudgeTypeDictionary.STRING_TYPE_ID:
+    case FudgeTypeDictionary.TIME_TYPE_ID:
+      if (valueType instanceof SecondaryFieldTypeBase) {
+        SecondaryFieldTypeBase secondaryType = (SecondaryFieldTypeBase) valueType;
+        return secondaryType.secondaryToPrimary(fieldValue);
+      }
+      // Built-in support.
+      return fieldValue;
+    }
+
+    // If we get this far, it's a user-defined type. Nothing we can do here.
+    throw new IllegalStateException("User-defined types must be handled before they get to MongoDBFudgeBuilder currently. Value type " + valueType);
   }
   
   /**

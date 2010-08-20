@@ -16,7 +16,13 @@
 
 package org.fudgemsg.mongodb;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Date;
+
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.StandardFudgeMessages;
@@ -92,5 +98,5 @@ public class MongoDBCodecTest {
     
     FudgeUtils.assertAllFieldsMatch(inputMsg, outputMsg);
   }
-
+  
 }
