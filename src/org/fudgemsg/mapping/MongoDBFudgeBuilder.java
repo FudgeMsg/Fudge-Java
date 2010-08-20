@@ -98,7 +98,8 @@ import com.mongodb.DBObject;
     
     switch (valueType.getTypeId()) {
     case FudgeTypeDictionary.INDICATOR_TYPE_ID:
-      return fieldValue;
+      // REVIEW kirk 2010-08-20 -- Is this the right behavior here?
+      return null;
     case FudgeTypeDictionary.BOOLEAN_TYPE_ID :
     case FudgeTypeDictionary.BYTE_ARR_128_TYPE_ID:
     case FudgeTypeDictionary.BYTE_ARR_16_TYPE_ID:
@@ -111,8 +112,6 @@ import com.mongodb.DBObject;
     case FudgeTypeDictionary.BYTE_ARR_8_TYPE_ID:
     case FudgeTypeDictionary.BYTE_ARRAY_TYPE_ID:
     case FudgeTypeDictionary.BYTE_TYPE_ID:
-    case FudgeTypeDictionary.DATE_TYPE_ID:
-    case FudgeTypeDictionary.DATETIME_TYPE_ID:
     case FudgeTypeDictionary.DOUBLE_ARRAY_TYPE_ID:
     case FudgeTypeDictionary.DOUBLE_TYPE_ID:
     case FudgeTypeDictionary.FLOAT_ARRAY_TYPE_ID:
@@ -124,12 +123,17 @@ import com.mongodb.DBObject;
     case FudgeTypeDictionary.SHORT_ARRAY_TYPE_ID:
     case FudgeTypeDictionary.SHORT_TYPE_ID:
     case FudgeTypeDictionary.STRING_TYPE_ID:
-    case FudgeTypeDictionary.TIME_TYPE_ID:
       if (valueType instanceof SecondaryFieldTypeBase) {
         SecondaryFieldTypeBase secondaryType = (SecondaryFieldTypeBase) valueType;
         return secondaryType.secondaryToPrimary(fieldValue);
       }
       // Built-in support.
+      return fieldValue;
+    case FudgeTypeDictionary.DATE_TYPE_ID:
+    case FudgeTypeDictionary.DATETIME_TYPE_ID:
+    case FudgeTypeDictionary.TIME_TYPE_ID:
+      // FIXME kirk 2010-08-20 -- This is an insanely gross hack around the rest of the
+      // fix for FRJ-83 breaking all dates, exposed by FRJ-84.
       return fieldValue;
     }
 
