@@ -74,23 +74,9 @@ import com.mongodb.DBObject;
     }
     return msg;
   }
-
+  
   @SuppressWarnings("unchecked")
-  private Object encodeFieldValue(final FudgeDeserializationContext context, final Object currentValue, Object fieldValue) {
-    if(fieldValue instanceof FudgeFieldContainer) {
-      return buildObject(context, (FudgeFieldContainer) fieldValue);
-    }
-    if(currentValue instanceof List<?>) {
-      List<Object> l = new ArrayList<Object>((List<?>)currentValue);
-      l.add(fieldValue);
-      return l;
-    } else if (currentValue != null) {
-      List<Object> l = new ArrayList<Object>();
-      l.add(currentValue);
-      l.add(fieldValue);
-      return l;
-    }
-    
+  private Object encodePrimitiveFieldValue(final FudgeDeserializationContext context, Object fieldValue) {
     FudgeFieldType<?> valueType = context.getFudgeContext().getTypeDictionary().getByJavaType(fieldValue.getClass());
     if (valueType == null) {
       throw new IllegalArgumentException("Cannot handle serialization of object " + fieldValue + " of type " + fieldValue.getClass() + " as no Fudge type available in context");
@@ -136,9 +122,35 @@ import com.mongodb.DBObject;
       // fix for FRJ-83 breaking all dates, exposed by FRJ-84.
       return fieldValue;
     }
-
     // If we get this far, it's a user-defined type. Nothing we can do here.
     throw new IllegalStateException("User-defined types must be handled before they get to MongoDBFudgeBuilder currently. Value type " + valueType);
+  }
+
+  private Object encodeFieldValue(final FudgeDeserializationContext context, final Object currentValue, Object fieldValue) {
+    boolean structureExpected = false;
+    if(fieldValue instanceof FudgeFieldContainer) {
+      fieldValue = buildObject(context, (FudgeFieldContainer) fieldValue);
+      structureExpected = true;
+    }
+    if(currentValue instanceof List<?>) {
+      List<Object> l = new ArrayList<Object>((List<?>)(currentValue));
+      l.add(fieldValue);
+      return l;
+    } else if (currentValue != null) {
+      List<Object> l = new ArrayList<Object>();
+      l.add(currentValue);
+      if (!structureExpected) {
+        fieldValue = encodePrimitiveFieldValue(context, fieldValue);
+      }
+      l.add(fieldValue);
+      return l;
+    }
+    
+    if (structureExpected) {
+      return fieldValue;
+    }
+    
+    return encodePrimitiveFieldValue(context, fieldValue);
   }
   
   /**
