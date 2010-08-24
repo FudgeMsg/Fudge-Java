@@ -45,7 +45,9 @@ import com.mongodb.DBObject;
  */
 public class FudgeMongoDBObject implements DBObject {
   private final FudgeMsg _underlying;
-  private final Map<String, FudgeField> _fastSingleValueCache = new HashMap<String, FudgeField>();
+  private final Map<String, Object> _fastSingleValueCache = new HashMap<String, Object>();
+  // This is used A LOT internally in MongoDB. Cache it specifically and avoid all the conversions.
+  private ObjectId _objectId;
   
   /**
    * The primary constructor.
@@ -80,7 +82,10 @@ public class FudgeMongoDBObject implements DBObject {
         fieldNamesToIgnore.add(field.getName());
         continue;
       }
-      _fastSingleValueCache.put(field.getName(), field);
+      _fastSingleValueCache.put(field.getName(), convertFudgeToMongoDB(field));
+      if ("_id".equals(field.getName())) {
+        _objectId = new ObjectId((String)field.getValue());
+      }
     }
   }
 
@@ -115,9 +120,12 @@ public class FudgeMongoDBObject implements DBObject {
    */
   @Override
   public Object get(String key) {
-    FudgeField fastField = _fastSingleValueCache.get(key);
+    if ("_id".equals(key)) {
+      return _objectId;
+    }
+    Object fastField = _fastSingleValueCache.get(key);
     if (fastField != null) {
-      return convertFudgeToMongoDB(fastField);
+      return fastField;
     }
     
     List<FudgeField> allFields = getUnderlying().getAllByName(key);
@@ -183,6 +191,7 @@ public class FudgeMongoDBObject implements DBObject {
     } else if (v instanceof ObjectId) {
       // GROSS HACK HERE. Should be smarter in our fudge use.
       getUnderlying().add(key, ((ObjectId) v).toString());
+      _objectId = (ObjectId) v;
     } else {
       getUnderlying().add(key, v);
     }
