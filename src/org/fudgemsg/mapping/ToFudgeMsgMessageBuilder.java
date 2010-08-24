@@ -78,14 +78,14 @@ import org.fudgemsg.MutableFudgeFieldContainer;
       // ignore
     }
     try {
-      return new AddFields<T> (clazz.getMethod ("toFudgeMsg", FudgeContext.class, MutableFudgeFieldContainer.class), false);
+      return new AddFields<T>(clazz.getMethod("toFudgeMsg", FudgeContext.class, MutableFudgeFieldContainer.class), true);
     } catch (SecurityException e) {
       // ignore
     } catch (NoSuchMethodException e) {
       // ignore
     }
     try {
-      return new CreateMessage<T> (clazz.getMethod ("toFudgeMsg", FudgeContext.class), false);
+      return new CreateMessage<T>(clazz.getMethod("toFudgeMsg", FudgeContext.class), true);
     } catch (SecurityException e) {
       // ignore
     } catch (NoSuchMethodException e) {
