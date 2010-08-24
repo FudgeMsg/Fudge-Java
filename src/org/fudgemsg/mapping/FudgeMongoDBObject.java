@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.bson.BSONObject;
+import org.bson.types.ObjectId;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
@@ -31,7 +33,6 @@ import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.mongodb.DBObject;
-import com.mongodb.ObjectId;
 
 /**
  * Wraps a {@link FudgeFieldContainer} and implements the {@link DBObject} interface,
@@ -192,8 +193,8 @@ public class FudgeMongoDBObject implements DBObject {
    * {@inheritDoc}
    */
   @Override
-  public void putAll(DBObject o) {
-    throw new UnsupportedOperationException("Put not yet supported");
+  public void putAll(BSONObject o) {
+    throw new UnsupportedOperationException("Put All not yet supported");
   }
 
   /**
