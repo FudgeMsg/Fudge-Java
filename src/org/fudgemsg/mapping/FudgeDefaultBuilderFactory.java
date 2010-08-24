@@ -124,6 +124,7 @@ public class FudgeDefaultBuilderFactory implements FudgeBuilderFactory {
   @SuppressWarnings("unchecked")
   public <T> FudgeObjectBuilder<T> createObjectBuilder (final Class<T> clazz) {
     FudgeObjectBuilder<T> builder;
+    if ((builder = createObjectBuilderFromAnnotation(clazz)) != null) return builder;
     if ((builder = FromFudgeMsgObjectBuilder.create (clazz)) != null) return builder;
     if ((builder = FudgeMsgConstructorObjectBuilder.create (clazz)) != null) return builder;
     if (clazz.isArray ()) return new ArrayBuilder (clazz.getComponentType ());
@@ -132,6 +133,45 @@ public class FudgeDefaultBuilderFactory implements FudgeBuilderFactory {
     if (clazz.isInterface ()) return null;
     //return ReflectionObjectBuilder.create (clazz);
     return JavaBeanBuilder.create (clazz);
+  }
+  
+  /**
+   * Attempt to construct a {@link FudgeObjectBuilder} for the specified type based on the presence
+   * of a {@link HasFudgeBuilder} annotation on that type.
+   * 
+   * @param <T> Java type of the class a builder is requested for
+   * @param clazz Java class a builder is requested for
+   * @return A {@link FudgeObjectBuilder} based on {@link HasFudgeBuilder} annotation, or {@code null}.
+   */
+  @SuppressWarnings("unchecked")
+  protected <T> FudgeObjectBuilder<T> createObjectBuilderFromAnnotation(final Class<T> clazz) {
+    if (!clazz.isAnnotationPresent(HasFudgeBuilder.class)) {
+      return null;
+    }
+    HasFudgeBuilder annotation = clazz.getAnnotation(HasFudgeBuilder.class);
+    Class<?> objectBuilderClass = null;
+    if (!Object.class.equals(annotation.builder())) {
+      objectBuilderClass = annotation.builder();
+    } else if (!Object.class.equals(annotation.objectBuilder())) {
+      objectBuilderClass = annotation.objectBuilder();
+    }
+    
+    if (objectBuilderClass == null) {
+      return null;
+    }
+    
+    if (!FudgeObjectBuilder.class.isAssignableFrom(objectBuilderClass)) {
+      return null;
+    }
+    
+    FudgeObjectBuilder<T> result = null;
+    try {
+      result = (FudgeObjectBuilder<T>) objectBuilderClass.newInstance();
+    } catch (Exception e) {
+      throw new FudgeRuntimeException("Unable to instantiate annotated object builder class " + objectBuilderClass, e);
+    }
+    
+    return result;
   }
   
   /**
@@ -146,6 +186,7 @@ public class FudgeDefaultBuilderFactory implements FudgeBuilderFactory {
   @SuppressWarnings("unchecked")
   public <T> FudgeMessageBuilder<T> createMessageBuilder (final Class<T> clazz) {
     FudgeMessageBuilder<T> builder;
+    if ((builder = createMessageBuilderFromAnnotation(clazz)) != null) return builder;
     if ((builder = ToFudgeMsgMessageBuilder.create (clazz)) != null) return builder;
     if (clazz.isArray ()) return new ArrayBuilder (clazz.getComponentType ());
     if (Enum.class.isAssignableFrom(clazz)) return new EnumBuilder (clazz);
@@ -154,6 +195,45 @@ public class FudgeDefaultBuilderFactory implements FudgeBuilderFactory {
     }
     //return ReflectionMessageBuilder.create (clazz);
     return JavaBeanBuilder.create (clazz);
+  }
+  
+  /**
+   * Attempt to construct a {@link FudgeObjectBuilder} for the specified type based on the presence
+   * of a {@link HasFudgeBuilder} annotation on that type.
+   * 
+   * @param <T> Java type of the class a builder is requested for
+   * @param clazz Java class a builder is requested for
+   * @return A {@link FudgeObjectBuilder} based on {@link HasFudgeBuilder} annotation, or {@code null}.
+   */
+  @SuppressWarnings("unchecked")
+  protected <T> FudgeMessageBuilder<T> createMessageBuilderFromAnnotation(final Class<T> clazz) {
+    if (!clazz.isAnnotationPresent(HasFudgeBuilder.class)) {
+      return null;
+    }
+    HasFudgeBuilder annotation = clazz.getAnnotation(HasFudgeBuilder.class);
+    Class<?> messageBuilderClass = null;
+    if (!Object.class.equals(annotation.builder())) {
+      messageBuilderClass = annotation.builder();
+    } else if (!Object.class.equals(annotation.messageBuilder())) {
+      messageBuilderClass = annotation.messageBuilder();
+    }
+    
+    if (messageBuilderClass == null) {
+      return null;
+    }
+    
+    if (!FudgeMessageBuilder.class.isAssignableFrom(messageBuilderClass)) {
+      return null;
+    }
+    
+    FudgeMessageBuilder<T> result = null;
+    try {
+      result = (FudgeMessageBuilder<T>) messageBuilderClass.newInstance();
+    } catch (Exception e) {
+      throw new FudgeRuntimeException("Unable to instantiate annotated message builder class " + messageBuilderClass, e);
+    }
+    
+    return result;
   }
   
   /**
