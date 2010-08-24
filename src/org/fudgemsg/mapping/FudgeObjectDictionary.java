@@ -16,11 +16,21 @@
 
 package org.fudgemsg.mapping;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Pattern;
 
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeRuntimeException;
 import org.fudgemsg.MutableFudgeFieldContainer;
+import org.scannotation.AnnotationDB;
 
 /**
  * Contains mappings from Java objects to Fudge messages for the current classloader.
@@ -175,6 +185,99 @@ public class FudgeObjectDictionary {
       }
     }
     return (builder == NULL_MESSAGEBUILDER) ? null : builder;
+  }
+  
+  /**
+   * Scans all files available to common classpath loading system heuristics to determine
+   * which ones have the {@link FudgeBuilderFor} annotation, and registers those as appropriate
+   * builders.
+   * This is potentially a <em>very</em> expensive operation, and as such is optional.
+   */
+  public void addAllClasspathBuilders() {
+    URL[] classpathElements = findClassPaths();
+    AnnotationDB annotationDB = new AnnotationDB();
+    annotationDB.setScanClassAnnotations(true);
+    annotationDB.setScanFieldAnnotations(false);
+    annotationDB.setScanMethodAnnotations(false);
+    annotationDB.setScanParameterAnnotations(false);
+    try {
+      annotationDB.scanArchives(classpathElements);
+    } catch (IOException e) {
+      throw new FudgeRuntimeException("Unable to scan classpath elements for @FudgeBuilderFor annotations", e);
+    }
+    Set<String> classNamesWithAnnotation = annotationDB.getAnnotationIndex().get(FudgeBuilderFor.class.getName());
+    if (classNamesWithAnnotation == null) {
+      return;
+    }
+    for (String className : classNamesWithAnnotation) {
+      addAnnotatedBuilderClass(className);
+    }
+  }
+
+  /**
+   * The version in Scannotation doesn't work properly with Eclipse, which will put in
+   * project references that don't actually exist to help itself.
+   */
+  private URL[] findClassPaths() {
+    List<URL> results = new LinkedList<URL>();
+    String javaClassPath = System.getProperty("java.class.path");
+    String[] paths = javaClassPath.split(Pattern.quote(File.pathSeparator));
+    for (String path : paths) {
+      File f = new File(path);
+      if (!f.exists()) {
+        continue;
+      }
+      URL url;
+      try {
+        url = f.toURI().toURL();
+      } catch (MalformedURLException e) {
+        throw new FudgeRuntimeException("Could not convert file " + f + " to URL", e);
+      }
+      results.add(url);
+    }
+    return results.toArray(new URL[0]);
+  }
+
+  /**
+   * Add a class which is known to have a {@link FudgeBuilderFor} annotation as an object or message
+   * builder (or both). 
+   * 
+   * @param className The fully qualified name of the builder class.
+   */
+  @SuppressWarnings("unchecked")
+  public void addAnnotatedBuilderClass(String className) {
+    Class<?> builderClass = null;
+    try {
+      builderClass = Class.forName(className);
+    } catch (Exception e) {
+      // Silently swallow. Can't actually populate it.
+      // This should be rare, and you can just stop at this breakpoint
+      // (which is why the stack trace is here at all).
+      e.printStackTrace();
+      return;
+    }
+    
+    if (!builderClass.isAnnotationPresent(FudgeBuilderFor.class)) {
+      return;
+    }
+    
+    Object builderInstance = null;
+    try {
+      builderInstance = builderClass.newInstance();
+    } catch (Exception e) {
+      // Do nothing other than stack trace.
+      e.printStackTrace();
+      return;
+    }
+    Class<?> forClass = builderClass.getAnnotation(FudgeBuilderFor.class).value();
+    
+    if (builderInstance instanceof FudgeMessageBuilder) {
+      addMessageBuilder(forClass, (FudgeMessageBuilder) builderInstance);
+    }
+    
+    if (builderInstance instanceof FudgeObjectBuilder) {
+      addObjectBuilder(forClass, (FudgeObjectBuilder) builderInstance);
+    }
   }
   
 }
