@@ -42,6 +42,11 @@ import org.scannotation.AnnotationDB;
  * @author Andrew Griffin
  */
 public class FudgeObjectDictionary {
+  /**
+   * The name of the property to be set (to any value) to automatically scan the classpath
+   * for builders on startup.
+   */
+  public static final String AUTO_CLASSPATH_SCAN_PROPERTY = "org.fudgemsg.autoscan";
   
   private static final FudgeMessageBuilder<?> NULL_MESSAGEBUILDER = new FudgeMessageBuilder<Object> () {
     @Override
@@ -69,6 +74,10 @@ public class FudgeObjectDictionary {
     _objectBuilders = new ConcurrentHashMap<Class<?>, FudgeObjectBuilder<?>> ();
     _messageBuilders = new ConcurrentHashMap<Class<?>, FudgeMessageBuilder<?>> ();
     _defaultBuilderFactory = new FudgeDefaultBuilderFactory();
+    
+    if (System.getProperty(AUTO_CLASSPATH_SCAN_PROPERTY) != null) {
+      addAllClasspathBuilders();
+    }
   }
   
   /**
