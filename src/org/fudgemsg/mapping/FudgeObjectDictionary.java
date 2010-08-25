@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 import org.fudgemsg.FudgeFieldContainer;
@@ -64,6 +65,7 @@ public class FudgeObjectDictionary {
   
   private final ConcurrentMap<Class<?>, FudgeObjectBuilder<?>> _objectBuilders;
   private final ConcurrentMap<Class<?>, FudgeMessageBuilder<?>> _messageBuilders;
+  private final AtomicBoolean _haveScannedClasspath = new AtomicBoolean(false);
   
   private FudgeBuilderFactory _defaultBuilderFactory;
   
@@ -203,6 +205,10 @@ public class FudgeObjectDictionary {
    * This is potentially a <em>very</em> expensive operation, and as such is optional.
    */
   public void addAllClasspathBuilders() {
+    if (_haveScannedClasspath.getAndSet(true)) {
+      return;
+    }
+    
     URL[] classpathElements = findClassPaths();
     AnnotationDB annotationDB = new AnnotationDB();
     annotationDB.setScanClassAnnotations(true);
