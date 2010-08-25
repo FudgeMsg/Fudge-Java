@@ -16,20 +16,13 @@
 
 package org.fudgemsg.mapping;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Pattern;
 
+import org.fudgemsg.ClasspathUtilities;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeRuntimeException;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.scannotation.AnnotationDB;
 
@@ -209,17 +202,7 @@ public class FudgeObjectDictionary {
       return;
     }
     
-    URL[] classpathElements = findClassPaths();
-    AnnotationDB annotationDB = new AnnotationDB();
-    annotationDB.setScanClassAnnotations(true);
-    annotationDB.setScanFieldAnnotations(false);
-    annotationDB.setScanMethodAnnotations(false);
-    annotationDB.setScanParameterAnnotations(false);
-    try {
-      annotationDB.scanArchives(classpathElements);
-    } catch (IOException e) {
-      throw new FudgeRuntimeException("Unable to scan classpath elements for @FudgeBuilderFor annotations", e);
-    }
+    AnnotationDB annotationDB = ClasspathUtilities.getAnnotationDB();
     Set<String> classNamesWithAnnotation = annotationDB.getAnnotationIndex().get(FudgeBuilderFor.class.getName());
     if (classNamesWithAnnotation == null) {
       return;
@@ -227,30 +210,6 @@ public class FudgeObjectDictionary {
     for (String className : classNamesWithAnnotation) {
       addAnnotatedBuilderClass(className);
     }
-  }
-
-  /**
-   * The version in Scannotation doesn't work properly with Eclipse, which will put in
-   * project references that don't actually exist to help itself.
-   */
-  private URL[] findClassPaths() {
-    List<URL> results = new LinkedList<URL>();
-    String javaClassPath = System.getProperty("java.class.path");
-    String[] paths = javaClassPath.split(Pattern.quote(File.pathSeparator));
-    for (String path : paths) {
-      File f = new File(path);
-      if (!f.exists()) {
-        continue;
-      }
-      URL url;
-      try {
-        url = f.toURI().toURL();
-      } catch (MalformedURLException e) {
-        throw new FudgeRuntimeException("Could not convert file " + f + " to URL", e);
-      }
-      results.add(url);
-    }
-    return results.toArray(new URL[0]);
   }
 
   /**
