@@ -210,6 +210,13 @@ public class FudgeObjectDictionary {
     for (String className : classNamesWithAnnotation) {
       addAnnotatedBuilderClass(className);
     }
+    classNamesWithAnnotation = annotationDB.getAnnotationIndex().get(GenericFudgeBuilderFor.class.getName());
+    if (classNamesWithAnnotation == null) {
+      return;
+    }
+    for (String className : classNamesWithAnnotation) {
+      addAnnotatedGenericBuilderClass(className);
+    }
   }
 
   /**
@@ -220,18 +227,10 @@ public class FudgeObjectDictionary {
    */
   @SuppressWarnings("unchecked")
   public void addAnnotatedBuilderClass(String className) {
-    Class<?> builderClass = null;
-    try {
-      builderClass = Class.forName(className);
-    } catch (Exception e) {
-      // Silently swallow. Can't actually populate it.
-      // This should be rare, and you can just stop at this breakpoint
-      // (which is why the stack trace is here at all).
-      e.printStackTrace();
-      return;
-    }
+    Class<?> builderClass = instantiateBuilderClass(className);
     
-    if (!builderClass.isAnnotationPresent(FudgeBuilderFor.class)) {
+    if ((builderClass == null)
+        || !builderClass.isAnnotationPresent(FudgeBuilderFor.class)) {
       return;
     }
     
@@ -252,6 +251,53 @@ public class FudgeObjectDictionary {
     if (builderInstance instanceof FudgeObjectBuilder) {
       addObjectBuilder(forClass, (FudgeObjectBuilder) builderInstance);
     }
+  }
+  
+  /**
+   * Add a class which is known to have a {@link GenericFudgeBuilderFor} annotation as builder. 
+   * 
+   * @param className The fully qualified name of the builder class.
+   */
+  @SuppressWarnings("unchecked")
+  public void addAnnotatedGenericBuilderClass(String className) {
+    Class<?> builderClass = instantiateBuilderClass(className);
+    
+    if ((builderClass == null)
+        || !builderClass.isAnnotationPresent(GenericFudgeBuilderFor.class)) {
+      return;
+    }
+    
+    Object builderInstance = null;
+    try {
+      builderInstance = builderClass.newInstance();
+    } catch (Exception e) {
+      // Do nothing other than stack trace.
+      e.printStackTrace();
+      return;
+    }
+    Class<?> forClass = builderClass.getAnnotation(GenericFudgeBuilderFor.class).value();
+    
+    if (!(builderInstance instanceof FudgeBuilder)) {
+      throw new IllegalArgumentException("Annotated a generic builder " + builderClass + " but not a full FudgeBuilder<> implementation.");
+    }
+    getDefaultBuilderFactory().addGenericBuilder(forClass, (FudgeBuilder) builderInstance);
+  }
+
+  /**
+   * @param className
+   * @return
+   */
+  private Class<?> instantiateBuilderClass(String className) {
+    Class<?> builderClass = null;
+    try {
+      builderClass = Class.forName(className);
+    } catch (Exception e) {
+      // Silently swallow. Can't actually populate it.
+      // This should be rare, and you can just stop at this breakpoint
+      // (which is why the stack trace is here at all).
+      e.printStackTrace();
+    }
+    return builderClass;
   }
   
 }
