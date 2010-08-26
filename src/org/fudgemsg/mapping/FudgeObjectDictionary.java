@@ -28,17 +28,42 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
+import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeRuntimeException;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.scannotation.AnnotationDB;
 
 /**
- * Contains mappings from Java objects to Fudge messages for the current classloader.
- * There are a set of default mappings available through a {@link FudgeBuilderFactory}
- * initially set as an instance of {@link FudgeDefaultBuilderFactory}. Registering a
- * different builder factory, or registering additional/different generic builders can
- * change the default behaviours for unrecognized classes.
+ * Extensible dictionary of types that Fudge can convert to and from wire format.
+ * <p>
+ * This class contains a cache of mappings from Java types to Fudge messages.
+ * There is one instance of the dictionary per {@link FudgeContext context}.
+ * <p>
+ * Mappings may be added in three main ways.
+ * <p>
+ * The simplest way is to create an instance of {@link FudgeBuilder} and call the
+ * {@code addBuilder} method. This will register an instance of the builder for a specific type.
+ * Subclasses of the type will not use the builder.
+ * <p>
+ * The second mechanism is classpath scanning. Simply annotate the builder class with
+ * {@link FudgeBuilderFor}, and call {@code addAllClasspathBuilders}.
+ * The method can be slow when operating on a large classpath.
+ * The system property {@code org.fudgemsg.autoscan} allows this to be done automatically.
+ * <p>
+ * The third method is generic builders. This class contains a single instance of
+ * {@link FudgeBuilderFactory}, which is capable of creating builders on demand.
+ * See {@link FudgeDefaultBuilderFactory} for the default list of handled types.
+ * Further generic builders can be registered with the factory.
+ * These generic builders will handle subclasses of the registered type.
+ * <p>
+ * All builder caching is done in this class.
+ * The factory is not responsible for caching.
+ * <p>
+ * Registering a different factory, or registering additional/different generic builders can
+ * change the default behavior for unrecognized types. As such, it is recommended to only
+ * initialize the dictionary at system startup. However, the cache is concurrent, so will
+ * handle later additions.
  * 
  * @author Andrew Griffin
  */
