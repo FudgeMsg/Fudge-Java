@@ -15,16 +15,22 @@
  */
 package org.fudgemsg;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.types.ByteArrayFieldType;
 import org.fudgemsg.types.DateFieldType;
 import org.fudgemsg.types.DateTimeFieldType;
 import org.fudgemsg.types.DoubleArrayFieldType;
 import org.fudgemsg.types.FloatArrayFieldType;
 import org.fudgemsg.types.FudgeMsgFieldType;
+import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.FudgeTypeConverter;
 import org.fudgemsg.types.IndicatorFieldType;
 import org.fudgemsg.types.IndicatorFieldTypeConverter;
@@ -41,6 +47,7 @@ import org.fudgemsg.types.StringFieldTypeConverter;
 import org.fudgemsg.types.TimeFieldType;
 import org.fudgemsg.types.UnknownFudgeFieldType;
 import org.fudgemsg.types.secondary.SecondaryTypeLoader;
+import org.scannotation.AnnotationDB;
 
 /**
  * Contains all the {@link FudgeFieldType} definitions for a particular
@@ -54,6 +61,7 @@ public class FudgeTypeDictionary {
   private volatile UnknownFudgeFieldType[] _unknownTypesById = new UnknownFudgeFieldType[0];
   private final ConcurrentMap<Class<?>, FudgeFieldType<?>> _typesByJavaType;
   private final ConcurrentMap<Class<?>, FudgeTypeConverter<?,?>> _convertersByJavaType;
+  private final AtomicBoolean _haveScannedClasspath = new AtomicBoolean(false);
   
   /**
    * Creates a new {@link FudgeTypeDictionary} configured with the default types from the Fudge specification. Also
@@ -339,6 +347,70 @@ public class FudgeTypeDictionary {
         // does secondary type extend current type
         return converter.canConvertPrimary (value.getClass ());
       }
+    }
+  }
+  
+  /**
+   * Scans all files available to common classpath loading system heuristics to determine
+   * which ones have the {@link FudgeSecondaryType} annotation, and registers those as appropriate
+   * secondary types.
+   * This is potentially a <em>very</em> expensive operation, and as such is optional.
+   */
+  public void addAllAnnotatedSecondaryTypes() {
+    if (_haveScannedClasspath.getAndSet(true)) {
+      return;
+    }
+    
+    AnnotationDB annotationDB = ClasspathUtilities.getAnnotationDB();
+    Set<String> classNamesWithAnnotation = annotationDB.getAnnotationIndex().get(FudgeSecondaryType.class.getName());
+    if (classNamesWithAnnotation == null) {
+      return;
+    }
+    for (String className : classNamesWithAnnotation) {
+      addAnnotatedSecondaryTypeClass(className);
+    }
+  }
+
+  /**
+   * Add a class which is known to have a {@link FudgeBuilderFor} annotation as an object or message
+   * builder (or both). 
+   * 
+   * @param className The fully qualified name of the builder class.
+   */
+  @SuppressWarnings("unchecked")
+  public void addAnnotatedSecondaryTypeClass(String className) {
+    Class<?> builderClass = null;
+    try {
+      builderClass = Class.forName(className);
+    } catch (Exception e) {
+      // Silently swallow. Can't actually populate it.
+      // This should be rare, and you can just stop at this breakpoint
+      // (which is why the stack trace is here at all).
+      e.printStackTrace();
+      return;
+    }
+
+    for (Field field : builderClass.getFields()) {
+      if (!field.isAnnotationPresent(FudgeSecondaryType.class)) {
+        continue;
+      }
+      int fieldModifiers = field.getModifiers();
+      if (!Modifier.isStatic(fieldModifiers)) {
+        continue;
+      }
+      if (!Modifier.isPublic(fieldModifiers)) {
+        continue;
+      }
+      if (!Modifier.isStatic(fieldModifiers)) {
+        continue;
+      }
+      FudgeFieldType fudgeType;
+      try {
+        fudgeType = (FudgeFieldType) field.get(null);
+      } catch (Exception e) {
+        throw new FudgeRuntimeException("Cannot access field " + field.getName() + " on class " + builderClass.getName() + " with @FudgeSecondaryType annotation", e);
+      }
+      addType(fudgeType);
     }
   }
   

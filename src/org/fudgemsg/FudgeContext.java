@@ -487,5 +487,4 @@ public class FudgeContext implements FudgeMessageFactory {
       configuration.configureFudgeContext(this);
     }
   }
-  
 }
