@@ -25,7 +25,6 @@ import org.fudgemsg.ClasspathUtilities;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.scannotation.AnnotationDB;
 
 /**
  * Extensible dictionary of types that Fudge can convert to and from wire format.
@@ -96,7 +95,7 @@ public class FudgeObjectDictionary {
     _defaultBuilderFactory = new FudgeDefaultBuilderFactory();
     
     if (System.getProperty(AUTO_CLASSPATH_SCAN_PROPERTY) != null) {
-      addAllClasspathBuilders();
+      addAllAnnotatedBuilders();
     }
   }
   
@@ -222,20 +221,19 @@ public class FudgeObjectDictionary {
    * builders.
    * This is potentially a <em>very</em> expensive operation, and as such is optional.
    */
-  public void addAllClasspathBuilders() {
+  public void addAllAnnotatedBuilders() {
     if (_haveScannedClasspath.getAndSet(true)) {
       return;
     }
     
-    AnnotationDB annotationDB = ClasspathUtilities.getAnnotationDB();
-    Set<String> classNamesWithAnnotation = annotationDB.getAnnotationIndex().get(FudgeBuilderFor.class.getName());
+    Set<String> classNamesWithAnnotation = ClasspathUtilities.getClassNamesWithAnnotation(FudgeBuilderFor.class);
     if (classNamesWithAnnotation == null) {
       return;
     }
     for (String className : classNamesWithAnnotation) {
       addAnnotatedBuilderClass(className);
     }
-    classNamesWithAnnotation = annotationDB.getAnnotationIndex().get(GenericFudgeBuilderFor.class.getName());
+    classNamesWithAnnotation = ClasspathUtilities.getClassNamesWithAnnotation(GenericFudgeBuilderFor.class);
     if (classNamesWithAnnotation == null) {
       return;
     }

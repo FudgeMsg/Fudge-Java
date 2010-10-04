@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
  * data type.
  * While {@link HasFudgeBuilder} allows the data object to specify what its builder(s) are,
  * in a case where a builder has been written external to a source data type, this annotation
- * allows {@link FudgeObjectDictionary#addAllClasspathBuilders()} to determine the
+ * allows {@link FudgeObjectDictionary#addAllAnnotatedBuilders()} to determine the
  * builder and automatically configure.
  *
  * @author Kirk Wylie

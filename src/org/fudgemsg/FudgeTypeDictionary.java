@@ -47,7 +47,6 @@ import org.fudgemsg.types.StringFieldTypeConverter;
 import org.fudgemsg.types.TimeFieldType;
 import org.fudgemsg.types.UnknownFudgeFieldType;
 import org.fudgemsg.types.secondary.SecondaryTypeLoader;
-import org.scannotation.AnnotationDB;
 
 /**
  * Contains all the {@link FudgeFieldType} definitions for a particular
@@ -361,8 +360,8 @@ public class FudgeTypeDictionary {
       return;
     }
     
-    AnnotationDB annotationDB = ClasspathUtilities.getAnnotationDB();
-    Set<String> classNamesWithAnnotation = annotationDB.getAnnotationIndex().get(FudgeSecondaryType.class.getName());
+    final Set<String> classNamesWithAnnotation = ClasspathUtilities
+        .getClassNamesWithAnnotation(FudgeSecondaryType.class);
     if (classNamesWithAnnotation == null) {
       return;
     }

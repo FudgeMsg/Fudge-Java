@@ -16,12 +16,21 @@
 
 package org.fudgemsg;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.PrintWriter;
+import java.lang.annotation.Annotation;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.scannotation.AnnotationDB;
@@ -32,6 +41,12 @@ import org.scannotation.AnnotationDB;
  * @author Kirk Wylie
  */
 public final class ClasspathUtilities {
+
+  /**
+   * The property used to specify where the path annotations should be cached to avoid costly scanning.
+   */
+  public static final String ANNOTATION_CACHE_PATH_PROPERTY = "fudgemsg.annotationCachePath";
+
   private static volatile URL[] _classPathElements;
   private static volatile AnnotationDB _annotationDB;
 
@@ -100,6 +115,58 @@ public final class ClasspathUtilities {
       results.add(url);
     }
     return results.toArray(new URL[0]);
+  }
+
+  private static File getCacheFile(final String cachePath, final Class<? extends Annotation> annotationClass) {
+    return new File(cachePath + File.separatorChar + "." + annotationClass.getSimpleName());
+  }
+
+  /**
+   * Returns a set of classes with the declared annotation, using a cache file on disk if one is
+   * available.
+   * 
+   * @param annotationClass annotation to search for
+   * @return the set of class names
+   */
+  public static Set<String> getClassNamesWithAnnotation(final Class<? extends Annotation> annotationClass) {
+    final String cachePath = System.getProperty(ANNOTATION_CACHE_PATH_PROPERTY);
+    Set<String> classes;
+    if (cachePath != null) {
+      final File cacheFile = getCacheFile(cachePath, annotationClass);
+      if (cacheFile.exists()) {
+        classes = new HashSet<String>();
+        try {
+          final LineNumberReader lnr = new LineNumberReader(new BufferedReader(new FileReader(cacheFile)));
+          String line = lnr.readLine();
+          while (line != null) {
+            line = line.trim();
+            if (line.length() > 0) {
+              classes.add(line);
+            }
+            line = lnr.readLine();
+          }
+          lnr.close();
+          return classes.isEmpty() ? null : classes;
+        } catch (IOException e) {
+          // Error reading the file
+          classes = null;
+        }
+      }
+    }
+    classes = getAnnotationDB().getAnnotationIndex().get(annotationClass.getName());
+    if (cachePath != null) {
+      final File cacheFile = getCacheFile(cachePath, annotationClass);
+      try {
+        final PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(cacheFile)));
+        for (String className : classes) {
+          pw.println(className);
+        }
+        pw.close();
+      } catch (IOException e) {
+        // Error writing the file
+      }
+    }
+    return classes;
   }
 
 }
