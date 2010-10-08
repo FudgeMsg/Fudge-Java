@@ -16,6 +16,8 @@
 
 package org.fudgemsg.mapping;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -214,7 +216,40 @@ public class FudgeObjectDictionary {
     }
     return (builder == NULL_MESSAGEBUILDER) ? null : builder;
   }
-  
+
+  /**
+   * Tests if the specification requires a default serialization, for example lists, maps, sets and arrays. Class headers
+   * are never needed and must be suppressed for default objects. The objects are just written with ordinal field values
+   * greater than {@code 0}.
+   * 
+   * @param clazz the class to test, not {@code null}
+   * @return {@code true} if the object has a default serialization scheme.
+   */
+  public boolean isDefaultObject(final Class<?> clazz) {
+    // TODO move this logic to the builder factory so that it can be overridden
+    return List.class.isAssignableFrom(clazz) || Set.class.isAssignableFrom(clazz) || Map.class.isAssignableFrom(clazz)
+        || clazz.isArray();
+  }
+
+  /**
+   * Returns the class indicated by a default serialization scheme.
+   * 
+   * @param maxOrdinal the highest ordinal used, or {@code 0} if no field ordinals were present.
+   * @return the class to deserialize to, or {@code null} if the ordinal is not recognised
+   */
+  public Class<?> getDefaultObjectClass(final int maxOrdinal) {
+    // TODO move this logic to the builder factory so that it can be overridden
+    switch (maxOrdinal) {
+      case 0:
+        return List.class;
+      case 1:
+        return Set.class;
+      case 2:
+        return Map.class;
+    }
+    return null;
+  }
+
   /**
    * Scans all files available to common classpath loading system heuristics to determine
    * which ones have the {@link FudgeBuilderFor} annotation, and registers those as appropriate

@@ -16,10 +16,6 @@
 
 package org.fudgemsg.mapping;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeFieldType;
@@ -142,16 +138,17 @@ public class FudgeSerializationContext implements FudgeMessageFactory {
     if (object == null) {
       return;
     }
-    final FudgeFieldType<?> fieldType = getFudgeContext().getTypeDictionary().getByJavaType(object.getClass());
+    final Class<?> clazz = object.getClass();
+    final FudgeFieldType<?> fieldType = getFudgeContext().getTypeDictionary().getByJavaType(clazz);
     if ((fieldType != null) && !FudgeMsgFieldType.INSTANCE.equals(fieldType)) {
       // goes natively into a message
       message.add(name, ordinal, fieldType, object);
     } else {
       // look up a custom or default builder and embed as sub-message
       final MutableFudgeFieldContainer submsg = objectToFudgeMsg(object);
-      if (!(object instanceof List<?>) && !(object instanceof Set<?>) && !(object instanceof Map<?, ?>)) {
+      if (!getFudgeContext().getObjectDictionary().isDefaultObject(clazz)) {
         if (submsg.getByOrdinal(0) == null) {
-          addClassHeader(submsg, object.getClass(), receiverTarget);
+          addClassHeader(submsg, clazz, receiverTarget);
         }
       }
       message.add(name, ordinal, FudgeMsgFieldType.INSTANCE, submsg);

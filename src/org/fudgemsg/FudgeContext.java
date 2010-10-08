@@ -21,9 +21,6 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeObjectDictionary;
@@ -429,8 +426,9 @@ public class FudgeContext implements FudgeMessageFactory {
   public <T> FudgeMsgEnvelope toFudgeMsg (T obj) {
     final FudgeSerializationContext fsc = new FudgeSerializationContext (this);
     final MutableFudgeFieldContainer message = fsc.objectToFudgeMsg(obj);
-    if (!(obj instanceof List<?>) && !(obj instanceof Set<?>) && !(obj instanceof Map<?, ?>)) {
-      FudgeSerializationContext.addClassHeader(message, obj.getClass());
+    final Class<?> clazz = obj.getClass();
+    if (!getObjectDictionary().isDefaultObject(clazz)) {
+      FudgeSerializationContext.addClassHeader(message, clazz);
     }
     return new FudgeMsgEnvelope(message);
   }

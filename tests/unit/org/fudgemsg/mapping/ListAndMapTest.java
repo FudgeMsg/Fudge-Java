@@ -44,6 +44,20 @@ public class ListAndMapTest {
    */
   @SuppressWarnings("unchecked")
   @Test
+  public void test2DArray() {
+    final double[][] a = new double[8][8];
+    final Object o = cycleObject(a);
+    assertTrue(o instanceof List);
+    for (Object e : (List) o) {
+      assertTrue(e instanceof double[]);
+    }
+  }
+
+  /**
+   * 
+   */
+  @SuppressWarnings("unchecked")
+  @Test
   public void testList () {
     final List<String> l = new ArrayList<String> (4);
     l.add ("hello");
