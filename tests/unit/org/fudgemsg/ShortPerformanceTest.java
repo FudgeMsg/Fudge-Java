@@ -16,6 +16,7 @@
 package org.fudgemsg;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -76,6 +77,11 @@ public class ShortPerformanceTest {
   }
   
   private static void performanceVersusSerialization(int nCycles) throws Exception {
+    // If you're running the tests from a code coverage framework or anything else that disrupts the
+    // performance of the library, set system property "disable.instrumentation.sensitive" to "true".
+    final String disableInstrumentationSensitive = System.getProperty("disable.instrumentation.sensitive");
+    assumeTrue((disableInstrumentationSensitive == null) || !"true".equalsIgnoreCase(disableInstrumentationSensitive));
+
     long startTime = 0;
     long endTime = 0;
     
