@@ -17,6 +17,7 @@ package org.fudgemsg.taxon;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +31,7 @@ import org.junit.Test;
  */
 public class RESTfulTaxonomyResolverTest {
 
-  private static final String XML_PATH = System.getProperty ("user.name") + "/rest/";
+  private static final String XML_PATH = System.getProperty("user.name") + "/fudgemsg/";
   private static final String TAXONOMY_XML = "/var/www/html/" + XML_PATH;
   private static final String TAXONOMY_URL = "http://localhost/" + XML_PATH;
   
@@ -41,10 +42,8 @@ public class RESTfulTaxonomyResolverTest {
   @Test
   public void testResolver () throws IOException {
     final File f = new File (TAXONOMY_XML + "42.xml");
-    if ((f.exists () && !f.canWrite ()) || !f.getParentFile ().canWrite ()) {
-      System.out.println ("Skipping RESTfulTaxonomyResolverTest::testResolver - no local webserver");
-      return;
-    }
+    assumeTrue((f.exists() && !f.canWrite()) || !f.getParentFile().canWrite());
+    assumeTrue(f.getParentFile().mkdir());
     PropertyFileTaxonomyTest.writeTaxonomyXML (f);
     final TaxonomyResolver tr = new RESTfulTaxonomyResolver (TAXONOMY_URL, ".xml");
     assertNotNull (tr.resolveTaxonomy ((short)42));
