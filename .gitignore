@@ -3,7 +3,6 @@ build/
 classes/
 dist/
 docs/
-bootstrap/
 tests/classes/
 tests/output/
 lib/
