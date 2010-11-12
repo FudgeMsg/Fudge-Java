@@ -27,9 +27,9 @@ import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -98,7 +98,7 @@ public final class ClasspathUtilities {
    * project references that don't actually exist to help itself.
    */
   private static URL[] findClassPathElements() {
-    List<URL> results = new LinkedList<URL>();
+    Set<URL> results = new LinkedHashSet<URL>();
     String javaClassPath = System.getProperty("java.class.path");
     String[] paths = javaClassPath.split(Pattern.quote(File.pathSeparator));
     for (String path : paths) {
@@ -154,6 +154,7 @@ public final class ClasspathUtilities {
       }
     }
     classes = getAnnotationDB().getAnnotationIndex().get(annotationClass.getName());
+    classes = (classes != null ? classes : Collections.<String>emptySet());
     if (cachePath != null) {
       final File cacheFile = getCacheFile(cachePath, annotationClass);
       try {
