@@ -88,9 +88,8 @@ public class JavaUtilCalendarFieldType extends SecondaryFieldTypeBase<Calendar,O
         }
       }
     }
-    int i = time.getTimezoneOffset ();
-    if (i != 0) {
-      cal.set (Calendar.ZONE_OFFSET, i * 900000);
+    if (time.hasTimezoneOffset()) {
+      cal.set (Calendar.ZONE_OFFSET, time.getTimezoneOffset() * 900000);
     }
   }
   
