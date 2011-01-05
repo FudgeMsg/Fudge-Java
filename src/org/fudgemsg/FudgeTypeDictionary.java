@@ -248,13 +248,14 @@ public class FudgeTypeDictionary {
    * Type conversion for secondary types.
    * 
    * @param <T> type to convert to
-   * @param clazz target class for the converted value
-   * @param field field containing the value to convert
-   * @return the converted value
+   * @param clazz  target class for the converted value, not null
+   * @param field  field containing the value to convert, null returns null
+   * @return the converted value, null if no value
    * @throws IllegalArgumentException if the parameters are not valid for conversion
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public <T> T getFieldValue (final Class<T> clazz, final FudgeField field) throws IllegalArgumentException {
+    if (field == null) return null;
     final Object value = field.getValue ();
     if (value == null) return null;
     if (clazz.isAssignableFrom (value.getClass ())) return (T)value;
@@ -288,7 +289,7 @@ public class FudgeTypeDictionary {
         // don't recognize the requested type
         if (clazz.isEnum ()) {
           // get the field as a string and then try to inflate the enum
-          return (T)Enum.valueOf ((Class<? extends Enum>)clazz, getFieldValue (String.class, field));
+          return (T) Enum.valueOf ((Class<? extends Enum>)clazz, getFieldValue (String.class, field));
         } else {
           throw new IllegalArgumentException ("cannot convert " + type + " to unregistered secondary type " + clazz.getName ());
         }
@@ -305,16 +306,18 @@ public class FudgeTypeDictionary {
   }
   
   /**
-   * Type conversion test for secondary types. Returns {@code true} if {@link #getFieldValue} would return an
-   * object instance.
-   *  
+   * Type conversion test for secondary types.
+   * Returns {@code true} if {@link #getFieldValue} would return an object instance.
+   * 
    * @param <T> type to convert to
-   * @param clazz target class for the converted value
-   * @param field field containing the value to convert
-   * @return {@code true} if a conversion is possible, {@code false} otherwise ({@link #getFieldValue} might return {@code null} or throw an exception)
+   * @param clazz  target class for the converted value, not null
+   * @param field  field containing the value to convert, null returns false
+   * @return {@code true} if a conversion is possible, {@code false} otherwise
+   *  (when {@link #getFieldValue} might return {@code null} or throw an exception)
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public <T> boolean canConvertField (final Class<T> clazz, final FudgeField field) {
+    if (field == null) return false;
     final Object value = field.getValue ();
     if (value == null) return false;
     if (clazz.isAssignableFrom (value.getClass ())) return true;
@@ -376,7 +379,7 @@ public class FudgeTypeDictionary {
    * 
    * @param className The fully qualified name of the builder class.
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   public void addAnnotatedSecondaryTypeClass(String className) {
     Class<?> builderClass = null;
     try {
