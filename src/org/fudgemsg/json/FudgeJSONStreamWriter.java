@@ -26,6 +26,8 @@ import org.fudgemsg.FudgeRuntimeException;
 import org.fudgemsg.FudgeRuntimeIOException;
 import org.fudgemsg.FudgeStreamWriter;
 import org.fudgemsg.FudgeTypeDictionary;
+import org.fudgemsg.types.FudgeTypeConverter;
+import org.fudgemsg.types.SecondaryFieldTypeBase;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
@@ -238,9 +240,13 @@ public class FudgeJSONStreamWriter extends AlternativeFudgeStreamWriter {
   /**
    * Writes the field value to the JSON object.
    */
+  @SuppressWarnings("unchecked")
   @Override
   protected void fudgeFieldValue (FudgeFieldType<?> type, Object fieldValue) {
     try {
+      if (type instanceof SecondaryFieldTypeBase<?,?,?>) {
+        fieldValue = ((SecondaryFieldTypeBase<Object,Object,Object>)type).secondaryToPrimary(fieldValue);
+      }
       switch (type.getTypeId ()) {
       case FudgeTypeDictionary.INDICATOR_TYPE_ID :
         getWriter ().value (null);

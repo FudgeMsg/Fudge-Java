@@ -36,6 +36,7 @@ import org.fudgemsg.FudgeRuntimeIOException;
 import org.fudgemsg.FudgeStreamWriter;
 import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.taxon.FudgeTaxonomy;
+import org.fudgemsg.types.SecondaryFieldTypeBase;
 
 /**
  * <p>Implementation of a {@link FudgeStreamWriter} that writes XML to a text stream. This can be
@@ -414,7 +415,10 @@ public class FudgeXMLStreamWriter extends FudgeXMLSettings implements FudgeStrea
   }
   
   @SuppressWarnings("unchecked")
-  protected void fudgeFieldValue (final FudgeFieldType type, final Object fieldValue) throws XMLStreamException {
+  protected void fudgeFieldValue (final FudgeFieldType type, Object fieldValue) throws XMLStreamException {
+    if (type instanceof SecondaryFieldTypeBase<?,?,?>) {
+      fieldValue = ((SecondaryFieldTypeBase<Object,Object,Object>)type).secondaryToPrimary(fieldValue);
+    }
     switch (type.getTypeId ()) {
     case FudgeTypeDictionary.INDICATOR_TYPE_ID :
       // no content
