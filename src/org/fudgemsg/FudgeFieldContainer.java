@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  * A container of Fudge fields providing simple access to principal types.
  * <p>
- * The Fudge specification is built around messages containing a list of fields.
+ * The Fudge specification is built around messages containing a list of {@link FudgeField fields}.
  * This interface is the high-level representation of the list of fields.
  * <p>
  * Each field may be referenced by a name or by an ordinal.

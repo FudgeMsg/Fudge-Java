@@ -16,42 +16,56 @@
 package org.fudgemsg;
 
 /**
- * A read-only representation of a field which is contained in a fudge
- * message, or a stream of fudge encoded data. For a well formed field,
- * the underlying field type must correspond to the value held. I.e.
- * {@code getType ().getJavaType ().isAssignableFrom (getValue ().getClass ())}
- * must hold. The current implementation of secondary types relies on this
- * predicate.
- *
- * @author Kirk Wylie
+ * A single field in the Fudge system.
+ * <p>
+ * Each Fudge message consists of a list of fields.
+ * Each field consists of a Fudge type and value, with an optional name and ordinal.
+ * All four combinations of name and ordinal are possible - from both present to both absent.
+ * <p>
+ * The type of the value should match the stored Fudge type:
+ * {@code getType().getJavaType().isAssignableFrom(getValue().getClass())} should be true.
+ * <p>
+ * Applications are recommended to use this interface rather than a concrete class.
+ * <p>
+ * This interface makes no guarantees about the mutability or thread-safety of implementations.
  */
 public interface FudgeField {
-  
+
   /**
-   * Returns the {@link FudgeFieldType} of the field data.
+   * Gets the Fudge type of the value.
+   * <p>
+   * The type should match the value.
    * 
-   * @return the {@code FudgeFieldType}
+   * @return the Fudge field type, not null
    */
   FudgeFieldType<?> getType();
-  
+
   /**
-   * Returns the value of the field.
+   * Gets the field value.
+   * <p>
+   * The value is the payload of the field.
    * 
-   * @return the field value
+   * @return the field value, may be null
    */
   Object getValue();
-  
+
   /**
-   * Returns the ordinal index of the field, or {@code null} if none is specified.
+   * Gets the optional field ordinal.
+   * <p>
+   * The ordinal is a number that identifies the meaning of the data.
+   * It is typically a reference into the taxonomy.
    * 
-   * @return the field ordinal, or {@code null} if none
+   * @return the field ordinal, null if the field has no ordinal
    */
   Short getOrdinal();
-  
+
   /**
-   * Returns the name of the field, or {@code null} if none is specified.
+   * Gets the optional field name.
+   * <p>
+   * The name is a string that identifies the meaning of the data.
+   * This is similar to the tag name in XML.
    * 
-   * @return the field name, or {@code null} if none 
+   * @return the field name, null if the field has no name
    */
   String getName();
 
