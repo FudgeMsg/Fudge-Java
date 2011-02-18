@@ -18,36 +18,37 @@ package org.fudgemsg;
 import java.io.IOException;
 
 /**
- * A subclass of {@link FudgeRuntimeException} for wrapping {@link IOException}s raised by
- * underlying libraries. The Fudge system never throws a checked exception - this subclass
- * allows IOExceptions to be easily detected and handled.
- *
- * @author Andrew Griffin
+ * A Fudge-specific IO exception to wrap the checked {@code IOException}.
+ * <p>
+ * Fudge will never throw a checked exception.
+ * Wherever possible, IO exceptions will be wrapped in this exception.
  */
 public class FudgeRuntimeIOException extends FudgeRuntimeException {
-  
+
   /**
-   * Creates a new {@link FudgeRuntimeIOException} to wrap an {@link IOException}.
+   * Creates a wrapper for the checked {@code IOException}.
    * 
-   * @param cause the checked exception raised by a library
+   * @param cause  the underlying exception, should not be null
    */
   public FudgeRuntimeIOException(final IOException cause) {
-    this (cause.getMessage (), cause);
+    super(cause.getMessage(), cause);
   }
-  
+
   /**
-   * Creates a new {@link FudgeRuntimeIOException} to wrap an {@link IOException} with a more descriptive
-   * error message about the context in which the error occurred.
+   * Creates a wrapper for the checked {@code IOException} with an overridden message.
    * 
-   * @param message the message to report
-   * @param cause the underlying exception
+   * @param message  the description of the error condition, may be null
+   * @param cause  the underlying exception, should not be null
    */
-  public FudgeRuntimeIOException (final String message, final IOException cause) {
-    super (message, cause);
+  public FudgeRuntimeIOException(final String message, final IOException cause) {
+    super(message, cause);
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
-   * Returns the underlying I/O exception wrapped by this runtime exception.
+   * Gets the underlying {@code IOException} wrapped by this runtime exception.
+   * 
+   * @return the IO exception, should not be null
    */
   @Override
   public IOException getCause() {

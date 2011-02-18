@@ -20,43 +20,47 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * An implementation of {@link TaxonomyResolver} which is backed by a {@link Map}.
- * This is mostly useful where the entire set of taxonomies is known at module
- * initialization (or compilation) time. As for performance reasons the
- * {@link Map} is fixed at instantiation time, it is not appropriate for
- * situations where the set of taxonomies will change at runtime.
- *
- * @author Kirk Wylie
+ * An immutable taxonomy resolver implemented on top of a map.
+ * <p>
+ * The map of taxonomy by ID is loaded and fixed at construction.
+ * This is most useful when the taxonomies are known at startup.
  */
 public class ImmutableMapTaxonomyResolver implements TaxonomyResolver {
-  private final Map<Short, FudgeTaxonomy> _taxonomiesById;
-  
+
   /**
-   * The default constructor will result in a resolver that never
-   * resolves any taxonomies.
+   * The taxonomies by ID.
+   */
+  private final Map<Short, FudgeTaxonomy> _taxonomiesById;
+
+  /**
+   * Creates a resolver that contains no taxonomies.
    */
   public ImmutableMapTaxonomyResolver() {
-    this(Collections.<Short,FudgeTaxonomy>emptyMap());
+    this(Collections.<Short, FudgeTaxonomy> emptyMap());
   }
-  
+
   /**
-   * Creates a taxonomy resolver from a map of taxonomy identifier to {@link FudgeTaxonomy} objects.
+   * Creates a resolver that contains the given taxonomies.
    * 
-   * @param taxonomiesById a map of taxonomy identifiers to taxonomy instances
+   * @param taxonomiesById  a map of taxonomy IDs to taxonomy instances, null treated as an empty map
    */
   public ImmutableMapTaxonomyResolver(Map<Short, FudgeTaxonomy> taxonomiesById) {
-    if(taxonomiesById == null) {
+    if (taxonomiesById == null) {
       taxonomiesById = Collections.emptyMap();
     }
     _taxonomiesById = new HashMap<Short, FudgeTaxonomy>(taxonomiesById);
   }
-  
-  /**
-   * {@inheritDoc}
-   */
+
+  //-------------------------------------------------------------------------
   @Override
   public FudgeTaxonomy resolveTaxonomy(short taxonomyId) {
     return _taxonomiesById.get(taxonomyId);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return "TaxonomyResolver[" + _taxonomiesById.size() + " taxonomies]";
   }
 
 }

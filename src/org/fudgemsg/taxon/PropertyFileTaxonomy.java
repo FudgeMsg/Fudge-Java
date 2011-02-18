@@ -27,16 +27,14 @@ import java.util.ResourceBundle;
 import org.fudgemsg.FudgeRuntimeException;
 
 /**
- * An implementation of {@link MapFudgeTaxonomy} that is populated from an arbitrary
- * source of properties.
- * 
- * @author Andrew Griffin
+ * An immutable taxonomy implementation based a properties file.
  */
 public class PropertyFileTaxonomy extends MapFudgeTaxonomy {
-  
+
   /**
-   * <p>Creates a taxonomy from a {@link ResourceBundle}. For example:</p>
-   * 
+   * Creates a taxonomy from a {@link ResourceBundle}.
+   * <p>
+   * For example:
    * <pre>
    * MyTaxonomy.properties
    * 
@@ -46,72 +44,83 @@ public class PropertyFileTaxonomy extends MapFudgeTaxonomy {
    * 4 = telephone
    * </pre>
    * 
-   * <p>Could be loaded using:</p>
-   * 
+   * Could be loaded using:
    * <pre>
-   * new PropertyFileTaxonomy (ResourceBundle.getBundle ("MyTaxonomy")) 
+   * new PropertyFileTaxonomy(ResourceBundle.getBundle("MyTaxonomy")) 
    * </pre>
    * 
-   * @param resourceBundle the taxonomy representation
+   * @param resourceBundle  the taxonomy representation to load, not null
    */
-  public PropertyFileTaxonomy (final ResourceBundle resourceBundle) {
-    super (resourceBundleToMap (resourceBundle));
+  public PropertyFileTaxonomy(final ResourceBundle resourceBundle) {
+    super(resourceBundleToMap(resourceBundle));
   }
-  
+
   /**
-   * <p>Creates a taxonomy from a {@link Properties}. The keys correspond to ordinal values, and the values are field names</p>
+   * Creates a taxonomy from a {@code Properties} instance.
+   * <p>
+   * The keys are the ordinals and the values are the field names.
    * 
    * @param properties the taxonomy representation
    */
-  public PropertyFileTaxonomy (final Properties properties) {
-    super (propertiesToMap (properties));
+  public PropertyFileTaxonomy(final Properties properties) {
+    super(propertiesToMap(properties));
   }
-  
+
   /**
-   * <p>Creates a taxonomy from a {@link URL}. The URL must point to an XML document that
-   * can be loaded with {@link Properties#loadFromXML}.</p>
+   * Creates a taxonomy from an XML document at a {@code URL}.
+   * <p>
+   * The URL must point to an XML document that can be loaded with
+   * {@link Properties#loadFromXML}.
    * 
    * @param url URL pointing toward an XML document that describes the taxonomy
    */
-  public PropertyFileTaxonomy (final URL url) {
-    super (urlToMap (url));
+  public PropertyFileTaxonomy(final URL url) {
+    super(urlToMap(url));
   }
-  
-  private static Map<Integer,String> resourceBundleToMap (final ResourceBundle resourceBundle) {
-    final Map<Integer,String> map = new HashMap<Integer,String> ();
-    for (String key : resourceBundle.keySet ()) {
+
+  private static Map<Integer, String> resourceBundleToMap(final ResourceBundle resourceBundle) {
+    final Map<Integer, String> map = new HashMap<Integer, String>();
+    for (String key : resourceBundle.keySet()) {
       try {
-        map.put (Integer.valueOf (key), resourceBundle.getString (key));
-      } catch (NumberFormatException nfe) {
-        throw new FudgeRuntimeException ("property file invalid - entry " + key + "/" + resourceBundle.getString (key), nfe);
+        map.put(Integer.valueOf(key), resourceBundle.getString(key));
+      } catch (NumberFormatException ex) {
+        throw new FudgeRuntimeException("property file invalid - entry " + key + "/" + resourceBundle.getString(key), ex);
       }
     }
     return map;
   }
-  
-  private static Map<Integer,String> propertiesToMap (final Properties properties) {
-    final Map<Integer,String> map = new HashMap<Integer,String> ();
-    for (Map.Entry<Object,Object> entry : properties.entrySet ()) {
+
+  private static Map<Integer, String> propertiesToMap(final Properties properties) {
+    final Map<Integer, String> map = new HashMap<Integer, String>();
+    for (Map.Entry<Object, Object> entry : properties.entrySet()) {
       try {
-        map.put (Integer.valueOf ((String)entry.getKey ()), (String)entry.getValue ());
-      } catch (NumberFormatException nfe) {
-        throw new FudgeRuntimeException ("property file invalid - entry " + entry.getKey () + "/" + entry.getValue (), nfe);
+        map.put(Integer.valueOf((String) entry.getKey()), (String) entry.getValue());
+      } catch (NumberFormatException ex) {
+        throw new FudgeRuntimeException("property file invalid - entry " + entry.getKey() + "/" + entry.getValue(), ex);
       }
     }
     return map;
   }
-  
-  private static Map<Integer,String> urlToMap (final URL url) {
-    final Properties taxon = new Properties ();
+
+  private static Map<Integer, String> urlToMap(final URL url) {
+    final Properties properties = new Properties();
+    InputStream in = null;
     try {
-      final URLConnection urlcon = url.openConnection ();
-      final InputStream in = urlcon.getInputStream ();
-      taxon.loadFromXML (in);
-      in.close ();
-    } catch (IOException e) {
-      throw new FudgeRuntimeException ("Error reading from URL " + url, e);
+      final URLConnection urlcon = url.openConnection();
+      in = urlcon.getInputStream();
+      properties.loadFromXML(in);
+    } catch (IOException ex) {
+      throw new FudgeRuntimeException("Error reading from URL " + url, ex);
+    } finally {
+      if (in != null) {
+        try {
+          in.close();
+        } catch (IOException ex) {
+          // ignore
+        }
+      }
     }
-    return propertiesToMap (taxon);
+    return propertiesToMap(properties);
   }
-  
+
 }

@@ -18,12 +18,15 @@ package org.fudgemsg;
 import org.fudgemsg.types.FudgeTypeConverter;
 
 /**
- * An immutable version of a {@link FudgeTypeDictionary}.
- *
- * @author Andrew Griffin
+ * An immutable dictionary of all known Fudge types.
+ * <p>
+ * In order to efficiently send messages, Fudge needs to know the type of each piece of data.
+ * This dictionary keeps track of all the known types.
+ * <p>
+ * This class is not-modifiable rather than fully immutable.
  */
 /* package */ class ImmutableFudgeTypeDictionary extends FudgeTypeDictionary {
-  
+
   /**
    * Creates a new {@link FudgeTypeDictionary} as an immutable clone of an existing one.
    * 
@@ -32,27 +35,27 @@ import org.fudgemsg.types.FudgeTypeConverter;
   /* package */ ImmutableFudgeTypeDictionary(final FudgeTypeDictionary dictionary) {
     super (dictionary);
   }
-  
+
   /**
    * Always throws an exception - this is an immutable dictionary.
    * 
-   * @param converter the converter
-   * @param types the type(s) to register against
+   * @param converter  the converter
+   * @param types  the type(s) to register against
    */
   @Override
   public void addTypeConverter (FudgeTypeConverter<?,?> converter, Class<?> ... types) {
     throw new UnsupportedOperationException ("addTypeConverter called on an immutable Fudge type dictionary");
   }
-  
+
   /**
    * Always throws an exception - this is an immutable dictionary.
    * 
-   * @param type the {@link FudgeFieldType} definition of the type
-   * @param alternativeTypes any additional Java classes that are synonymous with this type.
+   * @param type  the {@link FudgeFieldType} definition of the type
+   * @param alternativeTypes  any additional Java classes that are synonymous with this type.
    */
   @Override
   public void addType(FudgeFieldType<?> type, Class<?>... alternativeTypes) {
     throw new UnsupportedOperationException ("addType called on an immutable Fudge type dictionary");
   }
-  
+
 }

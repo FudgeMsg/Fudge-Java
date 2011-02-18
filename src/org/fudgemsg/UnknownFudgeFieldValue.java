@@ -18,50 +18,58 @@ package org.fudgemsg;
 import org.fudgemsg.types.UnknownFudgeFieldType;
 
 /**
- * Container for a variable-sized field with a type that the current
+ * A container to store a variable-sized field with a type that the current
  * installation of Fudge cannot handle on decoding.
- * In general, while Fudge supports an infinite number of
- * {@link UnknownFudgeFieldType} instances with a particular type ID, it
- * is optimal to use the factory method {@link FudgeTypeDictionary#getUnknownType(int)}
- * to obtain one for a particular context, which is what the Fudge decoding
- * routines will do. 
- *
- * @author Kirk Wylie
+ * <p>
+ * In general, while Fudge supports an infinite number of {@link UnknownFudgeFieldType}
+ * instances with a particular type ID, it is optimal to use the factory method
+ * {@link FudgeTypeDictionary#getUnknownType(int)} to obtain one for a particular
+ * context, which is what the Fudge decoding routines will do.
+ * <p>
+ * This class holds a mutable byte array but is unmodifiable.
  */
 public class UnknownFudgeFieldValue {
-  private final byte[] _contents;
-  private final UnknownFudgeFieldType _type;
-  
+
   /**
-   * Creates a new {@link UnknownFudgeFieldValue} for a block of data.
+   * The raw data content.
+   */
+  private final byte[] _contents;
+  /**
+   * The field type.
+   */
+  private final UnknownFudgeFieldType _type;
+
+  /**
+   * Creates a new instance to represent a block of data in an unknown type.
    * 
-   * @param contents the raw contents from the Fudge message stream
-   * @param type the {@link UnknownFudgeFieldType} wrapper for the unknown type
+   * @param contents  the raw contents from the Fudge message stream, not null
+   * @param type  the field type for the unknown type, not null
    */
   public UnknownFudgeFieldValue(byte[] contents, UnknownFudgeFieldType type) {
-    if(contents == null) {
-      throw new NullPointerException("Contents must be provided");
+    if (contents == null) {
+      throw new NullPointerException("Data content must not be null");
     }
-    if(type == null) {
-      throw new NullPointerException("A valid UnknownFudgeFieldType must be specified");
+    if (type == null) {
+      throw new NullPointerException("UnknownFudgeFieldType must not be null");
     }
     _contents = contents;
     _type = type;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns the raw contents of the original data.
+   * Gets the raw contents of the original data.
    * 
-   * @return the contents
+   * @return the data content, not null
    */
   public byte[] getContents() {
     return _contents;
   }
 
   /**
-   * Returns the {@link UnknownFudgeFieldType} definition.
+   * Gets the {@link UnknownFudgeFieldType} definition.
    * 
-   * @return the type
+   * @return the field type, not null
    */
   public UnknownFudgeFieldType getType() {
     return _type;

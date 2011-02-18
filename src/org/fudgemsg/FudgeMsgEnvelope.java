@@ -18,82 +18,103 @@ package org.fudgemsg;
 import java.io.Serializable;
 
 /**
- * Wraps a {@link FudgeFieldContainer} for the purpose of encoding the envelope header.
- * This is the object which is encoded for a top-level fudge message; sub-messages don't
- * contain a separate envelope.
- *
- * @author Kirk Wylie
+ * An envelope enclosing the top message in the Fudge system.
+ * <p>
+ * When Fudge communicates it typically uses an envelope to wrap the top message.
+ * The envelope is only used at the top level and cannot be embedded in a message.
+ * The additional envelope data includes a version number and processing directives.
+ * <p>
+ * This class makes no guarantees about the immutability or thread-safety of its
+ * content, although it holds the references in an immutable and thread-safe way.
  */
 public class FudgeMsgEnvelope implements Serializable {
+
+  /**
+   * The message this envelope wraps.
+   */
   private final FudgeFieldContainer _message;
+  /**
+   * The processing direcives.
+   */
   private final int _processingDirectives;
+  /**
+   * The version.
+   */
   private final int _version;
-  
+
   /**
-   * Creates a new {@link FudgeMsgEnvelope} around the given set of fields with no schema or processing directives.
-   * 
-   * @param fields the {@link FudgeFieldContainer} containing the message fields.
+   * The processing direcives.
    */
-  public FudgeMsgEnvelope(FudgeFieldContainer fields) {
-    this(fields, 0);
+
+  /**
+   * Creates an envelope wrapping the given message.
+   * No version or processing directives are used.
+   * 
+   * @param message  the message to wrap, not null
+   */
+  public FudgeMsgEnvelope(FudgeFieldContainer message) {
+    this(message, 0);
   }
-  
+
   /**
-   * Creates a new {@link FudgeMsgEnvelope} around the given set of fields with a given schema version and no processing directives.
+   * Creates an envelope wrapping the given message with a version.
+   * No processing directives are used.
    * 
-   * @param fields the {@link FudgeFieldContainer} containing the message fields.
-   * @param schemaVersion the schema version
+   * @param message  the message to wrap, not null
+   * @param version  the version, from 0 to 255
    */
-  public FudgeMsgEnvelope(FudgeFieldContainer fields, int schemaVersion) {
-    this (fields, schemaVersion, 0);
+  public FudgeMsgEnvelope(FudgeFieldContainer message, int version) {
+    this(message, version, 0);
   }
-  
+
   /**
-   * Creates a new {@link FudgeMsgEnvelope} around the given set of fields with a given schema version and set of processing directives.
+   * Creates an envelope wrapping the given message with a version and processing directive flags.
    * 
-   * @param fields the {@link FudgeFieldContainer} containing the message fields
-   * @param schemaVersion the schema version
-   * @param processingDirectives the processing directive flags
+   * @param message  the message to wrap, not null
+   * @param version  the version, from 0 to 255
+   * @param processingDirectives  the processing directive flags, from 0 to 255
    */
-  public FudgeMsgEnvelope (FudgeFieldContainer fields, final int schemaVersion, final int processingDirectives) {
-    if(fields == null) {
-      throw new NullPointerException("Must specify a message to wrap.");
+  public FudgeMsgEnvelope(FudgeFieldContainer message, final int version, final int processingDirectives) {
+    if (message == null) {
+      throw new NullPointerException("Message must not be null");
     }
-    if ((processingDirectives < 0) || (processingDirectives > 255)) {
-      throw new IllegalArgumentException ("Provided processing directives " + processingDirectives + " which doesn't fit within one byte.");
+    if (processingDirectives < 0 || processingDirectives > 255) {
+      throw new IllegalArgumentException("Processing directives " + processingDirectives + " must fit in one byte");
     }
-    if((schemaVersion < 0) || (schemaVersion > 255)) {
-      throw new IllegalArgumentException("Provided version " + schemaVersion + " which doesn't fit within one byte.");
+    if (version < 0 || version > 255) {
+      throw new IllegalArgumentException("Version " + version + " must fit in one byte");
     }
-    _message = fields;
-    _version = schemaVersion;
+    _message = message;
+    _version = version;
     _processingDirectives = processingDirectives;
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
-   * Returns the underlying message.
+   * Gets the underlying message.
    * 
-   * @return the message
+   * @return the message, not null
    */
-  public FudgeFieldContainer getMessage () {
+  public FudgeFieldContainer getMessage() {
     return _message;
   }
+
   /**
-   * Returns the schema version.
+   * Gets the version number.
    * 
    * @return the version
    */
   public int getVersion() {
     return _version;
   }
-  
+
   /**
-   * Returns the processing directive flags.
+   * Gets the processing directive flags.
    * 
    * @return processing directive flags
    */
-  public int getProcessingDirectives () {
+  public int getProcessingDirectives() {
     return _processingDirectives;
   }
-  
+
 }

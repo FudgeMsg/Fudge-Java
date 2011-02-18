@@ -16,7 +16,7 @@
 package org.fudgemsg;
 
 /**
- * A immutable message in the Fudge system.
+ * An immutable message in the Fudge system.
  * <p>
  * The message consists of a list of {@link FudgeMsgField Fudge fields}.
  * This class holds the entire message in memory.

@@ -16,23 +16,24 @@
 package org.fudgemsg.taxon;
 
 /**
- * A Taxonomy Resolver can identify a {@link FudgeTaxonomy} instance that is
- * appropriate for a message with a specific taxonomy ID.
- * This ID is actually appropriate for a particular application, and possibly
- * for a particular point in time. In fact, it may be appropriate for a particular
- * stream of data from a particular source, and some applications may have
- * multiple {@code TaxonomyResolver}s loaded into a single application. 
- *
- * @author Kirk Wylie
+ * A taxonomy resolver allows a taxonomy to be located by ID.
+ * <p>
+ * A Fudge system may have multiple taxonomies in use at any one time.
+ * These may be different versions of one taxonomy, or an entirely different taxonomy.
+ * A Fudge message includes a two-byte ID to the taxonomy in use.
+ * Implementations of this interface convert the ID to a real taxonomy.
+ * The exact meaning of the ID and the translation is application dependent.
+ * <p>
+ * This interface should be implemented with care to ensure Fudge operates correctly.
+ * Implementations should be thread-safe.
  */
 public interface TaxonomyResolver {
-  
+
   /**
-   * Identify the taxonomy that should be used to resolve names with the
-   * specified ID.
-   * 
-   * @param taxonomyId The ID of the taxonomy to load
-   * @return The taxonomy, or {@code null}
+   * Looks up the taxonomy by ID.
+  * 
+   * @param taxonomyId  the ID of the taxonomy to look up
+   * @return the taxonomy, null if not found
    */
   FudgeTaxonomy resolveTaxonomy(short taxonomyId);
 

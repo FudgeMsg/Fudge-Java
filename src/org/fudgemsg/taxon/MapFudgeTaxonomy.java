@@ -17,128 +17,141 @@ package org.fudgemsg.taxon;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
-import org.fudgemsg.FudgeMessageFactory;
+import java.util.Map;
+
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMessageFactory;
+import org.fudgemsg.MutableFudgeFieldContainer;
 
 /**
- * An implementation of {@link FudgeTaxonomy} where all lookups are specified
- * at construction time and held in a {@link Map}.
- * This is extremely useful in a case where the taxonomy is generated dynamically,
- * or as a building block for loading taxonomy definitions from persistent
- * storage.
- *
- * @author Kirk Wylie
+ * An immutable taxonomy implementation based on a bidirectional map.
+ * <p>
+ * This is the standard implementation.
  */
 public class MapFudgeTaxonomy implements FudgeTaxonomy {
-  private final Map<Integer, String> _namesByOrdinal;
-  private final Map<String, Integer> _ordinalsByName;
-  
+
   /**
-   * Creates a new, initially empty, taxonomy.
+   * The map keyed by ordinal.
    */
-  public MapFudgeTaxonomy() {
-    this(Collections.<Integer,String>emptyMap());
-  }
-  
+  private final Map<Integer, String> _ordinalToNameMap;
   /**
-   * Creates a new taxonomy initialised by the supplied map.
-   * 
-   * @param namesByOrdinal map of ordinal to field names.
+   * The map keyed by name.
    */
-  public MapFudgeTaxonomy(Map<Integer, String> namesByOrdinal) {
-    if(namesByOrdinal == null) {
-      namesByOrdinal = Collections.emptyMap();
+  private final Map<String, Integer> _nameToOrdinalMap;
+
+  /**
+   * Creates a new taxonomy initialized by the supplied map.
+   * 
+   * @param ordinalToNameMap  the map of ordinal to field names, not null, no nulls
+   */
+  public MapFudgeTaxonomy(Map<Integer, String> ordinalToNameMap) {
+    if (ordinalToNameMap == null) {
+      ordinalToNameMap = Collections.emptyMap();
     }
-    _namesByOrdinal = new HashMap<Integer, String>(namesByOrdinal);
-    _ordinalsByName = new HashMap<String, Integer>(namesByOrdinal.size());
-    for(Map.Entry<Integer, String> entry : namesByOrdinal.entrySet()) {
-      _ordinalsByName.put(entry.getValue(), entry.getKey());
+    _ordinalToNameMap = new HashMap<Integer, String>(ordinalToNameMap);
+    _nameToOrdinalMap = new HashMap<String, Integer>(ordinalToNameMap.size());
+    for (Map.Entry<Integer, String> entry : ordinalToNameMap.entrySet()) {
+      if (entry.getKey() == null || entry.getValue() == null) {
+        throw new NullPointerException("Map must not contain null");
+      }
+      _nameToOrdinalMap.put(entry.getValue(), entry.getKey());
+    }
+    if (_nameToOrdinalMap.size() != _ordinalToNameMap.size()) {
+      throw new IllegalArgumentException("Map must not contain duplicate name");
     }
   }
-  
+
   /**
-   * Creates a new taxonomy initialised by a list of ordinals and corresponding names. The ordinal and name arrays must be the same length.
+   * Creates a new taxonomy initialized by a list of ordinals and corresponding names.
+   * The ordinal and name arrays must be the same length.
    * 
-   * @param ordinals the ordinal values
-   * @param names the field names
+   * @param ordinals  the array of ordinal values, not null
+   * @param names  the array of field names, not null, no nulls
    */
   public MapFudgeTaxonomy(int[] ordinals, String[] names) {
-    if(ordinals == null) {
-      throw new NullPointerException("Must provide ordinals.");
+    if (ordinals == null) {
+      throw new NullPointerException("Ordinal array must not be null");
     }
-    if(names == null) {
-      throw new NullPointerException("Must provide names.");
+    if (names == null) {
+      throw new NullPointerException("Name array must not be null");
     }
-    if(ordinals.length != names.length) {
-      throw new IllegalArgumentException("Arrays of ordinals and names must be of same length.");
+    if (ordinals.length != names.length) {
+      throw new IllegalArgumentException("Ordinal and Name array must be same length");
     }
-    _namesByOrdinal = new HashMap<Integer, String>(ordinals.length);
-    _ordinalsByName = new HashMap<String, Integer>(ordinals.length);
-    for(int i = 0; i < ordinals.length; i++) {
-      //AIWG: Should we check for null names and throw exceptions at this stage?
-      _namesByOrdinal.put(ordinals[i], names[i]);
-      _ordinalsByName.put(names[i], ordinals[i]);
+    _ordinalToNameMap = new HashMap<Integer, String>(ordinals.length);
+    _nameToOrdinalMap = new HashMap<String, Integer>(ordinals.length);
+    for (int i = 0; i < ordinals.length; i++) {
+      if (names[i] == null) {
+        throw new NullPointerException("Name array must not contain null");
+      }
+      _ordinalToNameMap.put(ordinals[i], names[i]);
+      _nameToOrdinalMap.put(names[i], ordinals[i]);
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  //-------------------------------------------------------------------------
   @Override
   public String getFieldName(short ordinal) {
-    return _namesByOrdinal.get((int)ordinal);
+    return _ordinalToNameMap.get((int) ordinal);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public Short getFieldOrdinal(String fieldName) {
-    Integer ordinal = _ordinalsByName.get(fieldName);
-    if(ordinal == null) {
+    Integer ordinal = _nameToOrdinalMap.get(fieldName);
+    if (ordinal == null) {
       return null;
     }
     return ordinal.shortValue();
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
-   * Encodes the taxonomy as a Fudge message as per the specification. An encoded taxonomy can be decoded back to a taxonomy object by the
-   * MapFudgeTaxonomy.fromFudgeMsg method on this class or equivalent function in any other language implementation.
+   * Encodes the taxonomy as a Fudge message as per the specification.
+   * <p>
+   * An encoded taxonomy can be decoded back to a taxonomy object by the
+   * MapFudgeTaxonomy.fromFudgeMsg method on this class or equivalent function
+   * in any other language implementation.
    * 
-   * @param context a message source
-   * @return the message
+   * @param context  the message context, not null
+   * @return the created message, not null
    */
-  public MutableFudgeFieldContainer toFudgeMsg (final FudgeMessageFactory context) {
-    final MutableFudgeFieldContainer msg = context.newMessage ();
-    for (Map.Entry<Integer,String> entry : _namesByOrdinal.entrySet ()) {
-      msg.add (entry.getKey (), entry.getValue ());
+  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory context) {
+    final MutableFudgeFieldContainer msg = context.newMessage();
+    for (Map.Entry<Integer, String> entry : _ordinalToNameMap.entrySet()) {
+      msg.add(entry.getKey(), entry.getValue());
     }
     return msg;
   }
-  
+
   /**
-   * Decodes a taxonomy from a Fudge message as per the specification that is backed by a MapFudgeTaxonomy object.
+   * Decodes a taxonomy from a Fudge message as per the specification.
+   * <p>
+   *  that is backed by a MapFudgeTaxonomy object.
    * 
-   * @param msg the message
-   * @return the encoded taxonomy
+   * @param msg  the message to decode, not null
+   * @return the encoded taxonomy, not null
    */
-  public static FudgeTaxonomy fromFudgeMsg (final FudgeFieldContainer msg) {
-    final List<FudgeField> fields = msg.getAllFields ();
-    final Map<Integer,String> namesByOrdinal = new HashMap<Integer,String> (fields.size ());
+  public static FudgeTaxonomy fromFudgeMsg(final FudgeFieldContainer msg) {
+    final List<FudgeField> fields = msg.getAllFields();
+    final Map<Integer, String> ordinalToNameMap = new HashMap<Integer, String>(fields.size());
     int i = 0;
     for (FudgeField field : fields) {
-      final Short ordinal = field.getOrdinal ();
-      if (ordinal == null) throw new IllegalArgumentException ("Fudge message does not contain a FudgeTaxonomy - field at index " + i + " has no ordinal");
-      final Object value = field.getValue ();
-      if (!(value instanceof String)) throw new IllegalArgumentException ("Fudge message does not contain a FudgeTaxonomy - field at index " + i + " (ordinal " + ordinal + ") does not contain a string");
-      if (namesByOrdinal.put (ordinal.intValue (), (String)value) != null) throw new IllegalArgumentException ("Fudge message does not contain a FudgeTaxonomy - field at index " + i + " redefines ordinal " + ordinal);
+      final Short ordinal = field.getOrdinal();
+      if (ordinal == null) {
+        throw new IllegalArgumentException("Fudge message does not contain a FudgeTaxonomy - field at index " + i + " has no ordinal");
+      }
+      final Object value = field.getValue();
+      if (!(value instanceof String)) {
+        throw new IllegalArgumentException("Fudge message does not contain a FudgeTaxonomy - field at index " + i + " (ordinal " + ordinal + ") does not contain a string");
+      }
+      if (ordinalToNameMap.put(ordinal.intValue(), (String) value) != null) {
+        throw new IllegalArgumentException("Fudge message does not contain a FudgeTaxonomy - field at index " + i + " redefines ordinal " + ordinal);
+      }
       i++;
     }
-    return new MapFudgeTaxonomy (namesByOrdinal);
+    return new MapFudgeTaxonomy(ordinalToNameMap);
   }
 
 }

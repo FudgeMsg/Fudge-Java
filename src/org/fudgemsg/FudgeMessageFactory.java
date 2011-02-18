@@ -15,30 +15,27 @@
  */
 package org.fudgemsg;
 
-import org.fudgemsg.mapping.FudgeSerializationContext;
-
 /**
- * Cut down version of the newMessage operation from FudgeContext and FudgeSerialisationContext
- * as most object/message conversion operations only require the initial message creation hook
- * and not the full {@link FudgeContext} or {@link FudgeSerializationContext}.
- * 
- * @author Andrew Griffin
+ * A factory for Fudge messages.
+ * <p>
+ * This offers the minimal API necessary to create new Fudge messages.
+ * Use of this interface avoids exposing additional methods and knowledge to other APIs.
  */
 public interface FudgeMessageFactory {
-  
+
   /**
    * Creates an initially empty message.
    * 
-   * @return the empty message container
+   * @return the empty message container, not null
    */
-  public MutableFudgeFieldContainer newMessage ();
-  
+  public MutableFudgeFieldContainer newMessage();
+
   /**
    * Creates a new message initially populated with the supplied message.
    * 
-   * @param fromMessage source message to copy fields from
-   * @return the new message container
+   * @param fromMessage  the source message to copy fields from, not null
+   * @return the new message container, not null
    */
-  public MutableFudgeFieldContainer newMessage (FudgeFieldContainer fromMessage);
-  
+  public MutableFudgeFieldContainer newMessage(FudgeFieldContainer fromMessage);
+
 }

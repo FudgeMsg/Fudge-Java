@@ -24,66 +24,60 @@ import java.util.concurrent.ConcurrentMap;
 import org.fudgemsg.FudgeRuntimeException;
 
 /**
- * A taxonomy resolver that will retrieve a taxonomy from a URL. A concrete
- * implementation must specify how the URL is constructed. This resolver will
- * cache the taxonomy objects.
- * 
- * @author Andrew Griffin
+ * A taxonomy resolver that retrieves a taxonomy from a URL.
+ * <p>
+ * A concrete implementation must specify how the URL is constructed.
+ * This resolver will cache the taxonomy objects.
  */
 public abstract class URLTaxonomyResolver implements TaxonomyResolver {
-  
-  private final ConcurrentMap<Short,FudgeTaxonomy> _cache = new ConcurrentHashMap<Short,FudgeTaxonomy> ();
-  
+
   /**
-   * Creates a new taxonomy resolver.
+   * The cache of taxonomies.
    */
-  protected URLTaxonomyResolver () {
+  private final ConcurrentMap<Short, FudgeTaxonomy> _cache = new ConcurrentHashMap<Short, FudgeTaxonomy>();
+
+  /**
+   * Creates a new resolver.
+   */
+  protected URLTaxonomyResolver() {
   }
-  
-  /**
-   * {@docInherit}
-   */
+
+  //-------------------------------------------------------------------------
   @Override
   public FudgeTaxonomy resolveTaxonomy(final short taxonomyId) {
-    FudgeTaxonomy taxon = getCache ().get (taxonomyId);
-    if (taxon == null) {
+    FudgeTaxonomy taxonomy = _cache.get(taxonomyId);
+    if (taxonomy == null) {
       try {
-        FudgeTaxonomy freshTaxon = new PropertyFileTaxonomy (createTaxonomyURL (taxonomyId));
-        taxon = getCache ().putIfAbsent (taxonomyId, freshTaxon);
-        if (taxon == null) {
-          taxon = freshTaxon;
-        }
-      } catch (FudgeRuntimeException e) {
-        if (e.getCause () instanceof FileNotFoundException) {
+        FudgeTaxonomy freshTaxonomy = new PropertyFileTaxonomy(createTaxonomyURL(taxonomyId));
+        taxonomy = _cache.putIfAbsent(taxonomyId, freshTaxonomy);
+        taxonomy = _cache.get(taxonomyId);
+      } catch (FudgeRuntimeException ex) {
+        if (ex.getCause() instanceof FileNotFoundException) {
           return null;
         } else {
-          throw e;
+          throw ex;
         }
-      } catch (MalformedURLException e) {
-        throw new FudgeRuntimeException ("couldn't create URL for taxonomy " + taxonomyId, e);
+      } catch (MalformedURLException ex) {
+        throw new FudgeRuntimeException("Unable to create URL for taxonomy: " + taxonomyId, ex);
       }
     }
-    return taxon;
+    return taxonomy;
   }
-  
-  private ConcurrentMap<Short,FudgeTaxonomy> getCache () {
-    return _cache;
-  }
-  
-  /**
-   * Empties the resolver cache.
-   */
-  public void reset () {
-    getCache ().clear ();
-  }
-  
+
   /**
    * Returns the URL that the taxonomy corresponding to the ID should be loaded from.
    * 
-   * @param taxonomyId the taxonomy ID
-   * @return the URL
-   * @throws MalformedURLException if there is a problem creating the URL. {@link #resolveTaxonomy} will wrap this in a {@link FudgeRuntimeException}.
+   * @param taxonomyId  the taxonomy ID to locate
+   * @return the URL where the taxonomy is found, not null
+   * @throws MalformedURLException if there is a problem creating the URL, this will be wrapped into a runtime exception
    */
-  protected abstract URL createTaxonomyURL (final short taxonomyId) throws MalformedURLException;
-  
+  protected abstract URL createTaxonomyURL(final short taxonomyId) throws MalformedURLException;
+
+  /**
+   * Clears the resolver cache.
+   */
+  public void reset() {
+    _cache.clear();
+  }
+
 }
