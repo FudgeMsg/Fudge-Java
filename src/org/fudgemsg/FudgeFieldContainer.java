@@ -15,305 +15,426 @@
  */
 package org.fudgemsg;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.fudgemsg.mapping.FudgeObjectDictionary;
-
 /**
- * An interface defining any arbitrary container for fields that can
- * be described by the Fudge specification. Applications working with
- * messages received should use this interface in place of a concrete
- * instantiation for flexibility in how the message can be decoded. 
- *
- * @author Kirk Wylie
+ * A container of Fudge fields providing simple access to principal types.
+ * <p>
+ * The Fudge specification is built around messages containing a list of fields.
+ * This interface is the high-level representation of the list of fields.
+ * <p>
+ * Each field may be referenced by a name or by an ordinal.
+ * All four combinations are possible - from both present to both absent.
+ * Methods provide the ability to lookup a field by both name or ordinal.
+ * <p>
+ * Applications working with messages should use this interface rather than
+ * {@link FudgeMsg} directly where possible for flexibility.
+ * <p>
+ * This interface makes no guarantees about the mutability or thread-safety of implementations.
  */
 public interface FudgeFieldContainer extends Iterable<FudgeField> {
 
   /**
-   * Returns the total number of fields within the message.
+   * Gets the size of the container.
+   * <p>
+   * This returns the total number of fields.
    * 
    * @return number of fields
    */
   short getNumFields();
-  
-  /**
-   * Tests if the container is empty. I.e. {@link #getNumFields} would return {@code 0}.
-   * 
-   * @return {@code true} if the container is empty, {@code false} otherwise
-   */
-  boolean isEmpty ();
 
   /**
-   * Return an <em>unmodifiable</em> list of all the fields in this message, in the index
-   * order for those fields.
+   * Checks if the container is empty.
+   * <p>
+   * This checks to see if there are any fields present.
    * 
-   * @return the list
+   * @return true if the container is empty
+   */
+  boolean isEmpty();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets an iterator over the list of fields in this container.
+   * <p>
+   * A container is ordered and the returned iterator reflects that order.
+   * 
+   * @return the iterator of fields, may be unmodifiable, not null
+   */
+  @Override
+  Iterator<FudgeField> iterator();
+
+  /**
+   * Gets the list of all the fields in this container.
+   * <p>
+   * A container is ordered and the returned list reflects that order.
+   * 
+   * @return the unmodifiable list of fields, not null
    */
   List<FudgeField> getAllFields();
-  
+
   /**
-   * Returns an <em>unmodifiable</em> set of all field names in the message.
+   * Gets the set of all unique field names in this container.
    * 
-   *  @return the set
+   * @return the unmodifiable set of names, not null
    */
   Set<String> getAllFieldNames();
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns the first field in the message with the given index offset.
+   * Gets the field in the container with the given index offset.
    * 
-   * @param index the zero-based offset into the message of the field
+   * @param index  the zero-based offset into the message of the field, valid
    * @return the field
+   * @throws IndexOutOfBoundsException if the index is invalid
    */
   FudgeField getByIndex(int index);
 
   /**
-   * Returns an <em>unmodifiable</em> list of all fields with the given ordinal, preserving the ordering.
+   * Checks whether this container has any field which matches the given name.
    * 
-   * @param ordinal ordinal index
-   * @return the field
+   * @param name  the field name to check, null returns false
+   * @return true if this container has at least one field with the specified name
    */
-  List<FudgeField> getAllByOrdinal(int ordinal);
+  boolean hasField(String name);
 
   /**
-   * Returns the first field in the message with the given ordinal, or {@code null} if the ordinal does not exist.
+   * Gets the list of all fields with the given name.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same name.
+   * This method returns all matching fields in the order of the container.
    * 
-   * @param ordinal ordinal index
-   * @return the field
-   */
-  FudgeField getByOrdinal(int ordinal);
-
-  /**
-   * Returns an <em>unmodifiable</em> list of all fields with the given name, preserving the ordering.
-   * 
-   * @param name field name
-   * @return the list of fields
+   * @param name  the field name, null matches fields without a name
+   * @return the unmodifiable list of matching fields, not null
    */
   List<FudgeField> getAllByName(String name);
 
   /**
-   * Returns the first field in the message with the given name, or {@code null} if the name does not exist.
+   * Gets the first field with the given name.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same name.
+   * This method returns the first that matches.
    * 
-   * @param name field name
-   * @return the field
+   * @param name  the field name, null matches fields without a name
+   * @return the first matching field, null if not found
    */
   FudgeField getByName(String name);
-  
-  /**
-   * <p>Attempts to convert a field to a specific value type. Depending on the underlying implementation this may mean
-   * a conversion through a related {@link FudgeTypeDictionary}, use of a {@link FudgeObjectDictionary}, that the
-   * message arrived through.</p>
-   * 
-   * <p>The conversion logic has to be at the message level rather than the field as a field is not able to resolve
-   * any context - e.g. it's underlying {@link FudgeFieldType} may be shared between a number of encoding strategies. If
-   * an implementation does not have any conversion abilities available, it must as a minimum return {@code null}
-   * for a {@code null} field value, and return the field value unchanged if it is assignable to the type
-   * requested.</p>
-   * 
-   * @param <T> class to convert to
-   * @param clazz Java class to convert to
-   * @param field field whose data to convert
-   * @throws IllegalArgumentException if the requested target class is not appropriate for the field
-   * @return the converted field value
-   */
-  <T> T getFieldValue (Class<T> clazz, FudgeField field) throws IllegalArgumentException;
-  
-  /**
-   * Returns the value of the first field in the message that can be converted to the requested type, or {@code null} if
-   * none exists.
-   * 
-   * @param <T> class to convert to
-   * @param clazz Java class to convert to
-   * @param name field name
-   * @return the converted field value or {@code null}
-   */
-  <T> T getValue (Class<T> clazz, String name);
-  
-  /**
-   * Returns the value of the first field in the message that can be converted to the requested type, or {@code null} if
-   * none exists.
-   * 
-   * @param <T> class to convert to
-   * @param clazz Java class to convert to
-   * @param ordinal field ordinal
-   * @return the converted field value or {@code null}
-   */
-  <T> T getValue (Class<T> clazz, int ordinal);
 
   /**
-   * Returns the value of the first field in the message with the given name, or {@code null} if the name does not exist.
+   * Checks whether this container has any field which matches the given ordinal.
    * 
-   * @param name field name
-   * @return field value
+   * @param ordinal  the field ordinal to check
+   * @return true if this container has at least one field with the specified ordinal
+   */
+  boolean hasField(int ordinal);
+
+  /**
+   * Gets the list of all fields with the given ordinal.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same ordinal.
+   * This method returns all matching fields in the order of the container.
+   * 
+   * @param ordinal  the field ordinal
+   * @return the unmodifiable list of matching fields, not null
+   */
+  List<FudgeField> getAllByOrdinal(int ordinal);
+
+  /**
+   * Gets the first field with the given ordinal.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same ordinal.
+   * This method returns the first that matches.
+   * 
+   * @param ordinal  the field ordinal
+   * @return the first matching field, null if not found
+   */
+  FudgeField getByOrdinal(int ordinal);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the value of a field converted to a specific type.
+   * <p>
+   * This attempts to convert the given field to a specific value type.
+   * Depending on the underlying implementation this may use a {@link FudgeTypeDictionary}.
+   * <p>
+   * This conversion logic is at the message level as the field itself does not contain sufficient information.
+   * For example, the underlying {@link FudgeFieldType} may be shared between a number of encoding strategies.
+   * If an implementation does not have the ability to convert, it must return {@code null} for a {@code null}
+   * field value and the field value unchanged if it is assignable to the type requested.
+   * 
+   * @param <T>  the class to convert to
+   * @param clazz  the type to convert to, not null
+   * @param field  the field whose data to convert, null returns null
+   * @return the converted field value, null if the field value was null
+   * @throws IllegalArgumentException if the requested target class is not appropriate for the field
+   */
+  <T> T getFieldValue(Class<T> clazz, FudgeField field);
+
+  /**
+   * Gets the value of the first field with the given name.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same name.
+   * This method returns the value of the first that matches.
+   * 
+   * @param <T>  the class to convert to
+   * @param clazz  the type to convert to, not null
+   * @param name  the field name, null matches fields without a name
+   * @return the first matching field converted as requested, null if not found
+   */
+  <T> T getValue(Class<T> clazz, String name);
+
+  /**
+   * Gets the value of the first field with the given ordinal.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same ordinal.
+   * This method returns the value of the first that matches.
+   * 
+   * @param <T>  the class to convert to
+   * @param clazz  the type to convert to, not null
+   * @param ordinal  the field ordinal
+   * @return the converted field value, null if the field value was null
+   * @throws IllegalArgumentException if the requested target class is not appropriate for the field
+   */
+  <T> T getValue(Class<T> clazz, int ordinal);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the value of the first field with the given name as an {@code Object}.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same name.
+   * This method returns the value of the first that matches.
+   * 
+   * @param name  the field name, null matches fields without a name
+   * @return the first matching field, null if not found
    */
   Object getValue(String name);
-  
+
   /**
-   * Returns the value of the first field in the message with the given ordinal, or {@code null} if the ordinal does not exist.
+   * Gets the value of the first field with the given ordinal as an {@code Object}.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same ordinal.
+   * This method returns the value of the first that matches.
    * 
-   * @param ordinal ordinal index
-   * @return field value 
+   * @param ordinal  the field ordinal
+   * @return the first matching field, null if not found
    */
   Object getValue(int ordinal);
 
   /**
-   * Returns the value of the first field in the message with the given name that holds a {@code double} type, or {@code null} if no such field exists.
+   * Gets the value of the first field with the given name as a {@code Double}.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same name.
+   * This method returns the value of the first that matches with a type that can
+   * be converted to a double.
    * 
-   * @param fieldName field name
-   * @return field value
+   * @param name  the field name, null matches fields without a name
+   * @return the first matching field, null if not found
    */
-  Double getDouble(String fieldName);
+  Double getDouble(String name);
 
   /**
-   * Returns the value of the first field in the message with the given ordinal that holds a {@code double} type, or {@code null} if no such field exists.
+   * Gets the value of the first field with the given ordinal as a {@code Double}.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same ordinal.
+   * This method returns the value of the first that matches with a type that can
+   * be converted to a double.
    * 
-   * @param ordinal ordinal index
-   * @return field value
+   * @param ordinal  the field ordinal
+   * @return the first matching field, null if not found
    */
   Double getDouble(int ordinal);
 
   /**
-   * Returns the value of the first field in the message with the given name that holds a {@code float} type, or {@code null} if no such field exists.
+   * Gets the value of the first field with the given name as a {@code Float}.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same name.
+   * This method returns the value of the first that matches with a type that can
+   * be converted to a float.
    * 
-   * @param fieldName field name
-   * @return field value
+   * @param name  the field name, null matches fields without a name
+   * @return the first matching field, null if not found
    */
-  Float getFloat(String fieldName);
+  Float getFloat(String name);
 
   /**
-   * Returns the value of the first field in the message with the given ordinal that holds a {@code float} type, or {@code null} if no such field exists.
+   * Gets the value of the first field with the given ordinal as a {@code Float}.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same ordinal.
+   * This method returns the value of the first that matches with a type that can
+   * be converted to a float.
    * 
-   * @param ordinal ordinal index
-   * @return field value
+   * @param ordinal  the field ordinal
+   * @return the first matching field, null if not found
    */
   Float getFloat(int ordinal);
 
   /**
-   * Returns the value of the first field in the message with the given name that holds a {@code long} type, or {@code null} if no such field exists.
+   * Gets the value of the first field with the given name as a {@code Long}.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same name.
+   * This method returns the value of the first that matches with a type that can
+   * be converted to a long.
    * 
-   *  @param fieldName field name
-   *  @return field value
+   * @param name  the field name, null matches fields without a name
+   * @return the first matching field, null if not found
    */
-  Long getLong(String fieldName);
+  Long getLong(String name);
 
   /**
-   * Returns the value of the first field in the message with the given ordinal that holds a {@code long} type, or {@code null} if no such field exists.
+   * Gets the value of the first field with the given ordinal as a {@code Long}.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same ordinal.
+   * This method returns the value of the first that matches with a type that can
+   * be converted to a long.
    * 
-   *  @param ordinal ordinal index
-   *  @return field value
+   * @param ordinal  the field ordinal
+   * @return the first matching field, null if not found
    */
   Long getLong(int ordinal);
 
   /**
-   * Returns the value of the first field in the message with the given name that holds a {@code int} type, or {@code null} if no such field exists.
+   * Gets the value of the first field with the given name as an {@code Integer}.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same name.
+   * This method returns the value of the first that matches with a type that can
+   * be converted to an integer.
    * 
-   *  @param fieldName field name
-   *  @return field value
+   * @param name  the field name, null matches fields without a name
+   * @return the first matching field, null if not found
    */
-  Integer getInt(String fieldName);
+  Integer getInt(String name);
 
   /**
-   * Returns the value of the first field in the message with the given ordinal that holds a {@code int} type, or {@code null} if no such field exists.
+   * Gets the value of the first field with the given ordinal as an {@code Integer}.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same ordinal.
+   * This method returns the value of the first that matches with a type that can
+   * be converted to an integer.
    * 
-   *  @param ordinal ordinal index
-   *  @return field value
+   * @param ordinal  the field ordinal
+   * @return the first matching field, null if not found
    */
   Integer getInt(int ordinal);
 
   /**
-   * Returns the value of the first field in the message with the given name that holds a {@code short} type, or {@code null} if no such field exists.
+   * Gets the value of the first field with the given name as a {@code Short}.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same name.
+   * This method returns the value of the first that matches with a type that can
+   * be converted to a short.
    * 
-   *  @param fieldName field name
-   *  @return field value
+   * @param name  the field name, null matches fields without a name
+   * @return the first matching field, null if not found
    */
-  Short getShort(String fieldName);
+  Short getShort(String name);
 
   /**
-   * Returns the value of the first field in the message with the given ordinal that holds a {@code short} type, or {@code null} if no such field exists.
+   * Gets the value of the first field with the given ordinal as a {@code Short}.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same ordinal.
+   * This method returns the value of the first that matches with a type that can
+   * be converted to a short.
    * 
-   *  @param ordinal ordinal index
-   *  @return field value
+   * @param ordinal  the field ordinal
+   * @return the first matching field, null if not found
    */
   Short getShort(int ordinal);
 
   /**
-   * Returns the value of the first field in the message with the given name that holds a {@code byte} type, or {@code null} if no such field exists.
+   * Gets the value of the first field with the given name as a {@code Byte}.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same name.
+   * This method returns the value of the first that matches with a type that can
+   * be converted to a byte.
    * 
-   *  @param fieldName field name
-   *  @return field value
+   * @param name  the field name, null matches fields without a name
+   * @return the first matching field, null if not found
    */
-  Byte getByte(String fieldName);
+  Byte getByte(String name);
 
   /**
-   * Returns the value of the first field in the message with the given ordinal that holds a {@code byte} type, or {@code null} if no such field exists.
+   * Gets the value of the first field with the given ordinal as a {@code Byte}.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same ordinal.
+   * This method returns the value of the first that matches with a type that can
+   * be converted to a byte.
    * 
-   *  @param ordinal ordinal index
-   *  @return field value
+   * @param ordinal  the field ordinal
+   * @return the first matching field, null if not found
    */
   Byte getByte(int ordinal);
 
   /**
-   * Returns the value of the first field in the message with the given name that holds a {@code String} type, or {@code null} if no such field exists.
+   * Gets the value of the first field with the given name as a {@code String}.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same name.
+   * This method returns the value of the first that matches with a type that can
+   * be converted to a string.
    * 
-   *  @param fieldName field name
-   *  @return field value
+   * @param name  the field name, null matches fields without a name
+   * @return the first matching field, null if not found
    */
-  String getString(String fieldName);
+  String getString(String name);
 
   /**
-   * Returns the value of the first field in the message with the given ordinal that holds a {@code String} type, or {@code null} if no such field exists.
+   * Gets the value of the first field with the given ordinal as a {@code String}.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same ordinal.
+   * This method returns the value of the first that matches with a type that can
+   * be converted to a string.
    * 
-   *  @param ordinal ordinal index
-   *  @return field value
+   * @param ordinal  the field ordinal
+   * @return the first matching field, null if not found
    */
   String getString(int ordinal);
 
   /**
-   * Returns the value of the first field in the message with the given name that holds a {@code boolean} type, or {@code null} if no such field exists.
+   * Gets the value of the first field with the given name as a {@code Boolean}.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same name.
+   * This method returns the value of the first that matches with a type that can
+   * be converted to a boolean.
    * 
-   *  @param fieldName field name
-   *  @return field value
+   * @param name  the field name, null matches fields without a name
+   * @return the first matching field, null if not found
    */
-  Boolean getBoolean(String fieldName);
+  Boolean getBoolean(String name);
 
   /**
-   * Returns the value of the first field in the message with the given ordinal that holds a {@code boolean} type, or {@code null} if no such field exists.
+   * Gets the value of the first field with the given ordinal as a {@code Boolean}.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same ordinal.
+   * This method returns the value of the first that matches with a type that can
+   * be converted to a boolean.
    * 
-   *  @param ordinal ordinal index
-   *  @return field value
+   * @param ordinal  the field ordinal
+   * @return the first matching field, null if not found
    */
   Boolean getBoolean(int ordinal);
-  
+
   /**
-   * Returns the value of the first field in the message with the given name that holds a {@code message} type, or {@code null} if no such field exists.
+   * Gets the value of the first field with the given name as a {@code FudgeFieldContainer}.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same name.
+   * This method returns the value of the first that matches with a type that can
+   * be converted to a message.
    * 
-   *  @param name field name
-   *  @return field value
+   * @param name  the field name, null matches fields without a name
+   * @return the first matching field, null if not found
    */
   FudgeFieldContainer getMessage(String name);
-  
+
   /**
-   * Returns the value of the first field in the message with the given ordinal that holds a {@code message} type, or {@code null} if no such field exists.
+   * Gets the value of the first field with the given ordinal as a {@code FudgeFieldContainer}.
+   * <p>
+   * A container is ordered and may contain multiple fields with the same ordinal.
+   * This method returns the value of the first that matches with a type that can
+   * be converted to a message.
    * 
-   * @param ordinal ordinal index
-   * @return field value
+   * @param ordinal  the field ordinal
+   * @return the first matching field, null if not found
    */
   FudgeFieldContainer getMessage(int ordinal);
-  
-  /**
-   * Determine whether this container has any field which matches the name specified.
-   * 
-   * @param fieldName the name to check
-   * @return true iff this container has at least one field with the specified name
-   */
-  boolean hasField(String fieldName);
-  
-  /**
-   * Determine whether this container has any field which matches the ordinal specified.
-   * 
-   * @param ordinal the ordinal to check
-   * @return true iff this container has at least one field with the specified ordinal
-   */
-  boolean hasField(int ordinal);
-  
+
 }

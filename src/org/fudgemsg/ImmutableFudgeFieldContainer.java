@@ -16,17 +16,23 @@
 package org.fudgemsg;
 
 /**
- * <p>An extension for {@link FudgeFieldContainer} that marks it as immutable. Although
- * the base interface has no mutator methods, an implementation may implement the
- * {@link MutableFudgeFieldContainer} extension or otherwise allow modification.</p>
- * 
- * <p>A container that implements this interface <b>must not</b> allow any modifications
- * to the fields within the container after construction.</p>
- * 
- * @author t0rx
+ * A container of Fudge fields that should be effectively immutable.
+ * <p>
+ * The Fudge specification is built around messages containing a list of fields.
+ * This interface provides the high-level representation of the list of fields.
+ * <p>
+ * Each field may be referenced by a name or by an ordinal.
+ * All four combinations are possible - from both present to both absent.
+ * Methods provide the ability to lookup a field by both name or ordinal.
+ * <p>
+ * Applications working with messages should use this interface rather than
+ * {@link FudgeMsg} directly where possible for flexibility.
+ * <p>
+ * This interface intends implementations to be immutable however it should be
+ * thought of as read-only following construction.
  */
 public interface ImmutableFudgeFieldContainer extends FudgeFieldContainer {
-  
-  // no methods; this is just a placeholder
-  
+
+  // no additional methods
+
 }

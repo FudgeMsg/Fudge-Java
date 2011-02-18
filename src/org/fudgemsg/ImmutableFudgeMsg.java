@@ -16,58 +16,68 @@
 package org.fudgemsg;
 
 /**
- * <p>An implementation of a {@link ImmutableFudgeFieldContainer} that can be created as a copy of an
- * existing {@link FudgeFieldContainer}. For efficiency, the reference to a {@link FudgeContext} is
- * kept - the context is not copied, and so changes made to the context will be made visible through
- * an instance, for example the behavior of {@link #getFieldValue}. If this is not desired, create
- * a {@link ImmutableFudgeContext} from your underlying {@code FudgeContext} for use in cloning
- * messages.</p>
- * 
- * <p>Message fields are copied at one level deep only. Any sub-messages, or referenced objects may
- * be still be mutable.</p>
- * 
- * @author Andrew Griffin
+ * A immutable message in the Fudge system.
+ * <p>
+ * The message consists of a list of {@link FudgeMsgField Fudge fields}.
+ * This class holds the entire message in memory.
+ * <p>
+ * Applications are recommended to store and manipulate a {@link ImmutableFudgeFieldContainer}
+ * instance rather than this class for future flexibility.
+ * <p>
+ * This class can be created as a copy of an existing {@link FudgeFieldContainer}.
+ * For efficiency, the reference to a {@link FudgeContext} is kept and the context is not copied.
+ * In that scenario, changes made to the context will be made visible through this class, for
+ * example the behavior of {@link #getFieldValue}. If this is not desired, create a
+ * {@link ImmutableFudgeContext} from your underlying {@code FudgeContext} for use in cloning messages.
+ * Message fields are copied at one level deep only.
+ * Any sub-messages, or referenced objects may be still be mutable.
+ * <p>
+ * This class is intended to be immutable but not all contents will necessarily be immutable.
  */
 public class ImmutableFudgeMsg extends FudgeMsgBase implements ImmutableFudgeFieldContainer {
 
   /**
-   * Creates a new {@link ImmutableFudgeMsg} by copying a {@link FudgeMsg} or {@link ImmutableFudgeMsg} object.
-   * The new message will use the same {@link FudgeContext} context as the original message.
+   * Creates a new instance by copying another message.
+   * <p>
+   * The new instance will share the same Fudge context which may be undesirable as
+   * that context may be mutable.
    * 
-   * @param fudgeMsg the message to copy
+   * @param fudgeMsg  the message to copy, not null
    */
-  public ImmutableFudgeMsg (final FudgeMsgBase fudgeMsg) {
-    this (fudgeMsg, fudgeMsg.getFudgeContext ()); 
+  public ImmutableFudgeMsg(final FudgeMsgBase fudgeMsg) {
+    this(fudgeMsg, fudgeMsg.getFudgeContext());
   }
-  
+
   /**
    * Creates a new {@link ImmutableFudgeMsg} by copying fields from another {@link FudgeFieldContainer} using
    * the specified {@link FudgeContext} for type resolution. 
    * 
-   * @param fields the message to copy
-   * @param fudgeContext the context to use for the new message
+   * @param fields  the message to copy, not null
+   * @param fudgeContext  the context to use for the new message, not null
    */
-  public ImmutableFudgeMsg (final FudgeFieldContainer fields, final FudgeContext fudgeContext) {
-    super (fields, fudgeContext);
+  public ImmutableFudgeMsg(final FudgeFieldContainer fields, final FudgeContext fudgeContext) {
+    super(fields, fudgeContext);
   }
-  
+
   /**
    * Creates an immutable empty message.
    * 
-   *  @param fudgeContext host context
+   * @param fudgeContext  the context, not null
    */
-  protected ImmutableFudgeMsg (final FudgeContext fudgeContext) {
-    super (fudgeContext);
+  protected ImmutableFudgeMsg(final FudgeContext fudgeContext) {
+    super(fudgeContext);
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * {@inheritDoc}
    */
   @Override
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!super.equals (o)) return false;
-    return (o instanceof ImmutableFudgeMsg);
+  public boolean equals(final Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    return obj instanceof ImmutableFudgeMsg && super.equals(obj);
   }
 
 }
