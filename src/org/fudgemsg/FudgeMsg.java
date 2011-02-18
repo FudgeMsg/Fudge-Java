@@ -69,7 +69,7 @@ public class FudgeMsg extends FudgeMsgBase implements MutableFudgeFieldContainer
     if (field == null) {
       throw new NullPointerException("FudgeField must not be null");
     }
-    getFields().add(new FudgeMsgField(field));
+    getFields().add(FudgeMsgField.of(field));
   }
 
   /**
@@ -146,7 +146,7 @@ public class FudgeMsg extends FudgeMsgBase implements MutableFudgeFieldContainer
     if (ordinal != null) {
       ordinalAsShort = ordinal.shortValue();
     }
-    FudgeMsgField field = new FudgeMsgField(type, value, name, ordinalAsShort);
+    FudgeMsgField field = FudgeMsgField.of(type, value, name, ordinalAsShort);
     getFields().add(field);
   }
 
@@ -185,7 +185,7 @@ public class FudgeMsg extends FudgeMsgBase implements MutableFudgeFieldContainer
       if ((field.getOrdinal() != null) && (field.getName() == null)) {
         String nameFromTaxonomy = taxonomy.getFieldName(field.getOrdinal());
         if (nameFromTaxonomy != null) {
-          field = new FudgeMsgField(field.getType(), field.getValue(), nameFromTaxonomy, field.getOrdinal());
+          field = FudgeMsgField.of(field.getType(), field.getValue(), nameFromTaxonomy, field.getOrdinal());
           getFields().set(i, field);
         }
       }
@@ -195,7 +195,7 @@ public class FudgeMsg extends FudgeMsgBase implements MutableFudgeFieldContainer
       } else if (field.getValue() instanceof FudgeFieldContainer) {
         FudgeMsg subMsg = new FudgeMsg((FudgeFieldContainer) field.getValue(), getFudgeContext());
         subMsg.setNamesFromTaxonomy(taxonomy);
-        field = new FudgeMsgField(field.getType(), subMsg, field.getName(), field.getOrdinal());
+        field = FudgeMsgField.of(field.getType(), subMsg, field.getName(), field.getOrdinal());
         getFields().set(i, field);
       }
     }

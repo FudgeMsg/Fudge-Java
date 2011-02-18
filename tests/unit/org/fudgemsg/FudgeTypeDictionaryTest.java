@@ -31,15 +31,10 @@ import org.fudgemsg.types.SecondaryFieldType;
 import org.junit.Test;
 
 /**
- * 
- *
- * @author Kirk Wylie
+ * Test the Fudge type dictionary.
  */
 public class FudgeTypeDictionaryTest {
-  
-  /**
-   * 
-   */
+
   @Test
   public void simpleTypeLookup() {
     FudgeFieldType<?> type = null;
@@ -53,10 +48,7 @@ public class FudgeTypeDictionaryTest {
     assertNotNull(type);
     assertEquals(PrimitiveFieldTypes.BOOLEAN_TYPE.getTypeId(), type.getTypeId());
   }
-  
-  /**
-   * 
-   */
+
   @Test
   public void simpleTypeConversion () {
     final FudgeTypeDictionary dictionary = new FudgeTypeDictionary ();
@@ -70,8 +62,8 @@ public class FudgeTypeDictionaryTest {
     assertNotSame (uuidType, byteType);
     assertEquals (((SecondaryFieldType<?,?>)uuidType).getPrimaryType ().getJavaType (), byteType.getJavaType ());
     
-    final FudgeField uuidField = new FudgeMsgField (uuidType, uuidIn, null, null);
-    final FudgeField byteField = new FudgeMsgField (byteType, byteIn, null, null);
+    final FudgeField uuidField = FudgeMsgField.of(uuidType, uuidIn);
+    final FudgeField byteField = FudgeMsgField.of(byteType, byteIn);
     
     UUID uuidOut = dictionary.getFieldValue (uuidIn.getClass (), uuidField); // no conversion needed
     assertNotNull (uuidOut);
@@ -86,7 +78,7 @@ public class FudgeTypeDictionaryTest {
     assertNotNull (byteOut);
     assertArrayEquals (byteIn, byteOut);
   }
-  
+
   private static class Foo {
     private final byte[] _data;
     Foo (final byte[] data) {
@@ -108,7 +100,7 @@ public class FudgeTypeDictionaryTest {
       return _data;
     }
   }
-  
+
   private static class Bar {
     private final int _data;
     Bar (final int data) {
@@ -118,7 +110,7 @@ public class FudgeTypeDictionaryTest {
       return _data;
     }
   }
-  
+
   private static class FooSecondaryType extends SecondaryFieldType<Foo,byte[]> {
     
     static final FooSecondaryType INSTANCE = new FooSecondaryType ();
@@ -138,7 +130,7 @@ public class FudgeTypeDictionaryTest {
     }
     
   }
-  
+
   private static class BarSecondaryType extends SecondaryFieldType<Bar,Integer> {
     
     static final BarSecondaryType INSTANCE = new BarSecondaryType ();
@@ -156,68 +148,52 @@ public class FudgeTypeDictionaryTest {
     public Bar primaryToSecondary (Integer object) {
       return new Bar (object);
     }
-    
   }
-  
-  /**
-   * 
-   */
+
   @Test
   public void complexTypeConversion () {
     final FudgeTypeDictionary dictionary = new FudgeTypeDictionary ();
     dictionary.addType (FooSecondaryType.INSTANCE);
     
     final Foo fooIn = new Foo ();
-    final FudgeField fooField = new FudgeMsgField (dictionary.getByJavaType (Foo.class), fooIn, null, null);
+    final FudgeField fooField = FudgeMsgField.of(dictionary.getByJavaType(Foo.class), fooIn);
     final UUID uuid = dictionary.getFieldValue (UUID.class, fooField);
     assertNotNull (uuid);
-    final FudgeField uuidField = new FudgeMsgField (dictionary.getByJavaType (UUID.class), uuid, null, null);
+    final FudgeField uuidField = FudgeMsgField.of(dictionary.getByJavaType(UUID.class), uuid);
     final Foo fooOut = dictionary.getFieldValue (Foo.class, uuidField);
     assertNotNull (fooOut);
     assertArrayEquals (fooIn.getData (), fooOut.getData ());
   }
-  
-  /**
-   * 
-   */
+
   @Test(expected=IllegalArgumentException.class)
   public void secondaryToNullError () {
     final FudgeTypeDictionary dictionary = new FudgeTypeDictionary ();
     final UUID uuid = UUID.randomUUID ();
-    final FudgeField uuidField = new FudgeMsgField (dictionary.getByJavaType (UUID.class), uuid, null, null);
+    final FudgeField uuidField = FudgeMsgField.of(dictionary.getByJavaType(UUID.class), uuid);
     dictionary.getFieldValue (Thread.class, uuidField);
   }
-  
-  /**
-   * 
-   */
+
   @Test(expected=IllegalArgumentException.class)
   public void secondaryToNoCommonBaseError () {
     final FudgeTypeDictionary dictionary = new FudgeTypeDictionary ();
     dictionary.addType (BarSecondaryType.INSTANCE);
     final UUID uuid = UUID.randomUUID ();
-    final FudgeField uuidField = new FudgeMsgField (dictionary.getByJavaType (UUID.class), uuid, null, null);
+    final FudgeField uuidField = FudgeMsgField.of(dictionary.getByJavaType(UUID.class), uuid);
     dictionary.getFieldValue (Bar.class, uuidField);
   }
-  
-  /**
-   * 
-   */
+
   @Test(expected=IllegalArgumentException.class)
   public void primaryToNullError () {
     final FudgeTypeDictionary dictionary = new FudgeTypeDictionary ();
-    final FudgeField stringField = new FudgeMsgField (dictionary.getByJavaType (String.class), "hello world", null, null);
+    final FudgeField stringField = FudgeMsgField.of(dictionary.getByJavaType(String.class), "hello world");
     dictionary.getFieldValue (Thread.class, stringField);
   }
-  
-  /**
-   * 
-   */
+
   @Test(expected=IllegalArgumentException.class)
   public void primaryToBadSecondaryError () {
     final FudgeTypeDictionary dictionary = new FudgeTypeDictionary ();
     dictionary.addType (BarSecondaryType.INSTANCE);
-    final FudgeField stringField = new FudgeMsgField (dictionary.getByJavaType (String.class), "hello world", null, null);
+    final FudgeField stringField = FudgeMsgField.of(dictionary.getByJavaType(String.class), "hello world");
     dictionary.getFieldValue (Bar.class, stringField);
   }
 

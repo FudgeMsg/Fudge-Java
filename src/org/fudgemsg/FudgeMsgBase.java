@@ -58,8 +58,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
   /**
    * Constructor taking a set of fields and a Fudge context.
    * <p>
-   * The fields from the container are copied into this message, creating a new
-   * field for each supplied field.
+   * The fields from the given container are converted to be immutable.
    * 
    * @param fields  the initial set of fields, not null
    * @param fudgeContext  the context to use for type resolution and other services, not null
@@ -73,7 +72,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
     }
     _fudgeContext = fudgeContext;
     for (FudgeField field : fields.getAllFields()) {
-      _fields.add(new FudgeMsgField(field));
+      _fields.add(FudgeMsgField.of(field));
     }
   }
 
@@ -216,7 +215,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
       if (field.getOrdinal() != null && field.getName() == null) {
         String nameFromTaxonomy = taxonomy.getFieldName(field.getOrdinal());
         if (nameFromTaxonomy != null) {
-          field = new FudgeMsgField(field.getType(), field.getValue(), nameFromTaxonomy, field.getOrdinal());
+          field = FudgeMsgField.of(field.getType(), field.getValue(), nameFromTaxonomy, field.getOrdinal());
           _fields.set(i, field);
         }
       }
@@ -226,7 +225,7 @@ public class FudgeMsgBase implements Serializable, FudgeFieldContainer, Iterable
       } else if (field.getValue() instanceof FudgeFieldContainer) {
         FudgeMsg subMsg = new FudgeMsg((FudgeFieldContainer) field.getValue(), getFudgeContext());
         subMsg.setNamesFromTaxonomy(taxonomy);
-        field = new FudgeMsgField(field.getType(), subMsg, field.getName(), field.getOrdinal());
+        field = FudgeMsgField.of(field.getType(), subMsg, field.getName(), field.getOrdinal());
         _fields.set(i, field);
       }
     }

@@ -31,13 +31,12 @@ import org.fudgemsg.types.PrimitiveFieldTypes;
 import org.junit.Test;
 
 /**
- * 
- *
- * @author Kirk Wylie
+ * Test FudgeMsg.
  */
 public class FudgeMsgTest {
+
   private static final FudgeContext s_fudgeContext = new FudgeContext();
-  
+
   /**
    * 
    */

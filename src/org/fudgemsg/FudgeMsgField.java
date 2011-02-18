@@ -18,38 +18,117 @@ package org.fudgemsg;
 import java.io.Serializable;
 
 /**
- * A concrete implementation of {@link FudgeField} suitable for inclusion in
- * a pre-constructed {@link FudgeMsg} or a stream of data.
- *
- * @author Kirk Wylie
+ * A single immutable field in the Fudge system.
+ * <p>
+ * This is the standard immutable implementation of {@link FudgeField}.
+ * <p>
+ * This class is immutable and thread-safe but is not final.
  */
-public class FudgeMsgField implements FudgeField, Serializable, Cloneable {
-  @SuppressWarnings("unchecked")
-  private final FudgeFieldType _type;
-  private final Object _value;
-  private final String _name;
-  private final Short _ordinal;
-  
+public class FudgeMsgField implements FudgeField, Serializable {
+  // TODO make final, rename to ImmutableFudgeField
+
   /**
-   * Creates a new {@link FudgeMsgField}.
+   * The Fudge field type.
+   */
+  private final FudgeFieldType<?> _type;
+  /**
+   * The value.
+   */
+  private final Object _value;
+  /**
+   * The optional field name.
+   */
+  private final String _name;
+  /**
+   * The optional field ordinal.
+   */
+  private final Short _ordinal;
+
+  /**
+   * Obtains an immutable version of the specified field.
+   * <p>
+   * If the field is an instance of this class, it is returned, otherwise a new
+   * instance is created.
    * 
-   * @param type the underlying field type
-   * @param value the field value
-   * @param name the name of the field, or {@code null} to omit
-   * @param ordinal the ordinal index of the field, or {@code null} to omit
+   * @param field  the field to obtain data from, not null
+   * @return the equivalent immutable field, not null
+   */
+  public static FudgeMsgField of(FudgeField field) {
+    if (field instanceof FudgeMsgField) {
+      return (FudgeMsgField) field;
+    }
+    return FudgeMsgField.of(field.getType(), field.getValue(), field.getName(), field.getOrdinal());
+  }
+
+  /**
+   * Obtains a field from the type, value, name and ordinal.
+   * 
+   * @param type  the Fudge field type, not null
+   * @param value  the payload value, may be null
+   * @return the created immutable field, not null
+   */
+  public static FudgeMsgField of(FudgeFieldType<?> type, Object value) {
+    return new FudgeMsgField(type, value, null, null);
+  }
+
+  /**
+   * Obtains a field from the type, value, name and ordinal.
+   * 
+   * @param type  the Fudge field type, not null
+   * @param value  the payload value, may be null
+   * @param name  the optional field name, null if no name
+   * @return the created immutable field, not null
+   */
+  public static FudgeMsgField of(FudgeFieldType<?> type, Object value, String name) {
+    return new FudgeMsgField(type, value, name, null);
+  }
+
+  /**
+   * Obtains a field from the type, value, name and ordinal.
+   * 
+   * @param type  the Fudge field type, not null
+   * @param value  the payload value, may be null
+   * @param ordinal  the optional field ordinal, null if no ordinal
+   * @return the created immutable field, not null
+   */
+  public static FudgeMsgField of(FudgeFieldType<?> type, Object value, Short ordinal) {
+    return new FudgeMsgField(type, value, null, ordinal);
+  }
+
+  /**
+   * Obtains a field from the type, value, name and ordinal.
+   * 
+   * @param type  the Fudge field type, not null
+   * @param value  the payload value, may be null
+   * @param name  the optional field name, null if no name
+   * @param ordinal  the optional field ordinal, null if no ordinal
+   * @return the created immutable field, not null
+   */
+  public static FudgeMsgField of(FudgeFieldType<?> type, Object value, String name, Short ordinal) {
+    return new FudgeMsgField(type, value, name, ordinal);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Constructs a field from the type, value, name and ordinal.
+   * 
+   * @param type  the Fudge field type, not null
+   * @param value  the payload value, may be null
+   * @param name  the optional field name, null if no name
+   * @param ordinal  the optional field ordinal, null if no ordinal
    */
   public FudgeMsgField(FudgeFieldType<?> type, Object value, String name, Short ordinal) {
-    if(type == null) {
-      throw new NullPointerException("Must specify a type for this field.");
+    if (type == null) {
+      throw new NullPointerException("Type must not be null");
     }
     _type = type;
     _value = value;
     _name = name;
     _ordinal = ordinal;
   }
-  
-  /**
-   * Creates a new {@link FudgeMsgField} as a copy of another.
+
+    /**
+   * Constructs a field as a copy of another.
    * 
    * @param field the {@code FudgeMsgField} to copy.
    */
@@ -57,97 +136,87 @@ public class FudgeMsgField implements FudgeField, Serializable, Cloneable {
     this(field.getType(), field.getValue(), field.getName(), field.getOrdinal());
   }
 
-  /**
-   * {@inheritDoc}
-   */
+//-------------------------------------------------------------------------
+  /** {@inheritDoc} */
   @Override
   public FudgeFieldType<?> getType() {
     return _type;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public Object getValue() {
     return _value;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public String getName() {
     return _name;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public Short getOrdinal() {
     return _ordinal;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * {@inheritDoc}
+   * Compares this field to another field.
+   * <p>
+   * This checks the type, value, name and ordinal.
+   * 
+   * @param obj  the other field, null returns false
+   * @return true if equal
    */
   @Override
-  public FudgeMsgField clone() {
-    Object cloned;
-    try {
-      cloned = super.clone();
-    } catch (CloneNotSupportedException e) {
-      throw new RuntimeException("This can't happen.");
+  public boolean equals(final Object obj) {
+    if (obj == null) {
+      return false;
     }
-    return (FudgeMsgField) cloned;
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof FudgeMsgField) {
+      FudgeMsgField other = (FudgeMsgField) obj;
+      return getType().equals(other.getType()) &&
+          equal(getOrdinal(), other.getOrdinal()) &&
+          equal(getName(), other.getName()) &&
+          equal(getValue(), other.getValue());
+    }
+    return false;
+  }
+
+  private boolean equal(final Object a, final Object b) {
+    return a == b || (a != null && a.equals(b));
   }
 
   /**
-   * {@inheritDoc}
+   * Gets a string description of the field.
+   * 
+   * @return the description, not null
    */
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("Field[");
-    if(_name != null) {
+    if (_name != null) {
       sb.append(_name);
-      if(_ordinal == null) {
+      if (_ordinal == null) {
         sb.append(":");
       } else {
         sb.append(",");
       }
     }
-    if(_ordinal != null) {
+    if (_ordinal != null) {
       sb.append(_ordinal).append(":");
     }
-      
+
     sb.append(_type);
     sb.append("-").append(_value);
     sb.append("]");
     return sb.toString();
   }
-  
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean equals (final Object o) {
-    if (o == null) return false;
-    if (o == this) return true;
-    if (!(o instanceof FudgeMsgField)) return false;
-    FudgeMsgField fmf = (FudgeMsgField)o;
-    if (!getType ().equals (fmf.getType ())
-      || refsDifferent (getOrdinal (), fmf.getOrdinal ())
-      || refsDifferent (getName (), fmf.getName ())
-      || refsDifferent (getValue (), fmf.getValue ())) return false;
-    return true;
-  }
-  
-  private <T> boolean refsDifferent (final T a, final T b) {
-    if (a == b) return false;
-    if ((a == null) || (b == null)) return true;
-    return !a.equals (b);
-  }
-  
+
 }
