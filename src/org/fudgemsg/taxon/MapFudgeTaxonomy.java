@@ -33,6 +33,11 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 public class MapFudgeTaxonomy implements FudgeTaxonomy {
 
   /**
+   * An empty taxonomy.
+   */
+  public static final FudgeTaxonomy EMPTY = new MapFudgeTaxonomy();
+
+  /**
    * The map keyed by ordinal.
    */
   private final Map<Integer, String> _ordinalToNameMap;
@@ -40,6 +45,14 @@ public class MapFudgeTaxonomy implements FudgeTaxonomy {
    * The map keyed by name.
    */
   private final Map<String, Integer> _nameToOrdinalMap;
+
+  /**
+   * Creates a new empty taxonomy.
+   */
+  private MapFudgeTaxonomy() {
+    _ordinalToNameMap = Collections.emptyMap();
+    _nameToOrdinalMap = Collections.emptyMap();
+  }
 
   /**
    * Creates a new taxonomy initialized by the supplied map.
