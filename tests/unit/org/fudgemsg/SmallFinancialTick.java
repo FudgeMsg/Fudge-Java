@@ -15,10 +15,6 @@
  */
 package org.fudgemsg;
 
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-
 import java.io.Serializable;
 
 /**

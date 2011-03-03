@@ -19,7 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.fudgemsg.FudgeFieldPrefixCodec;
 import org.junit.Test;
 
 /**

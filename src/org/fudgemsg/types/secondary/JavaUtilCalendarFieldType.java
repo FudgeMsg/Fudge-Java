@@ -151,7 +151,8 @@ public class JavaUtilCalendarFieldType extends SecondaryFieldTypeBase<Calendar, 
    */
   @Override
   public boolean canConvertPrimary(Class<?> javaType) {
-    return FudgeDateTime.class.isAssignableFrom(javaType) || FudgeDate.class.isAssignableFrom(javaType)
+    return FudgeDateTime.class.isAssignableFrom(javaType)
+        || FudgeDate.class.isAssignableFrom(javaType)
         || FudgeTime.class.isAssignableFrom(javaType);
   }
 
