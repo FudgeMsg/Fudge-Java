@@ -126,7 +126,10 @@
 		<mkdir dir="${docs.dir}/javadoc" />
 		<javadoc sourcepath="${src.dir}" destdir="${docs.dir}/javadoc"
 			classpathref="lib.path.id" author="false" windowtitle="${javadocs.windowtitle}"
-			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}" />
+			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}">
+          <link href="http://download.oracle.com/javase/6/docs/api/" />
+          <link href="http://threeten.sourceforge.net/apidocs/" />
+	    </javadoc>
 	</target>
 
 	<target name="compile-tests-mkdir">
@@ -157,7 +160,7 @@
 			</fileset>
 			<fileset dir="${tests.dir}/interop" erroronmissingdir="false">
 				<exclude name="**/*.java" />
-			</fileset> 
+			</fileset>
 		</copy>
 	</target>
 	
@@ -221,13 +224,17 @@
 
 		<!-- load generated version properties file -->
 		<property file="${classes.dir}/${ant.project.name}.properties" />
+
+		<!-- setup correct versioned properties -->
+		<property name="jar.file" value="${jar.file.base}-${version}.jar" />
+		<property name="src.jar.file" value="${src.jar.file.base}-${version}.jar" />
+		<property name="javadocs.jar.file" value="${javadocs.jar.file.base}-${version}.jar" />
 	</target>
 
 	<target name="jar" depends="version, compile"
 		description="--> make a jar file for this project">
 		<jar destfile="${jar.file}">
 			<fileset dir="${classes.dir}" />
-			<fileset dir="${tests.classes.dir}" />
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Build-Version" value="${version}" />
@@ -250,7 +257,7 @@
 	<target name="javadoc-jar" depends="version, javadoc"
 		description="--> make a javadoc jar file for this project">
 		<jar destfile="${javadocs.jar.file}" basedir="${docs.dir}/javadoc"
-			compress="{$jar.compress}" />
+			compress="${jar.compress}" />
 	</target>
 
 	<target name="publish" depends="clean-build, jar"
@@ -269,11 +276,13 @@
 			message="project ${ant.project.name} published locally with version ${version}" />
 	</target>
 
-	<target name="dist" depends="clean,jar">
+	<target name="create-dist" depends="clean,jar,src-jar,javadoc-jar">
 		<mkdir dir="${dist.dir}" />
 		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/LICENSE.txt" failonerror="false"/>
 		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/README.txt" failonerror="false"/>
 		<copy todir="${dist.dir}/${dist.name}" file="${jar.file}" />
+		<copy todir="${dist.dir}/${dist.name}" file="${src.jar.file}" />
+		<copy todir="${dist.dir}/${dist.name}" file="${javadocs.jar.file}" />
 		<copy todir="${dist.dir}/${dist.name}/config" failonerror="false">
 			<fileset dir="${basedir}/config"/>
 		</copy>
@@ -292,17 +301,20 @@
 		<ivy:retrieve type="jar" pattern="${dist.dir}/${dist.name}/lib/[organization]-[module]-[artifact]-[revision].[ext]" />
 	</target>
 
-	<target name="tarball" depends="dist" description="--> generate a tarball for distribution">
+	<target name="tarball" depends="create-dist">
 		<tar destfile="${dist.dir}/${dist.name}-${version}.tar" basedir="${dist.dir}">
 			<include name="${dist.name}/**/*" />
 		</tar>
 		<bzip2 src="${dist.dir}/${dist.name}-${version}.tar" destfile="${dist.dir}/${dist.name}-${version}.tar.bz2" />
 	</target>
 
-	<target name="zipfile" depends="dist" description="--> generate a zip file for distribution">
+	<target name="zipfile" depends="create-dist">
 		<zip destfile="${dist.dir}/${dist.name}-${version}.zip" basedir="${dist.dir}">
 			<include name="${dist.name}/**/*" />
 		</zip>
+	</target>
+
+	<target name="dist" depends="create-dist,tarball,zipfile" description="--> generate the distribution">
 	</target>
 
 	<target name="clean-local" depends="load-ivy"
