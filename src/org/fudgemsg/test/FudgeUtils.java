@@ -31,12 +31,10 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.UnknownFudgeFieldValue;
 
 /**
- * 
- *
- * @author Jim Moores
+ * Utilities for testing.
  */
 public class FudgeUtils {
-  
+
   /**
    * @param expectedMsg [documentation not available]
    * @param actualMsg [documentation not available]
@@ -138,7 +136,7 @@ public class FudgeUtils {
     });
     return expectedFields;
   }
-  
+
   /**
    * @param expected [documentation not available]
    * @param actual [documentation not available]
