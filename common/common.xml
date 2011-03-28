@@ -226,9 +226,10 @@
 		<property file="${classes.dir}/${ant.project.name}.properties" />
 
 		<!-- setup correct versioned properties -->
-		<property name="jar.file" value="${jar.file.base}-${version}.jar" />
-		<property name="src.jar.file" value="${src.jar.file.base}-${version}.jar" />
-		<property name="javadocs.jar.file" value="${javadocs.jar.file.base}-${version}.jar" />
+	    <property name="release.version" value="" />
+		<property name="jar.file" value="${jar.file.base}${release.version}.jar" />
+		<property name="src.jar.file" value="${src.jar.file.base}${release.version}.jar" />
+		<property name="javadocs.jar.file" value="${javadocs.jar.file.base}${release.version}.jar" />
 	</target>
 
 	<target name="jar" depends="version, compile"
